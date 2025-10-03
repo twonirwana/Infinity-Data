@@ -18,18 +18,4 @@ public class FactionFilters {
     private List<FilterItem> extras;
     private List<FilterItem> points;
     private List<SWCFilterItem> swc;
-
-    public List<FilterItem> getByType(final FilterType filterType) {
-        return switch (filterType) {
-            case peripheral -> peripheral;
-            case category -> category;
-            case ammunition -> ammunition;
-            case chars -> chars;
-            case type -> type;
-            case equip -> equip;
-            case skills -> skills;
-            case weapons -> weapons;
-            case extras -> extras;
-        };
-    }
 }

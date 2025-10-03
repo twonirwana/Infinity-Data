@@ -1,7 +1,5 @@
 package de.twonirwana.infinity.model.unit;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Data;
 
 import java.util.List;

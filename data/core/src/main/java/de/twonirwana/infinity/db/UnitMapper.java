@@ -392,9 +392,7 @@ public class UnitMapper {
     private static List<String> getUnitPeripheral(ProfileOption profileOption, Map<Integer, String> peripheralFilter) {
         return profileOption.getPeripheral().stream()
                 .filter(Objects::nonNull)
-                .map(pi -> {
-                    return peripheralFilter.get(pi.getId());
-                })
+                .map(pi -> peripheralFilter.get(pi.getId()))
                 .filter(Objects::nonNull)
                 .toList();
     }
