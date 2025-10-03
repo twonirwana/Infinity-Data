@@ -1,0 +1,10 @@
+.idea/
+.gradle/
+build/
+app/build
+data/build
+data/api/build
+data/core/build
+out/
+resources/
+archive/
