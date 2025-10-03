@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title th:text="${unitOption.optionName}">Option Name</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f7f6;
+        }
+
+        .container {
+            max-width: 90%;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .trooper-profile {
+            margin-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .weapon {
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr {
+            background-color: #fff; /* Ensure single row has a background */
+        }
+
+        tbody tr:hover {
+            background-color: #e8f4f8;
+        }
+
+        /* Styles for the new skills section */
+        .skills-section {
+            margin-top: 5px;
+            padding-top: 5px;
+            /* Make this a flex container */
+            display: flex;
+            align-items: center; /* Vertically align title and list */
+            gap: 15px; /* Space between title and list */
+        }
+
+        .skills-section h2 {
+            margin: 0; /* Remove default margins */
+            white-space: nowrap; /* Prevent title from wrapping */
+        }
+
+        .skills-list {
+            display: flex; /* Arrange items horizontally */
+            flex-wrap: wrap; /* Allow items to wrap */
+            gap: 8px; /* Add space between skill tags */
+            list-style-type: none; /* Remove list bullets */
+            padding: 0; /* Remove default ul padding */
+            margin: 0;
+        }
+
+        .skills-list li {
+            background-color: #eaf2f8; /* Light blue tag background */
+            padding: 5px 12px;
+            border-radius: 15px; /* Rounded corners for a "pill" shape */
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        .image-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+        }
+
+        .
+    </style>
+</head>
+<body>
+<h1 th:text="${unitOption.optionName}">Option Name</h1>
+<div th:each="trooper : ${unitOption.allTrooper}">
+    <div class="container">
+        <div class="trooper-profile" th:each="trooperProfile : ${trooper.profiles}">
+            <h2>
+                <img th:src="@{image/{imageName}(imageName=${trooperProfile.logo})}"
+                     alt="unit logo" width="100" height="100">
+                <span th:text="${trooperProfile.name}">Trooper Profile Name</span>
+            </h2>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>MOV</th>
+                    <th>CC</th>
+                    <th>BS</th>
+                    <th>PH</th>
+                    <th>WIP</th>
+                    <th>ARM</th>
+                    <th>BTS</th>
+                    <th th:text="${trooperProfile.structure ? 'STR' : 'VITA'}">Wounds</th>
+                    <th>S</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:text="${trooperProfile.movementInInchString}">0-0</td>
+                    <td th:text="${trooperProfile.closeCombat}">0</td>
+                    <td th:text="${trooperProfile.ballisticSkill}">0</td>
+                    <td th:text="${trooperProfile.physique}">0</td>
+                    <td th:text="${trooperProfile.willpower}">0</td>
+                    <td th:text="${trooperProfile.armor}">0</td>
+                    <td th:text="${trooperProfile.bioTechnologicalShield}">0</td>
+                    <td th:text="${trooperProfile.wounds}">0</td>
+                    <td th:text="${trooperProfile.silhouette}">0</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="skills-section"
+                 th:if="${trooperProfile.equipment != null and not #lists.isEmpty(trooperProfile.equipment)}">
+                <h3>Equipment: </h3>
+                <ul class="skills-list">
+                    <li th:each="equipment : ${trooperProfile.equipment}" th:text="${equipment.nameAndExtra}">Equipment
+                        Name
+                    </li>
+                </ul>
+            </div>
+            <div class="skills-section"
+                 th:if="${trooperProfile.skills != null and not #lists.isEmpty(trooperProfile.skills)}">
+                <h3>Skills: </h3>
+                <ul class="skills-list">
+                    <li th:each="skill : ${trooperProfile.skills}" th:text="${skill.nameAndExtra}">Skill Name</li>
+                </ul>
+            </div>
+            <div class="weapon">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Weapon Name</th>
+                        <th>Range</th>
+                        <th>PS</th>
+                        <th>Burst</th>
+                        <th>Ammo</th>
+                        <th>Traits</th>
+                        <th>Extra</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="weapon : ${trooperProfile.weapons}">
+                        <td th:text="${weapon.prettyName}"></td>
+                        <td>
+                            <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
+                                 th:text="${range.toInchString()}"
+                                 th:style="'background-color:' + ${modifierColorMap.get(range.modifier())}">
+                            </div>
+                        </td>
+                        <td th:text="${weapon.damage}"></td>
+                        <td th:text="${weapon.burst}"></td>
+                        <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+                        <td th:text="${weapon.propertiesString}"></td>
+                        <td th:text="${weapon.extraString}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="image-container">
+                <div th:each="imageName : ${trooperProfile.imageNames}">
+                    <img th:src="@{image/{fileName}(fileName=${imageName})}"
+                         alt="unit image" height="300">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
