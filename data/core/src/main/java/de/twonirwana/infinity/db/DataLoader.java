@@ -201,7 +201,7 @@ public class DataLoader {
     }
 
     private static Metadata loadMetadata(boolean forceUpdate) throws IOException, URISyntaxException {
-        createFolderIfNotExists(META_DATA_FILE_PATH);
+        createFolderIfNotExists(RECOURCES_FOLDER);
         Path path = Paths.get(META_DATA_FILE_PATH);
         if (!path.toFile().exists() || forceUpdate) {
             log.info("Loading Metadata");
