@@ -48,6 +48,14 @@ public class TrooperProfile {
     String logo;
     List<String> imageNames;
 
+    public String prettySkills() {
+        return skills.stream().map(Skill::getNameAndExtra).collect(Collectors.joining(", "));
+    }
+
+    public String prettyEquipments() {
+        return equipment.stream().map(Equipment::getNameAndExtra).collect(Collectors.joining(", "));
+    }
+
     /**
      * Convert a value from CM to 'CB Inches' - so, 5 per 2.
      */

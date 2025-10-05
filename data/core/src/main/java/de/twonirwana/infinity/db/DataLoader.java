@@ -89,18 +89,18 @@ public class DataLoader {
         Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
                 .filter(s -> Paths.get(IMAGE_DATA_FILE_FORMAT.formatted(s.getId(), s.getSlug())).toFile().exists())
                 .collect(Collectors.toMap(Function.identity(), s -> deserializeSectorialImage(Paths.get(IMAGE_DATA_FILE_FORMAT.formatted(s.getId(), s.getSlug())))));
-
-        downloadAllUnitImage(sectorialImageMap);
-        downloadAllUnitLogos(sectorialListMap.values().stream()
-                .flatMap(u -> u.getUnits().stream())
-                .flatMap(u -> u.getProfileGroups().stream())
-                .flatMap(g -> g.getProfiles().stream())
-                .map(Profile::getLogo)
-                .collect(Collectors.toSet())
-        );
-        downloadAllSectorialLogos(metadata.getFactions().stream().map(Faction::getLogo).collect(Collectors.toSet()));
-        copyNewVersionIntoArchive(sectorialListMap);
-
+        if (update) {
+            downloadAllUnitImage(sectorialImageMap);
+            downloadAllUnitLogos(sectorialListMap.values().stream()
+                    .flatMap(u -> u.getUnits().stream())
+                    .flatMap(u -> u.getProfileGroups().stream())
+                    .flatMap(g -> g.getProfiles().stream())
+                    .map(Profile::getLogo)
+                    .collect(Collectors.toSet())
+            );
+            downloadAllSectorialLogos(metadata.getFactions().stream().map(Faction::getLogo).collect(Collectors.toSet()));
+            copyNewVersionIntoArchive(sectorialListMap);
+        }
         sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, metadata, sectorialImageMap);
 
     }
@@ -280,7 +280,7 @@ public class DataLoader {
 
     public List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial) {
         return sectorialUnitOptions.get(sectorial).stream()
-                .filter(u ->! u.isMerc())
+                .filter(u -> !u.isMerc())
                 .toList();
 
     }

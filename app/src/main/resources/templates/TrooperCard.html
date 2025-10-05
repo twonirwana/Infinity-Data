@@ -1,26 +1,70 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title th:text="${unitOption.optionName}">Option Name</title>
+    <title th:text="${trooper.optionName}">Option Name</title>
     <meta charset="UTF-8">
     <style>
-        @page {
-            size: 2.5in 3.5in;
-            margin: 2mm;
-        }
+
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 40px;
             background-color: #f4f7f6;
+            font-size: 8pt;
         }
 
-        .container {
-            max-width: 90%;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
+        .card {
+            /* On screen, we make it bigger to be easily editable */
+            width: 640px;
+            height: 451px; /* Maintains the 3.5/2.5 aspect ratio */
+            border: 2px dashed gray;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box; /* Important! */
+        }
+
+        @media print {
+            /* Hide everything on the page except for the card itself */
+            body * {
+                visibility: hidden;
+            }
+
+            .card, .card * {
+                visibility: visible;
+            }
+
+            /* Position the card at the top-left of the page */
+            .card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                margin: 0;
+                /* padding: 10mm;  Internal padding */
+                box-shadow: none;
+
+                /* --- THIS IS THE KEY PART --- */
+                /* Define the exact physical size of the card
+                width: 105mm;
+                height: 74mm;*/
+
+
+                /* Or use inches */
+                /* width: 2.5in; */
+                /* height: 3.5in; */
+
+                /* Add a thin border for cutting guides */
+                border: 1px dotted black;
+                box-sizing: border-box; /* Ensures border and padding are inside the width/height */
+
+                /* Ensure each card starts on a new page when printing multiples */
+                page-break-after: always;
+            }
         }
 
         h1 {
@@ -44,13 +88,13 @@
         }
 
         .attribut th, .attribut td {
-            padding: 12px 15px;
+            padding: 5px 10px;
             border: 1px solid #ddd;
             text-align: center;
         }
 
         .weapon th, .weapon td {
-            padding: 5px 10px;
+            padding: 2px 4px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -85,18 +129,22 @@
     </style>
 </head>
 <body>
-<h1 th:text="${unitOption.optionName}">Option Name</h1>
-<div th:each="trooper : ${unitOption.allTrooper}">
-    <div class="container">
-        <div class="trooper-profile" th:each="trooperProfile : ${trooper.profiles}">
-            <h2>
-                <span th:text="${trooperProfile.name}">Trooper Profile Name</span>
-            </h2>
-            <div style="display: flex;">
+<div class="card">
+    <div class="trooper-profile" th:each="trooperProfile : ${trooper.profiles}">
+        <h2>
+            <span th:text="${trooperProfile.name}">Trooper Profile Name</span>
+        </h2>
+        <div style="display: flex;">
+            <div th:if="${trooperProfile.imageNames != null and not #lists.isEmpty(trooperProfile.imageNames)}"
+                 class="image-container">
+                <img th:src="@{image/{fileName}(fileName=${trooperProfile.imageNames.getFirst()})}"
+                     alt="unit image" height="125" width="125">
+            </div>
+            <div>
                 <div style="display: flex;">
                     <div>
                         <img th:src="@{image/{imageName}(imageName=${trooperProfile.logo})}"
-                             alt="unit logo" width="100" height="100">
+                             alt="unit logo" height="50" width="50">
                     </div>
                     <div style="padding-left: 5px">
                         <table class="attribut">
@@ -129,7 +177,7 @@
                         </table>
                     </div>
                 </div>
-                <div style="padding-left: 20px">
+                <div style="padding-top: 20px">
                     <div>
                         <b>Equibment:</b> <span th:text="${trooperProfile.prettyEquipments}"></span>
                     </div>
@@ -138,46 +186,37 @@
                     </div>
                 </div>
             </div>
-            <div
-                    th:if="${trooperProfile.weapons != null and not #lists.isEmpty(trooperProfile.weapons)}">
-                <table class="weapon">
-                    <thead>
-                    <tr>
-                        <th>Weapon Name</th>
-                        <th>Range</th>
-                        <th>PS</th>
-                        <th>Burst</th>
-                        <th>Ammo</th>
-                        <th>Traits</th>
-                        <th>Extra</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="weapon : ${trooperProfile.weapons}">
-                        <td th:text="${weapon.prettyName}"></td>
-                        <td>
-                            <div style="display: flex;">
-                                <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
-                                     th:text="${range.toInchString()}"
-                                     th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
-                                </div>
+        </div>
+        <div th:if="${trooperProfile.weapons != null and not #lists.isEmpty(trooperProfile.weapons)}">
+            <table class="weapon">
+                <thead>
+                <tr>
+                    <th>Weapon Name</th>
+                    <th>Range</th>
+                    <th>PS</th>
+                    <th>Burst</th>
+                    <th>Ammo</th>
+                    <th>Traits</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="weapon : ${trooperProfile.weapons}">
+                    <td th:text="${weapon.prettyNameAndExtra}"></td>
+                    <td>
+                        <div style="display: flex;">
+                            <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
+                                 th:text="${range.toInchString()}"
+                                 th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
                             </div>
-                        </td>
-                        <td th:text="${weapon.damage}"></td>
-                        <td th:text="${weapon.burst}"></td>
-                        <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-                        <td th:text="${weapon.propertiesString}"></td>
-                        <td th:text="${weapon.extraString}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="image-container">
-                <div th:each="imageName : ${trooperProfile.imageNames}">
-                    <img th:src="@{image/{fileName}(fileName=${imageName})}"
-                         alt="unit image" height="300">
-                </div>
-            </div>
+                        </div>
+                    </td>
+                    <td th:text="${weapon.damage}"></td>
+                    <td th:text="${weapon.burst}"></td>
+                    <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+                    <td th:text="${weapon.propertiesString}"></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

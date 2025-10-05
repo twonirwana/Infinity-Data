@@ -24,6 +24,16 @@ public class ExportAll {
                 .sorted(Comparator.comparing(UnitOption::getUnitName))
                 .toList();
         htmlPrinter.writeToFile(armyListOptions, al.getArmyName(), "resources/image/unit/", "resources/logo/unit");
+
+
+        ArmyList sha1 = db.getArmyListForArmyCode("glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACQCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAAIBAAUAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgA%3D");
+
+        sha1.getCombatGroups().values().stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .sorted(Comparator.comparing(UnitOption::getUnitName))
+                .forEach(unitOption -> unitOption.getAllTrooper()
+                        .forEach(t -> htmlPrinter.writeTrooperToFile(unitOption, t, "resources/image/unit/", "resources/logo/unit")));
     }
 
 }

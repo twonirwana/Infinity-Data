@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import de.twonirwana.infinity.unit.api.Trooper;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +89,31 @@ public class HtmlPrinter {
 
         try (FileWriter writer = new FileWriter(unitOutputPath + "/" + fileName)) {
             templateEngine.process("SingleUnit", context, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeTrooperToFile(UnitOption unitOption, Trooper trooper, String unitImagePath, String logoImagePath) {
+        String unitOutputPath = OUT_PATH + "cards/" + unitOption.getSectorial().getSlug();
+        String imageOutputPath = unitOutputPath + "/" + IMAGE_PATH_FOLDER;
+        String fileName = "%s_%s.html".formatted(unitOption.getCombinedId(), unitOption.getSlug());
+
+        try {
+            Files.createDirectories(Path.of(imageOutputPath));
+            Files.createDirectories(Path.of(unitOutputPath));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        copyLogos(unitOption, logoImagePath, imageOutputPath);
+        copyUnitImages(unitOption, unitImagePath, imageOutputPath);
+
+        Context context = new Context();
+        context.setVariable("trooper", trooper);
+        context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
+
+        try (FileWriter writer = new FileWriter(unitOutputPath + "/" + fileName)) {
+            templateEngine.process("TrooperCard", context, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

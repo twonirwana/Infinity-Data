@@ -48,9 +48,22 @@ public class Weapon {
 
     public String getPrettyName() {
         if (mode != null) {
-            return "%s (%s)".formatted(name, mode);
+            return "%s [%s]".formatted(name, mode);
         }
         return name;
+    }
+
+    public String getPrettyNameAndExtra() {
+        String out;
+        if (mode != null) {
+            out = "%s [%s]".formatted(name, mode);
+        } else {
+            out = name;
+        }
+        if (extras != null && !extras.isEmpty()) {
+            out = "%s (%s)".formatted(out, getExtraString());
+        }
+        return out;
     }
 
     public String getPropertiesString() {

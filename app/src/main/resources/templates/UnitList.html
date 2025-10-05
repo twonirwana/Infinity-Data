@@ -166,23 +166,21 @@
                                 <th>Burst</th>
                                 <th>Ammo</th>
                                 <th>Traits</th>
-                                <th>Extra</th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="weapon : ${trooperProfile.weapons}">
-                                <td th:text="${weapon.prettyName}"></td>
+                                <td th:text="${weapon.prettyName} + ' ' + ${weapon.extraString}"></td>
                                 <td>
-                                    <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
-                                         th:text="${range.toInchString()}"
+                                    <span th:each="range : ${weapon.getRangeCombinedModifiers()}"
+                                         th:text="${range.toInchString()} + '   '"
                                          th:style="'background-color:' + ${modifierColorMap.get(range.modifier())}">
-                                    </div>
+                                    </span>
                                 </td>
                                 <td th:text="${weapon.damage}"></td>
                                 <td th:text="${weapon.burst}"></td>
                                 <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
                                 <td th:text="${weapon.propertiesString}"></td>
-                                <td th:text="${weapon.extraString}"></td>
                             </tr>
                             </tbody>
                         </table>
