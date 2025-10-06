@@ -28,7 +28,7 @@ public class ExportAll {
 
         ArmyList sha1 = db.getArmyListForArmyCode("glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACQCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAAIBAAUAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgA%3D");
 
-        //todo: orders, weapon extras in correct column, better print
+        //todo: orders, weapon extras in correct column, better print, move print methoded into helper class
         sha1.getCombatGroups().values().stream()
                 .flatMap(Collection::stream)
                 .distinct()

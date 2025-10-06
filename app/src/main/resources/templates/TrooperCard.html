@@ -4,82 +4,33 @@
     <title th:text="${trooper.optionName}">Option Name</title>
     <meta charset="UTF-8">
     <style>
+        /* === Page size: DIN A7 landscape ->  105mm × 74mm */
+        @page {
+            size: 105mm 74mm;
+            margin: 6mm;
+        }
 
+        html, body {
+            width: 105mm;
+            height: 74mm;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 40px;
-            background-color: #f4f7f6;
-            font-size: 8pt;
+            font-family: "Inter", Arial, Helvetica, sans-serif;
+            font-size: 6pt;
+            line-height: 1.0;
+            color: #111;
         }
 
         .card {
-            /* On screen, we make it bigger to be easily editable */
-            width: 640px;
-            height: 451px; /* Maintains the 3.5/2.5 aspect ratio */
-            border: 2px dashed gray;
-            margin: 20px auto;
-            padding: 15px;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box; /* Important! */
-        }
-
-        @media print {
-            /* Hide everything on the page except for the card itself */
-            body * {
-                visibility: hidden;
-            }
-
-            .card, .card * {
-                visibility: visible;
-            }
-
-            /* Position the card at the top-left of the page */
-            .card {
-                position: absolute;
-                left: 0;
-                top: 0;
-                margin: 0;
-                /* padding: 10mm;  Internal padding */
-                box-shadow: none;
-
-                /* --- THIS IS THE KEY PART --- */
-                /* Define the exact physical size of the card
-                width: 105mm;
-                height: 74mm;*/
-
-
-                /* Or use inches */
-                /* width: 2.5in; */
-                /* height: 3.5in; */
-
-                /* Add a thin border for cutting guides */
-                border: 1px dotted black;
-                box-sizing: border-box; /* Ensures border and padding are inside the width/height */
-
-                /* Ensure each card starts on a new page when printing multiples */
-                page-break-after: always;
-            }
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .trooper-profile {
-            margin-bottom: 10px;
-            overflow-x: auto;
-        }
-
-        .weapon {
-            margin-top: 10px;
-            overflow-x: auto;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: 3mm;
         }
 
         table {
@@ -110,22 +61,6 @@
             background-color: #f2f2f2;
         }
 
-        tbody tr {
-            background-color: #fff; /* Ensure single row has a background */
-        }
-
-        tbody tr:hover {
-            background-color: #e8f4f8;
-        }
-
-        .image-container {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            flex-direction: row;
-        }
-
-        .
     </style>
 </head>
 <body>
