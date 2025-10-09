@@ -121,7 +121,7 @@ public class Weapon {
 
     public record RangeModifier(int fromCmExcl, int toCmIncl, String modifier) {
         public String toInchString() {
-            return "%d″-%d″: %s".formatted(DistanceUtil.toInch(fromCmExcl), DistanceUtil.toInch(toCmIncl), modifier);
+            return "%d-%d″: %s".formatted(DistanceUtil.toInch(fromCmExcl), DistanceUtil.toInch(toCmIncl), modifier);
         }
     }
 

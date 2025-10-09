@@ -94,25 +94,34 @@ public class HtmlPrinter {
         }
     }
 
-    public void writeTrooperToFile(UnitOption unitOption, Trooper trooper, String unitImagePath, String logoImagePath) {
-        String unitOutputPath = OUT_PATH + "cards/" + unitOption.getSectorial().getSlug();
-        String imageOutputPath = unitOutputPath + "/" + IMAGE_PATH_FOLDER;
-        String fileName = "%s_%s.html".formatted(unitOption.getCombinedId(), unitOption.getSlug());
+    public void writeCards(List<UnitOption> unitOptions, List<Trooper> troopers, String fileName, String unitImagePath, String logoImagePath) {
+        String outputPath = OUT_PATH + "card/";
+        String imageOutputPath = outputPath + "/" + IMAGE_PATH_FOLDER;
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
-            Files.createDirectories(Path.of(unitOutputPath));
+            Files.createDirectories(Path.of(outputPath));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        copyLogos(unitOption, logoImagePath, imageOutputPath);
-        copyUnitImages(unitOption, unitImagePath, imageOutputPath);
+        for (UnitOption unitOption : unitOptions) {
+            copyLogos(unitOption, logoImagePath, imageOutputPath);
+            copyUnitImages(unitOption, unitImagePath, imageOutputPath);
+        }
+
+        //a 1/3 height and width of a dinA4 to print 9 cards on one page
+        int cardWidthInMm = 99;
+        int cardHeightInMm = 70;
 
         Context context = new Context();
-        context.setVariable("trooper", trooper);
+        context.setVariable("troopers", troopers);
         context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
+        context.setVariable("listName", fileName);
+        context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
+        context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
+        context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
 
-        try (FileWriter writer = new FileWriter(unitOutputPath + "/" + fileName)) {
+        try (FileWriter writer = new FileWriter("%s/%s.html".formatted(outputPath, fileName))) {
             templateEngine.process("TrooperCard", context, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -1,6 +1,7 @@
 package de.twonirwana.infinity;
 
 
+import de.twonirwana.infinity.unit.api.Trooper;
 import de.twonirwana.infinity.unit.api.UnitOption;
 
 import java.util.Collection;
@@ -29,12 +30,19 @@ public class ExportAll {
         ArmyList sha1 = db.getArmyListForArmyCode("glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACQCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAAIBAAUAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgA%3D");
 
         //todo: orders, weapon extras in correct column, better print, move print methoded into helper class
-        sha1.getCombatGroups().values().stream()
+        List<UnitOption> unitOptions = sha1.getCombatGroups().values().stream()
                 .flatMap(Collection::stream)
                 .distinct()
-                .sorted(Comparator.comparing(UnitOption::getUnitName))
-                .forEach(unitOption -> unitOption.getAllTrooper()
-                        .forEach(t -> htmlPrinter.writeTrooperToFile(unitOption, t, "resources/image/unit/", "resources/logo/unit")));
+                .toList();
+
+        List<Trooper> troopers = sha1.getCombatGroups().values().stream()
+                .flatMap(Collection::stream)
+                .flatMap(t -> t.getAllTrooper().stream())
+                .distinct()
+                .sorted(Comparator.comparing(Trooper::getCombinedId))
+                .toList();
+
+        htmlPrinter.writeCards(unitOptions, troopers, sha1.getArmyName(), "resources/image/unit/", "resources/logo/unit");
     }
 
 }
