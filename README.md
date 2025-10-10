@@ -5,5 +5,6 @@ Currently, the main function to take an army code and to generate nice printable
 
 ![example.png](example.png)
 
+[kestrel army.pdf](kestrel.pdf)
 
  Based on https://github.com/cwoac/Infinity-Army-Tools

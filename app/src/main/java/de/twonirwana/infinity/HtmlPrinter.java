@@ -120,6 +120,9 @@ public class HtmlPrinter {
     }
 
     public void writeCards(List<UnitOption> unitOptions, String fileName, String unitImagePath, String logoImagePath) {
+        if (fileName == null || fileName.trim().isEmpty()) {
+            fileName = "" + unitOptions.hashCode();
+        }
         String outputPath = OUT_PATH + "card/";
         String imageOutputPath = outputPath + IMAGE_PATH_FOLDER;
 
