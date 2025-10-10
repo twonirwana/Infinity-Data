@@ -1,6 +1,5 @@
 package de.twonirwana.infinity;
 
-import de.twonirwana.infinity.unit.api.Trooper;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
@@ -10,11 +9,15 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Slf4j
 public class HtmlPrinter {
@@ -53,12 +56,34 @@ public class HtmlPrinter {
         }
     }
 
+    private void copyFile(Path source, String outPath) {
+        try {
+            Files.copy(source, Path.of(outPath, source.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            log.error("file not found: {}", source);
+        }
+    }
+
     private void copyLogos(UnitOption option, String logoImagePath, String outPath) {
         option.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream())
                 .map(TrooperProfile::getLogo)
                 .distinct()
                 .forEach(l -> copyFile(l, logoImagePath, outPath));
+    }
+
+    private void copyStandardIcons(String outPath) {
+        try {
+            Path resourcePath = Paths.get(getClass().getClassLoader().getResource("images/icons").toURI());
+            try (Stream<Path> stream = Files.list(resourcePath)) {
+                stream.filter(Files::isRegularFile)
+                        .forEach(path -> copyFile(path, outPath));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void copyUnitImages(UnitOption option, String unitImagePath, String outPath) {
@@ -94,9 +119,9 @@ public class HtmlPrinter {
         }
     }
 
-    public void writeCards(List<UnitOption> unitOptions, List<Trooper> troopers, String fileName, String unitImagePath, String logoImagePath) {
+    public void writeCards(List<UnitOption> unitOptions, String fileName, String unitImagePath, String logoImagePath) {
         String outputPath = OUT_PATH + "card/";
-        String imageOutputPath = outputPath + "/" + IMAGE_PATH_FOLDER;
+        String imageOutputPath = outputPath + IMAGE_PATH_FOLDER;
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
@@ -104,6 +129,7 @@ public class HtmlPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        copyStandardIcons(imageOutputPath);
         for (UnitOption unitOption : unitOptions) {
             copyLogos(unitOption, logoImagePath, imageOutputPath);
             copyUnitImages(unitOption, unitImagePath, imageOutputPath);
@@ -113,8 +139,16 @@ public class HtmlPrinter {
         int cardWidthInMm = 99;
         int cardHeightInMm = 70;
 
+
+        List<PrintCard> printCards = unitOptions.stream()
+                .flatMap(u -> u.getAllTrooper().stream()
+                        .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p))))
+                .distinct()
+                .sorted(Comparator.comparing(PrintCard::getCombinedId))
+                .toList();
+
         Context context = new Context();
-        context.setVariable("troopers", troopers);
+        context.setVariable("printCards", printCards);
         context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
         context.setVariable("listName", fileName);
         context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
@@ -123,32 +157,6 @@ public class HtmlPrinter {
 
         try (FileWriter writer = new FileWriter("%s/%s.html".formatted(outputPath, fileName))) {
             templateEngine.process("TrooperCard", context, writer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void writeToFile(List<UnitOption> unitOptions, String fileName, String unitImagePath, String logoImagePath) {
-        String unitOutputPath = OUT_PATH + "custom/";
-        String imageOutputPath = unitOutputPath + "/" + IMAGE_PATH_FOLDER;
-
-        try {
-            Files.createDirectories(Path.of(imageOutputPath));
-            Files.createDirectories(Path.of(unitOutputPath));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        for (UnitOption unitOption : unitOptions) {
-            copyLogos(unitOption, logoImagePath, imageOutputPath);
-            copyUnitImages(unitOption, unitImagePath, imageOutputPath);
-        }
-
-        Context context = new Context();
-        context.setVariable("unitOptions", unitOptions);
-        context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
-
-        try (FileWriter writer = new FileWriter("%s/%s.html".formatted(unitOutputPath, fileName))) {
-            templateEngine.process("UnitList", context, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

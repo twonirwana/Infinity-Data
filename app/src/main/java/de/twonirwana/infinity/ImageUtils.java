@@ -1,5 +1,7 @@
 package de.twonirwana.infinity;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -7,12 +9,18 @@ import java.awt.image.Raster;
 import java.io.File;
 import java.io.IOException;
 
+@Slf4j
 public class ImageUtils {
 
     public static void autoCrop(String filePathIn, String filePathOut) {
         try {
+            File inputFile = new File(filePathIn);
+            if (!inputFile.exists()) {
+                log.error("file not found: {}", filePathIn);
+                return;
+            }
             ImageIO.scanForPlugins();
-            BufferedImage image = ImageIO.read(new File(filePathIn));
+            BufferedImage image = ImageIO.read(inputFile);
 
             /*
             System.out.println("type=" + tmpImage.getType()); // want TYPE_INT_ARGB or TYPE_4BYTE_ABGR
@@ -56,8 +64,10 @@ public class ImageUtils {
             int newWidth = maxX - minX;
             int newHeight = maxY - minY;
             BufferedImage trimmedImage = image.getSubimage(minX, minY, newWidth, newHeight);
-            ImageIO.write(trimmedImage, "webp", new File(filePathOut));
+            //todo change to webp or change file name
+            ImageIO.write(trimmedImage, "png", new File(filePathOut));
         } catch (IOException e) {
+            log.error(filePathIn + ":" + e.getMessage());
             throw new RuntimeException(e);
         }
     }

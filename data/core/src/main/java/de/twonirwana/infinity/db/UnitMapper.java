@@ -161,7 +161,6 @@ public class UnitMapper {
     }
 
     private static UnitOption createUnitOption(Sectorial sectorial, Unit unit, Trooper trooper, ProfileOption profileOption, List<Trooper> additionalTroopers) {
-        List<de.twonirwana.infinity.unit.api.Order> orders = profileOption.getOrders().stream().map(UnitMapper::mapOrder).toList();
 
         return new UnitOption(sectorial,
                 unit.getId(),
@@ -174,7 +173,6 @@ public class UnitMapper {
                 unit.getSlug(),
                 trooper,
                 additionalTroopers,
-                orders,
                 trooper.getCost(),
                 trooper.getSpecialWeaponCost(),
                 unit.getNotes());
@@ -439,6 +437,8 @@ public class UnitMapper {
                 .map(ImgOption::getUrl)
                 .map(Utils::getFileNameFromUrl)
                 .toList();
+        List<de.twonirwana.infinity.unit.api.Order> orders = profileOption.getOrders().stream().map(UnitMapper::mapOrder).toList();
+
         return new TrooperProfile(
                 sectorial,
                 unit.getId(),
@@ -464,7 +464,8 @@ public class UnitMapper {
                 equipment,
                 characteristics,
                 Utils.getFileNameFromUrl(profile.getLogo()),
-                imageNames);
+                imageNames,
+                orders);
     }
 
     private static Integer minusOneToNull(int value) {

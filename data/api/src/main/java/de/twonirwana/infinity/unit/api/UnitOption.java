@@ -24,7 +24,6 @@ public class UnitOption {
     Trooper primaryUnit;
 
     List<Trooper> additionalUnits;
-    List<Order> orders;
     int totalCost;
     String totalSpecialWeaponCost;
     //todo ggf list of faction where the unit is also aka Unit.factions
