@@ -75,97 +75,97 @@
 <body>
 <div th:each="printCard : ${printCards}">
     <div class="card">
-            <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
-                <div style="display: flex;">
-                    <img th:src="@{image/{imageName}(imageName=${printCard.getProfile().logo})}"
-                         alt="unit logo" style="height: 25px; width: auto;">
-                    <h2 style="margin-right: auto">
-                        <span th:text="${printCard.getProfile().name}">Trooper Profile Name</span>
-                    </h2>
-                    <div th:each="imageName : ${printCard.getIconFileNames()}">
-                        <img th:src="@{image/{fileName}(fileName=${imageName})}"
-                             alt="unit image" style="height: 25px; width: auto; ">
-                    </div>
+        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
+            <div style="display: flex;">
+                <img th:src="@{image/{imageName}(imageName=${printCard.getProfile().logo})}"
+                     alt="unit logo" style="height: 25px; width: auto;">
+                <h2 style="margin-right: auto">
+                    <span th:text="${printCard.getProfile().name}">Trooper Profile Name</span>
+                </h2>
+                <div th:each="imageName : ${printCard.getIconFileNames()}">
+                    <img th:src="@{image/{fileName}(fileName=${imageName})}"
+                         alt="unit image" style="height: 25px; width: auto; ">
                 </div>
-                <div th:style="${printCard.getProfile().imageNames != null and not #lists.isEmpty(printCard.getProfile().imageNames)} ? 'background-image: url(image/' + ${printCard.getProfile().imageNames.getFirst()} + '); background-size: cover; background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%' : 'height: 100%'">
-                    <div style="display: flex; justify-content: flex-end; height: 100%;">
-                        <div style="width: 70%; ">
-                            <div style="display: flex; flex-direction: column; height: 100%;">
-                                <div>
-                                    <table class="attribut">
-                                        <thead>
-                                        <tr>
-                                            <th>MOV</th>
-                                            <th>CC</th>
-                                            <th>BS</th>
-                                            <th>PH</th>
-                                            <th>WIP</th>
-                                            <th>ARM</th>
-                                            <th>BTS</th>
-                                            <th th:text="${printCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds</th>
-                                            <th>S</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td th:text="${printCard.getProfile().movementInInchString}">0-0</td>
-                                            <td th:text="${printCard.getProfile().closeCombat}">0</td>
-                                            <td th:text="${printCard.getProfile().ballisticSkill}">0</td>
-                                            <td th:text="${printCard.getProfile().physique}">0</td>
-                                            <td th:text="${printCard.getProfile().willpower}">0</td>
-                                            <td th:text="${printCard.getProfile().armor}">0</td>
-                                            <td th:text="${printCard.getProfile().bioTechnologicalShield}">0</td>
-                                            <td th:text="${printCard.getProfile().wounds}">0</td>
-                                            <td th:text="${printCard.getProfile().silhouette}">0</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+            </div>
+            <div th:style="${printCard.getProfile().imageNames != null and not #lists.isEmpty(printCard.getProfile().imageNames)} ? 'background-image: url(image/' + ${printCard.getProfile().imageNames.getFirst()} + '); background-size: cover; background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%' : 'height: 100%'">
+                <div style="display: flex; justify-content: flex-end; height: 100%;">
+                    <div style="width: 70%; ">
+                        <div style="display: flex; flex-direction: column; height: 100%;">
+                            <div>
+                                <table class="attribut">
+                                    <thead>
+                                    <tr>
+                                        <th>MOV</th>
+                                        <th>CC</th>
+                                        <th>BS</th>
+                                        <th>PH</th>
+                                        <th>WIP</th>
+                                        <th>ARM</th>
+                                        <th>BTS</th>
+                                        <th th:text="${printCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds</th>
+                                        <th>S</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td th:text="${printCard.getProfile().movementInInchString}">0-0</td>
+                                        <td th:text="${printCard.getProfile().closeCombat}">0</td>
+                                        <td th:text="${printCard.getProfile().ballisticSkill}">0</td>
+                                        <td th:text="${printCard.getProfile().physique}">0</td>
+                                        <td th:text="${printCard.getProfile().willpower}">0</td>
+                                        <td th:text="${printCard.getProfile().armor}">0</td>
+                                        <td th:text="${printCard.getProfile().bioTechnologicalShield}">0</td>
+                                        <td th:text="${printCard.getProfile().wounds}">0</td>
+                                        <td th:text="${printCard.getProfile().silhouette}">0</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
+                                <div style="background-color: rgba(255, 255, 255, 0.7);">
+                                    <b>Equipment:</b> <span th:text="${printCard.prettyEquipments}"></span>
                                 </div>
-                                <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
-                                    <div style="background-color: rgba(255, 255, 255, 0.7);">
-                                        <b>Equipment:</b> <span th:text="${printCard.prettyEquipments}"></span>
-                                    </div>
-                                    <div style="background-color: rgba(255, 255, 255, 0.7);">
-                                        <b>Skills:</b> <span th:text="${printCard.prettySkills}"></span>
-                                    </div>
+                                <div style="background-color: rgba(255, 255, 255, 0.7);">
+                                    <b>Skills:</b> <span th:text="${printCard.prettySkills}"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div
-                     th:if="${printCard.getProfile().weapons != null and not #lists.isEmpty(printCard.getProfile().weapons)}">
-                    <table class="weapon">
-                        <thead>
-                        <tr>
-                            <th>Weapon Name</th>
-                            <th>Range</th>
-                            <th>PS</th>
-                            <th>B</th>
-                            <th>Ammo</th>
-                            <th>Traits</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="weapon : ${printCard.getProfile().weapons}">
-                            <td th:text="${weapon.prettyNameAndExtra}"></td>
-                            <td>
-                                <div style="display: flex;">
-                                    <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
-                                         th:text="${range.toInchString()}"
-                                         th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
-                                    </div>
-                                </div>
-                            </td>
-                            <td th:text="${weapon.damage}"></td>
-                            <td th:text="${weapon.burst}"></td>
-                            <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-                            <td th:text="${weapon.propertiesString}" style="font-size: 4pt"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
+            <div
+                    th:if="${printCard.getProfile().weapons != null and not #lists.isEmpty(printCard.getProfile().weapons)}">
+                <table class="weapon">
+                    <thead>
+                    <tr>
+                        <th>Weapon Name</th>
+                        <th>Range</th>
+                        <th>PS</th>
+                        <th>B</th>
+                        <th>Ammo</th>
+                        <th>Traits</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="weapon : ${printCard.getProfile().weapons}">
+                        <td th:text="${weapon.prettyNameAndExtra}"></td>
+                        <td>
+                            <div style="display: flex;">
+                                <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
+                                     th:text="${range.toInchString()}"
+                                     th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${weapon.damage}"></td>
+                        <td th:text="${weapon.burst}"></td>
+                        <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+                        <td th:text="${weapon.propertiesString}" style="font-size: 4pt"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 </body>

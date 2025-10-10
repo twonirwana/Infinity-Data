@@ -12,7 +12,7 @@ import java.io.IOException;
 @Slf4j
 public class ImageUtils {
 
-    public static void autoCrop(String filePathIn, String filePathOut) {
+    public static void autoCrop(String filePathIn, String filePathOut, boolean cropHeight) {
         try {
             File inputFile = new File(filePathIn);
             if (!inputFile.exists()) {
@@ -62,8 +62,17 @@ public class ImageUtils {
             }
 
             int newWidth = maxX - minX;
-            int newHeight = maxY - minY;
-            BufferedImage trimmedImage = image.getSubimage(minX, minY, newWidth, newHeight);
+           final int newHeight;
+            final  int heightStart;
+            if (cropHeight) {
+                newHeight= maxY - minY;
+                heightStart = minY;
+            } else {
+                newHeight = image.getHeight();
+                heightStart = 0;
+            }
+
+            BufferedImage trimmedImage = image.getSubimage(minX, heightStart, newWidth, newHeight);
             //todo change to webp or change file name
             ImageIO.write(trimmedImage, "png", new File(filePathOut));
         } catch (IOException e) {

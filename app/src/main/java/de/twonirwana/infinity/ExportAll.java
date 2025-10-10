@@ -21,6 +21,7 @@ public class ExportAll {
         // * weapon extras in correct column
         // * move weapon print methode into helper class
         // * sectorial colors
+        // * improve crop
 
         printCardForArmyCode(db, "glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACgCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAACCDAEBAAIBAAYAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgAAggEBhyUA");
         printCardForArmyCode(db, "axZrZXN0cmVsLWNvbG9uaWFsLWZvcmNlASCBLAIBAQAKAIcMAQYAAIcNAQMAAIcWAQEAAIcLAQEAAIcLAQoAAA8BCgAAhxUBAQAAhxUBAgAADgEBAACHDwEBAAIBAAUAhxABBAAAhxEBAwAAhxIBAwAAJQEBAACHFAEBAA%3D%3D");
@@ -34,7 +35,11 @@ public class ExportAll {
                 .distinct()
                 .sorted(Comparator.comparing(UnitOption::getUnitName))
                 .toList();
-        htmlPrinter.writeCards(armyListOptions, al.getArmyName(), "resources/image/unit/", "resources/logo/unit");
+        String name = al.getArmyName();
+        if (name == null || name.trim().isEmpty()) {
+            name = al.getSectorialName() + "_" + armyCode.hashCode();
+        }
+        htmlPrinter.writeCards(armyListOptions, name, "resources/image/unit/", "resources/logo/unit");
 
     }
 

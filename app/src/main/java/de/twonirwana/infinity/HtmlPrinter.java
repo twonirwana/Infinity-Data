@@ -91,7 +91,7 @@ public class HtmlPrinter {
                 .flatMap(t -> t.getProfiles().stream())
                 .flatMap(p -> p.getImageNames().stream())
                 .distinct()
-                .forEach(l -> ImageUtils.autoCrop(unitImagePath + l, outPath + l));
+                .forEach(l -> ImageUtils.autoCrop(unitImagePath + l, outPath + l, false));
     }
 
     public void writeToFile(UnitOption unitOption, String unitImagePath, String logoImagePath) {
@@ -120,9 +120,6 @@ public class HtmlPrinter {
     }
 
     public void writeCards(List<UnitOption> unitOptions, String fileName, String unitImagePath, String logoImagePath) {
-        if (fileName == null || fileName.trim().isEmpty()) {
-            fileName = "" + unitOptions.hashCode();
-        }
         String outputPath = OUT_PATH + "card/";
         String imageOutputPath = outputPath + IMAGE_PATH_FOLDER;
 
