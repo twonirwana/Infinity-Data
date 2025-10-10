@@ -66,7 +66,7 @@ public class HtmlPrinter {
                 .flatMap(t -> t.getProfiles().stream())
                 .flatMap(p -> p.getImageNames().stream())
                 .distinct()
-                .forEach(l -> copyFile(l, unitImagePath, outPath));
+                .forEach(l -> ImageUtils.autoCrop(unitImagePath + l, outPath + l));
     }
 
     public void writeToFile(UnitOption unitOption, String unitImagePath, String logoImagePath) {

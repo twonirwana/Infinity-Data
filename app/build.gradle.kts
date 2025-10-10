@@ -19,8 +19,9 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation("com.google.guava:guava:33.4.8-jre")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
-
-
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.10.0")
+    implementation("com.twelvemonkeys.imageio:imageio-metadata:3.10.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.10.0")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

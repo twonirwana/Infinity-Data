@@ -76,7 +76,7 @@
 <div th:each="trooper : ${troopers}">
     <div class="card">
         <div style="border: 1pt" th:each="trooperProfile : ${trooper.profiles}">
-            <div style="display: flex; flex-direction: column; height: 100%;">
+            <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
                 <div style="display: flex;">
                     <img th:src="@{image/{imageName}(imageName=${trooperProfile.logo})}"
                          alt="unit logo" style="height: 25px; width: auto;">
@@ -84,51 +84,53 @@
                         <span th:text="${trooperProfile.name}">Trooper Profile Name</span>
                     </h2>
                 </div>
-                <div th:style="${trooperProfile.imageNames != null and not #lists.isEmpty(trooperProfile.imageNames)} ? 'background-image: url(image/' + ${trooperProfile.imageNames.getFirst()} + '); background-size: cover; background-size: auto 100%; background-repeat: no-repeat; height: 100%' : ''">
-                    <div style="display: flex; justify-content: flex-end;">
-                        <div style="display: flex; flex-direction: column; width: 70% ">
-                            <div>
-                                <table class="attribut">
-                                    <thead>
-                                    <tr>
-                                        <th>MOV</th>
-                                        <th>CC</th>
-                                        <th>BS</th>
-                                        <th>PH</th>
-                                        <th>WIP</th>
-                                        <th>ARM</th>
-                                        <th>BTS</th>
-                                        <th th:text="${trooperProfile.structure ? 'STR' : 'VITA'}">Wounds</th>
-                                        <th>S</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td th:text="${trooperProfile.movementInInchString}">0-0</td>
-                                        <td th:text="${trooperProfile.closeCombat}">0</td>
-                                        <td th:text="${trooperProfile.ballisticSkill}">0</td>
-                                        <td th:text="${trooperProfile.physique}">0</td>
-                                        <td th:text="${trooperProfile.willpower}">0</td>
-                                        <td th:text="${trooperProfile.armor}">0</td>
-                                        <td th:text="${trooperProfile.bioTechnologicalShield}">0</td>
-                                        <td th:text="${trooperProfile.wounds}">0</td>
-                                        <td th:text="${trooperProfile.silhouette}">0</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div style="padding-top: 5px">
+                <div th:style="${trooperProfile.imageNames != null and not #lists.isEmpty(trooperProfile.imageNames)} ? 'background-image: url(image/' + ${trooperProfile.imageNames.getFirst()} + '); background-size: cover; background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%' : 'height: 100%'">
+                    <div style="display: flex; justify-content: flex-end; height: 100%;">
+                        <div style="width: 70%; ">
+                            <div style="display: flex; flex-direction: column; height: 100%;">
                                 <div>
-                                    <b>Equipment:</b> <span th:text="${trooperProfile.prettyEquipments}"></span>
+                                    <table class="attribut">
+                                        <thead>
+                                        <tr>
+                                            <th>MOV</th>
+                                            <th>CC</th>
+                                            <th>BS</th>
+                                            <th>PH</th>
+                                            <th>WIP</th>
+                                            <th>ARM</th>
+                                            <th>BTS</th>
+                                            <th th:text="${trooperProfile.structure ? 'STR' : 'VITA'}">Wounds</th>
+                                            <th>S</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td th:text="${trooperProfile.movementInInchString}">0-0</td>
+                                            <td th:text="${trooperProfile.closeCombat}">0</td>
+                                            <td th:text="${trooperProfile.ballisticSkill}">0</td>
+                                            <td th:text="${trooperProfile.physique}">0</td>
+                                            <td th:text="${trooperProfile.willpower}">0</td>
+                                            <td th:text="${trooperProfile.armor}">0</td>
+                                            <td th:text="${trooperProfile.bioTechnologicalShield}">0</td>
+                                            <td th:text="${trooperProfile.wounds}">0</td>
+                                            <td th:text="${trooperProfile.silhouette}">0</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div style="padding-top: 5px; padding-bottom: 5px">
-                                    <b>Skills:</b> <span th:text="${trooperProfile.prettySkills}"></span>
+                                <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
+                                    <div>
+                                        <b>Equipment:</b> <span th:text="${trooperProfile.prettyEquipments}"></span>
+                                    </div>
+                                    <div>
+                                        <b>Skills:</b> <span th:text="${trooperProfile.prettySkills}"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div style="margin-top: auto"
+                <div
                      th:if="${trooperProfile.weapons != null and not #lists.isEmpty(trooperProfile.weapons)}">
                     <table class="weapon">
                         <thead>
