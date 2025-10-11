@@ -1,9 +1,11 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
+    id("com.gradleup.shadow") version "9.2.2"
     id("java")
 }
 
-group = "de.2nirwana"
-version = "1.0-SNAPSHOT"
+group = "de.twonirwana"
+version = "0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -29,5 +31,19 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+apply(plugin = "com.gradleup.shadow")
+
+dependencies {
+    implementation(project(":app"))
+}
+
+tasks {
+    named<ShadowJar>("shadowJar") {
+        manifest {
+            attributes(mapOf("Main-Class" to "de.twonirwana.infinity.ExportArmyCode"))
+        }
+    }
 }
 

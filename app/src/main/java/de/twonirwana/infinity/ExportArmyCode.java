@@ -9,9 +9,8 @@ public class ExportArmyCode {
         // * cm and inch option
         // * format option for game cards, dina7, and us letter
         Database db = new DatabaseImp();
-
-        HtmlPrinter.printCardForArmyCode(db, "glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACgCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAACCDAEBAAIBAAYAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgAAggEBhyUA");
-        HtmlPrinter.printCardForArmyCode(db, "axZrZXN0cmVsLWNvbG9uaWFsLWZvcmNlASCBLAIBAQAKAIcMAQYAAIcNAQMAAIcWAQEAAIcLAQEAAIcLAQoAAA8BCgAAhxUBAQAAhxUBAgAADgEBAACHDwEBAAIBAAUAhxABBAAAhxEBAwAAhxIBAwAAJQEBAACHFAEBAA%3D%3D");
+        String armyCode = args[0];
+        HtmlPrinter.printCardForArmyCode(db, armyCode);
     }
 
 

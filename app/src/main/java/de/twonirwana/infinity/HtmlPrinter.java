@@ -1,7 +1,6 @@
 package de.twonirwana.infinity;
 
 import com.google.common.collect.ImmutableMap;
-import de.twonirwana.infinity.unit.api.Skill;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
@@ -11,14 +10,14 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class HtmlPrinter {
@@ -58,6 +57,14 @@ public class HtmlPrinter {
             "+3", "darkseagreen",
             "-6", "orangered",
             "+6", "yellowgreen");
+    private static final List<String> ICON_FILE_NAMES = List.of("cube.svg",
+            "hackable.svg",
+            "impetuous.svg",
+            "irregular.svg",
+            "lieutenant.svg",
+            "peripheral.svg",
+            "regular.svg",
+            "tactical.svg");
     private final TemplateEngine templateEngine;
 
     public HtmlPrinter() {
@@ -118,16 +125,16 @@ public class HtmlPrinter {
     }
 
     private void copyStandardIcons(String outPath) {
-        try {
-            Path resourcePath = Paths.get(getClass().getClassLoader().getResource("images/icons").toURI());
-            try (Stream<Path> stream = Files.list(resourcePath)) {
-                stream.filter(Files::isRegularFile)
-                        .forEach(path -> copyFile(path, outPath));
+        for (String fileName : ICON_FILE_NAMES) {
+            try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream("/images/icons/" + fileName)) {
+                if(inputStream == null) {
+                    throw new RuntimeException("file not found: " + fileName);
+                }
+                Files.copy(inputStream, Path.of(outPath, fileName), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+
         }
     }
 
