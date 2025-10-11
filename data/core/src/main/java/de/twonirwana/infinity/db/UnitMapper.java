@@ -336,7 +336,7 @@ public class UnitMapper {
                     log.error("No skills found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
                     return Stream.empty();
                 })
-                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Skill::getNameAndExtra))
+                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Skill::getName))
                 .toList();
     }
 
@@ -374,7 +374,7 @@ public class UnitMapper {
                     log.error("No equipment found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
                     return Stream.empty();
                 })
-                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Equipment::getNameAndExtra))
+                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Equipment::getName))
                 .toList();
     }
 

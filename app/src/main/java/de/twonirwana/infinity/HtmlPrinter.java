@@ -1,6 +1,7 @@
 package de.twonirwana.infinity;
 
 import com.google.common.collect.ImmutableMap;
+import de.twonirwana.infinity.unit.api.Skill;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -60,8 +59,6 @@ public class HtmlPrinter {
             "-6", "orangered",
             "+6", "yellowgreen");
     private final TemplateEngine templateEngine;
-    private final String OUT_PATH = "out/html/";
-    private final String IMAGE_PATH_FOLDER = "image/";
 
     public HtmlPrinter() {
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
@@ -72,6 +69,21 @@ public class HtmlPrinter {
 
         this.templateEngine = new TemplateEngine();
         this.templateEngine.setTemplateResolver(resolver);
+    }
+
+    public static void printCardForArmyCode(Database db, String armyCode) {
+        ArmyList al = db.getArmyListForArmyCode(armyCode);
+        HtmlPrinter htmlPrinter = new HtmlPrinter();
+        List<UnitOption> armyListOptions = al.getCombatGroups().values().stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .sorted(Comparator.comparing(UnitOption::getUnitName))
+                .toList();
+        String name = al.getArmyName();
+        if (name == null || name.trim().isEmpty()) {
+            name = al.getSectorialName() + "_" + armyCode.hashCode();
+        }
+        htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card");
     }
 
     public void printAll(Database db) {
@@ -133,8 +145,10 @@ public class HtmlPrinter {
     }
 
     public void writeCards(List<UnitOption> unitOptions, String fileName, Sectorial sectorial, String unitImagePath, String logoImagePath, String outputFolder) {
-        String outputPath = OUT_PATH + outputFolder;
-        String imageOutputPath = outputPath + "/" + IMAGE_PATH_FOLDER;
+        String outPath = "out/html/";
+        String outputPath = outPath + outputFolder;
+        String imagePathFolder = "image/";
+        String imageOutputPath = outputPath + "/" + imagePathFolder;
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
@@ -177,20 +191,5 @@ public class HtmlPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void printCardForArmyCode(Database db, String armyCode) {
-        ArmyList al = db.getArmyListForArmyCode(armyCode);
-        HtmlPrinter htmlPrinter = new HtmlPrinter();
-        List<UnitOption> armyListOptions = al.getCombatGroups().values().stream()
-                .flatMap(Collection::stream)
-                .distinct()
-                .sorted(Comparator.comparing(UnitOption::getUnitName))
-                .toList();
-        String name = al.getArmyName();
-        if (name == null || name.trim().isEmpty()) {
-            name = al.getSectorialName() + "_" + armyCode.hashCode();
-        }
-        htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card");
     }
 }

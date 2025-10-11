@@ -3,7 +3,8 @@ package de.twonirwana.infinity;
 public class ExportArmyCode {
     public static void main(String[] args) {
         //todo:
-        // * weapon extras in correct column
+        // * add bs and cc b/sd/ps skill extras in the weapons table
+        // * add sd weapon extra into burst column
         // * improve crop
         Database db = new DatabaseImp();
 
