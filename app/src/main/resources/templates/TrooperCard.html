@@ -88,8 +88,11 @@
                 </div>
             </div>
             <div th:style="${printCard.getProfile().imageNames != null and not #lists.isEmpty(printCard.getProfile().imageNames)} ? 'background-image: url(image/' + ${printCard.getProfile().imageNames.getFirst()} + '); background-size: cover; background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%' : 'height: 100%'">
-                <div style="display: flex; justify-content: flex-end; height: 100%;">
-                    <div style="width: 70%; ">
+                <div style="display: flex; height: 100%;">
+                    <div style="background-color: rgba(255, 255, 255, 0.7); height: fit-content; font-size: 4pt;">
+                        <span th:text="${printCard.getTrooper().getCategory()}"></span>
+                    </div>
+                    <div style="width: 70%; margin-left: auto ">
                         <div style="display: flex; flex-direction: column; height: 100%;">
                             <div>
                                 <table class="attribut">

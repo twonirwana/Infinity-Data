@@ -68,7 +68,7 @@ public class DataLoader {
 
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(META_DATA_FILE_PATH).toFile().lastModified();
 
-        boolean update = metaDataLastModifiedAge > 3 * 60 * 60 * 1000; //update if file are older then 3h
+        boolean update = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
         log.info("metaDataLastModifiedAge: {}ms -> {}", metaDataLastModifiedAge, update);
         Metadata metadata = loadMetadata(update);
 
