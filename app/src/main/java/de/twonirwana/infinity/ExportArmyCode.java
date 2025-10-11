@@ -6,6 +6,8 @@ public class ExportArmyCode {
         // * add bs and cc b/sd/ps skill extras in the weapons table
         // * add sd weapon extra into burst column
         // * improve crop
+        // * cm and inch option
+        // * format option for game cards, dina7, and us letter
         Database db = new DatabaseImp();
 
         HtmlPrinter.printCardForArmyCode(db, "glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACgCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAACCDAEBAAIBAAYAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgAAggEBhyUA");
