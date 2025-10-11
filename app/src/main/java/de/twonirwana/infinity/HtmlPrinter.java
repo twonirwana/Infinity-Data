@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,37 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class HtmlPrinter {
+
+    //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
+    private static final Map<Integer, String> sectorialColors = ImmutableMap.<Integer, String>builder()
+            .put(100, "#00b0f2")
+            .put(200, "#ff9000")
+            .put(300, "#007d27")
+            .put(400, "#e6da9b")
+            .put(500, "#ce181f")
+            .put(600, "#400b5f")
+            .put(700, "#afa7bc")
+            .put(800, "#3b3b3b")
+            .put(900, "#728868")
+            .put(1000, "#005470")
+            .put(1100, "#a6112b")
+            .build();
+
+    //sed -n '/perfil_habs\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors2nd.txt
+    private static final Map<Integer, String> sectorial2ndColors = ImmutableMap.<Integer, String>builder()
+            .put(100, "#006a91")
+            .put(200, "#995600")
+            .put(300, "#005825")
+            .put(400, "#8a835d")
+            .put(500, "#7c0e13")
+            .put(600, "#260739")
+            .put(700, "#696471")
+            .put(800, "#252525")
+            .put(900, "#44523e")
+            .put(1000, "#e7b128")//o12 need to be extracted with hand, the regex doesn't get it
+            .put(1100, "#757575")
+            .build();
+
     private static final Map<String, String> RANGE_COLOR_MAP = Map.of("0", "deepskyblue",
             "-3", "orange",
             "+3", "darkseagreen",
@@ -45,7 +78,7 @@ public class HtmlPrinter {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, "resources/image/unit/", "resources/logo/unit"));
+                .forEach(u -> writeToFile(u, "resources/image/unit/", "resources/logo/unit", u.getSectorial().getSlug()));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -94,34 +127,14 @@ public class HtmlPrinter {
                 .forEach(l -> ImageUtils.autoCrop(unitImagePath + l, outPath + l, false));
     }
 
-    public void writeToFile(UnitOption unitOption, String unitImagePath, String logoImagePath) {
-        String unitOutputPath = OUT_PATH + unitOption.getSectorial().getSlug();
-        String imageOutputPath = unitOutputPath + "/" + IMAGE_PATH_FOLDER;
-        String fileName = "%s_%s.html".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-
-        try {
-            Files.createDirectories(Path.of(imageOutputPath));
-            Files.createDirectories(Path.of(unitOutputPath));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        copyLogos(unitOption, logoImagePath, imageOutputPath);
-        copyUnitImages(unitOption, unitImagePath, imageOutputPath);
-
-        Context context = new Context();
-        context.setVariable("unitOption", unitOption);
-        context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
-
-        try (FileWriter writer = new FileWriter(unitOutputPath + "/" + fileName)) {
-            templateEngine.process("SingleUnit", context, writer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void writeToFile(UnitOption unitOption, String unitImagePath, String logoImagePath, String outputFolder) {
+        String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
+        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, logoImagePath, outputFolder);
     }
 
-    public void writeCards(List<UnitOption> unitOptions, String fileName, String unitImagePath, String logoImagePath) {
-        String outputPath = OUT_PATH + "card/";
-        String imageOutputPath = outputPath + IMAGE_PATH_FOLDER;
+    public void writeCards(List<UnitOption> unitOptions, String fileName, Sectorial sectorial, String unitImagePath, String logoImagePath, String outputFolder) {
+        String outputPath = OUT_PATH + outputFolder;
+        String imageOutputPath = outputPath + "/" + IMAGE_PATH_FOLDER;
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
@@ -139,6 +152,8 @@ public class HtmlPrinter {
         int cardWidthInMm = 99;
         int cardHeightInMm = 70;
 
+        String primaryColor = sectorialColors.get(sectorial.getParentId() - 1);
+        String secondaryColor = sectorial2ndColors.get(sectorial.getParentId() - 1);
 
         List<PrintCard> printCards = unitOptions.stream()
                 .flatMap(u -> u.getAllTrooper().stream()
@@ -151,6 +166,8 @@ public class HtmlPrinter {
         context.setVariable("printCards", printCards);
         context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
         context.setVariable("listName", fileName);
+        context.setVariable("primaryColor", primaryColor);
+        context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
         context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
         context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
@@ -160,5 +177,20 @@ public class HtmlPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void printCardForArmyCode(Database db, String armyCode) {
+        ArmyList al = db.getArmyListForArmyCode(armyCode);
+        HtmlPrinter htmlPrinter = new HtmlPrinter();
+        List<UnitOption> armyListOptions = al.getCombatGroups().values().stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .sorted(Comparator.comparing(UnitOption::getUnitName))
+                .toList();
+        String name = al.getArmyName();
+        if (name == null || name.trim().isEmpty()) {
+            name = al.getSectorialName() + "_" + armyCode.hashCode();
+        }
+        htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card");
     }
 }

@@ -268,7 +268,7 @@ public class UnitMapper {
                     return Stream.empty();
 
                 })
-                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Weapon::getPrettyName))
+                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Weapon::getName))
                 .toList();
     }
 

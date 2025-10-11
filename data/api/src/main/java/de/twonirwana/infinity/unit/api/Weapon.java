@@ -1,10 +1,11 @@
 package de.twonirwana.infinity.unit.api;
 
-import de.twonirwana.infinity.DistanceUtil;
 import lombok.Value;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Value
 public class Weapon {
@@ -39,48 +40,13 @@ public class Weapon {
     Integer quantity;
     List<ExtraValue> extras;
 
-    private static int getFrom(int currentIndex, List<Integer> toRanges) {
+    private static int getFromRange(int currentIndex) {
         if (currentIndex == 0) {
             return 0;
         }
-        return toRanges.get(currentIndex - 1);
+        return RANGES_LIST.get(currentIndex - 1);
     }
 
-    public String getPrettyName() {
-        if (mode != null) {
-            return "%s [%s]".formatted(name, mode);
-        }
-        return name;
-    }
-
-    public String getPrettyNameAndExtra() {
-        String out;
-        if (mode != null) {
-            out = "%s [%s]".formatted(name, mode);
-        } else {
-            out = name;
-        }
-        if (extras != null && !extras.isEmpty()) {
-            out = "%s (%s)".formatted(out, getExtraString());
-        }
-        return out;
-    }
-
-    public String getPropertiesString() {
-        if (properties == null) {
-            return "";
-        }
-        return String.join(", ", properties);
-    }
-
-    public String getExtraString() {
-        if (extras == null) {
-            return "";
-        }
-        return extras.stream()
-                .map(Objects::toString)
-                .collect(Collectors.joining(", "));
-    }
 
     public List<RangeModifier> getRangeCombinedModifiers() {
         List<RangeModifier> ranges = new ArrayList<>();
@@ -103,7 +69,7 @@ public class Weapon {
                     j++;
                 }
                 int endRange = RANGES_LIST.get(j);
-                int fromRange = getFrom(i, RANGES_LIST);
+                int fromRange = getFromRange(i);
                 ranges.add(new RangeModifier(fromRange, endRange, currentModifier.get()));
                 i = j + 1;
             } else {
@@ -113,17 +79,8 @@ public class Weapon {
         return ranges;
     }
 
-    public String getRangeStringInch() {
-        return getRangeCombinedModifiers().stream()
-                .map(RangeModifier::toInchString)
-                .collect(Collectors.joining(", "));
-    }
 
     public record RangeModifier(int fromCmExcl, int toCmIncl, String modifier) {
-        public String toInchString() {
-            return "%d-%d″: %s".formatted(DistanceUtil.toInch(fromCmExcl), DistanceUtil.toInch(toCmIncl), modifier);
-        }
+
     }
-
-
 }

@@ -39,7 +39,7 @@
             height: [[${cardHeightInMm}]];
             display: grid;
             gap: 1mm;
-            border: 1px dotted black;
+            border: 2px solid [[${primaryColor}]];
         }
 
         table {
@@ -60,7 +60,7 @@
         }
 
         th {
-            background-color: #3498db;
+            background-color: [[${secondaryColor}]];
             color: white;
             font-weight: bold;
             white-space: nowrap;
@@ -76,10 +76,10 @@
 <div th:each="printCard : ${printCards}">
     <div class="card">
         <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
-            <div style="display: flex;">
+            <div th:style="'display: flex; background-color:' + ${primaryColor}">
                 <img th:src="@{image/{imageName}(imageName=${printCard.getProfile().logo})}"
                      alt="unit logo" style="height: 25px; width: auto;">
-                <h2 style="margin-right: auto">
+                <h2 style="margin-right: auto; color: white">
                     <span th:text="${printCard.getProfile().name}">Trooper Profile Name</span>
                 </h2>
                 <div th:each="imageName : ${printCard.getIconFileNames()}">
@@ -151,11 +151,11 @@
                     </thead>
                     <tbody>
                     <tr th:each="weapon : ${printCard.getProfile().weapons}">
-                        <td th:text="${weapon.prettyNameAndExtra}"></td>
+                        <td th:text="${printCard.prettyWeaponName(weapon)}"></td>
                         <td>
                             <div style="display: flex;">
                                 <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
-                                     th:text="${range.toInchString()}"
+                                     th:text="${printCard.getRangeModiToInchString(range)}"
                                      th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
                                 </div>
                             </div>
@@ -163,7 +163,7 @@
                         <td th:text="${weapon.damage}"></td>
                         <td th:text="${weapon.burst}"></td>
                         <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-                        <td th:text="${weapon.propertiesString}" style="font-size: 4pt"></td>
+                        <td th:text="${printCard.getWeaponPropertiesString(weapon)}" style="font-size: 4pt"></td>
                     </tr>
                     </tbody>
                 </table>

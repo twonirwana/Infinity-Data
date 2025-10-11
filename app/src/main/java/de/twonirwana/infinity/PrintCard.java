@@ -5,6 +5,7 @@ import lombok.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -13,6 +14,39 @@ public class PrintCard {
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
+
+    public static String prettyWeaponName(Weapon weapon) {
+        String out;
+        if (weapon.getMode() != null) {
+            out = "%s [%s]".formatted(weapon.getName(), weapon.getMode());
+        } else {
+            out = weapon.getName();
+        }
+        if (weapon.getExtras() != null && !weapon.getExtras().isEmpty()) {
+            out = "%s (%s)".formatted(out, getExtraString(weapon));
+        }
+        return out;
+    }
+
+    private static String getExtraString(Weapon weapon) {
+        if (weapon.getExtras() == null) {
+            return "";
+        }
+        return weapon.getExtras().stream()
+                .map(Objects::toString)
+                .collect(Collectors.joining(", "));
+    }
+
+    public static String getRangeModiToInchString(Weapon.RangeModifier rangeModifier) {
+        return "%d-%d″: %s".formatted(DistanceUtil.toInch(rangeModifier.fromCmExcl()), DistanceUtil.toInch(rangeModifier.toCmIncl()), rangeModifier.modifier());
+    }
+
+    public static String getWeaponPropertiesString(Weapon weapon) {
+        if (weapon.getProperties() == null) {
+            return "";
+        }
+        return String.join(", ", weapon.getProperties());
+    }
 
     public String getCombinedId() {
         return trooper.getCombinedId();
