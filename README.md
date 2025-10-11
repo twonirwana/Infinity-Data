@@ -21,10 +21,12 @@ with the terminal command:
 
 ``java -jar Infinity-Data-0.1-SNAPSHOT-all.jar axZrZXN0cmVsLWNvbG9uaWFsLWZvcmNlASCBLAIBAQAKAIcMAQYAAIcNAQMAAIcWAQEAAIcLAQEAAIcLAQoAAA8BCgAAhxUBAQAAhxUBAgAADgEBAACHDwEBAAIBAAUAhxABBAAAhxEBAwAAhxIBAwAAJQEBAACHFAEBAA%3D%3D``
 
-Replace the army code with your own and program creates then an out\html\card directory with an html file with the
+Replace the army code with your own and program creates then an ``out\html\card`` directory with an html file with the
 cards.
 
 The html can then be opened with a browser and printed or exported into a pdf.
+
+Optional the parameter ``false``, with a space, can be added after the army code to get the cards with cm instate of inch.
 
 ## Development
 

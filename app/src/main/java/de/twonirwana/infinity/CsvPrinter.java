@@ -71,7 +71,10 @@ public class CsvPrinter {
                             csvPrinter.printRecord(
                                     primaryUnit.getOptionName(),
                                     primaryUnit.getProfiles().getFirst().getName(),
-                                    primaryUnit.getProfiles().getFirst().getMovementInInch(),
+                                    primaryUnit.getProfiles().getFirst().getMovementInCm().stream()
+                                            .map(DistanceUtil::toInch)
+                                            .map(Objects::toString)
+                                            .collect(Collectors.joining("-")),
                                     primaryUnit.getProfiles().getFirst().getCloseCombat(),
                                     primaryUnit.getProfiles().getFirst().getBallisticSkill(),
                                     primaryUnit.getProfiles().getFirst().getPhysique(),

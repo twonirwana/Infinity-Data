@@ -111,7 +111,7 @@
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td th:text="${printCard.getProfile().movementInInchString}">0-0</td>
+                                        <td th:text="${printCard.getMovement()}">0-0</td>
                                         <td th:text="${printCard.getProfile().closeCombat}">0</td>
                                         <td th:text="${printCard.getProfile().ballisticSkill}">0</td>
                                         <td th:text="${printCard.getProfile().physique}">0</td>
@@ -151,11 +151,11 @@
                     </thead>
                     <tbody>
                     <tr th:each="weapon : ${printCard.getProfile().weapons}">
-                        <td th:text="${printCard.prettyWeaponName(weapon)}"></td>
+                        <td th:text="${printCard.prettyWeaponName(weapon, printCard.isUseInch())}"></td>
                         <td>
                             <div style="display: flex;">
                                 <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
-                                     th:text="${printCard.getRangeModiToInchString(range)}"
+                                     th:text="${printCard.getRangeModifier(range, printCard.isUseInch())}"
                                      th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
                                 </div>
                             </div>

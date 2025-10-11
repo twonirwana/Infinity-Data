@@ -9,7 +9,7 @@ public class ExportAll {
         CsvPrinter.printAll(db);
 
         HtmlPrinter htmlPrinter = new HtmlPrinter();
-        htmlPrinter.printAll(db);
+        htmlPrinter.printAll(db, true);
 
     }
 

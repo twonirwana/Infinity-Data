@@ -78,7 +78,7 @@ public class HtmlPrinter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
-    public static void printCardForArmyCode(Database db, String armyCode) {
+    public static void printCardForArmyCode(Database db, String armyCode, boolean useInch) {
         ArmyList al = db.getArmyListForArmyCode(armyCode);
         HtmlPrinter htmlPrinter = new HtmlPrinter();
         List<UnitOption> armyListOptions = al.getCombatGroups().values().stream()
@@ -90,14 +90,14 @@ public class HtmlPrinter {
         if (name == null || name.trim().isEmpty()) {
             name = al.getSectorialName() + "_" + armyCode.hashCode();
         }
-        htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card");
+        htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card", useInch);
     }
 
-    public void printAll(Database db) {
+    public void printAll(Database db, boolean useInch) {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, "resources/image/unit/", "resources/logo/unit", u.getSectorial().getSlug()));
+                .forEach(u -> writeToFile(u, "resources/image/unit/", "resources/logo/unit", u.getSectorial().getSlug(), useInch));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -127,7 +127,7 @@ public class HtmlPrinter {
     private void copyStandardIcons(String outPath) {
         for (String fileName : ICON_FILE_NAMES) {
             try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream("/images/icons/" + fileName)) {
-                if(inputStream == null) {
+                if (inputStream == null) {
                     throw new RuntimeException("file not found: " + fileName);
                 }
                 Files.copy(inputStream, Path.of(outPath, fileName), StandardCopyOption.REPLACE_EXISTING);
@@ -146,12 +146,22 @@ public class HtmlPrinter {
                 .forEach(l -> ImageUtils.autoCrop(unitImagePath + l, outPath + l, false));
     }
 
-    public void writeToFile(UnitOption unitOption, String unitImagePath, String logoImagePath, String outputFolder) {
+    public void writeToFile(UnitOption unitOption,
+                            String unitImagePath,
+                            String logoImagePath,
+                            String outputFolder,
+                            boolean useInch) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, logoImagePath, outputFolder);
+        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, logoImagePath, outputFolder, useInch);
     }
 
-    public void writeCards(List<UnitOption> unitOptions, String fileName, Sectorial sectorial, String unitImagePath, String logoImagePath, String outputFolder) {
+    public void writeCards(List<UnitOption> unitOptions,
+                           String fileName,
+                           Sectorial sectorial,
+                           String unitImagePath,
+                           String logoImagePath,
+                           String outputFolder,
+                           boolean useInch) {
         String outPath = "out/html/";
         String outputPath = outPath + outputFolder;
         String imagePathFolder = "image/";
@@ -178,7 +188,7 @@ public class HtmlPrinter {
 
         List<PrintCard> printCards = unitOptions.stream()
                 .flatMap(u -> u.getAllTrooper().stream()
-                        .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p))))
+                        .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p, useInch))))
                 .distinct()
                 .sorted(Comparator.comparing(PrintCard::getCombinedId))
                 .toList();

@@ -9,13 +9,6 @@ public class ExtraValue {
     Type type;
     Float distanceCm;
 
-    public Integer getDistanceInch() {
-        if (distanceCm == null) {
-            return null;
-        }
-        return Math.round(distanceCm / 2.5f);
-    }
-
     public enum Type {
         Text,
         Distance

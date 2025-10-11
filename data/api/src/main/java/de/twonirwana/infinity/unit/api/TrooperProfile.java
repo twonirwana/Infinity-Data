@@ -6,7 +6,6 @@ import lombok.Value;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A profile of a trooper, some trooper have multiple profiles that change through transformation ...
@@ -23,10 +22,7 @@ public class TrooperProfile {
     int optionId;
     int profileId;
     String name;
-    /**
-     * in cm
-     */
-    List<Integer> movement;
+    List<Integer> movementInCm;
     Integer closeCombat;
     Integer ballisticSkill;
     Integer physique;
@@ -49,27 +45,6 @@ public class TrooperProfile {
     String logo;
     List<String> imageNames;
     List<Order> orders;
-
-    /**
-     * Convert a value from CM to 'CB Inches' - so, 5 per 2.
-     */
-    public List<Integer> getMovementInInch() {
-        return movement.stream()
-                .map(i -> Math.round(i / 2.5f))
-                .toList();
-    }
-
-    public String getMovementString() {
-        return getMovement().stream()
-                .map(Objects::toString)
-                .collect(Collectors.joining("-"));
-    }
-
-    public String getMovementInInchString() {
-        return getMovementInInch().stream()
-                .map(Objects::toString)
-                .collect(Collectors.joining("-"));
-    }
 
     public String getCombinedId() {
         return "%d-%d-%d-%d".formatted(sectorial.getId(), unitId, groupId, optionId);

@@ -5,6 +5,7 @@ import lombok.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,8 +19,9 @@ public class PrintCard {
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
+    boolean useInch;
 
-    public static String prettyWeaponName(Weapon weapon) {
+    public static String prettyWeaponName(Weapon weapon, boolean useInch) {
         String out;
         if (weapon.getMode() != null) {
             out = "%s [%s]".formatted(weapon.getName(), weapon.getMode().replace(" Mode", ""));
@@ -30,19 +32,19 @@ public class PrintCard {
                 .filter(e -> toPsExtra(e).isEmpty())
                 .filter(e -> toBurstExtra(e).isEmpty())
                 .count() > 0) {
-            out = "%s (%s)".formatted(out, getExtraString(weapon));
+            out = "%s (%s)".formatted(out, getExtraString(weapon, useInch));
         }
         return out;
     }
 
-    private static String getExtraString(Weapon weapon) {
+    private static String getExtraString(Weapon weapon, boolean useInch) {
         if (weapon.getExtras() == null) {
             return "";
         }
         return weapon.getExtras().stream()
                 .filter(e -> toPsExtra(e).isEmpty())
                 .filter(e -> toBurstExtra(e).isEmpty())
-                .map(PrintCard::prettyExtra)
+                .map(e -> prettyExtra(e, useInch))
                 .collect(Collectors.joining(", "));
     }
 
@@ -68,8 +70,11 @@ public class PrintCard {
 
     }
 
-    public static String getRangeModiToInchString(Weapon.RangeModifier rangeModifier) {
-        return "%d-%d″: %s".formatted(DistanceUtil.toInch(rangeModifier.fromCmExcl()), DistanceUtil.toInch(rangeModifier.toCmIncl()), rangeModifier.modifier());
+    public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {
+        return "%s-%s%s: %s".formatted(DistanceUtil.convertString(rangeModifier.fromCmExcl(), useInch),
+                DistanceUtil.convertString(rangeModifier.toCmIncl(), useInch),
+                useInch ? "″" : "cm",
+                rangeModifier.modifier());
     }
 
     public static String getWeaponPropertiesString(Weapon weapon) {
@@ -79,26 +84,14 @@ public class PrintCard {
         return String.join(", ", weapon.getProperties());
     }
 
-    private static String getSkillNameAndExtra(Skill skill) {
-        String extraString = skill.getExtras().isEmpty() ? "" : " (%s)".formatted(skill.getExtras().stream()
-                .map(PrintCard::prettyExtra)
-                .collect(Collectors.joining(", ")));
-        return "%s%s".formatted(skill.getName(), extraString);
-    }
-
-    private static String getEquipmentNameAndExtra(Equipment equipment) {
-        String extraString = equipment.getExtras().isEmpty() ? "" : " (%s)".formatted(equipment.getExtras().stream()
-                .map(PrintCard::prettyExtra)
-                .collect(Collectors.joining(", ")));
-        return "%s%s".formatted(equipment.getName(), extraString);
-    }
-
-    private static String prettyExtra(ExtraValue extraValue) {
+    private static String prettyExtra(ExtraValue extraValue, boolean useInch) {
         if (extraValue.getType() == ExtraValue.Type.Text) {
             return extraValue.getText();
         } else if (extraValue.getType() == ExtraValue.Type.Distance) {
-            String operator = extraValue.getDistanceInch() > 0 ? "+" : "";
-            return "%s%d″".formatted(operator, extraValue.getDistanceInch());
+            String operator = extraValue.getDistanceCm() > 0 ? "+" : "";
+            return "%s%s%s".formatted(operator,
+                    DistanceUtil.convertString(extraValue.getDistanceCm(), useInch),
+                    useInch ? "″" : "cm");
         }
         throw new RuntimeException("Type not implemented");
     }
@@ -123,6 +116,27 @@ public class PrintCard {
             return Optional.of(matcher.group(1));
         }
         return Optional.empty();
+    }
+
+    private String getSkillNameAndExtra(Skill skill) {
+        String extraString = skill.getExtras().isEmpty() ? "" : " (%s)".formatted(skill.getExtras().stream()
+                .map(e -> prettyExtra(e, useInch))
+                .collect(Collectors.joining(", ")));
+        return "%s%s".formatted(skill.getName(), extraString);
+    }
+
+    private String getEquipmentNameAndExtra(Equipment equipment) {
+        String extraString = equipment.getExtras().isEmpty() ? "" : " (%s)".formatted(equipment.getExtras().stream()
+                .map(e -> prettyExtra(e, useInch))
+                .collect(Collectors.joining(", ")));
+        return "%s%s".formatted(equipment.getName(), extraString);
+    }
+
+    public String getMovement() {
+        return profile.getMovementInCm().stream()
+                .map(i -> DistanceUtil.convertString(i, useInch))
+                .map(Objects::toString)
+                .collect(Collectors.joining("-"));
     }
 
     public String getCombinedId() {
@@ -158,11 +172,11 @@ public class PrintCard {
     }
 
     public String prettySkills() {
-        return profile.getSkills().stream().map(PrintCard::getSkillNameAndExtra).collect(Collectors.joining(", "));
+        return profile.getSkills().stream().map(this::getSkillNameAndExtra).collect(Collectors.joining(", "));
     }
 
     public String prettyEquipments() {
-        return profile.getEquipment().stream().map(PrintCard::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
+        return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
     }
 
 }
