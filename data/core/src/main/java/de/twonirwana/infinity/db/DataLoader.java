@@ -69,7 +69,9 @@ public class DataLoader {
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(META_DATA_FILE_PATH).toFile().lastModified();
 
         boolean update = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
-        log.info("metaDataLastModifiedAge: {}ms -> {}", metaDataLastModifiedAge, update);
+        if (update) {
+            log.info("update all files");
+        }
         Metadata metadata = loadMetadata(update);
 
         sectorialIdMap = metadata.getFactions().stream()
@@ -109,7 +111,6 @@ public class DataLoader {
         createFolderIfNotExists(IMAGE_DATA_FOLDER);
         Path path = Paths.get(IMAGE_DATA_FILE_FORMAT.formatted(sectorial.getId(), sectorial.getSlug()));
         if (!path.toFile().exists() || forceUpdate) {
-            log.info("Loading sectorial image data: {}-{}", sectorial.getId(), sectorial.getName());
             try {
                 BufferedInputStream in = getStreamForURL(UNIT_IMAGE_URL.formatted(sectorial.getId()));
                 savePrettyJson(in, path);
@@ -149,7 +150,6 @@ public class DataLoader {
         createFolderIfNotExists(SECTORIAL_FOLDER);
         Path path = Paths.get(SECTORIAL_FOLDER, SECTORIAL_FILE_FORMAT.formatted(sectorial.getId(), sectorial.getSlug()));
         if (!path.toFile().exists() || forceUpdate) {
-            log.info("Loading sectorial data: {}-{}", sectorial.getId(), sectorial.getName());
             try {
                 BufferedInputStream in = getStreamForURL(FACTION_URL_FORMAT.formatted(sectorial.getId()));
                 savePrettyJson(in, path);
@@ -164,15 +164,31 @@ public class DataLoader {
     //gson has the better pretty print format
     private static void savePrettyJson(BufferedInputStream inputStream, Path filePath) throws IOException {
         JsonElement jsonElement;
+        String fileName = filePath.getFileName().toString();
         try (InputStreamReader reader = new InputStreamReader(inputStream)) {
             JsonReader jsonReader = new JsonReader(reader);
             jsonElement = com.google.gson.JsonParser.parseReader(jsonReader);
         }
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (Writer writer = Files.newBufferedWriter(filePath)) {
+
+        Path tempFile = Files.createTempFile(fileName, ".json");
+        HashCode existingFileHash = null;
+        if (filePath.toFile().exists()) {
+            existingFileHash = com.google.common.io.Files.asByteSource(filePath.toFile()).hash(Hashing.murmur3_32_fixed());
+        }
+
+        try (Writer writer = Files.newBufferedWriter(tempFile)) {
             gson.toJson(jsonElement, writer);
         }
+
+        HashCode newFileHash = com.google.common.io.Files.asByteSource(tempFile.toFile()).hash(Hashing.murmur3_32_fixed());
+        if (!newFileHash.equals(existingFileHash)) {
+            log.info("{} was updated", fileName);
+        }
+
+        Files.copy(tempFile, filePath, StandardCopyOption.REPLACE_EXISTING);
+        tempFile.toFile().delete();
     }
 
     private static SectorialImage deserializeSectorialImage(Path path) {
@@ -204,7 +220,6 @@ public class DataLoader {
         createFolderIfNotExists(RECOURCES_FOLDER);
         Path path = Paths.get(META_DATA_FILE_PATH);
         if (!path.toFile().exists() || forceUpdate) {
-            log.info("Loading Metadata");
             BufferedInputStream metaDataInput = getStreamForURL(META_DATA_URL);
             savePrettyJson(metaDataInput, path);
         }
