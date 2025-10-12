@@ -3,6 +3,8 @@
 /build/
 /app/build/
 /app/out/
+/app/resources/
+/app/archive/
 /data/build/
 /data/api/build/
 /data/core/build/

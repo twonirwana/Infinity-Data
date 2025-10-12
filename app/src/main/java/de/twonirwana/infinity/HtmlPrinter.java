@@ -14,10 +14,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class HtmlPrinter {
@@ -88,7 +85,7 @@ public class HtmlPrinter {
                 .toList();
         String name = al.getArmyName();
         if (name == null || name.trim().isEmpty()) {
-            name = al.getSectorialName() + "_" + armyCode.hashCode();
+            name = al.getSectorialName() + "_" + Math.abs(armyCode.hashCode());
         }
         htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card", useInch);
     }
@@ -105,14 +102,6 @@ public class HtmlPrinter {
             Files.copy(Path.of(sourcePath, fileName), Path.of(outPath, fileName), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             log.error("file not found: {}", fileName);
-        }
-    }
-
-    private void copyFile(Path source, String outPath) {
-        try {
-            Files.copy(source, Path.of(outPath, source.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            log.error("file not found: {}", source);
         }
     }
 
@@ -138,12 +127,20 @@ public class HtmlPrinter {
         }
     }
 
-    private void copyUnitImages(UnitOption option, String unitImagePath, String outPath) {
+    private void copyUnitImages(UnitOption option, String unitImagePath, String outPath, Set<String> usedImages) {
         option.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream())
-                .flatMap(p -> p.getImageNames().stream())
-                .distinct()
-                .forEach(l -> ImageUtils.autoCrop(unitImagePath + l, outPath + l, false));
+                .forEach(p -> {
+                    if (!p.getImageNames().isEmpty()) {
+                        Optional<String> unusedImage = p.getImageNames().stream()
+                                .filter(i -> !usedImages.contains(i))
+                                .findFirst();
+                        unusedImage.ifPresent(usedImages::add);
+                        ImageUtils.autoCrop(unitImagePath + unusedImage.orElse(p.getImageNames().getFirst()),
+                                outPath + p.getCombinedProfileId() + ".png", false);
+                    }
+
+                });
     }
 
     public void writeToFile(UnitOption unitOption,
@@ -174,9 +171,12 @@ public class HtmlPrinter {
             throw new RuntimeException(e);
         }
         copyStandardIcons(imageOutputPath);
+
+        //if there are multiple image options they should all be used
+        Set<String> usedImages = new HashSet<>();
         for (UnitOption unitOption : unitOptions) {
             copyLogos(unitOption, logoImagePath, imageOutputPath);
-            copyUnitImages(unitOption, unitImagePath, imageOutputPath);
+            copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
         }
 
         //a 1/3 height and width of a dinA4 to print 9 cards on one page
@@ -190,7 +190,7 @@ public class HtmlPrinter {
                 .flatMap(u -> u.getAllTrooper().stream()
                         .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p, useInch))))
                 .distinct()
-                .sorted(Comparator.comparing(PrintCard::getCombinedId))
+                .sorted(Comparator.comparing(PrintCard::getCombinedProfileId))
                 .toList();
 
         Context context = new Context();

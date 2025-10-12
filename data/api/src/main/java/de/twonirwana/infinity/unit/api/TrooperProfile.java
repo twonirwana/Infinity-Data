@@ -46,8 +46,8 @@ public class TrooperProfile {
     List<String> imageNames;
     List<Order> orders;
 
-    public String getCombinedId() {
-        return "%d-%d-%d-%d".formatted(sectorial.getId(), unitId, groupId, optionId);
+    public String getCombinedProfileId() {
+        return "%d-%d-%d-%d-%d".formatted(sectorial.getId(), unitId, groupId, optionId, profileId);
     }
 
     public boolean isHackable() {

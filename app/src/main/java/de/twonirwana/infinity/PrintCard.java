@@ -139,8 +139,8 @@ public class PrintCard {
                 .collect(Collectors.joining("-"));
     }
 
-    public String getCombinedId() {
-        return trooper.getCombinedId();
+    public String getCombinedProfileId() {
+        return profile.getCombinedProfileId();
     }
 
     public List<String> getIconFileNames() {

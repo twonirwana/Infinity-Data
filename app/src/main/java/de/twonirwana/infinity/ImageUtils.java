@@ -62,10 +62,10 @@ public class ImageUtils {
             }
 
             int newWidth = maxX - minX;
-           final int newHeight;
-            final  int heightStart;
+            final int newHeight;
+            final int heightStart;
             if (cropHeight) {
-                newHeight= maxY - minY;
+                newHeight = maxY - minY;
                 heightStart = minY;
             } else {
                 newHeight = image.getHeight();
@@ -73,7 +73,6 @@ public class ImageUtils {
             }
 
             BufferedImage trimmedImage = image.getSubimage(minX, heightStart, newWidth, newHeight);
-            //todo change to webp or change file name
             ImageIO.write(trimmedImage, "png", new File(filePathOut));
         } catch (IOException e) {
             log.error(filePathIn + ":" + e.getMessage());
