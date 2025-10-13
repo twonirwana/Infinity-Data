@@ -12,7 +12,7 @@ repositories {
 dependencies {
     implementation(project(":data:api"))
 
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.19")
     // implementation("org.apache.commons:commons-text:1.14.0")
     // implementation("org.apache.commons:commons-csv:1.8")

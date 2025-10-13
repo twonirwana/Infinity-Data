@@ -13,7 +13,7 @@ dependencies {
 
     implementation(project(":data"))
     implementation(project(":app"))
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.19")
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
