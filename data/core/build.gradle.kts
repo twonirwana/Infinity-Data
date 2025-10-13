@@ -16,8 +16,8 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.19")
     // implementation("org.apache.commons:commons-text:1.14.0")
     // implementation("org.apache.commons:commons-csv:1.8")
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
     implementation("com.google.guava:guava:33.5.0-jre")
     implementation("com.google.code.gson:gson:2.13.2")
 
