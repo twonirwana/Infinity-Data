@@ -18,7 +18,7 @@ dependencies {
     // implementation("org.apache.commons:commons-csv:1.8")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
-    implementation("com.google.guava:guava:33.4.8-jre")
+    implementation("com.google.guava:guava:33.5.0-jre")
     implementation("com.google.code.gson:gson:2.13.2")
 
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.0")
