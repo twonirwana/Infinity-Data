@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trooper Card Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color-glow: #00d4ff;
+            --primary-color-dark: #00a1c7;
+            --dark-bg: #12151a;
+            --content-bg: rgba(20, 25, 30, 0.85);
+            --text-color: #e0e0e0;
+            --text-muted: #8899aa;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Orbitron', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2em;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            color: var(--primary-color-glow);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7), 0 0 12px rgba(0, 212, 255, 0.5);
+            margin-bottom: 1.5em;
+            position: relative;
+        }
+
+        .form-container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--content-bg);
+            padding: 2.5em;
+            border: 2px solid var(--primary-color-glow);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5), 0 0 5px rgba(0, 212, 255, 0.8) inset;
+            backdrop-filter: blur(5px);
+            margin-bottom: 2em; /* Added margin for footer */
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: var(--primary-color-dark);
+            letter-spacing: 1px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1.5em;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--primary-color-dark);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="text"]::placeholder {
+            color: #667;
+            opacity: 1;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color-glow);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: block;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 1rem;
+            color: var(--primary-color-glow);
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        select {
+            padding-right: 40px;
+        }
+
+        button {
+            font-family: var(--font-display);
+            padding: 12px 15px;
+            cursor: pointer;
+            border: 2px solid var(--primary-color-glow);
+            background-color: transparent;
+            color: var(--primary-color-glow);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+            margin-top: 1em;
+        }
+
+        button:hover {
+            background-color: var(--primary-color-glow);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            color: var(--primary-color-glow);
+            text-decoration: underline;
+        }
+
+        .footer-separator {
+            color: var(--primary-color-dark);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h1>Trooper Card Generator</h1>
+    <form action="/generate/" method="get">
+
+        <label for="armyCode">Your army code:</label>
+        <input type="text" id="armyCode" name="armyCode" required placeholder="Enter Army Code...">
+
+        <label for="unit-selector">Select Unit System:</label>
+        <div class="select-wrapper">
+            <select id="unit-selector" name="unit">
+                <option value="inch" selected>Inches</option>
+                <option value="cm">Centimeters</option>
+            </select>
+        </div>
+
+        <button type="submit">Generate and View Cards</button>
+    </form>
+</div>
+
+<footer>
+    <a th:href="'mailto:' + ${email}">Contact</a>
+    <span class="footer-separator">|</span>
+    <a href="impressum">Impressum</a>
+    <span class="footer-separator">|</span>
+    <a href="https://github.com/twonirwana/Infinity-Data" target="_blank" rel="noopener noreferrer">Source Code</a>
+</footer>
+
+</body>
+</html>

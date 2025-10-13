@@ -62,13 +62,19 @@ public class DataLoader {
     private final Map<Integer, Sectorial> sectorialIdMap;
 
     public DataLoader() throws IOException, URISyntaxException {
+        this(false);
+
+    }
+
+    public DataLoader(boolean forceUpdate) throws IOException, URISyntaxException {
 
         //needed to set headers to allow download
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(META_DATA_FILE_PATH).toFile().lastModified();
+        boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
 
-        boolean update = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
+        boolean update = forceUpdate || fileOutOfDate;
         if (update) {
             log.info("update all files");
         }

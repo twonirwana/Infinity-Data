@@ -3,6 +3,7 @@ include("data")
 include("data:api")
 include("data:core")
 include("app")
+include("web")
 
 pluginManagement {
     repositories {

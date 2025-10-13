@@ -19,6 +19,11 @@ import java.util.*;
 @Slf4j
 public class HtmlPrinter {
 
+    public static final String UNIT_IMAGE_PATH = "resources/image/unit/";
+    public static final String UNIT_LOGO_PATH = "resources/logo/unit";
+    public static final String CARD_FOLDER = "card";
+    public static final String IMAGES_ICONS_FOLDER = "/images/icons/";
+    public static final String HTML_OUTPUT_PATH = "out/html/";
     //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
     private static final Map<Integer, String> sectorialColors = ImmutableMap.<Integer, String>builder()
             .put(100, "#00b0f2")
@@ -33,7 +38,6 @@ public class HtmlPrinter {
             .put(1000, "#005470")
             .put(1100, "#a6112b")
             .build();
-
     //sed -n '/perfil_habs\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors2nd.txt
     private static final Map<Integer, String> sectorial2ndColors = ImmutableMap.<Integer, String>builder()
             .put(100, "#006a91")
@@ -48,7 +52,6 @@ public class HtmlPrinter {
             .put(1000, "#e7b128")//o12 need to be extracted with hand, the regex doesn't get it
             .put(1100, "#757575")
             .build();
-
     private static final Map<String, String> RANGE_COLOR_MAP = Map.of("0", "deepskyblue",
             "-3", "orange",
             "+3", "darkseagreen",
@@ -75,7 +78,18 @@ public class HtmlPrinter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
-    public static void printCardForArmyCode(Database db, String armyCode, boolean useInch) {
+    /*todo:
+     * add bs and cc b/sd/ps skill extras in the weapons table
+     * add sd weapon extra into burst column
+     * improve crop
+     * format option for game cards, dina7, and us letter
+     * points and sws
+     * Mark profiles cards that belong to the same trooper, like transformations
+     * Mark trooper cards that belong to the same unit, like peripherals
+     * Show a list of hacking programs?
+     */
+
+    public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch) {
         ArmyList al = db.getArmyListForArmyCode(armyCode);
         HtmlPrinter htmlPrinter = new HtmlPrinter();
         List<UnitOption> armyListOptions = al.getCombatGroups().values().stream()
@@ -83,18 +97,14 @@ public class HtmlPrinter {
                 .distinct()
                 .sorted(Comparator.comparing(UnitOption::getUnitName))
                 .toList();
-        String name = al.getArmyName();
-        if (name == null || name.trim().isEmpty()) {
-            name = al.getSectorialName() + "_" + Math.abs(armyCode.hashCode());
-        }
-        htmlPrinter.writeCards(armyListOptions, name, al.getSectorial(), "resources/image/unit/", "resources/logo/unit", "card", useInch);
+        htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_PATH, UNIT_LOGO_PATH, CARD_FOLDER, useInch);
     }
 
     public void printAll(Database db, boolean useInch) {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, "resources/image/unit/", "resources/logo/unit", u.getSectorial().getSlug(), useInch));
+                .forEach(u -> writeToFile(u, UNIT_IMAGE_PATH, UNIT_LOGO_PATH, u.getSectorial().getSlug(), useInch));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -115,7 +125,7 @@ public class HtmlPrinter {
 
     private void copyStandardIcons(String outPath) {
         for (String fileName : ICON_FILE_NAMES) {
-            try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream("/images/icons/" + fileName)) {
+            try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream(IMAGES_ICONS_FOLDER + fileName)) {
                 if (inputStream == null) {
                     throw new RuntimeException("file not found: " + fileName);
                 }
@@ -159,10 +169,8 @@ public class HtmlPrinter {
                            String logoImagePath,
                            String outputFolder,
                            boolean useInch) {
-        String outPath = "out/html/";
-        String outputPath = outPath + outputFolder;
-        String imagePathFolder = "image/";
-        String imageOutputPath = outputPath + "/" + imagePathFolder;
+        String outputPath = HTML_OUTPUT_PATH + outputFolder;
+        String imageOutputPath = outputPath + "/image/";
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
@@ -203,7 +211,8 @@ public class HtmlPrinter {
         context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
         context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
 
-        try (FileWriter writer = new FileWriter("%s/%s.html".formatted(outputPath, fileName))) {
+        String savePath = "%s/%s.html".formatted(outputPath, fileName);
+        try (FileWriter writer = new FileWriter(savePath)) {
             templateEngine.process("TrooperCard", context, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
