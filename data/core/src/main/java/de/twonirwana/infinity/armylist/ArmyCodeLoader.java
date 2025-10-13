@@ -75,7 +75,7 @@ public class ArmyCodeLoader {
     public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
         byte[] data;
 
-        // So sometimes CB urlencodes the army code and sometimes it doesn't. Yay
+        // Sometimes CB urlencodes the army code and sometimes it doesn't.
         try {
             data = Base64.getDecoder().decode(armyCode);
         } catch (IllegalArgumentException exception) {
@@ -83,7 +83,7 @@ public class ArmyCodeLoader {
                 String decoded = URLDecoder.decode(armyCode, StandardCharsets.UTF_8);
                 data = Base64.getDecoder().decode(decoded);
             } catch (Throwable t) {
-                throw new IllegalArgumentException("Failed to decode army code");
+                throw new IllegalArgumentException("Failed to decode army code: " +  armyCode, t);
             }
         }
 
@@ -91,14 +91,13 @@ public class ArmyCodeLoader {
 
         int sectorialId = readVLI(dataBuffer);
         Sectorial sectorial = dataLoader.getSectorialIdMap().get(sectorialId);
-        // Not sure why they embed the faction name as well, but *shrug*
         int faction_length = readVLI(dataBuffer);
         byte[] factionNameData = new byte[faction_length];
         dataBuffer.get(factionNameData, 0, faction_length);
 
         String fractionName = new String(factionNameData, StandardCharsets.UTF_8);
 
-        // Get the army name, if set. Fun fact, the default army name is ' '.
+        // Get the army name, if set. The default army name is ' '.
         int armyNameLength = dataBuffer.get() & 0xffffff;
         String armyName = null;
         if (armyNameLength > 0) {

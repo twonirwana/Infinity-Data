@@ -14,4 +14,6 @@ public interface Database {
     List<UnitOption> getAllUnitsForSectorial(Sectorial sectorial);
 
     List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial);
+
+    void updateData();
 }

@@ -3,14 +3,16 @@ package de.twonirwana.infinity;
 import de.twonirwana.infinity.armylist.ArmyCodeLoader;
 import de.twonirwana.infinity.db.DataLoader;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+@Slf4j
 public class DatabaseImp implements Database {
 
-    final DataLoader loader;
+    private DataLoader loader;
 
     public DatabaseImp() {
         try {
@@ -43,5 +45,17 @@ public class DatabaseImp implements Database {
     @Override
     public List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial) {
         return loader.getAllUnitsForSectorialWithoutMercs(sectorial);
+    }
+
+    @Override
+    public void updateData() {
+        try {
+            log.info("Start updating data");
+            DataLoader newDataLoader = new DataLoader(true);
+            log.info("Finish updating data");
+            loader = newDataLoader;
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -11,3 +11,5 @@
 /out/
 /resources/
 /archive/
+/logs/
+/web/build/
