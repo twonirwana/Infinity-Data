@@ -1,4 +1,6 @@
-db.refreshIntervalSec: 86400
+db:
+  refreshIntervalSec: 86400
+  preCropImages: false
 server:
   port: 7070
   hostName: localhost
