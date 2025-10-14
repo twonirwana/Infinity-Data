@@ -28,7 +28,7 @@ dependencies {
 
 tasks {
     named<ShadowJar>("shadowJar") {
-        archiveFileName.set("${archiveBaseName.get()}-${archiveVersion.get()}-all.jar")
+        archiveFileName.set("${archiveBaseName.get()}-${archiveVersion.get()}.jar")
 
         manifest {
             attributes(mapOf("Main-Class" to "de.twonirwana.infinity.WebApp"))

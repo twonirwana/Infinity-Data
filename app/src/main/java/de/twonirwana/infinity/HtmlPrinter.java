@@ -24,6 +24,7 @@ public class HtmlPrinter {
     public static final String CARD_FOLDER = "card";
     public static final String IMAGES_ICONS_FOLDER = "/images/icons/";
     public static final String HTML_OUTPUT_PATH = "out/html/";
+    public static final String IMAGE_FOLDER = "/image/";
     //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
     private static final Map<Integer, String> sectorialColors = ImmutableMap.<Integer, String>builder()
             .put(100, "#00b0f2")
@@ -81,7 +82,7 @@ public class HtmlPrinter {
     /*todo:
      * add bs and cc b/sd/ps skill extras in the weapons table
      * add sd weapon extra into burst column
-     * improve crop
+     * max width for image
      * format option for game cards, dina7, and us letter
      * points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
@@ -140,6 +141,7 @@ public class HtmlPrinter {
     private void copyUnitImages(UnitOption option, String unitImagePath, String outPath, Set<String> usedImages) {
         option.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream())
+                .parallel()
                 .forEach(p -> {
                     if (!p.getImageNames().isEmpty()) {
                         Optional<String> unusedImage = p.getImageNames().stream()
@@ -147,7 +149,7 @@ public class HtmlPrinter {
                                 .findFirst();
                         unusedImage.ifPresent(usedImages::add);
                         ImageUtils.autoCrop(unitImagePath + unusedImage.orElse(p.getImageNames().getFirst()),
-                                outPath + p.getCombinedProfileId() + ".png", false);
+                                outPath + p.getCombinedProfileId() + ".png");
                     }
 
                 });
@@ -170,7 +172,7 @@ public class HtmlPrinter {
                            String outputFolder,
                            boolean useInch) {
         String outputPath = HTML_OUTPUT_PATH + outputFolder;
-        String imageOutputPath = outputPath + "/image/";
+        String imageOutputPath = outputPath + IMAGE_FOLDER;
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
