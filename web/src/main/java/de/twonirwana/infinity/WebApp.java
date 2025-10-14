@@ -10,32 +10,34 @@ import io.javalin.rendering.template.JavalinThymeleaf;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class WebApp {
-    private final static String CARD_FOLDER = "out/html/card/";
-    private final static String ARCHIVE_CARD_FOLDER = "archive/html/card/";
-    private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + "image/";
+    private final static String CARD_FOLDER = HtmlPrinter.HTML_OUTPUT_PATH + HtmlPrinter.CARD_FOLDER;
+    private final static String CARD_ARCHIVE_FOLDER = "archive/html/card";
+    private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
+    private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
+    private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
+
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
 
     public static void main(String[] args) {
         /*
         todo:
-         * move all existing out on startup to archive
+         * option to disable distinct units
          * https option, https://javalin.io/plugins/ssl-helpers
          * impressum tymeleaf template?
          * ko-fi
          * metrics https://javalin.io/plugins/micrometer
+         * metrics for card generator
          * config enable request logging
-         *
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -43,8 +45,10 @@ public class WebApp {
 
         Database database = new DatabaseImp();
         HtmlPrinter htmlPrinter = new HtmlPrinter();
-        createFolderIfNotExists(ARCHIVE_CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
+
+        moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER);
+        moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER);
 
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
         if (refreshDbIntervalSec > 0) {
@@ -54,6 +58,21 @@ public class WebApp {
                     refreshDbIntervalSec,
                     TimeUnit.SECONDS);
             Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdownNow));
+        }
+
+        if (Config.getBool("db.preCropImages", false)) {
+            AtomicLong counter = new AtomicLong(0);
+            database.getAllUnitOptions().stream()
+                    .flatMap(u -> u.getAllTrooper().stream())
+                    .flatMap(t -> t.getProfiles().stream())
+                    .distinct()
+                    .parallel()
+                    .forEach(p -> p.getImageNames().forEach(image -> {
+                        counter.incrementAndGet();
+                        ImageUtils.autoCrop(HtmlPrinter.UNIT_IMAGE_PATH + image,
+                                CARD_IMAGE_FOLDER + p.getCombinedProfileId() + ".png");
+                    }));
+            log.info("Pre crop {} images found in database.", counter.get());
         }
 
         Javalin webApp = Javalin.create(config -> {
@@ -121,7 +140,7 @@ public class WebApp {
                 ctx.html(Files.readString(filePath));
 
             } else {
-                ctx.status(404).result("Sorry, no page was found for the key: " + armyCodeHash);
+                ctx.status(404).result("Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash));
             }
         });
 
@@ -137,6 +156,31 @@ public class WebApp {
             if (Files.notExists(path)) {
                 Files.createDirectories(path);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void moveFiles(String source, String target) {
+        Path sourceDir = Paths.get(source);
+        Path targetDir = Paths.get(target);
+        int count = 0;
+        try {
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
+                for (Path file : stream) {
+                    if (!file.toFile().isDirectory()) {
+                        Path targetPath = targetDir.resolve(file.getFileName());
+                        Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        count++;
+                    }
+                }
+            }
+            log.info("moved {} files from {} to {}", count, sourceDir, targetDir);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
