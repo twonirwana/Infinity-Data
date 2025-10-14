@@ -90,14 +90,18 @@ public class HtmlPrinter {
      * Show a list of hacking programs?
      */
 
-    public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch) {
+    public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits) {
         ArmyList al = db.getArmyListForArmyCode(armyCode);
         HtmlPrinter htmlPrinter = new HtmlPrinter();
-        List<UnitOption> armyListOptions = al.getCombatGroups().values().stream()
-                .flatMap(Collection::stream)
-                .distinct()
-                .sorted(Comparator.comparing(UnitOption::getUnitName))
+        List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
+                .sorted()
+                .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
+        if (distinctUnits) {
+            armyListOptions = armyListOptions.stream()
+                    .distinct()
+                    .toList();
+        }
         htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_PATH, UNIT_LOGO_PATH, CARD_FOLDER, useInch);
     }
 
@@ -199,8 +203,6 @@ public class HtmlPrinter {
         List<PrintCard> printCards = unitOptions.stream()
                 .flatMap(u -> u.getAllTrooper().stream()
                         .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p, useInch))))
-                .distinct()
-                .sorted(Comparator.comparing(PrintCard::getCombinedProfileId))
                 .toList();
 
         Context context = new Context();

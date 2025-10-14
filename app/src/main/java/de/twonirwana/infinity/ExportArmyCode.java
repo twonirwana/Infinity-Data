@@ -13,6 +13,6 @@ public class ExportArmyCode {
         }
         String armyCodeHash = HashUtil.hash128Bit(armyCode);
         String fileName = armyCodeHash + "-" + (useInch ? "inch" : "cm");
-        new HtmlPrinter().printCardForArmyCode(db, fileName, armyCode, useInch);
+        new HtmlPrinter().printCardForArmyCode(db, fileName, armyCode, useInch, false);
     }
 }
