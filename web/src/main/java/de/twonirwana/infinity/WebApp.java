@@ -27,6 +27,8 @@ public class WebApp {
 
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
+    private final static String DISTINCT_UNITS = "distinct";
+    private final static String ORGINAL_UNITS = "original";
 
     public static void main(String[] args) {
         /*
@@ -45,6 +47,7 @@ public class WebApp {
 
         Database database = new DatabaseImp();
         HtmlPrinter htmlPrinter = new HtmlPrinter();
+        createFolderIfNotExists(CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
 
         moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER);
@@ -109,10 +112,22 @@ public class WebApp {
                 return;
             }
 
+            String distinctUnitKey = ctx.queryParam("filter");
+            final boolean distinct;
+            if (DISTINCT_UNITS.equals(distinctUnitKey)) {
+                distinct = true;
+            } else if (ORGINAL_UNITS.equals(distinctUnitKey)) {
+                distinct = false;
+            } else {
+                log.error("Invalid distinctUnitKey '{}'", distinctUnitKey);
+                ctx.status(400).html("Invalid distinctUnitKey: " + distinctUnitKey);
+                return;
+            }
+
             armyCode = armyCode.trim();
             log.info("army code: {}", armyCode);
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = armyCodeHash + "-" + unit;
+            String fileName = "%s-%s-%s".formatted(armyCodeHash, unit, distinctUnitKey);
             if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 ctx.redirect("/view/" + fileName);
@@ -120,7 +135,7 @@ public class WebApp {
             }
 
             try {
-                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch);
+                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct);
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
 
                 ctx.redirect("/view/" + fileName);
