@@ -151,6 +151,9 @@ public class PrintCard {
         if (profile.hasCube()) {
             iconFileNames.add("cube.svg");
         }
+        if (profile.hasCube2()) {
+            iconFileNames.add("cube-2.svg");
+        }
         if (profile.isPeripheral()) {
             iconFileNames.add("peripheral.svg");
         }

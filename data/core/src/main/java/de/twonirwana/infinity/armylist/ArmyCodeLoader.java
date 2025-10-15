@@ -83,7 +83,7 @@ public class ArmyCodeLoader {
                 String decoded = URLDecoder.decode(armyCode, StandardCharsets.UTF_8);
                 data = Base64.getDecoder().decode(decoded);
             } catch (Throwable t) {
-                throw new IllegalArgumentException("Failed to decode army code: " +  armyCode, t);
+                throw new IllegalArgumentException("Failed to decode army code: " + armyCode, t);
             }
         }
 
@@ -116,7 +116,8 @@ public class ArmyCodeLoader {
                     List<CombatGroupMember> members = getCombatGroupFromCode(dataBuffer);
                     return members.stream()
                             .map(m -> unitOptionList.stream()
-                                    .filter(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId).findFirst().orElseThrow())
+                                    .filter(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId).findFirst().orElseThrow(() ->
+                                            new IllegalArgumentException("No profile for unit id: %s and optionId: %s".formatted(m.unitId, m.optionId))))
                             .toList();
                 }));
         Sectorial sectorialApiId = dataLoader.getAllSectorialIds().stream()

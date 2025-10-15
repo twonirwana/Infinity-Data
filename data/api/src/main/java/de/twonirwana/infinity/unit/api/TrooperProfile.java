@@ -5,7 +5,6 @@ import lombok.Value;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * A profile of a trooper, some trooper have multiple profiles that change through transformation ...
@@ -15,7 +14,8 @@ public class TrooperProfile {
     private static final String HACKABLE_CHARACTERISTIC = "hackable";
     private static final String PERIPHERAL_CHARACTERISTIC = "peripheral";
     private static final String LIEUTENANT_SKILL = "lieutenant";
-    private final static Set<String> CUBE_CHARACTERISTICS = Set.of("cube 2.0", "cube");
+    private final static String CUBE_CHARACTERISTIC = "cube";
+    private final static String CUBE2_CHARACTERISTIC = "cube 2.0";
     Sectorial sectorial;
     int unitId;
     int groupId;
@@ -63,7 +63,15 @@ public class TrooperProfile {
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .map(String::toLowerCase)
-                .anyMatch(CUBE_CHARACTERISTICS::contains);
+                .anyMatch(CUBE_CHARACTERISTIC::equals);
+    }
+
+    public boolean hasCube2() {
+        return characteristics.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .anyMatch(CUBE2_CHARACTERISTIC::equals);
     }
 
     public boolean isLieutenant() {
