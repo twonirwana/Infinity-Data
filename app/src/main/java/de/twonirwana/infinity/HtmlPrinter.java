@@ -58,7 +58,9 @@ public class HtmlPrinter {
             "+3", "darkseagreen",
             "-6", "orangered",
             "+6", "yellowgreen");
-    private static final List<String> ICON_FILE_NAMES = List.of("cube.svg",
+    private static final List<String> ICON_FILE_NAMES = List.of(
+            "cube.svg",
+            "cube-2.svg",
             "hackable.svg",
             "impetuous.svg",
             "irregular.svg",

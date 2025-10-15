@@ -34,12 +34,9 @@ public class CsvPrinter {
             throw new RuntimeException(e);
         }
 
-
         try (Writer writer = new FileWriter("out/csv/" + faction.getSlug() + ".csv");
-             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                     .withDelimiter(';')
-                     .withHeader(headers))) {
-
+             CSVPrinter csvPrinter = new CSVPrinter(writer,
+                     CSVFormat.Builder.create().setDelimiter(';').setHeader(headers).get())) {
 
             printableUnits.stream()
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
