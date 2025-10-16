@@ -5,5 +5,5 @@ server:
   port: 7070
   hostName: localhost
 website:
-  impressum:
-  email: example@mail.com
+  imprint:
+  email:
