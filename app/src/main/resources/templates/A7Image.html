@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
 
-    <title th:text="${listName}">todo list name</title>
+    <title th:text="${listName}">list name</title>
     <meta charset="UTF-8">
     <style>
         @page {
-            size: [[${pageSize}]];
+            size: 99mm 70mm;
             margin: 0;
         }
 
@@ -18,8 +18,8 @@
         }
 
         html, body {
-            width: [[${cardWidthInMm}]];
-            height: [[${cardHeightInMm}]];
+            width: 99mm;
+            height: 77mm;
             margin: 0;
             padding: 0;
         }
@@ -35,8 +35,8 @@
 
         .card {
             box-sizing: border-box;
-            width: [[${cardWidthInMm}]];
-            height: [[${cardHeightInMm}]];
+            width: 99mm;
+            height: 70mm;
             display: grid;
             gap: 1mm;
             border: 2px solid [[${primaryColor}]];
@@ -68,6 +68,31 @@
 
         tbody tr:nth-child(even) {
             background-color: #f2f2f2;
+        }
+
+        .rangePlus6 {
+            flex: 1;
+            background-color: yellowgreen;
+        }
+
+        .rangePlus3 {
+            flex: 1;
+            background-color: darkseagreen;
+        }
+
+        .range0 {
+            flex: 1;
+            background-color: deepskyblue;
+        }
+
+        .rangeMinus3 {
+            flex: 1;
+            background-color: orange;
+        }
+
+        .rangeMinus6 {
+            flex: 1;
+            background-color: orangered;
         }
 
     </style>
@@ -157,7 +182,7 @@
                             <div style="display: flex;">
                                 <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
                                      th:text="${printCard.getRangeModifier(range, printCard.isUseInch())}"
-                                     th:style="'flex: 1; background-color:' + ${modifierColorMap.get(range.modifier())}">
+                                     th:class="${rangeModifierClassMap.get(range.modifier())}">
                                 </div>
                             </div>
                         </td>

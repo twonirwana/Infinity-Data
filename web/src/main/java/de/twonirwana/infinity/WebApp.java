@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -120,14 +122,24 @@ public class WebApp {
                 distinct = false;
             } else {
                 log.error("Invalid distinctUnitKey '{}'", distinctUnitKey);
-                ctx.status(400).html("Invalid distinctUnitKey: " + distinctUnitKey);
+                ctx.status(400).html("Invalid filter: " + distinctUnitKey);
+                return;
+            }
+
+            String styleKey = ctx.queryParam("style");
+            final Optional<HtmlPrinter.Template> styleOptional = Arrays.stream(HtmlPrinter.Template.values())
+                    .filter(t -> t.name().equals(styleKey))
+                    .findFirst();
+            if (styleOptional.isEmpty()) {
+                log.error("Invalid styleKey '{}'", styleKey);
+                ctx.status(400).html("Invalid style: " + styleKey);
                 return;
             }
 
             armyCode = armyCode.trim();
             log.info("army code: {}", armyCode);
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = "%s-%s-%s".formatted(armyCodeHash, unit, distinctUnitKey);
+            String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
             if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 ctx.redirect("/view/" + fileName);
@@ -135,7 +147,7 @@ public class WebApp {
             }
 
             try {
-                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct);
+                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
 
                 ctx.redirect("/view/" + fileName);
