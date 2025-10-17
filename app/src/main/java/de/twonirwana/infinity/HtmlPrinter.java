@@ -110,6 +110,7 @@ public class HtmlPrinter {
                     .toList();
         }
         htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_PATH, UNIT_LOGO_PATH, CARD_FOLDER, useInch, template);
+        log.info("Created cards for: {} ; {} ; {} ; {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode);
     }
 
     public void printAll(Database db, boolean useInch, Template template) {

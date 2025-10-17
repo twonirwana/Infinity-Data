@@ -4,6 +4,7 @@ db:
 server:
   port: 7070
   hostName: localhost
+  contextPath: /
 website:
   impressum:
   email: example@mail.com

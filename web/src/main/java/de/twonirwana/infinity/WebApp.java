@@ -9,6 +9,7 @@ import io.javalin.http.staticfiles.Location;
 import io.javalin.rendering.template.JavalinThymeleaf;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Arrays;
@@ -25,8 +26,8 @@ public class WebApp {
     private final static String CARD_ARCHIVE_FOLDER = "archive/html/card";
     private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
     private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
+    private final static Path ARMY_UNIT_CACHE_FILE = Path.of(CARD_IMAGE_FOLDER + "army_code-hash.csv");
     private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
-
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
     private final static String DISTINCT_UNITS = "distinct";
@@ -46,6 +47,7 @@ public class WebApp {
 
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
+        String contextPath = Config.get("server.contextPath", "/");
 
         Database database = new DatabaseImp();
         HtmlPrinter htmlPrinter = new HtmlPrinter();
@@ -54,6 +56,14 @@ public class WebApp {
 
         moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER);
         moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER);
+        File indexFile = ARMY_UNIT_CACHE_FILE.toFile();
+        if (!indexFile.exists()) {
+            try {
+                indexFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
         if (refreshDbIntervalSec > 0) {
@@ -88,12 +98,12 @@ public class WebApp {
                     });
                     config.http.customCompression(CompressionStrategy.GZIP);
                     config.fileRenderer(new JavalinThymeleaf());
-
+                    config.router.contextPath = contextPath;
                 })
                 .start(host, port);
 
         webApp.get("/", ctx -> {
-            ctx.render("templates/index.html", Map.of("email", Config.get("email", "example@mail.com")));
+            ctx.render("templates/index.html", Map.of("email", Config.get("website.email", "")));
         });
         webApp.get("/generate", ctx -> {
             String armyCode = ctx.queryParam("armyCode");
@@ -142,15 +152,15 @@ public class WebApp {
             String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
             if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
-                ctx.redirect("/view/" + fileName);
+                ctx.redirect(contextPath + "view/" + fileName);
                 return;
             }
 
             try {
                 htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
-
-                ctx.redirect("/view/" + fileName);
+                Files.writeString(ARMY_UNIT_CACHE_FILE, "%s;%s\n".formatted(armyCode, armyCodeHash), StandardOpenOption.APPEND);
+                ctx.redirect(contextPath + "view/" + fileName);
             } catch (Exception e) {
                 log.error("Can't read army code: {}", armyCode, e);
                 ctx.status(400).html("Can't read army code: " + armyCode);
