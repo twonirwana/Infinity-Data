@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
 import io.javalin.compression.CompressionStrategy;
-import io.javalin.http.ContentType;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.rendering.template.JavalinThymeleaf;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +35,7 @@ public class WebApp {
     public static void main(String[] args) {
         /*
         todo:
-         * option to disable distinct units
          * https option, https://javalin.io/plugins/ssl-helpers
-         * impressum tymeleaf template?
          * ko-fi
          * metrics https://javalin.io/plugins/micrometer
          * metrics for card generator
@@ -102,9 +99,16 @@ public class WebApp {
                 })
                 .start(host, port);
 
+        //base page
         webApp.get("/", ctx -> {
-            ctx.render("templates/index.html", Map.of("email", Config.get("website.email", "")));
+            Map<String, String> model = Map.of(
+                    "email", Config.get("website.email", ""),
+                    "imprint", Config.get("website.imprint", "")
+            );
+            ctx.render("templates/index.html", model);
         });
+
+        //page that generates cards for the given parameter
         webApp.get("/generate", ctx -> {
             String armyCode = ctx.queryParam("armyCode");
             if (Strings.isNullOrEmpty(armyCode)) {
@@ -168,6 +172,7 @@ public class WebApp {
 
         });
 
+        //page for a generated card set
         webApp.get("/view/{armyCodeHash}", ctx -> {
             String armyCodeHash = ctx.pathParam("armyCodeHash");
             Path OUTPUT_DIR = Path.of(CARD_FOLDER);
@@ -181,9 +186,12 @@ public class WebApp {
             }
         });
 
-        webApp.get("/impressum", ctx -> {
-            ctx.contentType(ContentType.TEXT_HTML);
-            ctx.result(Config.get("website.impressum", ""));
+        //page for impressum
+        webApp.get("/imprint", ctx -> {
+            Map<String, Object> model = Map.of(
+                    "imprint", Config.get("website.imprint", "").split("\\\\n")
+            );
+            ctx.render("templates/imprint.html", model);
         });
     }
 

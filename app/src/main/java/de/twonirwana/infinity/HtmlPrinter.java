@@ -87,11 +87,8 @@ public class HtmlPrinter {
     }
 
     /*todo:
-     * add bs and cc b/sd/ps skill extras in the weapons table
-     * add sd weapon extra into burst column
-     * max width for image
-     * format option for game cards, dina7, and us letter
-     * points and sws
+     * add bs and cc b/sd/ps/sr skill extras in the weapons table
+     * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Show a list of hacking programs?
@@ -209,8 +206,7 @@ public class HtmlPrinter {
         String secondaryColor = sectorial2ndColors.get(sectorial.getParentId() - 1);
 
         List<PrintCard> printCards = unitOptions.stream()
-                .flatMap(u -> u.getAllTrooper().stream()
-                        .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p, useInch))))
+                .flatMap(u -> PrintCard.fromUnitOption(u, useInch).stream())
                 .toList();
 
         Context context = new Context();

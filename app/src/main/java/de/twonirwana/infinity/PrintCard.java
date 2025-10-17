@@ -15,11 +15,18 @@ import java.util.stream.IntStream;
 @Value
 public class PrintCard {
     private final static Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
-    private final static Pattern BLAST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
+    private final static Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
+    private final static Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
     boolean useInch;
+
+    public static List<PrintCard> fromUnitOption(UnitOption unitOption, boolean useInch) {
+        return unitOption.getAllTrooper().stream()
+                .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(unitOption, t, p, useInch)))
+                .toList();
+    }
 
     public static String prettyWeaponName(Weapon weapon, boolean useInch) {
         String out;
@@ -31,6 +38,7 @@ public class PrintCard {
         if (weapon.getExtras() != null && weapon.getExtras().stream()
                 .filter(e -> toPsExtra(e).isEmpty())
                 .filter(e -> toBurstExtra(e).isEmpty())
+                .filter(e -> toSpecialDieExtra(e).isEmpty())
                 .count() > 0) {
             out = "%s (%s)".formatted(out, getExtraString(weapon, useInch));
         }
@@ -44,6 +52,7 @@ public class PrintCard {
         return weapon.getExtras().stream()
                 .filter(e -> toPsExtra(e).isEmpty())
                 .filter(e -> toBurstExtra(e).isEmpty())
+                .filter(e -> toSpecialDieExtra(e).isEmpty())
                 .map(e -> prettyExtra(e, useInch))
                 .collect(Collectors.joining(", "));
     }
@@ -55,8 +64,13 @@ public class PrintCard {
                 .map(Optional::get)
                 .map(s -> "+" + s)
                 .findFirst();
-
-        return weapon.getBurst() + burstExtra.orElse("");
+        Optional<String> sdExtra = weapon.getExtras().stream()
+                .map(PrintCard::toSpecialDieExtra)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map("+%sSD"::formatted)
+                .findFirst();
+        return weapon.getBurst() + burstExtra.orElse("") + sdExtra.orElse("");
     }
 
     public static String getWeaponPsWithExtra(Weapon weapon) {
@@ -111,7 +125,18 @@ public class PrintCard {
         if (extraValue.getText() == null) {
             return Optional.empty();
         }
-        Matcher matcher = BLAST_EXTRA_REGEX.matcher(extraValue.getText());
+        Matcher matcher = BURST_EXTRA_REGEX.matcher(extraValue.getText());
+        if (matcher.find()) {
+            return Optional.of(matcher.group(1));
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
+        if (extraValue.getText() == null) {
+            return Optional.empty();
+        }
+        Matcher matcher = SPECIAL_DIE_EXTRA_REGEX.matcher(extraValue.getText());
         if (matcher.find()) {
             return Optional.of(matcher.group(1));
         }

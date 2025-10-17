@@ -195,10 +195,14 @@
 </div>
 
 <footer>
-    <a th:href="'mailto:' + ${email}">Contact</a>
-    <span class="footer-separator">|</span>
-    <a href="impressum">Impressum</a>
-    <span class="footer-separator">|</span>
+    <span th:if="${!email.isEmpty()}">
+        <a th:href="'mailto:' + ${email}">Contact</a>
+        <span class="footer-separator">|</span>
+    </span>
+    <span th:if="${!imprint.isEmpty()}">
+        <a href="imprint">Imprint</a>
+        <span class="footer-separator">|</span>
+    </span>
     <a href="https://github.com/twonirwana/Infinity-Data" target="_blank" rel="noopener noreferrer">Source Code</a>
 </footer>
 

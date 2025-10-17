@@ -6,5 +6,5 @@ server:
   hostName: localhost
   contextPath: /
 website:
-  impressum:
-  email: example@mail.com
+  imprint:
+  email:
