@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import com.google.common.base.Strings;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.Value;
 
@@ -11,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Value
 public class PrintCard {
@@ -27,6 +29,17 @@ public class PrintCard {
                 .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(unitOption, t, p, useInch)))
                 .toList();
     }
+
+    public String getNotes() {
+        return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
+                .filter(n -> !Strings.isNullOrEmpty(n))
+                .map(s -> s.replaceAll("\n", ""))
+                .map(s -> s.replaceAll("NOTE:", ""))
+                .map(String::trim)
+                .distinct()
+                .collect(Collectors.joining(""));
+    }
+
 
     public static String prettyWeaponName(Weapon weapon, boolean useInch) {
         String out;
