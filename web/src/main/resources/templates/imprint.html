@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Imprint</title>
+</head>
+<body>
+<table>
+    <tr th:each="line : ${imprint}">
+        <td th:text="${line}"></td>
+    </tr>
+</table>
+</body>

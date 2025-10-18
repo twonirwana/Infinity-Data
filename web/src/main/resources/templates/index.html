@@ -164,11 +164,17 @@
 
 <div class="form-container">
     <h1>Trooper Card Generator</h1>
-    <form action="/generate/" method="get" target="_blank">
+    <form action="#" th:action="@{/generate}" method="get" target="_blank">
 
         <label for="armyCode">Your army code:</label>
         <input type="text" id="armyCode" name="armyCode" required placeholder="Enter Army Code...">
-
+        <label for="style-selector">Select Card Style:</label>
+        <div class="select-wrapper">
+            <select id="style-selector" name="style">
+                <option value="a7_image" selected>Color and image - DIN-A7</option>
+                <option value="card_bw">Black and white - playing card</option>
+            </select>
+        </div>
         <label for="unit-selector">Select Unit System:</label>
         <div class="select-wrapper">
             <select id="unit-selector" name="unit">
@@ -189,10 +195,14 @@
 </div>
 
 <footer>
-    <a th:href="'mailto:' + ${email}">Contact</a>
-    <span class="footer-separator">|</span>
-    <a href="impressum">Impressum</a>
-    <span class="footer-separator">|</span>
+    <span th:if="${!email.isEmpty()}">
+        <a th:href="'mailto:' + ${email}">Contact</a>
+        <span class="footer-separator">|</span>
+    </span>
+    <span th:if="${!imprint.isEmpty()}">
+        <a href="imprint">Imprint</a>
+        <span class="footer-separator">|</span>
+    </span>
     <a href="https://github.com/twonirwana/Infinity-Data" target="_blank" rel="noopener noreferrer">Source Code</a>
 </footer>
 

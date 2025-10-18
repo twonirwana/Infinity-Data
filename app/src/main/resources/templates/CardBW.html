@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${listName}">list name</title>
+    <style>
+
+        @page {
+            size: 700px 454px;
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+
+            width: 700px;
+            height: 454px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #999;
+            border-radius: 10px;
+            color: #000;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding: 15px;
+
+            width: 700px;
+            height: 454px;
+            display: grid;
+            box-sizing: border-box;
+
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            border: 1px solid #bbb;
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            border-right: 1px solid #bbb;
+            border-radius: 6px 0 0 6px;
+        }
+
+        .unit-header {
+            display: flex;
+            width: 100%;
+        }
+
+        .unit-name {
+            width: 75%;
+            border-left: 1px solid #bbb;
+            border-right: 1px solid #bbb;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            padding: 5px;
+        }
+
+        .cap-box, .cost-box {
+            width: 12.5%;
+            text-align: center;
+            border-right: 1px solid #bbb;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        .cost-box:last-child {
+            border-right: none;
+        }
+
+        .stats {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+
+        .stats th, .stats td {
+            border: 1px solid #bbb;
+            text-align: center;
+            padding: 3px;
+        }
+
+        .stats th {
+            background-color: #ddd;
+        }
+
+        .section {
+            background-color: #e0e0e0;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .section h3 {
+            margin: 0 0 4px;
+            font-size: 1em;
+            letter-spacing: 1px;
+        }
+
+        .armamento-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f9f9f9;
+        }
+
+        .armamento-table th, .armamento-table td {
+            border: 1px solid #bbb;
+            text-align: center;
+            padding: 3px;
+        }
+
+        .armamento-table th {
+            background-color: #e0e0e0;
+            letter-spacing: 1px;
+        }
+
+        .rangePlus6 {
+            flex: 1;
+            background-color: rgb(200, 200, 200);
+        }
+
+        .rangePlus3 {
+            flex: 1;
+            background-color: rgb(180, 180, 180);
+        }
+
+        .range0 {
+            flex: 1;
+        }
+
+        .rangeMinus3 {
+            flex: 1;
+            background-color: rgb(160, 160, 160);
+        }
+
+        .rangeMinus6 {
+            flex: 1;
+            background-color: rgb(140, 140, 140);
+        }
+
+    </style>
+</head>
+<body>
+<div th:each="printCard : ${printCards}">
+
+    <div class="card">
+        <div class="header">
+            <div class="icon">
+                <img th:src="@{image/{imageName}(imageName=${printCard.getProfile().logo})}"
+                     alt="unit logo">
+            </div>
+            <div class="unit-header">
+                <div class="unit-name">
+                    <span th:text="${printCard.getProfile().name}">Trooper Profile Name</span>
+                </div>
+                <div class="cap-box" th:text="'SWC: ' + ${printCard.getUnitOption().getTotalSpecialWeaponCost()}">SWC
+                </div>
+                <div class="cost-box" th:text="'C: ' + ${printCard.getUnitOption().getTotalCost()}">C:</div>
+            </div>
+        </div>
+
+        <table class="stats">
+            <tr>
+                <th>MOV</th>
+                <th>CC</th>
+                <th>BS</th>
+                <th>PH</th>
+                <th>WIP</th>
+                <th>ARM</th>
+                <th>BTS</th>
+                <th th:text="${printCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds</th>
+                <th>S</th>
+            </tr>
+            <tr>
+                <td th:text="${printCard.getMovement()}">0-0</td>
+                <td th:text="${printCard.getProfile().closeCombat}">0</td>
+                <td th:text="${printCard.getProfile().ballisticSkill}">0</td>
+                <td th:text="${printCard.getProfile().physique}">0</td>
+                <td th:text="${printCard.getProfile().willpower}">0</td>
+                <td th:text="${printCard.getProfile().armor}">0</td>
+                <td th:text="${printCard.getProfile().bioTechnologicalShield}">0</td>
+                <td th:text="${printCard.getProfile().wounds}">0</td>
+                <td th:text="${printCard.getProfile().silhouette}">0</td>
+            </tr>
+        </table>
+
+        <div class="section">
+            <h3>Equipment | Skills</h3>
+            <table class="armamento-table">
+                <tr>
+                    <td style="height:18px;"><span th:text="${printCard.prettyEquipments}"></td>
+                </tr>
+                <tr>
+                    <td style="height:18px;"><span th:text="${printCard.prettySkills}"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h3>Weapons</h3>
+            <table class="armamento-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Range</th>
+                    <th>PS</th>
+                    <th>B</th>
+                    <th>Ammo</th>
+                </tr>
+                <tr th:each="weapon : ${printCard.getProfile().weapons}">
+                    <td th:text="${printCard.prettyWeaponName(weapon, printCard.isUseInch())}"></td>
+                    <td>
+                        <div style="display: flex;">
+                            <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
+                                 th:text="${printCard.getRangeModifier(range, printCard.isUseInch())}"
+                                 th:class="${rangeModifierClassMap.get(range.modifier())}">
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${printCard.getWeaponPsWithExtra(weapon)}"></td>
+                    <td th:text="${printCard.getWeaponBurstWithExtra(weapon)}"></td>
+                    <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

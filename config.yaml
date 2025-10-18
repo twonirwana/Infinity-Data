@@ -4,6 +4,8 @@ db:
 server:
   port: 7070
   hostName: localhost
+  contextPath: /
+  prometheus: true
 website:
-  impressum:
-  email: example@mail.com
+  imprint:
+  email:

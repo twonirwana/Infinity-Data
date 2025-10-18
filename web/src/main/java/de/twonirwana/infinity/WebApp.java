@@ -1,17 +1,33 @@
 package de.twonirwana.infinity;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
 import io.javalin.compression.CompressionStrategy;
-import io.javalin.http.ContentType;
 import io.javalin.http.staticfiles.Location;
+import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.rendering.template.JavalinThymeleaf;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.DiskSpaceMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -23,8 +39,8 @@ public class WebApp {
     private final static String CARD_ARCHIVE_FOLDER = "archive/html/card";
     private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
     private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
+    private final static Path ARMY_UNIT_CACHE_FILE = Path.of(CARD_IMAGE_FOLDER + "army_code-hash.csv");
     private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
-
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
     private final static String DISTINCT_UNITS = "distinct";
@@ -33,17 +49,12 @@ public class WebApp {
     public static void main(String[] args) {
         /*
         todo:
-         * option to disable distinct units
-         * https option, https://javalin.io/plugins/ssl-helpers
-         * impressum tymeleaf template?
          * ko-fi
-         * metrics https://javalin.io/plugins/micrometer
-         * metrics for card generator
-         * config enable request logging
          */
 
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
+        String contextPath = Config.get("server.contextPath", "/");
 
         Database database = new DatabaseImp();
         HtmlPrinter htmlPrinter = new HtmlPrinter();
@@ -52,6 +63,14 @@ public class WebApp {
 
         moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER);
         moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER);
+        File indexFile = ARMY_UNIT_CACHE_FILE.toFile();
+        if (!indexFile.exists()) {
+            try {
+                indexFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
         if (refreshDbIntervalSec > 0) {
@@ -77,6 +96,9 @@ public class WebApp {
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
         }
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        registry.config().commonTags("application", "infinity-cards-generator");
+        MicrometerPlugin micrometerPlugin = new MicrometerPlugin(micrometerPluginConfig -> micrometerPluginConfig.registry = registry);
 
         Javalin webApp = Javalin.create(config -> {
                     config.staticFiles.add(staticFileConfig -> {
@@ -86,14 +108,24 @@ public class WebApp {
                     });
                     config.http.customCompression(CompressionStrategy.GZIP);
                     config.fileRenderer(new JavalinThymeleaf());
-
+                    config.router.contextPath = contextPath;
+                    config.registerPlugin(micrometerPlugin);
                 })
                 .start(host, port);
 
+        //base page
         webApp.get("/", ctx -> {
-            ctx.render("templates/index.html", Map.of("email", Config.get("email", "example@mail.com")));
+            registry.counter("infinity.base.called").increment();
+            Map<String, String> model = Map.of(
+                    "email", Config.get("website.email", ""),
+                    "imprint", Config.get("website.imprint", "")
+            );
+            ctx.render("templates/index.html", model);
         });
+
+        //page that generates cards for the given parameter
         webApp.get("/generate", ctx -> {
+            registry.counter("infinity.generate.called").increment();
             String armyCode = ctx.queryParam("armyCode");
             if (Strings.isNullOrEmpty(armyCode)) {
                 ctx.status(400).html("Missing Army Code");
@@ -120,25 +152,39 @@ public class WebApp {
                 distinct = false;
             } else {
                 log.error("Invalid distinctUnitKey '{}'", distinctUnitKey);
-                ctx.status(400).html("Invalid distinctUnitKey: " + distinctUnitKey);
+                ctx.status(400).html("Invalid filter: " + distinctUnitKey);
+                return;
+            }
+
+            String styleKey = ctx.queryParam("style");
+            final Optional<HtmlPrinter.Template> styleOptional = Arrays.stream(HtmlPrinter.Template.values())
+                    .filter(t -> t.name().equals(styleKey))
+                    .findFirst();
+            if (styleOptional.isEmpty()) {
+                log.error("Invalid styleKey '{}'", styleKey);
+                ctx.status(400).html("Invalid style: " + styleKey);
                 return;
             }
 
             armyCode = armyCode.trim();
             log.info("army code: {}", armyCode);
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = "%s-%s-%s".formatted(armyCodeHash, unit, distinctUnitKey);
+            String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
             if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
-                ctx.redirect("/view/" + fileName);
+                registry.counter("infinity.generate.existing").increment();
+                ctx.redirect(contextPath + "view/" + fileName);
                 return;
             }
 
             try {
-                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct);
+                Stopwatch stopwatch = Stopwatch.createStarted();
+                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
+                Files.writeString(ARMY_UNIT_CACHE_FILE, "%s;%s\n".formatted(armyCode, armyCodeHash), StandardOpenOption.APPEND);
 
-                ctx.redirect("/view/" + fileName);
+                metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
+                ctx.redirect(contextPath + "view/" + fileName);
             } catch (Exception e) {
                 log.error("Can't read army code: {}", armyCode, e);
                 ctx.status(400).html("Can't read army code: " + armyCode);
@@ -146,23 +192,45 @@ public class WebApp {
 
         });
 
+        //page for a generated card set
         webApp.get("/view/{armyCodeHash}", ctx -> {
             String armyCodeHash = ctx.pathParam("armyCodeHash");
             Path OUTPUT_DIR = Path.of(CARD_FOLDER);
             Path filePath = OUTPUT_DIR.resolve(armyCodeHash + ".html");
 
             if (Files.exists(filePath)) {
+                registry.counter("infinity.view").increment();
                 ctx.html(Files.readString(filePath));
 
             } else {
+                registry.counter("infinity.view.not.found").increment();
                 ctx.status(404).result("Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash));
             }
         });
 
-        webApp.get("/impressum", ctx -> {
-            ctx.contentType(ContentType.TEXT_HTML);
-            ctx.result(Config.get("website.impressum", ""));
+        //page for impressum
+        webApp.get("/imprint", ctx -> {
+            registry.counter("infinity.imprint").increment();
+
+            Map<String, Object> model = Map.of(
+                    "imprint", Config.get("website.imprint", "").split("\\\\n")
+            );
+            ctx.render("templates/imprint.html", model);
         });
+
+        if (Config.getBool("server.prometheus", false)) {
+
+            new ClassLoaderMetrics().bindTo(registry);
+            new JvmMemoryMetrics().bindTo(registry);
+            new JvmGcMetrics().bindTo(registry);
+            new JvmThreadMetrics().bindTo(registry);
+            new UptimeMetrics().bindTo(registry);
+            new ProcessorMetrics().bindTo(registry);
+            new DiskSpaceMetrics(new File(System.getProperty("user.dir"))).bindTo(registry);
+
+            String contentType = "text/plain; version=0.0.4; charset=utf-8";
+            webApp.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
+        }
     }
 
     private static void createFolderIfNotExists(String pathName) {
@@ -199,5 +267,13 @@ public class WebApp {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void metricsTimer(String key, Duration duration, MeterRegistry registry) {
+        Timer.builder(key)
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .publishPercentileHistogram(true)
+                .register(registry)
+                .record(duration);
     }
 }

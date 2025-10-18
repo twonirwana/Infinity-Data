@@ -14,7 +14,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Slf4j
 public class HtmlPrinter {
@@ -53,11 +57,12 @@ public class HtmlPrinter {
             .put(1000, "#e7b128")//o12 need to be extracted with hand, the regex doesn't get it
             .put(1100, "#757575")
             .build();
-    private static final Map<String, String> RANGE_COLOR_MAP = Map.of("0", "deepskyblue",
-            "-3", "orange",
-            "+3", "darkseagreen",
-            "-6", "orangered",
-            "+6", "yellowgreen");
+    private static final Map<String, String> RANGE_CLASS_MAP = Map.of(
+            "0", "range0",
+            "-3", "rangeMinus3",
+            "+3", "rangePlus3",
+            "-6", "rangeMinus6",
+            "+6", "rangePlus6");
     private static final List<String> ICON_FILE_NAMES = List.of(
             "cube.svg",
             "cube-2.svg",
@@ -82,17 +87,14 @@ public class HtmlPrinter {
     }
 
     /*todo:
-     * add bs and cc b/sd/ps skill extras in the weapons table
-     * add sd weapon extra into burst column
-     * max width for image
-     * format option for game cards, dina7, and us letter
-     * points and sws
+     * add bs and cc b/sd/ps/sr skill extras in the weapons table
+     * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Show a list of hacking programs?
      */
 
-    public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits) {
+    public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {
         ArmyList al = db.getArmyListForArmyCode(armyCode);
         HtmlPrinter htmlPrinter = new HtmlPrinter();
         List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
@@ -104,14 +106,15 @@ public class HtmlPrinter {
                     .distinct()
                     .toList();
         }
-        htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_PATH, UNIT_LOGO_PATH, CARD_FOLDER, useInch);
+        htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_PATH, UNIT_LOGO_PATH, CARD_FOLDER, useInch, template);
+        log.info("Created cards for: {} ; {} ; {} ; {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode);
     }
 
-    public void printAll(Database db, boolean useInch) {
+    public void printAll(Database db, boolean useInch, Template template) {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, UNIT_IMAGE_PATH, UNIT_LOGO_PATH, u.getSectorial().getSlug(), useInch));
+                .forEach(u -> writeToFile(u, UNIT_IMAGE_PATH, UNIT_LOGO_PATH, u.getSectorial().getSlug(), useInch, template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -132,15 +135,17 @@ public class HtmlPrinter {
 
     private void copyStandardIcons(String outPath) {
         for (String fileName : ICON_FILE_NAMES) {
-            try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream(IMAGES_ICONS_FOLDER + fileName)) {
-                if (inputStream == null) {
-                    throw new RuntimeException("file not found: " + fileName);
+            Path targetPath = Path.of(outPath, fileName);
+            if (!Files.exists(targetPath)) {
+                try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream(IMAGES_ICONS_FOLDER + fileName)) {
+                    if (inputStream == null) {
+                        throw new RuntimeException("file not found: " + fileName);
+                    }
+                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                Files.copy(inputStream, Path.of(outPath, fileName), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
-
         }
     }
 
@@ -165,9 +170,10 @@ public class HtmlPrinter {
                             String unitImagePath,
                             String logoImagePath,
                             String outputFolder,
-                            boolean useInch) {
+                            boolean useInch,
+                            Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, logoImagePath, outputFolder, useInch);
+        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, logoImagePath, outputFolder, useInch, template);
     }
 
     public void writeCards(List<UnitOption> unitOptions,
@@ -176,7 +182,8 @@ public class HtmlPrinter {
                            String unitImagePath,
                            String logoImagePath,
                            String outputFolder,
-                           boolean useInch) {
+                           boolean useInch,
+                           Template template) {
         String outputPath = HTML_OUTPUT_PATH + outputFolder;
         String imageOutputPath = outputPath + IMAGE_FOLDER;
 
@@ -189,39 +196,41 @@ public class HtmlPrinter {
         copyStandardIcons(imageOutputPath);
 
         //if there are multiple image options they should all be used
-        Set<String> usedImages = new HashSet<>();
+        Set<String> usedImages = new CopyOnWriteArraySet<>();
         for (UnitOption unitOption : unitOptions) {
             copyLogos(unitOption, logoImagePath, imageOutputPath);
             copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
         }
 
-        //a 1/3 height and width of a dinA4 to print 9 cards on one page
-        int cardWidthInMm = 99;
-        int cardHeightInMm = 70;
-
         String primaryColor = sectorialColors.get(sectorial.getParentId() - 1);
         String secondaryColor = sectorial2ndColors.get(sectorial.getParentId() - 1);
 
         List<PrintCard> printCards = unitOptions.stream()
-                .flatMap(u -> u.getAllTrooper().stream()
-                        .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(u, t, p, useInch))))
+                .flatMap(u -> PrintCard.fromUnitOption(u, useInch).stream())
                 .toList();
 
         Context context = new Context();
         context.setVariable("printCards", printCards);
-        context.setVariable("modifierColorMap", RANGE_COLOR_MAP);
+        context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
         context.setVariable("listName", fileName);
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
-        context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
-        context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
-        context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {
-            templateEngine.process("TrooperCard", context, writer);
+            templateEngine.process(template.fileName, context, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public enum Template {
+        a7_image("A7Image"),
+        card_bw("CardBW");
+        final String fileName;
+
+        Template(String fileName) {
+            this.fileName = fileName;
         }
     }
 }
