@@ -5,6 +5,7 @@ server:
   port: 7070
   hostName: localhost
   contextPath: /
+  prometheus: true
 website:
   imprint:
   email:
