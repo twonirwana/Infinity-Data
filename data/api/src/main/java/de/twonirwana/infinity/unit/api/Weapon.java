@@ -11,7 +11,7 @@ import java.util.Optional;
 public class Weapon {
     private static final List<Integer> RANGES_LIST = List.of(20, 40, 60, 80, 100, 120, 240);
     int id;
-    String type; //?
+    String type; // BS or CC
     String name;
     String mode;
     String wiki;

@@ -23,7 +23,6 @@ public class ExportMissingImageOverview {
         imageFile.createNewFile();
         Files.writeString(imageFile.toPath(), "File Name\\Sectorial\\Cost\\SWC\\Name\\CB Image exists\\BS Weapons\\CC Weapons\n");
         db.getAllSectorials().stream()
-                .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
                 .forEach(u -> {
                     try {
