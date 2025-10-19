@@ -233,8 +233,8 @@
                             </div>
                         </div>
                     </td>
-                    <td th:text="${printCard.getWeaponPsWithExtra(weapon)}"></td>
-                    <td th:text="${printCard.getWeaponBurstWithExtra(weapon)}"></td>
+                    <td th:text="${printCard.getWeaponPsWithExtra(printCard.getProfile(), weapon)}"></td>
+                    <td th:text="${printCard.getWeaponBurstWithExtra(printCard.getProfile(), weapon)}"></td>
                     <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
                 </tr>
 
