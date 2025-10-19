@@ -8,9 +8,37 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 public class ImageUtils {
+
+    public static void cropAll(String source, String target) {
+        Path sourceDir = Paths.get(source);
+        Path targetDir = Paths.get(target);
+        int count = 0;
+        try {
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
+                for (Path file : stream) {
+                    if (!file.toFile().isDirectory()) {
+                        Path targetPath = targetDir.resolve(file.getFileName());
+                        ImageUtils.autoCrop(file.toString(), targetPath.toString());
+                        count++;
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void autoCrop(String filePathIn, String filePathOut) {
         try {
@@ -26,7 +54,7 @@ public class ImageUtils {
             }
             BufferedImage image = ImageIO.read(inputFile);
 
-            BufferedImage croppedImage = autoCrop(image, 250, 5);
+            BufferedImage croppedImage = autoCrop(image, 235, 5);
             ImageIO.write(croppedImage, "png", outFile);
         } catch (IOException e) {
             log.error(filePathIn + ":" + e.getMessage());
