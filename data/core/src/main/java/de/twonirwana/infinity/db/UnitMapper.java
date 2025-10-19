@@ -79,16 +79,10 @@ public class UnitMapper {
                                                   SectorialImage sectorialImage,
                                                   SectorialFilter sectorialFilter) {
 
-        boolean hasIncludes = unit.getProfileGroups().stream()
-                .flatMap(p -> Stream.concat(
-                        //anaconda has includes in the profile
-                        p.getProfiles().stream()
-                                .flatMap(pf -> pf.getIncludes().stream()),
-                        p.getOptions().stream()
-                                .flatMap(pf -> pf.getIncludes().stream())
-                )).findAny().isPresent();
+
+        List<UnitOption> result = new ArrayList<>();
         if (!unit.getOptions().isEmpty()) {
-            return unit.getOptions().stream()
+            result.addAll(unit.getOptions().stream()
                     .map(profileOption -> {
                         ProfileInclude primaryInclude = profileOption.getIncludes().getFirst();
                         ProfileGroup primaryProfileGroup = getProfileGroupFromInclude(unit, primaryInclude);
@@ -112,12 +106,21 @@ public class UnitMapper {
                         return createUnitOption(sectorial, unit, primaryTrooper, profileOption, additionalTroopers);
 
                     })
-                    .toList();
+                    .toList());
         }
+
+        boolean hasIncludes = unit.getProfileGroups().stream()
+                .flatMap(p -> Stream.concat(
+                        //anaconda has includes in the profile
+                        p.getProfiles().stream()
+                                .flatMap(pf -> pf.getIncludes().stream()),
+                        p.getOptions().stream()
+                                .flatMap(pf -> pf.getIncludes().stream())
+                )).findAny().isPresent();
 
         if (hasIncludes) {
             ProfileGroup primaryProfileGroup = unit.getProfileGroups().getFirst();
-            return primaryProfileGroup.getOptions().stream()
+            result.addAll(primaryProfileGroup.getOptions().stream()
                     .map(profileOption -> {
                         Trooper primaryTrooper = createTrooper(sectorial,
                                 unit,
@@ -139,25 +142,26 @@ public class UnitMapper {
                         return createUnitOption(sectorial, unit, primaryTrooper, profileOption, additionalTroopers);
 
                     })
-                    .toList();
+                    .toList());
 
+        } else {
+            result.addAll(unit.getProfileGroups().stream()
+                    .flatMap(pg -> pg.getOptions().stream()
+                            .map(o -> {
+                                Trooper primaryTrooper = createTrooper(sectorial,
+                                        unit,
+                                        pg,
+                                        pg.getProfiles(),
+                                        o,
+                                        weaponIdMap,
+                                        skillIdMap,
+                                        equipmentIdMap,
+                                        sectorialImage,
+                                        sectorialFilter);
+                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of());
+                            })).toList());
         }
-
-        return unit.getProfileGroups().stream()
-                .flatMap(pg -> pg.getOptions().stream()
-                        .map(o -> {
-                            Trooper primaryTrooper = createTrooper(sectorial,
-                                    unit,
-                                    pg,
-                                    pg.getProfiles(),
-                                    o,
-                                    weaponIdMap,
-                                    skillIdMap,
-                                    equipmentIdMap,
-                                    sectorialImage,
-                                    sectorialFilter);
-                            return createUnitOption(sectorial, unit, primaryTrooper, o, List.of());
-                        })).toList();
+        return result;
     }
 
     private static UnitOption createUnitOption(Sectorial sectorial, Unit unit, Trooper trooper, ProfileOption profileOption, List<Trooper> additionalTroopers) {
@@ -259,10 +263,10 @@ public class UnitMapper {
                     }
 
                     if (weapons != null) {
-                        return weapons.stream().map(weapon -> mapWeapon(weapon, pi.getQ(), extras));
+                        return weapons.stream().map(weapon -> mapWeapon(weapon, pi.getQ(), extras, Optional.ofNullable(weaponFilter.get(weapon.getId())).map(Weapon::getType).orElse(null)));
                     }
                     if (weaponFilter.get(pi.getId()) != null) {
-                        return Stream.of(weaponFilter.get(pi.getId())).map(weapon -> mapWeapon(weapon, pi.getQ(), extras));
+                        return Stream.of(weaponFilter.get(pi.getId())).map(weapon -> mapWeapon(weapon, pi.getQ(), extras, weapon.getType()));
                     }
                     log.error("No weapons found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
                     return Stream.empty();
@@ -272,13 +276,13 @@ public class UnitMapper {
                 .toList();
     }
 
-    private static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras) {
+    private static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras, String weaponType) {
         de.twonirwana.infinity.unit.api.Ammunition ammunition = Optional.ofNullable(weapon.getAmmunition())
                 .map(a -> new de.twonirwana.infinity.unit.api.Ammunition(a.getId(), a.getName(), a.getWiki()))
                 .orElse(null);
         return new de.twonirwana.infinity.unit.api.Weapon(
                 weapon.getId(),
-                weapon.getType(),
+                Optional.ofNullable(weaponType).orElse(weapon.getType()),
                 weapon.getName(),
                 weapon.getMode(),
                 weapon.getWiki(),

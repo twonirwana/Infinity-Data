@@ -50,6 +50,7 @@ public class WebApp {
         /*
         todo:
          * ko-fi
+         * somehow validate armycode
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -61,8 +62,8 @@ public class WebApp {
         createFolderIfNotExists(CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
 
-        moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER);
-        moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER);
+        archiveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
+        archiveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
         File indexFile = ARMY_UNIT_HASH_FILE.toFile();
         if (!indexFile.exists()) {
             try {
@@ -244,7 +245,7 @@ public class WebApp {
         }
     }
 
-    private static void moveFiles(String source, String target) {
+    private static void archiveFiles(String source, String target, boolean onlyCopy) {
         Path sourceDir = Paths.get(source);
         Path targetDir = Paths.get(target);
         int count = 0;
@@ -257,12 +258,16 @@ public class WebApp {
                 for (Path file : stream) {
                     if (!file.toFile().isDirectory()) {
                         Path targetPath = targetDir.resolve(file.getFileName());
-                        Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        if (onlyCopy) {
+                            Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        } else {
+                            Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        }
                         count++;
                     }
                 }
             }
-            log.info("moved {} files from {} to {}", count, sourceDir, targetDir);
+            log.info("{} {} files from {} to {}", onlyCopy ? "copied" : "moved", count, sourceDir, targetDir);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
