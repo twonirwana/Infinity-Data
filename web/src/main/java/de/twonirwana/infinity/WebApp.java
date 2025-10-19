@@ -39,7 +39,7 @@ public class WebApp {
     private final static String CARD_ARCHIVE_FOLDER = "archive/html/card";
     private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
     private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
-    private final static Path ARMY_UNIT_CACHE_FILE = Path.of(CARD_IMAGE_FOLDER + "army_code-hash.csv");
+    private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
     private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
@@ -63,7 +63,7 @@ public class WebApp {
 
         moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER);
         moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER);
-        File indexFile = ARMY_UNIT_CACHE_FILE.toFile();
+        File indexFile = ARMY_UNIT_HASH_FILE.toFile();
         if (!indexFile.exists()) {
             try {
                 indexFile.createNewFile();
@@ -181,7 +181,7 @@ public class WebApp {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
-                Files.writeString(ARMY_UNIT_CACHE_FILE, "%s;%s\n".formatted(armyCode, armyCodeHash), StandardOpenOption.APPEND);
+                Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
 
                 metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
                 ctx.redirect(contextPath + "view/" + fileName);

@@ -1,5 +1,6 @@
 package de.twonirwana.infinity.armylist;
 
+import com.google.common.annotations.VisibleForTesting;
 import de.twonirwana.infinity.ArmyList;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
@@ -73,6 +74,51 @@ public class ArmyCodeLoader {
 
 
     public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
+        ArmyCodeData armyCodeData = mapArmyCode(armyCode);
+
+        Sectorial sectorial = dataLoader.getSectorialIdMap().get(armyCodeData.sectorialId);
+        List<UnitOption> unitOptionList = dataLoader.getAllUnitsForSectorial(sectorial);
+
+        Sectorial sectorialApiId = dataLoader.getAllSectorialIds().stream()
+                .filter(s -> s.getId() == armyCodeData.sectorialId)
+                .findFirst().orElseThrow();
+        Map<Integer, List<UnitOption>> combatGroups = armyCodeData.combatGroups.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
+                        .map(m -> unitOptionList.stream()
+                                .filter(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId).findFirst().orElseThrow(() ->
+                                        new IllegalArgumentException("No profile for unit id: %s and optionId: %s".formatted(m.unitId, m.optionId))))
+                        .toList()));
+        return new ArmyList(sectorialApiId, armyCodeData.sectorialName, armyCodeData.armyName, armyCodeData.maxPoints, combatGroups);
+    }
+
+    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
+        data.get(); // always starts with 0
+        CombatGroupMember result = new CombatGroupMember(
+                readVLI(data),
+                readVLI(data),
+                readVLI(data)
+        );
+        data.get(); // always ends with 0
+        return result;
+    }
+
+    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data) {
+        int groupId = readVLI(data);
+        data.get();// always 1
+
+        data.mark(); //not sure why
+        int result = data.get();
+        if (result != 0) {
+            data.reset();
+        }
+        int group_size = ArmyCodeLoader.readVLI(data);
+        return IntStream.range(0, group_size).boxed()
+                .map(i -> getCombatGroupMemberFromCode(data))
+                .toList();
+    }
+
+    @VisibleForTesting
+    static ArmyCodeData mapArmyCode(final String armyCode) {
         byte[] data;
 
         // Sometimes CB urlencodes the army code and sometimes it doesn't.
@@ -90,7 +136,6 @@ public class ArmyCodeLoader {
         ByteBuffer dataBuffer = ByteBuffer.wrap(data);
 
         int sectorialId = readVLI(dataBuffer);
-        Sectorial sectorial = dataLoader.getSectorialIdMap().get(sectorialId);
         int faction_length = readVLI(dataBuffer);
         byte[] factionNameData = new byte[faction_length];
         dataBuffer.get(factionNameData, 0, faction_length);
@@ -109,48 +154,28 @@ public class ArmyCodeLoader {
         int maxPoints = readVLI(dataBuffer);
 
         int combatGroupCount = readVLI(dataBuffer);
-        List<UnitOption> unitOptionList = dataLoader.getAllUnitsForSectorial(sectorial);
-        Map<Integer, List<UnitOption>> combatGroups = IntStream.range(0, combatGroupCount)
+        Map<Integer, List<CombatGroupMember>> combatGroups = IntStream.range(0, combatGroupCount)
                 .boxed()
-                .collect(Collectors.toMap(i -> i + 1, i -> {
-                    List<CombatGroupMember> members = getCombatGroupFromCode(dataBuffer);
-                    return members.stream()
-                            .map(m -> unitOptionList.stream()
-                                    .filter(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId).findFirst().orElseThrow(() ->
-                                            new IllegalArgumentException("No profile for unit id: %s and optionId: %s".formatted(m.unitId, m.optionId))))
-                            .toList();
-                }));
-        Sectorial sectorialApiId = dataLoader.getAllSectorialIds().stream()
-                .filter(s -> s.getId() == sectorialId)
-                .findFirst().orElseThrow();
-        return new ArmyList(sectorialApiId, fractionName, armyName, maxPoints, combatGroups);
+                .collect(Collectors.toMap(i -> i + 1, i -> getCombatGroupFromCode(dataBuffer)));
+        return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 
-    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
-        data.get(); // always starts with 0
-        CombatGroupMember result = new CombatGroupMember(
-                readVLI(data),
-                readVLI(data),
-                readVLI(data)
-        );
-        data.get(); // always ends with 0
-        return result;
-    }
-
-    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data) {
-        int groupId = readVLI(data);
-        data.get();// always 1
-        data.get();// always 0
-        int group_size = ArmyCodeLoader.readVLI(data);
-        return IntStream.range(0, group_size).boxed()
-                .map(i -> getCombatGroupMemberFromCode(data))
-                .toList();
-    }
-
-    private record CombatGroupMember(
+    record CombatGroupMember(
             int unitId,
             int groupId,
             int optionId) {
+        @Override
+        public String toString() {
+            return "%d-%d-%d".formatted(unitId, groupId, optionId);
+        }
+    }
+
+    record ArmyCodeData(
+            int sectorialId,
+            String sectorialName,
+            String armyName,
+            int maxPoints,
+            Map<Integer, List<CombatGroupMember>> combatGroups) {
     }
 
 }
