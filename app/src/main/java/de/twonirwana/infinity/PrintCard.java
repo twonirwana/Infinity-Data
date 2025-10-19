@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.Value;
@@ -19,6 +20,7 @@ public class PrintCard {
     private final static Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
     private final static Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
     private final static Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
+    private final static Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR-(\\d)");
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
@@ -29,17 +31,6 @@ public class PrintCard {
                 .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(unitOption, t, p, useInch)))
                 .toList();
     }
-
-    public String getNotes() {
-        return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
-                .filter(n -> !Strings.isNullOrEmpty(n))
-                .map(s -> s.replaceAll("\n", ""))
-                .map(s -> s.replaceAll("NOTE:", ""))
-                .map(String::trim)
-                .distinct()
-                .collect(Collectors.joining(""));
-    }
-
 
     public static String prettyWeaponName(Weapon weapon, boolean useInch) {
         String out;
@@ -70,30 +61,68 @@ public class PrintCard {
                 .collect(Collectors.joining(", "));
     }
 
-    public static String getWeaponBurstWithExtra(Weapon weapon) {
-        Optional<String> burstExtra = weapon.getExtras().stream()
+    private static String getWeaponSkill(Weapon weapon) {
+        return "CC".equals(weapon.getType()) ? "CC Attack" : "BS Attack";
+    }
+
+    public static String getWeaponBurstWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        String weaponSkill = getWeaponSkill(weapon);
+        List<ExtraValue> weaponAndSkillExtra = Stream.concat(
+                weapon.getExtras().stream(),
+                trooperProfile.getSkills().stream()
+                        .filter(s -> s.getName().equals(weaponSkill))
+                        .flatMap(s -> s.getExtras().stream())
+        ).toList();
+        List<String> burstExtra = weaponAndSkillExtra.stream()
                 .map(PrintCard::toBurstExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(s -> "+" + s)
-                .findFirst();
-        Optional<String> sdExtra = weapon.getExtras().stream()
+                .toList();
+        List<String> sdExtra = weaponAndSkillExtra.stream()
                 .map(PrintCard::toSpecialDieExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map("+%sSD"::formatted)
-                .findFirst();
-        return weapon.getBurst() + burstExtra.orElse("") + sdExtra.orElse("");
+                .toList();
+        return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra);
     }
 
-    public static String getWeaponPsWithExtra(Weapon weapon) {
-        Optional<String> psExtra = weapon.getExtras().stream()
+    public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        if (weapon.getDamage() == null || weapon.getDamage().equals("-")) {
+            return weapon.getDamage();
+        }
+        String weaponSkill = getWeaponSkill(weapon);
+        List<ExtraValue> skillExtra =
+                trooperProfile.getSkills().stream()
+                        .filter(s -> s.getName().equals(weaponSkill))
+                        .flatMap(s -> s.getExtras().stream())
+                        .toList();
+
+        Optional<Integer> srExtra = skillExtra.stream()
+                .map(PrintCard::toSrExtra)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Integer::parseInt)
+                .findFirst();
+
+        Optional<Integer> psExtra = weapon.getExtras().stream()
                 .map(PrintCard::toPsExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(Integer::parseInt)
                 .findFirst();
 
-        return psExtra.map(s -> s + "*").orElseGet(weapon::getDamage);
+        int damage = psExtra.orElse(Integer.parseInt(weapon.getDamage()));
+        if (srExtra.isPresent()) {
+            damage = damage - srExtra.get();
+        }
+
+        if (psExtra.isPresent() || srExtra.isPresent()) {
+            return damage + "*";
+        }
+
+        return damage + "";
 
     }
 
@@ -121,6 +150,17 @@ public class PrintCard {
                     useInch ? "″" : "cm");
         }
         throw new RuntimeException("Type not implemented");
+    }
+
+    static Optional<String> toSrExtra(ExtraValue extraValue) {
+        if (extraValue.getText() == null) {
+            return Optional.empty();
+        }
+        Matcher matcher = SURVIVAL_RATE_EXTRA_REGEX.matcher(extraValue.getText());
+        if (matcher.find()) {
+            return Optional.of(matcher.group(1));
+        }
+        return Optional.empty();
     }
 
     static Optional<String> toPsExtra(ExtraValue extraValue) {
@@ -154,6 +194,16 @@ public class PrintCard {
             return Optional.of(matcher.group(1));
         }
         return Optional.empty();
+    }
+
+    public String getNotes() {
+        return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
+                .filter(n -> !Strings.isNullOrEmpty(n))
+                .map(s -> s.replaceAll("\n", ""))
+                .map(s -> s.replaceAll("NOTE:", ""))
+                .map(String::trim)
+                .distinct()
+                .collect(Collectors.joining(""));
     }
 
     private String getSkillNameAndExtra(Skill skill) {
