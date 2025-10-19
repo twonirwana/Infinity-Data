@@ -21,13 +21,9 @@ or as pdf: [JSA-inch.pdf](JSA-inch.pdf)
 
 ## Usage
 
-Currently, you need to execute the application in an IDE, or you can download the JAR file, install Java 21, and execute
-it with the following terminal command:
-
-``java -jar Infinity-Data-VERSION.jar``
-
-Open http://localhost:7070/ and input your army code. It is possible to select if the cards should be in inch or cm. It
-is also possible the filter the cards to distinct units.
+The card generator is available under https://infinity.2nirwana.de/cards/ , simply insert your army code, select your
+options (card style, inch/cm, all/distinct) and generate the cards. A new browser tap opens with the cards. Simply
+print them from your browser to pdf or on paper by selecting 9 on one-page option of the print dialoge.
 
 ## Development
 
