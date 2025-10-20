@@ -5,11 +5,13 @@ import de.twonirwana.infinity.ArmyList;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,6 +62,7 @@ import java.util.stream.IntStream;
  * ```
  */
 
+@Slf4j
 public class ArmyCodeLoader {
 
     private static int readVLI(ByteBuffer data) {
@@ -91,6 +94,19 @@ public class ArmyCodeLoader {
         return new ArmyList(sectorialApiId, armyCodeData.sectorialName, armyCodeData.armyName, armyCodeData.maxPoints, combatGroups);
     }
 
+    public static List<String> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
+        ArmyCodeData armyCodeData = mapArmyCode(armyCode);
+
+        Sectorial sectorial = dataLoader.getSectorialIdMap().get(armyCodeData.sectorialId);
+        List<UnitOption> unitOptionList = dataLoader.getAllUnitsForSectorial(sectorial);
+
+        return armyCodeData.combatGroups.values().stream()
+                .flatMap(Collection::stream)
+                .filter(m -> unitOptionList.stream().noneMatch(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId))
+                .map(c -> "{SectorialId: %d, UnitId: %d, OptionId: %d}".formatted(armyCodeData.sectorialId, c.unitId(), c.optionId()))
+                .toList();
+    }
+
     private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
         data.get(); // always starts with 0
         CombatGroupMember result = new CombatGroupMember(
@@ -117,23 +133,29 @@ public class ArmyCodeLoader {
                 .toList();
     }
 
-    @VisibleForTesting
-    static ArmyCodeData mapArmyCode(final String armyCode) {
-        byte[] data;
-
+    public static byte[] decodeArmyCode(String armyCode) {
         // Sometimes CB urlencodes the army code and sometimes it doesn't.
         try {
-            data = Base64.getDecoder().decode(armyCode);
+            return Base64.getDecoder().decode(armyCode);
         } catch (IllegalArgumentException exception) {
             try {
                 String decoded = URLDecoder.decode(armyCode, StandardCharsets.UTF_8);
-                data = Base64.getDecoder().decode(decoded);
+                return Base64.getDecoder().decode(decoded);
             } catch (Throwable t) {
-                throw new IllegalArgumentException("Failed to decode army code: " + armyCode, t);
+                log.warn("Failed to decode army code: {} -> {}", armyCode, t.getMessage());
             }
         }
+        return null;
+    }
 
-        ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+    @VisibleForTesting
+    static ArmyCodeData mapArmyCode(final String armyCode) {
+        byte[] decoded = decodeArmyCode(armyCode);
+        if (decoded == null) {
+            throw new IllegalArgumentException("armyCode cannot be null");
+        }
+
+        ByteBuffer dataBuffer = ByteBuffer.wrap(decoded);
 
         int sectorialId = readVLI(dataBuffer);
         int faction_length = readVLI(dataBuffer);

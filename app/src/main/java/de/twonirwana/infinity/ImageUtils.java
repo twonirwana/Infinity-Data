@@ -38,6 +38,7 @@ public class ImageUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        System.out.println("Cropped " + count + " images");
     }
 
     public static void autoCrop(String filePathIn, String filePathOut) {
@@ -54,7 +55,8 @@ public class ImageUtils {
             }
             BufferedImage image = ImageIO.read(inputFile);
 
-            BufferedImage croppedImage = autoCrop(image, 235, 5);
+            //whiteThreshold is disabled
+            BufferedImage croppedImage = autoCrop(image, -1, 5);
             ImageIO.write(croppedImage, "png", outFile);
         } catch (IOException e) {
             log.error(filePathIn + ":" + e.getMessage());
@@ -163,7 +165,7 @@ public class ImageUtils {
     private static boolean isVisible(int px, int alphaThreshold, int whiteThreshold) {
         int a = (px >>> 24) & 0xFF;
         if (a > alphaThreshold) {
-            if (whiteThreshold < 255) return true;
+            if (whiteThreshold < 0) return true;
             int r = (px >>> 16) & 0xFF;
             int g = (px >>> 8) & 0xFF;
             int b = px & 0xFF;

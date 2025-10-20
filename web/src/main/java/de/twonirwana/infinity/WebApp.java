@@ -27,12 +27,16 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
+import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
 
 @Slf4j
 public class WebApp {
@@ -51,7 +55,7 @@ public class WebApp {
         /*
         todo:
          * ko-fi
-         * somehow validate armycode
+         * option to prefere custom images
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -63,8 +67,9 @@ public class WebApp {
         createFolderIfNotExists(CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
 
-        archiveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
-        archiveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
+        moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
+        moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
+        moveFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER, true);
         File indexFile = ARMY_UNIT_HASH_FILE.toFile();
         if (!indexFile.exists()) {
             try {
@@ -93,7 +98,7 @@ public class WebApp {
                     .parallel()
                     .forEach(p -> p.getImageNames().forEach(image -> {
                         counter.incrementAndGet();
-                        ImageUtils.autoCrop(HtmlPrinter.UNIT_IMAGE_PATH + image,
+                        ImageUtils.autoCrop(UNIT_IMAGE_FOLDER + image,
                                 CARD_IMAGE_FOLDER + p.getCombinedProfileId() + ".png");
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
@@ -181,6 +186,20 @@ public class WebApp {
 
             try {
                 Stopwatch stopwatch = Stopwatch.createStarted();
+                boolean canDecode = database.canDecodeArmyCode(armyCode);
+                if (!canDecode) {
+                    registry.counter("infinity.invalid.army.code").increment();
+                    ctx.status(400).html("Invalid format of army code: " + armyCode);
+                    return;
+                }
+                List<String> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
+                if (!missingArmyCodeUnits.isEmpty()) {
+                    registry.counter("infinity.missing.army.code.units").increment();
+                    log.error("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+                    ctx.status(400).html("Could not find units for the following ids: " + missingArmyCodeUnits);
+                    return;
+                }
+
                 htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
                 Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
@@ -246,7 +265,7 @@ public class WebApp {
         }
     }
 
-    private static void archiveFiles(String source, String target, boolean onlyCopy) {
+    private static void moveFiles(String source, String target, boolean onlyCopy) {
         Path sourceDir = Paths.get(source);
         Path targetDir = Paths.get(target);
         int count = 0;
