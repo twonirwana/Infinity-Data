@@ -174,7 +174,6 @@ public class WebApp {
             }
 
             armyCode = armyCode.trim();
-            log.info("army code: {}", armyCode);
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
             String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
             if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
