@@ -92,6 +92,9 @@ public class HtmlPrinter {
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Show a list of hacking programs?
+     * Second page for units with more then 6 weapons?
+     * weapon add saving modifier, savingNum to table?
+     * No image variant
      */
 
     public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {

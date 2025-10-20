@@ -74,10 +74,14 @@ public class WebApp {
             }
         }
 
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        registry.config().commonTags("application", "infinity-cards-generator");
+        MicrometerPlugin micrometerPlugin = new MicrometerPlugin(micrometerPluginConfig -> micrometerPluginConfig.registry = registry);
+
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
         if (refreshDbIntervalSec > 0) {
             ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.scheduleAtFixedRate(database::updateData,
+            executorService.scheduleAtFixedRate(() -> updateData(database, registry),
                     refreshDbIntervalSec,
                     refreshDbIntervalSec,
                     TimeUnit.SECONDS);
@@ -98,9 +102,6 @@ public class WebApp {
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
         }
-        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-        registry.config().commonTags("application", "infinity-cards-generator");
-        MicrometerPlugin micrometerPlugin = new MicrometerPlugin(micrometerPluginConfig -> micrometerPluginConfig.registry = registry);
 
         Javalin webApp = Javalin.create(config -> {
                     config.staticFiles.add(staticFileConfig -> {
@@ -233,6 +234,11 @@ public class WebApp {
             String contentType = "text/plain; version=0.0.4; charset=utf-8";
             webApp.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
         }
+    }
+
+    private static void updateData(Database database, MeterRegistry registry) {
+        registry.counter("infinity.update.data").increment();
+        database.updateData();
     }
 
     private static void createFolderIfNotExists(String pathName) {

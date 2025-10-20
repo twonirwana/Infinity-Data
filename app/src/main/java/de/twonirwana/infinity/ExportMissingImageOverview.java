@@ -44,11 +44,11 @@ public class ExportMissingImageOverview {
                         !p.getImageNames().isEmpty(),
                         p.getWeapons().stream()
                                 .filter(w -> w.getMode() == null)
-                                .filter(w -> "BS".equalsIgnoreCase(w.getType()))
+                                .filter(w -> w.getType() == Weapon.Type.BS)
                                 .map(Weapon::getName).collect(Collectors.joining(", ")),
                         p.getWeapons().stream()
                                 .filter(w -> w.getMode() == null)
-                                .filter(w -> "CC".equalsIgnoreCase(w.getType()))
+                                .filter(w -> w.getType() == Weapon.Type.CC)
                                 .map(Weapon::getName).collect(Collectors.joining(", "))
                 ).map(Objects::toString)
                 .collect(Collectors.joining("\\")) + "\n";
