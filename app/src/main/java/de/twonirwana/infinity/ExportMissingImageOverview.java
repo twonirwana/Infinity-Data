@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import de.twonirwana.infinity.unit.api.Trooper;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
@@ -12,6 +13,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
+
 public class ExportMissingImageOverview {
 
     public static void exportIntoCSV(Database db) throws IOException {
@@ -21,20 +24,22 @@ public class ExportMissingImageOverview {
             imageFile.delete();
         }
         imageFile.createNewFile();
-        Files.writeString(imageFile.toPath(), "File Name\\Sectorial\\Cost\\SWC\\Name\\CB Image exists\\BS Weapons\\CC Weapons\n");
+        Files.writeString(imageFile.toPath(), "File Name\\Sectorial\\Cost\\SWC\\Name\\CB Image exists\\Community Image exists\\BS Weapons\\CC Weapons\n");
         db.getAllSectorials().stream()
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> {
-                    try {
-                        Files.writeString(imageFile.toPath(), imageData(u), StandardOpenOption.APPEND);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                .forEach(u -> u.getAllTrooper()
+                        .forEach(t -> t.getProfiles()
+                                .forEach(p -> {
+                                    try {
+                                        Files.writeString(imageFile.toPath(), imageData(u, t, p), StandardOpenOption.APPEND);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                })));
     }
 
-    private static String imageData(UnitOption u) {
-        TrooperProfile p = u.getPrimaryUnit().getProfiles().getFirst();
+    private static String imageData(UnitOption u, Trooper t, TrooperProfile p) {
+        boolean customImageExists = new File(CUSTOM_UNIT_IMAGE_FOLDER + p.getCombinedProfileId() + ".png").exists();
         return Stream.of(
                         p.getCombinedProfileId() + ".png",
                         u.getSectorial().getSlug(),
@@ -42,6 +47,7 @@ public class ExportMissingImageOverview {
                         u.getTotalSpecialWeaponCost(),
                         p.getName(),
                         !p.getImageNames().isEmpty(),
+                        customImageExists,
                         p.getWeapons().stream()
                                 .filter(w -> w.getMode() == null)
                                 .filter(w -> "BS".equalsIgnoreCase(w.getType()))

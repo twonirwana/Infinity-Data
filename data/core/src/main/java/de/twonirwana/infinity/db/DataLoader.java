@@ -37,6 +37,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static de.twonirwana.infinity.Database.*;
+
 
 @Getter
 @Slf4j
@@ -44,17 +46,12 @@ public class DataLoader {
     private final static String FACTION_URL_FORMAT = "https://api.corvusbelli.com/army/units/en/%s";
     private static final String META_DATA_URL = "https://api.corvusbelli.com/army/infinity/en/metadata";
     private static final String UNIT_IMAGE_URL = "https://api.corvusbelli.com/army/units/en/%d/miniatures";
-    private static final String RECOURCES_FOLDER = "resources";
     private static final String META_DATA_FILE_NAME = "metadata.json";
     private static final String META_DATA_FILE_PATH = RECOURCES_FOLDER + "/" + META_DATA_FILE_NAME;
     private static final String SECTORIAL_FOLDER = RECOURCES_FOLDER + "/sectorialList/";
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
     private static final String IMAGE_DATA_FOLDER = RECOURCES_FOLDER + "/sectorialImageData/";
     private static final String IMAGE_DATA_FILE_FORMAT = IMAGE_DATA_FOLDER + "/sectorialImage%d-%s.json";
-    private static final String LOGOS_FOLDER = RECOURCES_FOLDER + "/logo";
-    private static final String UNIT_LOGOS_FOLDER = LOGOS_FOLDER + "/unit";
-    private static final String SECTORIAL_LOGOS_FOLDER = LOGOS_FOLDER + "/sectorial";
-    private static final String UNIT_IMAGE_FOLDER = RECOURCES_FOLDER + "/image/unit/";
 
     private static final String ARCHIVE_FOLDER = "archive";
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
@@ -70,6 +67,8 @@ public class DataLoader {
 
         //needed to set headers to allow download
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+
+        createFolderIfNotExists(CUSTOM_UNIT_IMAGE_FOLDER);
 
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(META_DATA_FILE_PATH).toFile().lastModified();
         boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h

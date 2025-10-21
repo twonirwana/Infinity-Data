@@ -58,4 +58,14 @@ public class DatabaseImp implements Database {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public boolean canDecodeArmyCode(String armyCode) {
+        return ArmyCodeLoader.decodeArmyCode(armyCode) != null;
+    }
+
+    @Override
+    public List<String> validateArmyCodeUnits(String armyCode) {
+        return ArmyCodeLoader.missingUnitsInArmyCode(armyCode, loader);
+    }
 }

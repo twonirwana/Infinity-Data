@@ -20,11 +20,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static de.twonirwana.infinity.Database.*;
+
 @Slf4j
 public class HtmlPrinter {
 
-    public static final String UNIT_IMAGE_PATH = "resources/image/unit/";
-    public static final String UNIT_LOGO_PATH = "resources/logo/unit";
     public static final String CARD_FOLDER = "card";
     public static final String IMAGES_ICONS_FOLDER = "/images/icons/";
     public static final String HTML_OUTPUT_PATH = "out/html/";
@@ -92,6 +92,9 @@ public class HtmlPrinter {
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Show a list of hacking programs?
+     * Option to prefere custom images
+     * Better position for type and classification
+     * Max Image width
      */
 
     public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {
@@ -106,7 +109,7 @@ public class HtmlPrinter {
                     .distinct()
                     .toList();
         }
-        htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_PATH, UNIT_LOGO_PATH, CARD_FOLDER, useInch, template);
+        htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, template);
         log.info("Created cards for: {} ; {} ; {} ; {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode);
     }
 
@@ -114,7 +117,7 @@ public class HtmlPrinter {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, UNIT_IMAGE_PATH, UNIT_LOGO_PATH, u.getSectorial().getSlug(), useInch, template));
+                .forEach(u -> writeToFile(u, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, u.getSectorial().getSlug(), useInch, template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -166,20 +169,40 @@ public class HtmlPrinter {
                 });
     }
 
+    private void copyCustomUnitImages(UnitOption option, String unitImagePath, String outPath) {
+        option.getAllTrooper().stream()
+                .flatMap(t -> t.getProfiles().stream())
+                .forEach(p -> {
+                    String fileName = p.getCombinedProfileId() + ".png";
+                    Path sourcePath = Path.of(unitImagePath, fileName);
+                    if (Files.exists(sourcePath)) {
+                        Path targetPath = Path.of(outPath, fileName);
+                        try {
+                            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                });
+    }
+
     public void writeToFile(UnitOption unitOption,
                             String unitImagePath,
+                            String customUnitImagePath,
                             String logoImagePath,
                             String outputFolder,
                             boolean useInch,
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, logoImagePath, outputFolder, useInch, template);
+        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, customUnitImagePath, logoImagePath, outputFolder, useInch, template);
     }
 
     public void writeCards(List<UnitOption> unitOptions,
                            String fileName,
                            Sectorial sectorial,
                            String unitImagePath,
+                           String customUnitImagePath,
                            String logoImagePath,
                            String outputFolder,
                            boolean useInch,
@@ -199,6 +222,7 @@ public class HtmlPrinter {
         Set<String> usedImages = new CopyOnWriteArraySet<>();
         for (UnitOption unitOption : unitOptions) {
             copyLogos(unitOption, logoImagePath, imageOutputPath);
+            copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath);
             copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
         }
 
