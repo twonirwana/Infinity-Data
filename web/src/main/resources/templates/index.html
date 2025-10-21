@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Trooper Card Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -195,15 +196,15 @@
 </div>
 
 <footer>
-    <span th:if="${!email.isEmpty()}">
-        <a th:href="'mailto:' + ${email}">Contact</a>
-        <span class="footer-separator">|</span>
-    </span>
+    <a th:href="@{/help}" target="_blank">Help</a>
+    <span class="footer-separator">|</span>
+    <a href="mailto:contact@infinity.2nirwana.de">Contact</a>
+    <span class="footer-separator">|</span>
     <span th:if="${!imprint.isEmpty()}">
         <a href="imprint">Imprint</a>
         <span class="footer-separator">|</span>
     </span>
-    <a href="https://github.com/twonirwana/Infinity-Data" target="_blank" rel="noopener noreferrer">Source Code</a>
+    <a href="https://github.com/twonirwana/Infinity-Data" target="_blank">Source Code</a>
 </footer>
 
 </body>

@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.Duration;
 import java.util.Arrays;
@@ -122,7 +124,6 @@ public class WebApp {
         webApp.get("/", ctx -> {
             registry.counter("infinity.base.called").increment();
             Map<String, String> model = Map.of(
-                    "email", Config.get("website.email", ""),
                     "imprint", Config.get("website.imprint", "")
             );
             ctx.render("templates/index.html", model);
@@ -241,6 +242,13 @@ public class WebApp {
             ctx.render("templates/imprint.html", model);
         });
 
+        String helpPage = loadStaticHtmlFile("help.html");
+
+        webApp.get("/help", ctx -> {
+            registry.counter("infinity.help").increment();
+            ctx.html(helpPage);
+        });
+
         if (Config.getBool("server.prometheus", false)) {
             new LogbackMetrics().bindTo(registry);
             new ClassLoaderMetrics().bindTo(registry);
@@ -318,5 +326,19 @@ public class WebApp {
                 .publishPercentileHistogram(true)
                 .register(registry)
                 .record(duration);
+    }
+
+    public static String loadStaticHtmlFile(String fileName) {
+        try (InputStream is = WebApp.class.getResourceAsStream(fileName)) {
+
+            if (is == null) {
+                throw new IllegalArgumentException("Resource not found: " + fileName);
+            }
+
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading resource file: " + fileName, e);
+        }
     }
 }
