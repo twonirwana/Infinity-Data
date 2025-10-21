@@ -87,8 +87,6 @@ public class HtmlPrinter {
     }
 
     /*todo:
-     * sometimes option name is better then profile name!
-     * Manual Test for list of army codes
      * T2, AP, Shock, Continous Damage from Skill to weapon table
      * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
@@ -100,6 +98,7 @@ public class HtmlPrinter {
      * Second page for units with more then 6 weapons?
      * weapon add saving modifier, savingNum to table?
      * No image variant
+     * sometimes option name is better then profile name, but only in very few cases like the Polaris Team
      */
 
     public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {
@@ -114,7 +113,7 @@ public class HtmlPrinter {
                     .distinct()
                     .toList();
         }
-        htmlPrinter.writeCards(armyListOptions, fileName, al.getSectorial(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, template);
+        htmlPrinter.writeCards(armyListOptions, fileName, armyCode, al.getSectorial(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, template);
         log.info("Created cards for: {} ; {} ; {} ; {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode);
     }
 
@@ -200,11 +199,12 @@ public class HtmlPrinter {
                             boolean useInch,
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-        writeCards(List.of(unitOption), fileName, unitOption.getSectorial(), unitImagePath, customUnitImagePath, logoImagePath, outputFolder, useInch, template);
+        writeCards(List.of(unitOption), fileName, "-", unitOption.getSectorial(), unitImagePath, customUnitImagePath, logoImagePath, outputFolder, useInch, template);
     }
 
     public void writeCards(List<UnitOption> unitOptions,
                            String fileName,
+                           String armyCode,
                            Sectorial sectorial,
                            String unitImagePath,
                            String customUnitImagePath,
@@ -242,6 +242,7 @@ public class HtmlPrinter {
         context.setVariable("printCards", printCards);
         context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
         context.setVariable("listName", fileName);
+        context.setVariable("armyCode", armyCode);
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
 
