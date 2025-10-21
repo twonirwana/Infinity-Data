@@ -66,6 +66,10 @@
             white-space: nowrap;
         }
 
+        tr {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
         tbody tr:nth-child(even) {
             background-color: #f2f2f2;
         }
@@ -114,10 +118,6 @@
             </div>
             <div th:style="'background-image: url(image/' + ${printCard.getCombinedProfileId()} + '.png); background-size: cover; background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%'">
                 <div style="display: flex; height: 100%;">
-                    <div style="background-color: rgba(255, 255, 255, 0.7); height: fit-content; font-size: 4pt;">
-                        <span th:text="${printCard.getProfile().getType()}"></span>
-                        <span th:text="${printCard.getTrooper().getCategory()}"></span>
-                    </div>
                     <div style="width: 70%; margin-left: auto ">
                         <div style="display: flex; flex-direction: column; height: 100%;">
                             <div>
@@ -150,14 +150,19 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div style="margin-left: auto; margin-right: 2px; font-weight: bold; height: fit-content;">
+                                <span th:text="${printCard.getProfile().getType()}"></span>
+                                <span th:text="${printCard.getTrooper().getCategory()}"></span>
+                            </div>
                             <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
-                                <div style="background-color: rgba(255, 255, 255, 0.7);">
+                                <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
                                     <b>Equipment:</b> <span th:text="${printCard.prettyEquipments}"></span>
                                 </div>
-                                <div style="background-color: rgba(255, 255, 255, 0.7);">
+                                <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
                                     <b>Skills:</b> <span th:text="${printCard.prettySkills}"></span>
                                 </div>
-                                <div th:if="${printCard.getNotes() != null and not #strings.isEmpty(printCard.getNotes())}" style="background-color: rgba(255, 255, 255, 0.7);">
+                                <div th:if="${printCard.getNotes() != null and not #strings.isEmpty(printCard.getNotes())}"
+                                     style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
                                     <b>Notes:</b> <span th:text="${printCard.getNotes()}"></span>
                                 </div>
                             </div>

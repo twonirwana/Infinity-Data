@@ -95,6 +95,9 @@ public class HtmlPrinter {
      * Option to prefere custom images
      * Better position for type and classification
      * Max Image width
+     * Second page for units with more then 6 weapons?
+     * weapon add saving modifier, savingNum to table?
+     * No image variant
      */
 
     public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {

@@ -62,7 +62,7 @@ public class PrintCard {
     }
 
     private static String getWeaponSkill(Weapon weapon) {
-        return "CC".equals(weapon.getType()) ? "CC Attack" : "BS Attack";
+        return Weapon.Type.CC == weapon.getType() ? "CC Attack" : "BS Attack";
     }
 
     public static String getWeaponBurstWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
@@ -251,11 +251,11 @@ public class PrintCard {
                         .map(i -> o.getType()))
                 .forEach(orderType -> {
                     switch (orderType) {
-                        case "REGULAR" -> iconFileNames.add("regular.svg");
-                        case "IRREGULAR" -> iconFileNames.add("irregular.svg");
-                        case "IMPETUOUS" -> iconFileNames.add("impetuous.svg");
-                        case "TACTICAL" -> iconFileNames.add("tactical.svg");
-                        case "LIEUTENANT" -> iconFileNames.add("lieutenant.svg");
+                        case REGULAR -> iconFileNames.add("regular.svg");
+                        case IRREGULAR -> iconFileNames.add("irregular.svg");
+                        case IMPETUOUS -> iconFileNames.add("impetuous.svg");
+                        case TACTICAL -> iconFileNames.add("tactical.svg");
+                        case LIEUTENANT -> iconFileNames.add("lieutenant.svg");
                     }
                 });
 

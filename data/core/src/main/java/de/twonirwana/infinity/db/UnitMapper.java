@@ -282,7 +282,7 @@ public class UnitMapper {
                 .orElse(null);
         return new de.twonirwana.infinity.unit.api.Weapon(
                 weapon.getId(),
-                weaponType,
+                weaponType == null ? null : de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType),
                 weapon.getName(),
                 weapon.getMode(),
                 weapon.getWiki(),
@@ -531,7 +531,7 @@ public class UnitMapper {
     }
 
     private static de.twonirwana.infinity.unit.api.Order mapOrder(Order order) {
-        return new de.twonirwana.infinity.unit.api.Order(order.getType(), order.getList(), order.getTotal());
+        return new de.twonirwana.infinity.unit.api.Order(de.twonirwana.infinity.unit.api.Order.Type.valueOf(order.getType()), order.getList(), order.getTotal());
     }
 
     private static ProfileGroup getProfileGroupFromInclude(Unit unit, ProfileInclude profileInclude) {

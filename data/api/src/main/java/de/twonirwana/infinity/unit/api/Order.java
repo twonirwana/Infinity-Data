@@ -4,7 +4,15 @@ import lombok.Value;
 
 @Value
 public class Order {
-     String type; //enum?
-     int list; //todo is what?
-     int total;
+    Type type;
+    int list; //todo is what?
+    int total;
+
+    public enum Type {
+        REGULAR,
+        IRREGULAR,
+        IMPETUOUS,
+        TACTICAL,
+        LIEUTENANT
+    }
 }
