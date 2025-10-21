@@ -105,6 +105,7 @@ public class ArmyCodeLoader {
     private static Optional<UnitOption> findUnitOptions(CombatGroupMember combatGroupMember, List<UnitOption> unitOptionList) {
         return unitOptionList.stream()
                 .filter(uo -> {
+                    //some units like polaris team get group 0 from army code but has group 1 & 2. In this case the first option needs to be returned
                     if (combatGroupMember.groupId() != 0) {
                         return uo.getUnitId() == combatGroupMember.unitId && uo.getGroupId() == combatGroupMember.groupId && uo.getOptionId() == combatGroupMember.optionId;
                     }
@@ -155,7 +156,7 @@ public class ArmyCodeLoader {
     }
 
     @VisibleForTesting
-    static ArmyCodeData mapArmyCode(final String armyCode) {
+    public static ArmyCodeData mapArmyCode(final String armyCode) {
         byte[] decoded = decodeArmyCode(armyCode);
         if (decoded == null) {
             throw new IllegalArgumentException("armyCode cannot be null");
@@ -188,7 +189,7 @@ public class ArmyCodeLoader {
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 
-    record CombatGroupMember(
+    public record CombatGroupMember(
             int unitId,
             int groupId,
             int optionId) {
@@ -198,7 +199,7 @@ public class ArmyCodeLoader {
         }
     }
 
-    record ArmyCodeData(
+    public record ArmyCodeData(
             int sectorialId,
             String sectorialName,
             String armyName,
