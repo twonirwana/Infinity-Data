@@ -84,7 +84,7 @@ public class ArmyCodeLoader {
 
         Sectorial sectorialApiId = dataLoader.getAllSectorialIds().stream()
                 .filter(s -> s.getId() == armyCodeData.sectorialId)
-                .findFirst().orElseThrow();
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Could not find sectorial with id %d for %s".formatted(armyCodeData.sectorialId, armyCode)));
         Map<Integer, List<UnitOption>> combatGroups = armyCodeData.combatGroups.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
                         .map(m -> unitOptionList.stream()

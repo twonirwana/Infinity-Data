@@ -45,6 +45,8 @@ public class WebApp {
     private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
     private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
     private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
+    private final static Path INVALID_ARMY_CODE_FILE = Path.of("invalid_army_code.csv"); //not in out because it should not be archived
+    private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
     private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
@@ -70,14 +72,9 @@ public class WebApp {
         moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
         moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
         moveFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER, true);
-        File indexFile = ARMY_UNIT_HASH_FILE.toFile();
-        if (!indexFile.exists()) {
-            try {
-                indexFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        crateFileIfNotExists(ARMY_UNIT_HASH_FILE);
+        crateFileIfNotExists(INVALID_ARMY_CODE_FILE);
+        crateFileIfNotExists(MISSING_UNIT_ARMY_CODE_FILE);
 
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
         if (refreshDbIntervalSec > 0) {
@@ -188,6 +185,8 @@ public class WebApp {
                 boolean canDecode = database.canDecodeArmyCode(armyCode);
                 if (!canDecode) {
                     registry.counter("infinity.invalid.army.code").increment();
+                    log.warn("Can't read army code: {}", armyCode);
+                    Files.writeString(INVALID_ARMY_CODE_FILE, armyCode  + "\n", StandardOpenOption.APPEND);
                     ctx.status(400).html("Invalid format of army code: " + armyCode);
                     return;
                 }
@@ -195,6 +194,7 @@ public class WebApp {
                 if (!missingArmyCodeUnits.isEmpty()) {
                     registry.counter("infinity.missing.army.code.units").increment();
                     log.error("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+                    Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
                     ctx.status(400).html("Could not find units for the following ids: " + missingArmyCodeUnits);
                     return;
                 }
@@ -206,7 +206,9 @@ public class WebApp {
                 metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
                 ctx.redirect(contextPath + "view/" + fileName);
             } catch (Exception e) {
-                log.error("Can't read army code: {}", armyCode, e);
+                log.warn("Can't read army code: {}", armyCode);
+                registry.counter("infinity.invalid.army.code").increment();
+                Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
                 ctx.status(400).html("Can't read army code: " + armyCode);
             }
 
@@ -250,6 +252,17 @@ public class WebApp {
 
             String contentType = "text/plain; version=0.0.4; charset=utf-8";
             webApp.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
+        }
+    }
+
+    private static void crateFileIfNotExists(Path file) {
+        File indexFile = file.toFile();
+        if (!indexFile.exists()) {
+            try {
+                indexFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
