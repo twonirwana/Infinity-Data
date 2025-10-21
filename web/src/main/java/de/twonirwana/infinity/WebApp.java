@@ -27,12 +27,16 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
+import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
 
 @Slf4j
 public class WebApp {
@@ -41,6 +45,8 @@ public class WebApp {
     private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
     private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
     private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
+    private final static Path INVALID_ARMY_CODE_FILE = Path.of("invalid_army_code.csv"); //not in out because it should not be archived
+    private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
     private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
@@ -51,7 +57,7 @@ public class WebApp {
         /*
         todo:
          * ko-fi
-         * somehow validate armycode
+         * option to prefere custom images
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -63,16 +69,12 @@ public class WebApp {
         createFolderIfNotExists(CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
 
-        archiveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
-        archiveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
-        File indexFile = ARMY_UNIT_HASH_FILE.toFile();
-        if (!indexFile.exists()) {
-            try {
-                indexFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
+        moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
+        moveFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER, true);
+        crateFileIfNotExists(ARMY_UNIT_HASH_FILE);
+        crateFileIfNotExists(INVALID_ARMY_CODE_FILE);
+        crateFileIfNotExists(MISSING_UNIT_ARMY_CODE_FILE);
 
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         registry.config().commonTags("application", "infinity-cards-generator");
@@ -97,7 +99,7 @@ public class WebApp {
                     .parallel()
                     .forEach(p -> p.getImageNames().forEach(image -> {
                         counter.incrementAndGet();
-                        ImageUtils.autoCrop(HtmlPrinter.UNIT_IMAGE_PATH + image,
+                        ImageUtils.autoCrop(UNIT_IMAGE_FOLDER + image,
                                 CARD_IMAGE_FOLDER + p.getCombinedProfileId() + ".png");
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
@@ -170,7 +172,6 @@ public class WebApp {
             }
 
             armyCode = armyCode.trim();
-            log.info("army code: {}", armyCode);
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
             String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
             if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
@@ -182,6 +183,23 @@ public class WebApp {
 
             try {
                 Stopwatch stopwatch = Stopwatch.createStarted();
+                boolean canDecode = database.canDecodeArmyCode(armyCode);
+                if (!canDecode) {
+                    registry.counter("infinity.invalid.army.code").increment();
+                    log.warn("Can't read army code: {}", armyCode);
+                    Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
+                    ctx.status(400).html("Invalid format of army code: " + armyCode);
+                    return;
+                }
+                List<String> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
+                if (!missingArmyCodeUnits.isEmpty()) {
+                    registry.counter("infinity.missing.army.code.units").increment();
+                    log.error("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+                    Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
+                    ctx.status(400).html("Could not find unique units for the following ids: " + missingArmyCodeUnits);
+                    return;
+                }
+
                 htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
                 log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
                 Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
@@ -189,7 +207,9 @@ public class WebApp {
                 metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
                 ctx.redirect(contextPath + "view/" + fileName);
             } catch (Exception e) {
-                log.error("Can't read army code: {}", armyCode, e);
+                log.warn("Can't read army code: {}", armyCode);
+                registry.counter("infinity.invalid.army.code").increment();
+                Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
                 ctx.status(400).html("Can't read army code: " + armyCode);
             }
 
@@ -241,6 +261,17 @@ public class WebApp {
         database.updateData();
     }
 
+    private static void crateFileIfNotExists(Path file) {
+        File indexFile = file.toFile();
+        if (!indexFile.exists()) {
+            try {
+                indexFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private static void createFolderIfNotExists(String pathName) {
         Path path = Paths.get(pathName);
         try {
@@ -252,7 +283,7 @@ public class WebApp {
         }
     }
 
-    private static void archiveFiles(String source, String target, boolean onlyCopy) {
+    private static void moveFiles(String source, String target, boolean onlyCopy) {
         Path sourceDir = Paths.get(source);
         Path targetDir = Paths.get(target);
         int count = 0;

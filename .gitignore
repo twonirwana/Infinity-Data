@@ -14,3 +14,5 @@
 /logs/
 /web/build/
 /army_code-hash.csv
+/invalid_army_code.csv
+/missing_unit_army_code.csv
