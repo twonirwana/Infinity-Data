@@ -41,14 +41,14 @@ public class HtmlPrinterTest {
 
     @Test
     void testA7() {
-        underTest.writeCards(List.of(unitOption), fileName, sectorial, "", "", "", true, HtmlPrinter.Template.a7_image);
+        underTest.writeCards(List.of(unitOption), fileName, sectorial, "", "", "", "", true, HtmlPrinter.Template.a7_image);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }
 
     @Test
     void testBwCard() {
-        underTest.writeCards(List.of(unitOption), fileName, sectorial, "", "", "", true, HtmlPrinter.Template.card_bw);
+        underTest.writeCards(List.of(unitOption), fileName, sectorial, "", "", "", "", true, HtmlPrinter.Template.card_bw);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

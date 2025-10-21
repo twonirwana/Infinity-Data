@@ -282,7 +282,7 @@ public class UnitMapper {
                 .orElse(null);
         return new de.twonirwana.infinity.unit.api.Weapon(
                 weapon.getId(),
-                de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType),
+                weaponType == null ? null : de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType),
                 weapon.getName(),
                 weapon.getMode(),
                 weapon.getWiki(),
