@@ -87,6 +87,8 @@ public class HtmlPrinter {
     }
 
     /*todo:
+     * sometimes option name is better then profile name!
+     * Manual Test for list of army codes
      * T2, AP, Shock, Continous Damage from Skill to weapon table
      * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
