@@ -88,8 +88,8 @@ public class ArmyCodeLoader {
         Map<Integer, List<UnitOption>> combatGroups = armyCodeData.combatGroups.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
                         .map(m -> unitOptionList.stream()
-                                .filter(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId).findFirst().orElseThrow(() ->
-                                        new IllegalArgumentException("No profile for unit id: %s and optionId: %s".formatted(m.unitId, m.optionId))))
+                                .filter(uo -> uo.getUnitId() == m.unitId && uo.getGroupId() == m.groupId && uo.getOptionId() == m.optionId).findFirst().orElseThrow(() ->
+                                        new IllegalArgumentException("No profile for unitId: %s, groupId: %s and optionId: %s".formatted(m.unitId, m.groupId, m.optionId))))
                         .toList()));
         return new ArmyList(sectorialApiId, armyCodeData.sectorialName, armyCodeData.armyName, armyCodeData.maxPoints, combatGroups);
     }
@@ -102,8 +102,11 @@ public class ArmyCodeLoader {
 
         return armyCodeData.combatGroups.values().stream()
                 .flatMap(Collection::stream)
-                .filter(m -> unitOptionList.stream().noneMatch(uo -> uo.getUnitId() == m.unitId && uo.getOptionId() == m.optionId))
-                .map(c -> "{SectorialId: %d, UnitId: %d, OptionId: %d}".formatted(armyCodeData.sectorialId, c.unitId(), c.optionId()))
+                .filter(m -> unitOptionList.stream()
+                        .filter(uo -> uo.getUnitId() == m.unitId && uo.getGroupId() == m.groupId && uo.getOptionId() == m.optionId)
+                        .count() != 1
+                )
+                .map(c -> "{SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d}".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId()))
                 .toList();
     }
 

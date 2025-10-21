@@ -186,7 +186,7 @@ public class WebApp {
                 if (!canDecode) {
                     registry.counter("infinity.invalid.army.code").increment();
                     log.warn("Can't read army code: {}", armyCode);
-                    Files.writeString(INVALID_ARMY_CODE_FILE, armyCode  + "\n", StandardOpenOption.APPEND);
+                    Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
                     ctx.status(400).html("Invalid format of army code: " + armyCode);
                     return;
                 }
@@ -195,7 +195,7 @@ public class WebApp {
                     registry.counter("infinity.missing.army.code.units").increment();
                     log.error("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
                     Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
-                    ctx.status(400).html("Could not find units for the following ids: " + missingArmyCodeUnits);
+                    ctx.status(400).html("Could not find unique units for the following ids: " + missingArmyCodeUnits);
                     return;
                 }
 
