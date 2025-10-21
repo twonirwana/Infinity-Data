@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <title>FAQ – Infinity Card Generator</title>
+
+    <style>
+        :root {
+            --primary-color-glow: #00d4ff;
+            --primary-color-dark: #009ec4;
+            --dark-bg: #12151a;
+            --content-bg: rgba(20, 25, 30, 0.85);
+            --text-color: #e0e0e0;
+            --text-muted: #8899aa;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Orbitron', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2em;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--content-bg);
+            padding: 2.5em;
+            border: 2px solid var(--primary-color-glow);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4), 0 0 6px rgba(0, 212, 255, 0.6) inset;
+            backdrop-filter: blur(6px);
+            border-radius: 10px;
+            margin-bottom: 2em;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            color: var(--primary-color-glow);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7), 0 0 12px rgba(0, 212, 255, 0.4);
+            margin-bottom: 1.5em;
+        }
+
+        details {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        summary {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--primary-color-dark);
+            cursor: pointer;
+            list-style: none;
+            outline: none;
+            display: flex;
+            align-items: center;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: '►';
+            font-size: 0.9em;
+            margin-right: 10px;
+            color: var(--primary-color-glow);
+            transition: transform 0.2s ease;
+        }
+
+        details[open] summary::before {
+            content: '▼';
+        }
+
+        details:hover summary {
+            color: var(--primary-color-glow);
+        }
+
+        .faq-answer {
+            margin-left: 22px;
+            padding-top: 10px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .faq-answer p {
+            margin: 0.5em 0;
+        }
+
+        ul {
+            margin: 0.5em 0 0.5em 1em;
+        }
+
+        a {
+            color: var(--primary-color-glow);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #80e9ff;
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Frequently Asked Questions</h1>
+
+    <details>
+        <summary>What is the Trooper Card Generator?</summary>
+        <div class="faq-answer">
+            <p>The Trooper Card Generator is a fan-made tool for the <a href="https://infinityuniverse.com/en"
+                                                                        target="_blank">Infinity</a> tabletop game by
+                Corvus Belli.</p>
+            <p>It converts an army code from the official <a href="https://infinityuniverse.com/army/infinity"
+                                                             target="_blank">Infinity Army</a> builder into printable
+                trooper cards with unit stats and profiles.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Why is there a * next to some PS values in the weapon table?</summary>
+        <div class="faq-answer">
+            <p>The asterisk (*) indicates that modifiers from skills or profile have altered the weapon’s default PS
+                value.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>How do I get my army code?</summary>
+        <div class="faq-answer">
+            <p>After creating your list in the <a href="https://infinityuniverse.com/army/infinity" target="_blank">Infinity
+                Army</a> builder, click “Generate Army Code”. You can then copy and paste that code into the Card
+                Generator.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>What’s the difference between the card styles?</summary>
+        <div class="faq-answer">
+            <p>Two card styles are available:</p>
+            <ul>
+                <li><strong>Color and image - DIN-A7:</strong> Full-color cards with unit artwork, designed to print
+                    nine cards per A4 sheet.
+                </li>
+                <li><strong>Black and white - playing card:</strong> Minimalist, ink-friendly cards sized at 59 × 91 mm
+                    (standard playing card size).
+                </li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>What does the “Unit Filter” do?</summary>
+        <div class="faq-answer">
+            <p>Use the “Distinct Units” option to generate only one card per unique trooper profile. The “No Filter”
+                option creates a card for every trooper in your list, even if they are identical.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Why are some images missing?</summary>
+        <div class="faq-answer">
+            <p>Currently Corvus Belli only provides images for certain unit profiles. The community is working to add
+                images for
+                all troopers. If you’d like to help, please <a href="mailto:contact@infinity.2nirwana.de">contact me</a>.
+            </p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Why do I get an error message for my army code?</summary>
+        <div class="faq-answer">
+            <p>Your army code might be incomplete or outdated. When Corvus Belli updates their data, older codes can
+                become invalid.</p>
+            <p>First, check if your code still works in the <a href="https://infinityuniverse.com/army/infinity"
+                                                               target="_blank">Infinity Army</a> tool. If it does, the
+                issue might be a bug—please <a href="mailto:contact@infinity.2nirwana.de">email me</a> or <a
+                        href="https://github.com/twonirwana/Infinity-Data/issues" target="_blank">open an issue</a> on
+                GitHub.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Why can’t I print multiple cards on one page?</summary>
+        <div class="faq-answer">
+            <p>This is usually a printer issue. Try generating the cards as a 9-to-1 PDF first, then print the PDF from
+                your system’s print dialog.</p>
+            <p>The layout is optimized for A4 paper sizes.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Why is the layout broken for one specific trooper?</summary>
+        <div class="faq-answer">
+            <p>Some unit profiles have unusual data that can cause layout issues. Please <a
+                    href="mailto:contact@infinity.2nirwana.de">email me</a> or <a
+                    href="https://github.com/twonirwana/Infinity-Data/issues" target="_blank">open an issue</a> on
+                GitHub so I can improve the formatting.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>How can I request a new feature?</summary>
+        <div class="faq-answer">
+            <p>You can <a href="mailto:contact@infinity.2nirwana.de">email me</a> directly or <a
+                    href="https://github.com/twonirwana/Infinity-Data/issues" target="_blank">create an issue</a> on
+                GitHub to suggest new features or improvements.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>This is great! How can I help?</summary>
+        <div class="faq-answer">
+            <p>Contributions are always welcome — especially from those experienced in HTML/CSS design or graphic
+                layout. Help is also needed to gather images for missing troopers.</p>
+            <p>To contribute, <a href="mailto:contact@infinity.2nirwana.de">send me an email</a> or <a
+                    href="https://github.com/twonirwana/Infinity-Data/pulls" target="_blank">submit a pull request</a>
+                on GitHub.</p>
+        </div>
+    </details>
+
+</div>
+
+</body>
+</html>
