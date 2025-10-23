@@ -1,4 +1,4 @@
-package de.twonirwana.infinity;
+package de.twonirwana.infinity.util;
 
 import java.io.IOException;
 

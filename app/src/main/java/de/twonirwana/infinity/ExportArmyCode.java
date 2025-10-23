@@ -1,5 +1,7 @@
 package de.twonirwana.infinity;
 
+import de.twonirwana.infinity.util.HashUtil;
+
 public class ExportArmyCode {
     public static void main(String[] args) {
         Database db = new DatabaseImp();
