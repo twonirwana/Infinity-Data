@@ -3,6 +3,7 @@ package de.twonirwana.infinity;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.util.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -121,7 +122,7 @@ public class HtmlPrinter {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, u.getSectorial().getSlug(), useInch, template));
+                .forEach(u -> writeToFile(u, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {

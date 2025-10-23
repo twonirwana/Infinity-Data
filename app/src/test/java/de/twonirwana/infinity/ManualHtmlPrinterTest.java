@@ -2,6 +2,7 @@ package de.twonirwana.infinity;
 
 import de.twonirwana.infinity.armylist.ArmyCodeLoader;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.util.HashUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;

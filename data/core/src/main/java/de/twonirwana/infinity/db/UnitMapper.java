@@ -106,6 +106,7 @@ public class UnitMapper {
                         return createUnitOption(sectorial, unit, primaryTrooper, profileOption, additionalTroopers);
 
                     })
+                    .distinct()
                     .toList());
         }
 

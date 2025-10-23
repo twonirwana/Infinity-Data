@@ -10,8 +10,6 @@ public class ExportAll {
 
         CsvPrinter.printAll(db);
 
-        ExportMissingImageOverview.exportIntoCSV(db);
-
         HtmlPrinter htmlPrinter = new HtmlPrinter();
         htmlPrinter.printAll(db, true, HtmlPrinter.Template.a7_image);
 

@@ -1,4 +1,4 @@
-package de.twonirwana.infinity;
+package de.twonirwana.infinity.util;
 
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;

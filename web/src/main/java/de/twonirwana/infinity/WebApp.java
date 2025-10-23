@@ -2,6 +2,8 @@ package de.twonirwana.infinity;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import de.twonirwana.infinity.util.HashUtil;
+import de.twonirwana.infinity.util.ImageUtils;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
 import io.javalin.compression.CompressionStrategy;
