@@ -31,21 +31,21 @@ public class HtmlPrinter {
     public static final String HTML_OUTPUT_PATH = "out/html/";
     public static final String IMAGE_FOLDER = "/image/";
     //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
-    private static final Map<Integer, String> sectorialColors = ImmutableMap.<Integer, String>builder()
+    private static final Map<Integer, String> SECTORIAL_COLORS = ImmutableMap.<Integer, String>builder()
             .put(100, "#00b0f2")
             .put(200, "#ff9000")
             .put(300, "#007d27")
-            .put(400, "#e6da9b")
+            .put(400, "#e6da9b") //black header color
             .put(500, "#ce181f")
             .put(600, "#400b5f")
-            .put(700, "#afa7bc")
+            .put(700, "#afa7bc") //black header color
             .put(800, "#3b3b3b")
             .put(900, "#728868")
             .put(1000, "#005470")
             .put(1100, "#a6112b")
             .build();
     //sed -n '/perfil_habs\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors2nd.txt
-    private static final Map<Integer, String> sectorial2ndColors = ImmutableMap.<Integer, String>builder()
+    private static final Map<Integer, String> SECTORIAL_2ND_COLORS = ImmutableMap.<Integer, String>builder()
             .put(100, "#006a91")
             .put(200, "#995600")
             .put(300, "#005825")
@@ -58,6 +58,11 @@ public class HtmlPrinter {
             .put(1000, "#e7b128")//o12 need to be extracted with hand, the regex doesn't get it
             .put(1100, "#757575")
             .build();
+    //default is white but for this two colors not good readable
+    private static final Map<Integer, String> HEADER_TEXT_COLOR = Map.of(
+            400, "black",
+            700, "black"
+    );
     private static final Map<String, String> RANGE_CLASS_MAP = Map.of(
             "0", "range0",
             "-3", "rangeMinus3",
@@ -232,8 +237,9 @@ public class HtmlPrinter {
             copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
         }
 
-        String primaryColor = sectorialColors.get(sectorial.getParentId() - 1);
-        String secondaryColor = sectorial2ndColors.get(sectorial.getParentId() - 1);
+        String primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
+        String secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
+        String headerColor = HEADER_TEXT_COLOR.getOrDefault(sectorial.getParentId() - 1, "white");
 
         List<PrintCard> printCards = unitOptions.stream()
                 .flatMap(u -> PrintCard.fromUnitOption(u, useInch).stream())
@@ -246,6 +252,7 @@ public class HtmlPrinter {
         context.setVariable("armyCode", armyCode);
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
+        context.setVariable("headerColor", headerColor);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {

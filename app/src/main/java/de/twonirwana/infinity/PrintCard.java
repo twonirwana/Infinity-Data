@@ -196,6 +196,10 @@ public class PrintCard {
         return Optional.empty();
     }
 
+    public String getImageName() {
+        return "image/%s.png".formatted(getCombinedProfileId());
+    }
+
     public String getNotes() {
         return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
                 .filter(n -> !Strings.isNullOrEmpty(n))
