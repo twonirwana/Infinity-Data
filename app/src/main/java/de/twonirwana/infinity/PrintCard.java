@@ -196,8 +196,14 @@ public class PrintCard {
         return Optional.empty();
     }
 
-    public String getImageName() {
+    public String getUnitImageName() {
         return "image/%s.png".formatted(getCombinedProfileId());
+    }
+
+    public String getShortCategory() {
+        return Optional.ofNullable(trooper.getCategory())
+                .map(s -> s.replace("Troops", ""))
+                .orElse("");
     }
 
     public String getNotes() {

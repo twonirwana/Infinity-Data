@@ -101,6 +101,17 @@
             background-color: orangered;
         }
 
+        .typAndCategory {
+            padding-right: 2px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            height: 100%;
+            justify-content: space-evenly;
+        }
+
     </style>
 </head>
 <body>
@@ -118,11 +129,15 @@
                          alt="unit image" style="height: 25px; width: auto; ">
                 </div>
             </div>
-            <div th:style="'background-image: url(' + ${printCard.getImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%'">
+            <div th:style="'background-image: url(' + ${printCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%'">
                 <div style="display: flex; height: 100%;">
                     <div style="width: 70%; margin-left: auto;">
                         <div style="display: flex; flex-direction: column; height: 100%;">
-                            <div>
+                            <div style="display: flex;">
+                                <div class="typAndCategory">
+                                    <div th:text="${printCard.getProfile().getType()}"></div>
+                                    <div th:text="${printCard.getShortCategory()}"></div>
+                                </div>
                                 <table class="attribut">
                                     <thead>
                                     <tr>
@@ -152,10 +167,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div style="margin-left: auto; margin-right: 2px; font-weight: bold; height: fit-content;">
-                                <span th:text="${printCard.getProfile().getType()}"></span>
-                                <span th:text="${printCard.getTrooper().getCategory()}"></span>
-                            </div>
+
                             <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
                                 <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
                                     <b>Equipment:</b> <span th:text="${printCard.prettyEquipments}"></span>
