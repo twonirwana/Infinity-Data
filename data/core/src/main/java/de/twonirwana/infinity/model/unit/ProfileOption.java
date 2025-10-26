@@ -15,9 +15,9 @@ public class ProfileOption {
     private List<Integer> chars; // characteristics, mapped in filter
     private String compatible; // never set?
     private List<String> habilities; // never set?
-    private boolean disabled; // used with mercs afaict
+    private boolean disabled; // used units with unit options where an options is in the profile group and in the unit options
     private List<ProfileItem> equip;
-    private int minis; //means what?
+    private int minis; //number of minis in the option?
     private List<Order> orders;
     /**
      * If the trooper has multipe units and the secondary unit has options that are determine by the option of the first unit

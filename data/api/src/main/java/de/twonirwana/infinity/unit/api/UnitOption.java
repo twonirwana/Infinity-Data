@@ -18,6 +18,8 @@ public class UnitOption {
     String isc;
     String iscAbbr;
     String unitName;
+    //is only set if the unit as a direct option
+    String unitOptionName;
     String optionName;
     String slug;
 

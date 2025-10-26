@@ -62,6 +62,7 @@ public class WebApp {
         todo:
          * ko-fi
          * option to prefere custom images
+         * metric for sectorials
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -177,7 +178,7 @@ public class WebApp {
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
             String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
-            if (Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
+            if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 registry.counter("infinity.generate.existing").increment();
                 ctx.redirect(contextPath + "view/" + fileName);

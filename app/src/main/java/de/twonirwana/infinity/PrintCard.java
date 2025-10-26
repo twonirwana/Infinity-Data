@@ -196,6 +196,13 @@ public class PrintCard {
         return Optional.empty();
     }
 
+    public String getUnitName() {
+        if(trooper.getProfiles().size() > 1){
+            return profile.getName();
+        }
+        return trooper.getOptionName();
+    }
+
     public String getUnitImageName() {
         return "image/%s.png".formatted(getCombinedProfileId());
     }

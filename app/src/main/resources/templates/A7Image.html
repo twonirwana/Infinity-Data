@@ -122,7 +122,7 @@
                 <img th:src="@{image/{imageName}(imageName=${printCard.getProfile().logo})}"
                      alt="unit logo" style="height: 25px; width: auto;">
                 <h2 style="margin-right: auto;">
-                    <span th:text="${printCard.getProfile().name}">Trooper Profile Name</span>
+                    <span th:text="${printCard.getUnitName()}">Trooper Profile Name</span>
                 </h2>
                 <div th:each="imageName : ${printCard.getIconFileNames()}">
                     <img th:src="@{image/{fileName}(fileName=${imageName})}"

@@ -23,7 +23,13 @@ import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled //only for manual check that everthing works
+@Disabled //only for manual check that everything works
+
+//complex profiles:
+// - Polaris 1522,
+// - Scylla 721
+// - Jazz & Bill 1551
+// Seed Soldiers, Scarface, Posthumans,
 public class ManualHtmlPrinterTest {
     static Pattern combinedIdPattern = Pattern.compile("combinedId:(\\d+-\\d+-\\d+-\\d+-\\d+)\"");
     static Pattern armyCodePattern = Pattern.compile("<meta name=\"armyCode\" content=\"(.+)\">");
@@ -50,6 +56,8 @@ public class ManualHtmlPrinterTest {
     void testArmyCodeA7(String armyCode, String expectedUnitIds) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
+        assertThat(db.validateArmyCodeUnits(armyCode)).isEmpty();
+
         ArmyCodeLoader.ArmyCodeData codeData = ArmyCodeLoader.mapArmyCode(armyCode);
         ArmyList armyList = db.getArmyListForArmyCode(armyCode);
         assertThat(codeData.combatGroups().values().stream()
@@ -71,8 +79,9 @@ public class ManualHtmlPrinterTest {
         assertThat(armyCodeInFile).containsExactly(armyCode);
 
         List<String> ids = findAllRegex(resultFileContent, combinedIdPattern);
+        //System.out.println(armyCode + ";" + Joiner.on(", ").join(ids));
 
-        assertThat(ids.toString()).isEqualTo(expectedUnitIds);
+        assertThat(ids).containsExactly(expectedUnitIds.split(", "));
 
     }
 

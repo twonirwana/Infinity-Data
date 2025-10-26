@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -84,7 +87,7 @@ public class ArmyCodeLoader {
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("Could not find sectorial with id %d for %s".formatted(armyCodeData.sectorialId, armyCode)));
         Map<Integer, List<UnitOption>> combatGroups = armyCodeData.combatGroups.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
-                        .map(m -> findUnitOptions(m, unitOptionList).orElseThrow())
+                        .flatMap(m -> findUnitOptions(m, unitOptionList).stream())
                         .toList()));
         return new ArmyList(sectorialApiId, armyCodeData.sectorialName, armyCodeData.armyName, armyCodeData.maxPoints, combatGroups);
     }
@@ -97,21 +100,17 @@ public class ArmyCodeLoader {
 
         return armyCodeData.combatGroups.values().stream()
                 .flatMap(Collection::stream)
-                .filter(m -> findUnitOptions(m, unitOptionList).isEmpty())
+                .filter(m -> findUnitOptions(m, unitOptionList).size() != 1)
                 .map(c -> "{SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d}".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId()))
                 .toList();
     }
 
-    private static Optional<UnitOption> findUnitOptions(CombatGroupMember combatGroupMember, List<UnitOption> unitOptionList) {
+    private static List<UnitOption> findUnitOptions(CombatGroupMember combatGroupMember, List<UnitOption> unitOptionList) {
         return unitOptionList.stream()
-                .filter(uo -> {
-                    //some units like polaris team get group 0 from army code but has group 1 & 2. In this case the first option needs to be returned
-                    if (combatGroupMember.groupId() != 0) {
-                        return uo.getUnitId() == combatGroupMember.unitId && uo.getGroupId() == combatGroupMember.groupId && uo.getOptionId() == combatGroupMember.optionId;
-                    }
-                    return uo.getUnitId() == combatGroupMember.unitId && uo.getOptionId() == combatGroupMember.optionId;
-                })
-                .findFirst();
+                .filter(uo -> uo.getUnitId() == combatGroupMember.unitId()
+                        && uo.getGroupId() == combatGroupMember.groupId()
+                        && uo.getOptionId() == combatGroupMember.optionId)
+                .toList();
     }
 
     private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
