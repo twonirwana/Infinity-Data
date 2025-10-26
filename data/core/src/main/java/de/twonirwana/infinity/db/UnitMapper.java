@@ -83,14 +83,24 @@ public class UnitMapper {
         List<UnitOption> result = new ArrayList<>();
         if (!unit.getOptions().isEmpty()) {
             result.addAll(unit.getOptions().stream()
-                    .map(profileOption -> {
-                        ProfileInclude primaryInclude = profileOption.getIncludes().getFirst();
+                    .filter(uo -> !uo.isDisabled())
+                    .map(unitOption -> {
+                        ProfileInclude primaryInclude = unitOption.getIncludes().getFirst();
                         ProfileGroup primaryProfileGroup = getProfileGroupFromInclude(unit, primaryInclude);
                         ProfileOption primaryUnitOption = primaryProfileGroup.getOptions().stream()
-                                .filter(po -> po.getId() == profileOption.getId())
-                                .findFirst().orElse(profileOption);
+                                // ignore disabled options here
+                                .filter(po -> po.getId() == primaryInclude.getOption())
+                                .findFirst()
+                                .or(() -> primaryProfileGroup.getOptions().stream()
+                                        // ignore disabled options here
+                                        .filter(po -> po.getId() == primaryInclude.getOption())
+                                        .findFirst()
+                                )
+                                .orElse(unitOption);
                         Trooper primaryTrooper = createTrooper(sectorial,
                                 unit,
+                                0,
+                                unitOption.getId(),
                                 primaryProfileGroup,
                                 primaryProfileGroup.getProfiles(),
                                 primaryUnitOption,
@@ -99,11 +109,25 @@ public class UnitMapper {
                                 equipmentIdMap,
                                 sectorialImage,
                                 sectorialFilter);
-                        List<ProfileInclude> additionalIncludes = profileOption.getIncludes().stream()
+                        List<ProfileInclude> additionalIncludes = unitOption.getIncludes().stream()
                                 .filter(i -> !i.equals(primaryInclude))
                                 .toList();
-                        List<Trooper> additionalTroopers = createAdditionalTroopers(additionalIncludes, unit, sectorial, weaponIdMap, skillIdMap, equipmentIdMap, sectorialImage, sectorialFilter);
-                        return createUnitOption(sectorial, unit, primaryTrooper, profileOption, additionalTroopers);
+                        List<Trooper> additionalTroopers = createAdditionalTroopers(additionalIncludes,
+                                unit,
+                                sectorial,
+                                weaponIdMap,
+                                skillIdMap,
+                                equipmentIdMap,
+                                sectorialImage,
+                                sectorialFilter);
+                        return createUnitOption(sectorial,
+                                unit,
+                                primaryTrooper,
+                                unitOption,
+                                additionalTroopers,
+                                unitOption.getName(),
+                                unitOption.getPoints(),
+                                unitOption.getSwc());
 
                     })
                     .distinct()
@@ -116,15 +140,19 @@ public class UnitMapper {
                         p.getProfiles().stream()
                                 .flatMap(pf -> pf.getIncludes().stream()),
                         p.getOptions().stream()
+                                .filter(o -> !o.isDisabled())
                                 .flatMap(pf -> pf.getIncludes().stream())
                 )).findAny().isPresent();
 
         if (hasIncludes) {
             ProfileGroup primaryProfileGroup = unit.getProfileGroups().getFirst();
             result.addAll(primaryProfileGroup.getOptions().stream()
+                    .filter(po -> !po.isDisabled())
                     .map(profileOption -> {
                         Trooper primaryTrooper = createTrooper(sectorial,
                                 unit,
+                                primaryProfileGroup.getId(),
+                                profileOption.getId(),
                                 primaryProfileGroup,
                                 primaryProfileGroup.getProfiles(),
                                 profileOption,
@@ -139,8 +167,22 @@ public class UnitMapper {
                                         primaryProfileGroup.getProfiles().stream().flatMap(pf -> pf.getIncludes().stream())
                                 )
                                 .toList();
-                        List<Trooper> additionalTroopers = createAdditionalTroopers(optionIncludes, unit, sectorial, weaponIdMap, skillIdMap, equipmentIdMap, sectorialImage, sectorialFilter);
-                        return createUnitOption(sectorial, unit, primaryTrooper, profileOption, additionalTroopers);
+                        List<Trooper> additionalTroopers = createAdditionalTroopers(optionIncludes,
+                                unit,
+                                sectorial,
+                                weaponIdMap,
+                                skillIdMap,
+                                equipmentIdMap,
+                                sectorialImage,
+                                sectorialFilter);
+                        return createUnitOption(sectorial,
+                                unit,
+                                primaryTrooper,
+                                profileOption,
+                                additionalTroopers,
+                                null,
+                                profileOption.getPoints(),
+                                profileOption.getSwc());
 
                     })
                     .toList());
@@ -148,9 +190,12 @@ public class UnitMapper {
         } else {
             result.addAll(unit.getProfileGroups().stream()
                     .flatMap(pg -> pg.getOptions().stream()
+                            .filter(po -> !po.isDisabled())
                             .map(o -> {
                                 Trooper primaryTrooper = createTrooper(sectorial,
                                         unit,
+                                        pg.getId(),
+                                        o.getId(),
                                         pg,
                                         pg.getProfiles(),
                                         o,
@@ -159,13 +204,20 @@ public class UnitMapper {
                                         equipmentIdMap,
                                         sectorialImage,
                                         sectorialFilter);
-                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of());
+                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of(), null, o.getPoints(), o.getSwc());
                             })).toList());
         }
         return result;
     }
 
-    private static UnitOption createUnitOption(Sectorial sectorial, Unit unit, Trooper trooper, ProfileOption profileOption, List<Trooper> additionalTroopers) {
+    private static UnitOption createUnitOption(Sectorial sectorial,
+                                               Unit unit,
+                                               Trooper trooper,
+                                               ProfileOption profileOption,
+                                               List<Trooper> additionalTroopers,
+                                               String unitOptionName,
+                                               int totalCost,
+                                               String totalSwc) {
 
         return new UnitOption(sectorial,
                 unit.getId(),
@@ -176,13 +228,15 @@ public class UnitMapper {
                 unit.getName(),
                 profileOption.getName(),
                 unit.getSlug(),
+                unitOptionName,
                 trooper,
                 additionalTroopers,
-                trooper.getCost(),
-                trooper.getSpecialWeaponCost(),
+                totalCost,
+                totalSwc,
                 unit.getNotes());
     }
 
+    //additional units have the same id, independent if they are from a unitOption or a groupOption
     private static List<Trooper> createAdditionalTroopers(List<ProfileInclude> profileIncludes,
                                                           Unit unit,
                                                           Sectorial sectorial,
@@ -203,6 +257,8 @@ public class UnitMapper {
                             .map(i -> createTrooper(
                                     sectorial,
                                     unit,
+                                    addProfileGroup.getId(),
+                                    addProfileOption.getId(),
                                     addProfileGroup,
                                     addProfileGroup.getProfiles(),
                                     addProfileOption,
@@ -403,6 +459,7 @@ public class UnitMapper {
     private static TrooperProfile getOptionProfile(Sectorial sectorial,
                                                    Unit unit,
                                                    int profileGroupId,
+                                                   int optionId, //can be different from profileOption if created over options
                                                    Profile profile,
                                                    ProfileOption profileOption,
                                                    Map<Integer, List<Weapon>> weaponIdMap,
@@ -448,7 +505,7 @@ public class UnitMapper {
                 sectorial,
                 unit.getId(),
                 profileGroupId,
-                profileOption.getId(),
+                optionId,
                 profile.getId(),
                 profile.getName(),
                 profile.getMove(),
@@ -482,6 +539,8 @@ public class UnitMapper {
 
     private static Trooper createTrooper(Sectorial section,
                                          Unit unit,
+                                         int groupId, //can be different from groupProfile if created over options
+                                         int optionId, //can be different from profileOption if created over options
                                          ProfileGroup profileGroup,
                                          List<Profile> profiles,
                                          ProfileOption profileOption,
@@ -496,7 +555,8 @@ public class UnitMapper {
         List<TrooperProfile> trooperProfiles = profiles.stream()
                 .map(profile -> getOptionProfile(section,
                         unit,
-                        profileGroup.getId(),
+                        groupId,
+                        optionId,
                         profile,
                         profileOption,
                         weaponIdMap,
@@ -508,8 +568,8 @@ public class UnitMapper {
         return new Trooper(
                 section,
                 unit.getId(),
-                profileGroup.getId(),
-                profileOption.getId(),
+                groupId,
+                optionId,
                 profileOption.getName(),
                 category,
                 profileOption.getSwc(),

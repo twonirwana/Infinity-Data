@@ -99,12 +99,12 @@ public class HtmlPrinter {
      * Mark trooper cards that belong to the same unit, like peripherals
      * Show a list of hacking programs?
      * Option to prefere custom images
-     * Better position for type and classification
      * Max Image width
      * Second page for units with more then 6 weapons?
      * weapon add saving modifier, savingNum to table?
      * No image variant
      * sometimes option name is better then profile name, but only in very few cases like the Polaris Team
+     * -> if unitGroup = 0 then option name, but only for second unit? or additional to first
      */
 
     public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {

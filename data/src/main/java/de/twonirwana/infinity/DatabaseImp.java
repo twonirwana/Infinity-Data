@@ -15,8 +15,12 @@ public class DatabaseImp implements Database {
     private DataLoader loader;
 
     public DatabaseImp() {
+        this(true);
+    }
+
+    public DatabaseImp(boolean forceUpdate) {
         try {
-            loader = new DataLoader();
+            loader = new DataLoader(forceUpdate);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
