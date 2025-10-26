@@ -2,10 +2,6 @@ package de.twonirwana.infinity.util;
 
 import de.twonirwana.infinity.DatabaseImp;
 import de.twonirwana.infinity.PrintCard;
-import de.twonirwana.infinity.unit.api.Trooper;
-import de.twonirwana.infinity.unit.api.TrooperProfile;
-
-import java.util.stream.Collectors;
 
 public class UnitNameCheck {
     public static void main(final String[] args) {
@@ -31,13 +27,13 @@ public class UnitNameCheck {
                 .map(c -> {
                     String oldName = c.getProfile().getName();
                     String newName = c.getUnitName();
-                    if(!oldName.equals(newName)){
-                        return oldName  + " -> " +  newName;
+                    if (!oldName.equals(newName)) {
+                        return oldName + " -> " + newName;
                     }
                     return "";
                 })
                 .distinct()
-                .forEach(s -> System.out.println(s));
+                .forEach(System.out::println);
     }
 
 }
