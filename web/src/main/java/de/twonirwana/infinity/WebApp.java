@@ -307,10 +307,13 @@ public class WebApp {
                     if (!file.toFile().isDirectory()) {
                         Path targetPath = targetDir.resolve(file.getFileName());
                         if (onlyCopy) {
-                            Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                            if (!targetPath.toFile().exists()) {
+                                Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                            }
                         } else {
                             Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
                         }
+
                         count++;
                     }
                 }

@@ -196,6 +196,16 @@ public class PrintCard {
         return Optional.empty();
     }
 
+    public String getUnitImageName() {
+        return "image/%s.png".formatted(getCombinedProfileId());
+    }
+
+    public String getShortCategory() {
+        return Optional.ofNullable(trooper.getCategory())
+                .map(s -> s.replace("Troops", ""))
+                .orElse("");
+    }
+
     public String getNotes() {
         return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
                 .filter(n -> !Strings.isNullOrEmpty(n))
@@ -204,6 +214,11 @@ public class PrintCard {
                 .map(String::trim)
                 .distinct()
                 .collect(Collectors.joining(""));
+    }
+
+
+    public boolean showNotes() {
+        return !Strings.isNullOrEmpty(getNotes()) && getProfile().getWeapons().size() < 6;
     }
 
     private String getSkillNameAndExtra(Skill skill) {
