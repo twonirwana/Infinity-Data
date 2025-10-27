@@ -63,7 +63,6 @@ public class WebApp {
         todo:
          * ko-fi
          * option to prefere custom images
-         * metric for sectorials
          */
 
         int port = Config.getInt("server.port", 7070);
