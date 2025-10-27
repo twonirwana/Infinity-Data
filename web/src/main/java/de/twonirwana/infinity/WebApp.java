@@ -27,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.Duration;
 import java.util.Arrays;
@@ -123,16 +121,76 @@ public class WebApp {
                 })
                 .start(host, port);
 
-        //base page
-        webApp.get("/", ctx -> {
-            registry.counter("infinity.base.called").increment();
-            Map<String, String> model = Map.of(
-                    "imprint", Config.get("website.imprint", "")
-            );
-            ctx.render("templates/index.html", model);
-        });
+        startPage(webApp, registry);
 
         //page that generates cards for the given parameter
+        generateCardPage(webApp, registry, contextPath, database, htmlPrinter);
+
+        //page for a generated card set
+        viewCardPage(webApp, registry);
+
+        //page for imprint
+        imprintPage(webApp, registry);
+
+        helpPage(webApp, registry);
+
+        prometheusPage(registry, webApp);
+    }
+
+    private static void prometheusPage(PrometheusMeterRegistry registry, Javalin webApp) {
+        if (Config.getBool("server.prometheus", false)) {
+            new LogbackMetrics().bindTo(registry);
+            new ClassLoaderMetrics().bindTo(registry);
+            new JvmMemoryMetrics().bindTo(registry);
+            new JvmGcMetrics().bindTo(registry);
+            new JvmThreadMetrics().bindTo(registry);
+            new UptimeMetrics().bindTo(registry);
+            new ProcessorMetrics().bindTo(registry);
+            new DiskSpaceMetrics(new File(System.getProperty("user.dir"))).bindTo(registry);
+
+            String contentType = "text/plain; version=0.0.4;charset=utf-8";
+            webApp.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
+        }
+    }
+
+    private static void helpPage(Javalin webApp, PrometheusMeterRegistry registry) {
+        webApp.get("/help", ctx -> {
+            registry.counter("infinity.help").increment();
+            ctx.render("templates/help.html");
+        });
+    }
+
+    private static void imprintPage(Javalin webApp, PrometheusMeterRegistry registry) {
+        webApp.get("/imprint", ctx -> {
+            registry.counter("infinity.imprint").increment();
+
+            Map<String, Object> model = Map.of(
+                    "title", "Imprint",
+                    "list", Config.get("website.imprint", "").split("\\\\n"),
+                    "message", ""
+            );
+            ctx.render("templates/list.html", model);
+        });
+    }
+
+    private static void viewCardPage(Javalin webApp, PrometheusMeterRegistry registry) {
+        webApp.get("/view/{armyCodeHash}", ctx -> {
+            String armyCodeHash = ctx.pathParam("armyCodeHash");
+            Path OUTPUT_DIR = Path.of(CARD_FOLDER);
+            Path filePath = OUTPUT_DIR.resolve(armyCodeHash + ".html");
+
+            if (Files.exists(filePath)) {
+                registry.counter("infinity.view").increment();
+                ctx.html(Files.readString(filePath));
+
+            } else {
+                registry.counter("infinity.view.not.found").increment();
+                ctx.status(404).result("Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash));
+            }
+        });
+    }
+
+    private static void generateCardPage(Javalin webApp, PrometheusMeterRegistry registry, String contextPath, Database database, HtmlPrinter htmlPrinter) {
         webApp.get("/generate", ctx -> {
             registry.counter("infinity.generate.called").increment();
             String armyCode = ctx.queryParam("armyCode");
@@ -243,55 +301,16 @@ public class WebApp {
             }
 
         });
+    }
 
-        //page for a generated card set
-        webApp.get("/view/{armyCodeHash}", ctx -> {
-            String armyCodeHash = ctx.pathParam("armyCodeHash");
-            Path OUTPUT_DIR = Path.of(CARD_FOLDER);
-            Path filePath = OUTPUT_DIR.resolve(armyCodeHash + ".html");
-
-            if (Files.exists(filePath)) {
-                registry.counter("infinity.view").increment();
-                ctx.html(Files.readString(filePath));
-
-            } else {
-                registry.counter("infinity.view.not.found").increment();
-                ctx.status(404).result("Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash));
-            }
-        });
-
-        //page for impressum
-        webApp.get("/imprint", ctx -> {
-            registry.counter("infinity.imprint").increment();
-
-            Map<String, Object> model = Map.of(
-                    "title", "Imprint",
-                    "list", Config.get("website.imprint", "").split("\\\\n"),
-                    "message", ""
+    private static void startPage(Javalin webApp, PrometheusMeterRegistry registry) {
+        webApp.get("/", ctx -> {
+            registry.counter("infinity.base.called").increment();
+            Map<String, String> model = Map.of(
+                    "imprint", Config.get("website.imprint", "")
             );
-            ctx.render("templates/list.html", model);
+            ctx.render("templates/index.html", model);
         });
-
-        String helpPage = loadStaticHtmlFile("help.html");
-
-        webApp.get("/help", ctx -> {
-            registry.counter("infinity.help").increment();
-            ctx.html(helpPage);
-        });
-
-        if (Config.getBool("server.prometheus", false)) {
-            new LogbackMetrics().bindTo(registry);
-            new ClassLoaderMetrics().bindTo(registry);
-            new JvmMemoryMetrics().bindTo(registry);
-            new JvmGcMetrics().bindTo(registry);
-            new JvmThreadMetrics().bindTo(registry);
-            new UptimeMetrics().bindTo(registry);
-            new ProcessorMetrics().bindTo(registry);
-            new DiskSpaceMetrics(new File(System.getProperty("user.dir"))).bindTo(registry);
-
-            String contentType = "text/plain; version=0.0.4; charset=utf-8";
-            webApp.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
-        }
     }
 
     private static void updateData(Database database, MeterRegistry registry) {
@@ -359,19 +378,5 @@ public class WebApp {
                 .publishPercentileHistogram(true)
                 .register(registry)
                 .record(duration);
-    }
-
-    public static String loadStaticHtmlFile(String fileName) {
-        try (InputStream is = WebApp.class.getResourceAsStream(fileName)) {
-
-            if (is == null) {
-                throw new IllegalArgumentException("Resource not found: " + fileName);
-            }
-
-            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading resource file: " + fileName, e);
-        }
     }
 }
