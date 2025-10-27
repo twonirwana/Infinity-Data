@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${title}">list</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{view/image/lieutenant.svg}">
 </head>
 <style>
     :root {
@@ -45,7 +46,7 @@
 <div th:if="${message.length() > 0}">
     <span th:text="${message}">message</span>
 </div>
-</p>
+<p></p>
 <table>
     <tr th:each="line : ${list}">
         <td th:text="${line}"></td>
