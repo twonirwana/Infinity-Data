@@ -101,26 +101,12 @@ public class HtmlPrinter {
      * Option to prefere custom images
      * Max Image width
      * Second page for units with more then 6 weapons?
-     * weapon add saving modifier, savingNum to table?
+     * weapon add saving modifier, savingNum to table? -> in notes?
      * No image variant
-     * sometimes option name is better then profile name, but only in very few cases like the Polaris Team
-     * -> if unitGroup = 0 then option name, but only for second unit? or additional to first
      */
 
-    public void printCardForArmyCode(Database db, String fileName, String armyCode, boolean useInch, boolean distinctUnits, Template template) {
-        ArmyList al = db.getArmyListForArmyCode(armyCode);
-        HtmlPrinter htmlPrinter = new HtmlPrinter();
-        List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
-                .sorted()
-                .flatMap(k -> al.getCombatGroups().get(k).stream())
-                .toList();
-        if (distinctUnits) {
-            armyListOptions = armyListOptions.stream()
-                    .distinct()
-                    .toList();
-        }
-        htmlPrinter.writeCards(armyListOptions, fileName, armyCode, al.getSectorial(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, template);
-        log.info("Created cards for: {} ; {} ; {} ; {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode);
+    public void printCardForArmyCode(List<UnitOption> unitOptions, Sectorial sectorial, String fileName, String armyCode, boolean useInch, Template template) {
+        writeCards(unitOptions, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, template);
     }
 
     public void printAll(Database db, boolean useInch, Template template) {

@@ -2,6 +2,7 @@ package de.twonirwana.infinity;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.util.HashUtil;
 import de.twonirwana.infinity.util.ImageUtils;
 import io.avaje.config.Config;
@@ -62,7 +63,6 @@ public class WebApp {
         todo:
          * ko-fi
          * option to prefere custom images
-         * metric for sectorials
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -192,29 +192,54 @@ public class WebApp {
                     registry.counter("infinity.invalid.army.code").increment();
                     log.warn("Can't read army code: {}", armyCode);
                     Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
-                    ctx.status(400).html("Invalid format of army code: " + armyCode);
+                    Map<String, Object> model = Map.of(
+                            "title", "Invalid Army Code Format",
+                            "list", List.of(),
+                            "message", "The army code: %s has an invalid format. Try to copy it again.".formatted(armyCode)
+                    );
+                    ctx.render("templates/list.html", model);
                     return;
                 }
                 List<String> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
                 if (!missingArmyCodeUnits.isEmpty()) {
                     registry.counter("infinity.missing.army.code.units").increment();
-                    log.error("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+                    log.warn("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
                     Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
-                    ctx.status(400).html("Could not find unique units for the following ids: " + missingArmyCodeUnits);
+
+                    Map<String, Object> model = Map.of(
+                            "title", "Invalid IDs in Army Code",
+                            "list", missingArmyCodeUnits,
+                            "message", "The following IDs from the army code: %s could not resolved. Most likely it is out of date. Try to generate a new army code new in Corvus Bellis Army Builder.".formatted(armyCode)
+                    );
+                    ctx.render("templates/list.html", model);
+
                     return;
                 }
 
-                htmlPrinter.printCardForArmyCode(database, fileName, armyCode, useInch, distinct, styleOptional.get());
-                log.info("created army code: {} {} -> {}", armyCode, unit, fileName);
+                ArmyList al = database.getArmyListForArmyCode(armyCode);
+                List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
+                        .sorted()
+                        .flatMap(k -> al.getCombatGroups().get(k).stream())
+                        .toList();
+                if (distinct) {
+                    armyListOptions = armyListOptions.stream()
+                            .distinct()
+                            .toList();
+                }
+
+                htmlPrinter.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, styleOptional.get());
+                log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
+                registry.counter("infinity.generate.list", "sectorial", al.getSectorial().getSlug()).increment();
+
                 Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
 
                 metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
                 ctx.redirect(contextPath + "view/" + fileName);
             } catch (Exception e) {
-                log.warn("Can't read army code: {}", armyCode);
-                registry.counter("infinity.invalid.army.code").increment();
+                log.error("Error read army code: {}", armyCode, e);
+                registry.counter("infinity.error.army.code").increment();
                 Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
-                ctx.status(400).html("Can't read army code: " + armyCode);
+                ctx.status(400).html("Error read army code: " + armyCode);
             }
 
         });
@@ -240,9 +265,11 @@ public class WebApp {
             registry.counter("infinity.imprint").increment();
 
             Map<String, Object> model = Map.of(
-                    "imprint", Config.get("website.imprint", "").split("\\\\n")
+                    "title", "Imprint",
+                    "list", Config.get("website.imprint", "").split("\\\\n"),
+                    "message", ""
             );
-            ctx.render("templates/imprint.html", model);
+            ctx.render("templates/list.html", model);
         });
 
         String helpPage = loadStaticHtmlFile("help.html");
