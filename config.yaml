@@ -7,5 +7,5 @@ server:
   contextPath: /
   prometheus: true
 website:
-  imprint:
+  imprint: Test Name\nTest Address1\nTestAddress2\nTest E-mail
 reuseHtml: true

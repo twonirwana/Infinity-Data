@@ -15,7 +15,7 @@ public class DatabaseImp implements Database {
     private DataLoader loader;
 
     public DatabaseImp() {
-        this(true);
+        this(false);
     }
 
     public DatabaseImp(boolean forceUpdate) {
@@ -65,7 +65,12 @@ public class DatabaseImp implements Database {
 
     @Override
     public boolean canDecodeArmyCode(String armyCode) {
-        return ArmyCodeLoader.decodeArmyCode(armyCode) != null;
+        try {
+            ArmyCodeLoader.mapArmyCode(armyCode);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

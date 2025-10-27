@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -77,8 +74,12 @@ public class ArmyCodeLoader {
 
 
     public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
-        ArmyCodeData armyCodeData = mapArmyCode(armyCode);
-
+        ArmyCodeData armyCodeData;
+        try {
+            armyCodeData = mapArmyCode(armyCode);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
         Sectorial sectorial = dataLoader.getSectorialIdMap().get(armyCodeData.sectorialId);
         List<UnitOption> unitOptionList = dataLoader.getAllUnitsForSectorial(sectorial);
 
@@ -93,15 +94,29 @@ public class ArmyCodeLoader {
     }
 
     public static List<String> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
-        ArmyCodeData armyCodeData = mapArmyCode(armyCode);
+        ArmyCodeData armyCodeData;
+        try {
+            armyCodeData = mapArmyCode(armyCode);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
 
         Sectorial sectorial = dataLoader.getSectorialIdMap().get(armyCodeData.sectorialId);
-        List<UnitOption> unitOptionList = dataLoader.getAllUnitsForSectorial(sectorial);
+        List<UnitOption> unitsForSectorial = dataLoader.getAllUnitsForSectorial(sectorial);
+        List<UnitOption> allUnits = dataLoader.getAllUnits();
 
         return armyCodeData.combatGroups.values().stream()
                 .flatMap(Collection::stream)
-                .filter(m -> findUnitOptions(m, unitOptionList).size() != 1)
-                .map(c -> "{SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d}".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId()))
+                .filter(m -> findUnitOptions(m, unitsForSectorial).size() != 1)
+                .map(c -> {
+                    Optional<String> unitName = allUnits.stream()
+                            .filter(u -> u.getUnitId() == c.unitId())
+                            .map(UnitOption::getUnitName)
+                            .findFirst();
+                    return unitName
+                            .map(s -> "SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d -> Unknown version of %s".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId(), s))
+                            .orElseGet(() -> "SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId()));
+                })
                 .toList();
     }
 
@@ -139,7 +154,7 @@ public class ArmyCodeLoader {
                 .toList();
     }
 
-    public static byte[] decodeArmyCode(String armyCode) {
+    private static byte[] decodeArmyCode(String armyCode) {
         // Sometimes CB urlencodes the army code and sometimes it doesn't.
         try {
             return Base64.getDecoder().decode(armyCode);

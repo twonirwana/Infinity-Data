@@ -69,7 +69,13 @@ public class ManualHtmlPrinterTest {
                 .toList()
         );
 
-        underTest.printCardForArmyCode(db, fileName, armyCode, true, false, HtmlPrinter.Template.a7_image);
+        ArmyList al = db.getArmyListForArmyCode(armyCode);
+        List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
+                .sorted()
+                .flatMap(k -> al.getCombatGroups().get(k).stream())
+                .toList();
+
+        underTest.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, true, HtmlPrinter.Template.a7_image);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

@@ -1,6 +1,9 @@
 package de.twonirwana.infinity;
 
+import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.util.HashUtil;
+
+import java.util.List;
 
 public class ExportArmyCode {
     public static void main(String[] args) {
@@ -15,6 +18,13 @@ public class ExportArmyCode {
         }
         String armyCodeHash = HashUtil.hash128Bit(armyCode);
         String fileName = armyCodeHash + "-" + (useInch ? "inch" : "cm");
-        new HtmlPrinter().printCardForArmyCode(db, fileName, armyCode, useInch, false, HtmlPrinter.Template.a7_image);
+
+        ArmyList al = db.getArmyListForArmyCode(armyCode);
+        List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
+                .sorted()
+                .flatMap(k -> al.getCombatGroups().get(k).stream())
+                .toList();
+
+        new HtmlPrinter().printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, HtmlPrinter.Template.a7_image);
     }
 }
