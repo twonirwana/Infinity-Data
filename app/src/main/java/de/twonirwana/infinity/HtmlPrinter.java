@@ -78,7 +78,8 @@ public class HtmlPrinter {
             "lieutenant.svg",
             "peripheral.svg",
             "regular.svg",
-            "tactical.svg");
+            "tactical.svg"
+    );
     private final TemplateEngine templateEngine;
 
     public HtmlPrinter() {
@@ -118,7 +119,9 @@ public class HtmlPrinter {
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
         try {
-            Files.copy(Path.of(sourcePath, fileName), Path.of(outPath, fileName), StandardCopyOption.REPLACE_EXISTING);
+            if (!Files.exists(Path.of(outPath))) {
+                Files.copy(Path.of(sourcePath, fileName), Path.of(outPath, fileName));
+            }
         } catch (IOException e) {
             log.error("file not found: {}", fileName);
         }
@@ -158,8 +161,11 @@ public class HtmlPrinter {
                                 .filter(i -> !usedImages.contains(i))
                                 .findFirst();
                         unusedImage.ifPresent(usedImages::add);
-                        ImageUtils.autoCrop(unitImagePath + unusedImage.orElse(p.getImageNames().getFirst()),
-                                outPath + p.getCombinedProfileId() + ".png");
+                        String target = outPath + p.getCombinedProfileId() + ".png";
+                        if (!Files.exists(Path.of(target))) {
+                            ImageUtils.autoCrop(unitImagePath + unusedImage.orElse(p.getImageNames().getFirst()),
+                                    outPath + p.getCombinedProfileId() + ".png");
+                        }
                     }
 
                 });
