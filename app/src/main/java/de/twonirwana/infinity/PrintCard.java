@@ -21,6 +21,8 @@ public class PrintCard {
     private final static Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
     private final static Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
     private final static Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR-(\\d)");
+    private static final String SMALL_SUFFIX = " (Small Teardrop)";
+    private static final String LARGE_SUFFIX = " (Large Teardrop)";
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
@@ -127,9 +129,8 @@ public class PrintCard {
     }
 
     public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {
-        return "%s-%s%s: %s".formatted(DistanceUtil.convertString(rangeModifier.fromCmExcl(), useInch),
+        return "%s-%s: %s".formatted(DistanceUtil.convertString(rangeModifier.fromCmExcl(), useInch),
                 DistanceUtil.convertString(rangeModifier.toCmIncl(), useInch),
-                useInch ? "″" : "cm",
                 rangeModifier.modifier());
     }
 
@@ -137,7 +138,33 @@ public class PrintCard {
         if (weapon.getProperties() == null) {
             return "";
         }
-        return String.join(", ", weapon.getProperties());
+        return weapon.getProperties().stream()
+                .map(PrintCard::stripTeardropSuffix)
+                .collect(Collectors.joining(", "));
+    }
+
+    public static String stripTeardropSuffix(String input) {
+        if (input == null) {
+            return null;
+        }
+        if (input.endsWith(SMALL_SUFFIX)) {
+            return input.substring(0, input.length() - SMALL_SUFFIX.length());
+        } else if (input.endsWith(LARGE_SUFFIX)) {
+            return input.substring(0, input.length() - LARGE_SUFFIX.length());
+        }
+        return input;
+    }
+
+    public static String getTeardropType(String input) {
+        if (input == null) {
+            return null;
+        }
+        if (input.endsWith(SMALL_SUFFIX)) {
+            return "Small Teardrop";
+        } else if (input.endsWith(LARGE_SUFFIX)) {
+            return "Large Teardrop";
+        }
+        return null;
     }
 
     private static String prettyExtra(ExtraValue extraValue, boolean useInch) {
@@ -196,8 +223,22 @@ public class PrintCard {
         return Optional.empty();
     }
 
+    public String getRangeTemplate(Weapon weapon) {
+        if (weapon.getRangeCombinedModifiers().isEmpty() && weapon.getProperties() != null) {
+            return weapon.getProperties().stream().map(PrintCard::getTeardropType)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    public String getRangeHeader() {
+        return "Range %s".formatted(useInch ? "″" : "cm");
+    }
+
     public String getUnitName() {
-        if(trooper.getProfiles().size() > 1){
+        if (trooper.getProfiles().size() > 1) {
             return profile.getName();
         }
         return trooper.getOptionName();

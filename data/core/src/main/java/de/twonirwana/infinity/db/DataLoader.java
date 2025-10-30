@@ -60,7 +60,6 @@ public class DataLoader {
 
     public DataLoader() throws IOException, URISyntaxException {
         this(false);
-
     }
 
     public DataLoader(boolean forceUpdate) throws IOException, URISyntaxException {
@@ -132,6 +131,7 @@ public class DataLoader {
 
             Path path = Paths.get("%s/%s".formatted(folderPath, fileName));
             if (Files.notExists(path)) {
+                log.info("download new file: {}", fileName);
                 BufferedInputStream in = getStreamForURL(urlString);
                 Files.copy(in, path);
             }

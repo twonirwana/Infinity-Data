@@ -7,7 +7,6 @@ import de.twonirwana.infinity.util.HashUtil;
 import de.twonirwana.infinity.util.ImageUtils;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
-import io.javalin.compression.CompressionStrategy;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.rendering.template.JavalinThymeleaf;
@@ -114,12 +113,16 @@ public class WebApp {
                         staticFileConfig.directory = CARD_IMAGE_FOLDER;
                         staticFileConfig.location = Location.EXTERNAL;
                     });
-                    config.http.customCompression(CompressionStrategy.GZIP);
                     config.fileRenderer(new JavalinThymeleaf());
                     config.router.contextPath = contextPath;
                     config.registerPlugin(micrometerPlugin);
                 })
                 .start(host, port);
+
+        webApp.get("/favicon.ico", ctx -> {
+            ctx.contentType("image/x-icon");
+            ctx.result(WebApp.class.getResourceAsStream("/favicon.ico"));
+        });
 
         startPage(webApp, registry);
 
@@ -185,7 +188,12 @@ public class WebApp {
 
             } else {
                 registry.counter("infinity.view.not.found").increment();
-                ctx.status(404).result("Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash));
+                Map<String, Object> model = Map.of(
+                        "title", "Invalid Link",
+                        "list", List.of(),
+                        "message", "Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash)
+                );
+                ctx.render("templates/list.html", model);
             }
         });
     }

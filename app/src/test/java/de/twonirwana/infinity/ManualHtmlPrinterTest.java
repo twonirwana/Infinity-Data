@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // - Scylla 721
 // - Jazz & Bill 1551
 // Seed Soldiers, Scarface, Posthumans,
+// code with many weapons: gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D
 public class ManualHtmlPrinterTest {
     static Pattern combinedIdPattern = Pattern.compile("combinedId:(\\d+-\\d+-\\d+-\\d+-\\d+)\"");
     static Pattern armyCodePattern = Pattern.compile("<meta name=\"armyCode\" content=\"(.+)\">");
