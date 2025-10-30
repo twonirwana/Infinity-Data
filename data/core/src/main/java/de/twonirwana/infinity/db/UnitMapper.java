@@ -325,7 +325,7 @@ public class UnitMapper {
                     if (weaponFilter.get(pi.getId()) != null) {
                         return Stream.of(weaponFilter.get(pi.getId())).map(weapon -> mapWeapon(weapon, pi.getQ(), extras, weapon.getType()));
                     }
-                    log.error("No weapons found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
+                    log.warn("No weapons found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
                     return Stream.empty();
 
                 })

@@ -4,7 +4,6 @@
 
     <title th:text="${listName}">list name</title>
     <meta name="armyCode" th:content="${armyCode}">
-    <link rel="icon" type="image/svg+xml" th:href="@{image/lieutenant.svg}">
     <meta charset="UTF-8">
     <style>
         @page {
@@ -43,6 +42,7 @@
             display: grid;
             gap: 1mm;
             border: 2px solid [[${primaryColor}]];
+            overflow: hidden;
         }
 
         table {
@@ -190,7 +190,7 @@
                     <thead>
                     <tr>
                         <th>Weapon Name</th>
-                        <th>Range</th>
+                        <th th:text="${printCard.getRangeHeader()}">Range</th>
                         <th>PS</th>
                         <th>B</th>
                         <th>Ammo</th>
@@ -205,6 +205,9 @@
                                 <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
                                      th:text="${printCard.getRangeModifier(range, printCard.isUseInch())}"
                                      th:class="${rangeModifierClassMap.get(range.modifier())}">
+                                </div>
+                                <div th:if="${printCard.getRangeTemplate(weapon) != null}"
+                                     th:text="${printCard.getRangeTemplate(weapon)}">
                                 </div>
                             </div>
                         </td>
