@@ -1,40 +1,36 @@
 package de.twonirwana.infinity;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import de.twonirwana.infinity.unit.api.*;
-import lombok.Value;
+import de.twonirwana.infinity.unit.api.ExtraValue;
+import de.twonirwana.infinity.unit.api.TrooperProfile;
+import de.twonirwana.infinity.unit.api.Weapon;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-@Value
-public class PrintCard {
+public class PrintUtils {
     private final static Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
     private final static Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
     private final static Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
     private final static Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR-(\\d)");
     private static final String SMALL_SUFFIX = " (Small Teardrop)";
     private static final String LARGE_SUFFIX = " (Large Teardrop)";
-    UnitOption unitOption;
-    Trooper trooper;
-    TrooperProfile profile;
-    boolean useInch;
+    private final static Set<String> REMOVE_WEAPON_TRAITS = Set.of("[***]", "[**]", "[*]");
 
-    public static List<PrintCard> fromUnitOption(UnitOption unitOption, boolean useInch) {
-        return unitOption.getAllTrooper().stream()
-                .flatMap(t -> t.getProfiles().stream().map(p -> new PrintCard(unitOption, t, p, useInch)))
-                .toList();
+    public static String getRangeHeader(boolean useInch) {
+        return "Range %s".formatted(useInch ? "″" : "cm");
     }
 
     public static String prettyWeaponName(Weapon weapon, boolean useInch) {
+        if ("Suppressive Fire Mode Weapon".equals(weapon.getName())) {
+            return "Suppressive Fire";
+        }
         String out;
         if (weapon.getMode() != null) {
             out = "%s [%s]".formatted(weapon.getName(), weapon.getMode().replace(" Mode", ""));
@@ -64,10 +60,13 @@ public class PrintCard {
     }
 
     private static String getWeaponSkill(Weapon weapon) {
-        return Weapon.Type.CC == weapon.getType() ? "CC Attack" : "BS Attack";
+        return Weapon.Skill.CC == weapon.getSkill() ? "CC Attack" : "BS Attack";
     }
 
     public static String getWeaponBurstWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        if (weapon.getBurst() == null) {
+            return "";
+        }
         String weaponSkill = getWeaponSkill(weapon);
         List<ExtraValue> weaponAndSkillExtra = Stream.concat(
                 weapon.getExtras().stream(),
@@ -75,14 +74,21 @@ public class PrintCard {
                         .filter(s -> s.getName().equals(weaponSkill))
                         .flatMap(s -> s.getExtras().stream())
         ).toList();
-        List<String> burstExtra = weaponAndSkillExtra.stream()
-                .map(PrintCard::toBurstExtra)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(s -> "+" + s)
-                .toList();
+        final List<String> burstExtra;
+        if (weapon.getId() == 127) { //no burst bonus for Suppressive Fire
+            burstExtra = List.of();
+        } else {
+            burstExtra = weaponAndSkillExtra.stream()
+                    .map(PrintUtils::toBurstExtra)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(s -> "+" + s)
+                    .toList();
+        }
+
+
         List<String> sdExtra = weaponAndSkillExtra.stream()
-                .map(PrintCard::toSpecialDieExtra)
+                .map(PrintUtils::toSpecialDieExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map("+%sSD"::formatted)
@@ -91,7 +97,7 @@ public class PrintCard {
     }
 
     public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
-        if (weapon.getDamage() == null || weapon.getDamage().equals("-")) {
+        if (weapon.getDamage() == null || weapon.getDamage().equals("-") || weapon.getDamage().equals("*")) {
             return weapon.getDamage();
         }
         String weaponSkill = getWeaponSkill(weapon);
@@ -102,14 +108,14 @@ public class PrintCard {
                         .toList();
 
         Optional<Integer> srExtra = skillExtra.stream()
-                .map(PrintCard::toSrExtra)
+                .map(PrintUtils::toSrExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
                 .findFirst();
 
         Optional<Integer> psExtra = weapon.getExtras().stream()
-                .map(PrintCard::toPsExtra)
+                .map(PrintUtils::toPsExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -139,7 +145,8 @@ public class PrintCard {
             return "";
         }
         return weapon.getProperties().stream()
-                .map(PrintCard::stripTeardropSuffix)
+                .map(PrintUtils::stripTeardropSuffix)
+                .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
                 .collect(Collectors.joining(", "));
     }
 
@@ -167,7 +174,7 @@ public class PrintCard {
         return null;
     }
 
-    private static String prettyExtra(ExtraValue extraValue, boolean useInch) {
+    public static String prettyExtra(ExtraValue extraValue, boolean useInch) {
         if (extraValue.getType() == ExtraValue.Type.Text) {
             return extraValue.getText();
         } else if (extraValue.getType() == ExtraValue.Type.Distance) {
@@ -212,7 +219,7 @@ public class PrintCard {
         return Optional.empty();
     }
 
-    static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
+    private static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
         if (extraValue.getText() == null) {
             return Optional.empty();
         }
@@ -225,112 +232,11 @@ public class PrintCard {
 
     public String getRangeTemplate(Weapon weapon) {
         if (weapon.getRangeCombinedModifiers().isEmpty() && weapon.getProperties() != null) {
-            return weapon.getProperties().stream().map(PrintCard::getTeardropType)
+            return weapon.getProperties().stream().map(PrintUtils::getTeardropType)
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(null);
         }
         return null;
     }
-
-    public String getRangeHeader() {
-        return "Range %s".formatted(useInch ? "″" : "cm");
-    }
-
-    public String getUnitName() {
-        if (trooper.getProfiles().size() > 1) {
-            return profile.getName();
-        }
-        return trooper.getOptionName();
-    }
-
-    public String getUnitImageName() {
-        return "image/%s.png".formatted(getCombinedProfileId());
-    }
-
-    public String getShortCategory() {
-        return Optional.ofNullable(trooper.getCategory())
-                .map(s -> s.replace("Troops", ""))
-                .orElse("");
-    }
-
-    public String getNotes() {
-        return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
-                .filter(n -> !Strings.isNullOrEmpty(n))
-                .map(s -> s.replaceAll("\n", ""))
-                .map(s -> s.replaceAll("NOTE:", ""))
-                .map(String::trim)
-                .distinct()
-                .collect(Collectors.joining(""));
-    }
-
-
-    public boolean showNotes() {
-        return !Strings.isNullOrEmpty(getNotes()) && getProfile().getWeapons().size() < 6;
-    }
-
-    private String getSkillNameAndExtra(Skill skill) {
-        String extraString = skill.getExtras().isEmpty() ? "" : " (%s)".formatted(skill.getExtras().stream()
-                .map(e -> prettyExtra(e, useInch))
-                .collect(Collectors.joining(", ")));
-        return "%s%s".formatted(skill.getName(), extraString);
-    }
-
-    private String getEquipmentNameAndExtra(Equipment equipment) {
-        String extraString = equipment.getExtras().isEmpty() ? "" : " (%s)".formatted(equipment.getExtras().stream()
-                .map(e -> prettyExtra(e, useInch))
-                .collect(Collectors.joining(", ")));
-        return "%s%s".formatted(equipment.getName(), extraString);
-    }
-
-    public String getMovement() {
-        return profile.getMovementInCm().stream()
-                .map(i -> DistanceUtil.convertString(i, useInch))
-                .map(Objects::toString)
-                .collect(Collectors.joining("-"));
-    }
-
-    public String getCombinedProfileId() {
-        return profile.getCombinedProfileId();
-    }
-
-    public List<String> getIconFileNames() {
-        List<String> iconFileNames = new ArrayList<>();
-        if (profile.isHackable()) {
-            iconFileNames.add("hackable.svg");
-        }
-        if (profile.hasCube()) {
-            iconFileNames.add("cube.svg");
-        }
-        if (profile.hasCube2()) {
-            iconFileNames.add("cube-2.svg");
-        }
-        if (profile.isPeripheral()) {
-            iconFileNames.add("peripheral.svg");
-        }
-        profile.getOrders().stream()
-                .flatMap(o -> IntStream.range(0, o.getTotal())
-                        .boxed()
-                        .map(i -> o.getType()))
-                .forEach(orderType -> {
-                    switch (orderType) {
-                        case REGULAR -> iconFileNames.add("regular.svg");
-                        case IRREGULAR -> iconFileNames.add("irregular.svg");
-                        case IMPETUOUS -> iconFileNames.add("impetuous.svg");
-                        case TACTICAL -> iconFileNames.add("tactical.svg");
-                        case LIEUTENANT -> iconFileNames.add("lieutenant.svg");
-                    }
-                });
-
-        return iconFileNames;
-    }
-
-    public String prettySkills() {
-        return profile.getSkills().stream().map(this::getSkillNameAndExtra).collect(Collectors.joining(", "));
-    }
-
-    public String prettyEquipments() {
-        return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
-    }
-
 }

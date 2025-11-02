@@ -3,18 +3,40 @@ package de.twonirwana.infinity;
 import de.twonirwana.infinity.unit.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HtmlPrinterTest {
+    final static List<Set<Weapon.Type>> WEAPON_TYPE_OPTIONS = List.of(Set.of(),
+            Set.of(Weapon.Type.WEAPON),
+            Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET));
     HtmlPrinter underTest;
     String fileName = "testFile";
     Sectorial sectorial;
     UnitOption unitOption;
+
+    private static Stream<Arguments> generateTestData() {
+        List<Arguments> testData = new ArrayList<>();
+        for (boolean useInch : new boolean[]{true, false}) {
+            for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
+                for (boolean showImage : new boolean[]{true, false}) {
+                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                        testData.add(Arguments.of(useInch, weaponOption, showImage, template));
+                    }
+                }
+            }
+        }
+        return testData.stream();
+    }
 
     @BeforeEach
     void setup() {
@@ -25,11 +47,33 @@ public class HtmlPrinterTest {
                 new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
                 new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f))
         ));
-        List<Weapon> weapons = List.of(new Weapon(4, Weapon.Type.BS, "weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", "+6", "profile", 2, List.of(
-                new ExtraValue(2, "PS=6", ExtraValue.Type.Text, null),
-                new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
-                new ExtraValue(2, "+1SD", ExtraValue.Type.Text, null)
-        )));
+        List<Weapon> weapons = List.of(
+                new Weapon(4, Weapon.Skill.BS, Weapon.Type.WEAPON, "weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", "+6", "profile", 2, List.of(
+                        new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
+                        new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
+                )),
+                new Weapon(5, Weapon.Skill.CC, Weapon.Type.WEAPON, "CC weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("CC"), null, null, null, null, null, null, null, "profile", 2, List.of(
+                        new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
+                        new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
+                )),
+                new Weapon(6, Weapon.Skill.BS, Weapon.Type.SKILL, "skill weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("direct (Small Teardrop)"), null, null, null, null, null, null, null,"profile", 2, List.of(
+                        new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
+                        new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
+                )),
+                new Weapon(7, Weapon.Skill.BS, Weapon.Type.EQUIPMENT, "equipment weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("Suppressive Fire Mode Weapon"), "+3", "+3", "0", "-3", "-3", "-6", "+6", "profile", 2, List.of(
+                        new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
+                        new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
+                )),
+                new Weapon(7, Weapon.Skill.BS, Weapon.Type.TURRET, "turrent weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", "+6", "profile", 2, List.of(
+                        new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
+                        new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
+                ))
+        );
         List<Equipment> equipments = List.of(new Equipment(1, "equipment", "wiki", 1, List.of(
                 new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
                 new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f))
@@ -40,16 +84,10 @@ public class HtmlPrinterTest {
                 trooper, List.of(), 20, "0.5", "note");
     }
 
-    @Test
-    void testA7() {
-        underTest.writeCards(List.of(unitOption), fileName, "", sectorial, "", "", "", "", true, HtmlPrinter.Template.a7_image);
-
-        assertThat(new File("out/html/" + fileName + ".html")).exists();
-    }
-
-    @Test
-    void testBwCard() {
-        underTest.writeCards(List.of(unitOption), fileName, "", sectorial, "", "", "", "", true, HtmlPrinter.Template.card_bw);
+    @ParameterizedTest
+    @MethodSource("generateTestData")
+    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, HtmlPrinter.Template template) {
+        underTest.writeCards(List.of(unitOption), fileName, "", sectorial, "", "", "", "", useInch, weaponOption, showImage, template);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

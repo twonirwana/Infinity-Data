@@ -3,6 +3,7 @@ package de.twonirwana.infinity;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
@@ -103,11 +105,17 @@ public class HtmlPrinter {
      * Max Image width
      * Second page for units with more then 6 weapons?
      * weapon add saving modifier, savingNum to table? -> in notes?
-     * No image variant
      */
 
-    public void printCardForArmyCode(List<UnitOption> unitOptions, Sectorial sectorial, String fileName, String armyCode, boolean useInch, Template template) {
-        writeCards(unitOptions, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, template);
+    public void printCardForArmyCode(List<UnitOption> unitOptions,
+                                     Sectorial sectorial,
+                                     String fileName,
+                                     String armyCode,
+                                     boolean useInch,
+                                     Set<Weapon.Type> showWeaponOfType,
+                                     boolean showImage,
+                                     Template template) {
+        writeCards(unitOptions, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, showWeaponOfType, showImage, template);
     }
 
     public void printAll(Database db, boolean useInch, Template template) {
@@ -119,8 +127,9 @@ public class HtmlPrinter {
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
         try {
-            if (!Files.exists(Path.of(outPath))) {
-                Files.copy(Path.of(sourcePath, fileName), Path.of(outPath, fileName));
+            Path targetPath = Paths.get(outPath, fileName);
+            if (!Files.exists(targetPath)) {
+                Files.copy(Path.of(sourcePath, fileName), targetPath);
             }
         } catch (IOException e) {
             log.error("file not found: {}", fileName);
@@ -197,7 +206,18 @@ public class HtmlPrinter {
                             boolean useInch,
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-        writeCards(List.of(unitOption), fileName, "-", unitOption.getSectorial(), unitImagePath, customUnitImagePath, logoImagePath, outputFolder, useInch, template);
+        writeCards(List.of(unitOption),
+                fileName,
+                "-",
+                unitOption.getSectorial(),
+                unitImagePath,
+                customUnitImagePath,
+                logoImagePath,
+                outputFolder,
+                useInch,
+                Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
+                true,
+                template);
     }
 
     public void writeCards(List<UnitOption> unitOptions,
@@ -209,6 +229,8 @@ public class HtmlPrinter {
                            String logoImagePath,
                            String outputFolder,
                            boolean useInch,
+                           Set<Weapon.Type> showWeaponOfType,
+                           boolean showImage,
                            Template template) {
         String outputPath = HTML_OUTPUT_PATH + outputFolder;
         String imageOutputPath = outputPath + IMAGE_FOLDER;
@@ -233,18 +255,20 @@ public class HtmlPrinter {
         String secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
         String headerColor = HEADER_TEXT_COLOR.getOrDefault(sectorial.getParentId() - 1, "white");
 
-        List<PrintCard> printCards = unitOptions.stream()
-                .flatMap(u -> PrintCard.fromUnitOption(u, useInch).stream())
+        List<UnitPrintCard> unitPrintCards = unitOptions.stream()
+                .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage).stream())
                 .toList();
 
         Context context = new Context();
-        context.setVariable("printCards", printCards);
+        context.setVariable("unitPrintCards", unitPrintCards);
         context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
         context.setVariable("listName", fileName);
         context.setVariable("armyCode", armyCode);
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("headerColor", headerColor);
+        context.setVariable("showImage", true);
+        context.setVariable("printUtils", new PrintUtils());
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {

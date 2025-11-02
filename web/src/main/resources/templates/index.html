@@ -138,6 +138,82 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
         }
 
+        /* --- New Checkbox Styles --- */
+        .checkbox-group {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            display: flex;
+            flex-direction: column;
+            gap: 1em; /* Adds spacing between checkboxes */
+        }
+
+        .checkbox-label {
+            /* Override default label styles */
+            display: flex; /* Use flex to align custom checkbox and text */
+            align-items: center;
+            cursor: pointer;
+            font-size: 1rem; /* Match other form inputs */
+            color: var(--text-color);
+            text-transform: none; /* Normal case */
+            font-weight: 400; /* Normal weight */
+            letter-spacing: 0.5px;
+            margin-bottom: 0; /* Remove default label margin */
+        }
+
+        /* Hide original checkbox */
+        .checkbox-label input[type="checkbox"] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .checkbox-custom {
+            position: relative;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--primary-color-dark);
+            margin-right: 12px; /* Space between box and text */
+            transition: all 0.3s ease-in-out;
+            flex-shrink: 0; /* Prevent box from shrinking */
+        }
+
+        /* Style for the checkmark (using pseudo-element) */
+        .checkbox-custom::after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 5px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid var(--primary-color-glow);
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* Show checkmark when checked */
+        .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+            display: block;
+        }
+
+        /* Highlight box when checked */
+        .checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+            border-color: var(--primary-color-glow);
+        }
+
+        /* Focus state */
+        .checkbox-label input[type="checkbox"]:focus-visible + .checkbox-custom {
+            outline: none;
+            border-color: var(--primary-color-glow);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* --- End of New Checkbox Styles --- */
+
+
         footer {
             text-align: center;
             color: var(--text-muted);
@@ -184,12 +260,27 @@
                 <option value="cm">Centimeters</option>
             </select>
         </div>
-        <label for="unit-filter">Select Unit Filter:</label>
-        <div class="select-wrapper">
-            <select id="unit-filter" name="filter">
-                <option value="original" selected>No Filter</option>
-                <option value="distinct">Distinct Units</option>
-            </select>
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="removeImages" value="true">
+                <span class="checkbox-custom"></span>
+                Remove Unit Images
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" name="showEquipmentWeapons" value="true" checked>
+                <span class="checkbox-custom"></span>
+                Show Equipment Weapons (e.g. Medkit ...)
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" name="showSkillWeapon" value="true" checked>
+                <span class="checkbox-custom"></span>
+                Show Skill Weapon (e.g. Forward Observer ...)
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" name="distinctUnits" value="true">
+                <span class="checkbox-custom"></span>
+                Remove duplicate units
+            </label>
         </div>
 
         <button type="submit">Generate and View Cards</button>

@@ -11,6 +11,7 @@ import java.util.Optional;
 public class Weapon {
     private static final List<Integer> RANGES_LIST = List.of(20, 40, 60, 80, 100, 120, 240);
     int id;
+    Skill skill;
     Type type;
     String name;
     String mode;
@@ -80,9 +81,18 @@ public class Weapon {
     }
 
 
-    public enum Type {
+    public enum Skill {
         BS,
-        CC
+        CC,
+        PH,
+        WIP
+    }
+
+    public enum Type {
+        WEAPON, //contains also deployable like mines
+        SKILL,
+        EQUIPMENT,
+        TURRET
     }
 
     public record RangeModifier(int fromCmExcl, int toCmIncl, String modifier) {
