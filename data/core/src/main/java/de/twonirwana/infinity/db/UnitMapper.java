@@ -277,69 +277,140 @@ public class UnitMapper {
                                                                                Map<Integer, ExtraValue> extraFilter,
                                                                                Map<Integer, List<Weapon>> weaponIdMap,
                                                                                String factionName) {
-        return Stream.concat(
+
+        List<de.twonirwana.infinity.unit.api.Weapon> weapons = Stream.concat(
                         profileOption.getWeapons().stream(),
                         profile.getWeapons().stream())
                 .distinct()
-                .filter(Objects::nonNull)
-                .filter(i -> i.getId() != null) //sometime cb puts a null into the id list
-                .flatMap(pi -> {
-                    List<Weapon> weapons = weaponIdMap.get(pi.getId());
-                    List<ExtraValue> extras = Optional.ofNullable(pi.getExtra()).stream()
-                            .flatMap(Collection::stream)
-                            .map(extraFilter::get)
-                            .toList();
-                    //turret logic, id 226 contains all kinds of turrets and it needs to be filtered over the mode
-                    if (pi.getId() == 226) {
-                        Set<String> turretOptions = weapons.stream().map(Weapon::getMode).collect(Collectors.toSet());
-                        Optional<String> mode = extras.stream()
-                                .filter(e -> e.getType() == ExtraValue.Type.Text)
-                                .map(ExtraValue::getText)
-                                .map(t -> {
-                                    if ("Ad. Launcher Rifle".equals(t)) {
-                                        return "Adhesive Launcher Rifle";
-                                    } else if ("Combi R.".equals(t)) {
-                                        return "Combi Rifle";
-                                    }
-                                    return t;
-                                })
-                                .filter(turretOptions::contains)
-                                .findFirst();
-                        if (mode.isPresent()) {
-                            weapons = weapons.stream()
-                                    .filter(w -> Objects.equals(w.getMode(), mode.get()))
-                                    .toList();
-                        } else {
-                            log.warn("Can't map turret with extras: {} in {}, using default", extras, unit.getSlug());
-                            //use only base version
-                            weapons = weapons.stream()
-                                    .filter(w -> Strings.isNullOrEmpty(w.getMode()))
-                                    .toList();
-                        }
+                .flatMap(p -> profileItem2Weapons(unit, p, weaponFilter, extraFilter, weaponIdMap, factionName, de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON).stream())
+                .toList();
 
-                    }
+        List<de.twonirwana.infinity.unit.api.Weapon> skillWeapons = Stream.concat(
+                        profileOption.getSkills().stream(),
+                        profile.getSkills().stream())
+                .distinct()
+                .flatMap(p -> profileItem2Weapons(unit, p, weaponFilter, extraFilter, weaponIdMap, factionName, de.twonirwana.infinity.unit.api.Weapon.Type.SKILL).stream())
+                .toList();
 
-                    if (weapons != null) {
-                        return weapons.stream().map(weapon -> mapWeapon(weapon, pi.getQ(), extras, Optional.ofNullable(weaponFilter.get(weapon.getId())).map(Weapon::getType).orElse(null)));
-                    }
-                    if (weaponFilter.get(pi.getId()) != null) {
-                        return Stream.of(weaponFilter.get(pi.getId())).map(weapon -> mapWeapon(weapon, pi.getQ(), extras, weapon.getType()));
-                    }
-                    log.warn("No weapons found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
-                    return Stream.empty();
+        List<de.twonirwana.infinity.unit.api.Weapon> equipWeapons = Stream.concat(
+                        profileOption.getEquip().stream(),
+                        profile.getEquip().stream())
+                .distinct()
+                .flatMap(p -> profileItem2Weapons(unit, p, weaponFilter, extraFilter, weaponIdMap, factionName, de.twonirwana.infinity.unit.api.Weapon.Type.EQUIPMENT).stream())
+                .toList();
 
-                })
+        List<de.twonirwana.infinity.unit.api.Weapon> allProfileWeapons = new ArrayList<>();
+        allProfileWeapons.addAll(weapons);
+        allProfileWeapons.addAll(skillWeapons);
+        allProfileWeapons.addAll(equipWeapons);
+
+        //add supressive fire mode if a weapon has this trait
+        if (allProfileWeapons.stream().anyMatch(w -> w.getProperties().contains("Suppressive Fire"))) {
+            allProfileWeapons.addAll(weaponIdMap.get(127).stream()
+                    .map(w -> mapWeapon(w, null, List.of()))
+                    .toList());
+        }
+
+        //add discover
+        allProfileWeapons.addAll(weaponIdMap.get(131).stream()
+                .map(w -> mapWeapon(w, null, List.of()))
+                .toList());
+
+        return allProfileWeapons.stream()
+                .distinct()
                 .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Weapon::getName))
                 .toList();
     }
 
-    private static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras, String weaponType) {
+    private static List<de.twonirwana.infinity.unit.api.Weapon> profileItem2Weapons(Unit unit,
+                                                                                    ProfileItem pi,
+                                                                                    Map<Integer, Weapon> weaponFilter,
+                                                                                    Map<Integer, ExtraValue> extraFilter,
+                                                                                    Map<Integer, List<Weapon>> weaponIdMap,
+                                                                                    String factionName,
+                                                                                    de.twonirwana.infinity.unit.api.Weapon.Type type) {
+        if (pi == null || pi.getId() == null) { //sometime cb puts a null into the id list
+            return List.of();
+        }
+        List<Weapon> weapons = weaponIdMap.get(pi.getId());
+        List<ExtraValue> extras = Optional.ofNullable(pi.getExtra()).stream()
+                .flatMap(Collection::stream)
+                .map(extraFilter::get)
+                .toList();
+        //turret logic, id 226 contains all kinds of turrets and it needs to be filtered over the mode
+        if (pi.getId() == 226) {
+            Set<String> turretOptions = weapons.stream().map(Weapon::getMode).collect(Collectors.toSet());
+            Optional<String> mode = extras.stream()
+                    .filter(e -> e.getType() == ExtraValue.Type.Text)
+                    .map(ExtraValue::getText)
+                    .map(t -> {
+                        if ("Ad. Launcher Rifle".equals(t)) {
+                            return "Adhesive Launcher Rifle";
+                        } else if ("Combi R.".equals(t)) {
+                            return "Combi Rifle";
+                        }
+                        return t;
+                    })
+                    .filter(turretOptions::contains)
+                    .findFirst();
+            if (mode.isPresent()) {
+                weapons = weapons.stream()
+                        .filter(w -> Objects.equals(w.getMode(), mode.get()))
+                        .toList();
+            } else {
+                log.warn("Can't map turret with extras: {} in {}, using default", extras, unit.getSlug());
+                //use only base version
+                weapons = weapons.stream()
+                        .filter(w -> Strings.isNullOrEmpty(w.getMode()))
+                        .toList();
+            }
+        }
+
+        if (weapons != null) {
+            return weapons.stream()
+                    .map(weapon -> mapWeapon(weapon, pi.getQ(), extras))
+                    .filter(w -> w.getType() == type)
+                    .toList();
+        }
+        if (weaponFilter.get(pi.getId()) != null) {
+            return Stream.of(weaponFilter.get(pi.getId()))
+                    .map(weapon -> mapWeapon(weapon, pi.getQ(), extras))
+                    .filter(w -> w.getType() == type)
+                    .toList();
+        }
+        if (type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON) {
+            log.warn("No weapons found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
+        }
+        return List.of();
+    }
+
+    private static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras) {
         de.twonirwana.infinity.unit.api.Ammunition ammunition = Optional.ofNullable(weapon.getAmmunition())
                 .map(a -> new de.twonirwana.infinity.unit.api.Ammunition(a.getId(), a.getName(), a.getWiki()))
                 .orElse(null);
+        final de.twonirwana.infinity.unit.api.Weapon.Type type;
+        if (weapon.getType() == null) {
+            type = null;
+        } else if ("BS".equals(weapon.getType())) {
+            type = de.twonirwana.infinity.unit.api.Weapon.Type.TURRET;
+        } else {
+            type = de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weapon.getType());
+        }
+        final de.twonirwana.infinity.unit.api.Weapon.Skill weaponSkill;
+        if (weapon.getProperties() != null && weapon.getProperties().contains("CC")) {
+            weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.CC;
+        } else if (weapon.getProperties() != null && weapon.getProperties().contains("BS Weapon (PH)")) {
+            weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.PH;
+        } else if (weapon.getProperties() != null && weapon.getProperties().contains("BS Weapon (WIP)")) {
+            weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.WIP;
+        } else {
+            weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.BS;
+        }
+
         return new de.twonirwana.infinity.unit.api.Weapon(
                 weapon.getId(),
-                weaponType == null ? null : de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType),
+                weaponSkill,
+                type,
                 weapon.getName(),
                 weapon.getMode(),
                 weapon.getWiki(),

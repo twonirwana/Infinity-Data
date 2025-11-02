@@ -2,15 +2,18 @@ package de.twonirwana.infinity;
 
 import de.twonirwana.infinity.armylist.ArmyCodeLoader;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.HashUtil;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvFileSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,8 +21,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +38,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 // Seed Soldiers, Scarface, Posthumans,
 // code with many weapons: gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D
 public class ManualHtmlPrinterTest {
+    final static List<Set<Weapon.Type>> WEAPON_TYPE_OPTIONS = List.of(Set.of(),
+            Set.of(Weapon.Type.WEAPON),
+            Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET));
     static Pattern combinedIdPattern = Pattern.compile("combinedId:(\\d+-\\d+-\\d+-\\d+-\\d+)\"");
     static Pattern armyCodePattern = Pattern.compile("<meta name=\"armyCode\" content=\"(.+)\">");
     static Database db;
@@ -52,9 +61,48 @@ public class ManualHtmlPrinterTest {
         return result;
     }
 
+    private static List<CSVRecord> dataFromCsvFile(String fileName) throws IOException {
+
+        InputStream is = ManualHtmlPrinterTest.class.getResourceAsStream(fileName);
+        if (is == null) {
+            throw new IOException("CSV file not found");
+        }
+        try (Reader reader = new InputStreamReader(is)) {
+            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                    .setDelimiter(";")
+                    .setTrim(true).get();
+            return StreamSupport.stream(csvFormat.parse(reader).spliterator(), false)
+                    .toList();
+        }
+    }
+
+    private static Stream<Arguments> generateTestData() {
+        List<CSVRecord> armyCodeAndUnits;
+        try {
+            armyCodeAndUnits = dataFromCsvFile("/armyCodes.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<Arguments> testData = new ArrayList<>();
+        for (boolean useInch : new boolean[]{true, false}) {
+            for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
+                for (boolean showImage : new boolean[]{true, false}) {
+                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                        testData.addAll(
+                                armyCodeAndUnits.stream()
+                                        .map(a -> Arguments.of(a.get(0), a.get(1), useInch, weaponOption, showImage, template))
+                                        .toList()
+                        );
+                    }
+                }
+            }
+        }
+        return testData.stream();
+    }
+
     @ParameterizedTest
-    @CsvFileSource(resources = "/armyCodes.csv", delimiter = ';')
-    void testArmyCodeA7(String armyCode, String expectedUnitIds) throws IOException {
+    @MethodSource("generateTestData")
+    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
         assertThat(db.validateArmyCodeUnits(armyCode)).isEmpty();
@@ -76,7 +124,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, true, HtmlPrinter.Template.a7_image);
+        underTest.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, weaponOption, showImage, template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

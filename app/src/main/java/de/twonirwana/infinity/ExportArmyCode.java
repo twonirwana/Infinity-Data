@@ -1,9 +1,11 @@
 package de.twonirwana.infinity;
 
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.HashUtil;
 
 import java.util.List;
+import java.util.Set;
 
 public class ExportArmyCode {
     public static void main(String[] args) {
@@ -25,6 +27,6 @@ public class ExportArmyCode {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        new HtmlPrinter().printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, HtmlPrinter.Template.a7_image);
+        new HtmlPrinter().printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, HtmlPrinter.Template.a7_image);
     }
 }

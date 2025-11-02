@@ -8,4 +8,4 @@ server:
   prometheus: true
 website:
   imprint: Test Name\nTest Address1\nTestAddress2\nTest E-mail
-reuseHtml: true
+reuseHtml: false

@@ -14,7 +14,7 @@ public class AmmunitionResolver implements ObjectIdResolver {
     public AmmunitionResolver() {
         Ammunition blank = new Ammunition();
         blank.setId(0);
-        blank.setName("-");
+        blank.setName("*");
         _items.put(new ObjectIdGenerator.IdKey(PropertyBasedObjectIdGenerator.class,
                 Object.class,
                 0), blank);

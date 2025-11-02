@@ -116,28 +116,28 @@
     </style>
 </head>
 <body>
-<div th:each="printCard : ${printCards}">
-    <div class="card" th:data-info="'combinedId:' + ${printCard.getCombinedProfileId()}" style="margin: 1px">
+<div th:each="unitPrintCard : ${unitPrintCards}">
+    <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}" style="margin: 1px">
         <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
             <div th:style="'display: flex; background-color:' + ${primaryColor}">
-                <img th:src="@{image/{imageName}(imageName=${printCard.getProfile().logo})}"
-                     alt="unit logo" style="height: 25px; width: auto;">
+                <img th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().logo})}"
+                     style="height: 25px; width: auto;">
                 <h2 style="margin-right: auto;">
-                    <span th:text="${printCard.getUnitName()}">Trooper Profile Name</span>
+                    <span th:text="${unitPrintCard.getUnitName()}">Trooper Profile Name</span>
                 </h2>
-                <div th:each="imageName : ${printCard.getIconFileNames()}">
+                <div th:each="imageName : ${unitPrintCard.getIconFileNames()}">
                     <img th:src="@{image/{fileName}(fileName=${imageName})}"
                          alt="unit image" style="height: 25px; width: auto; ">
                 </div>
             </div>
-            <div th:style="'background-image: url(' + ${printCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%'">
+            <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
                 <div style="display: flex; height: 100%;">
-                    <div style="width: 70%; margin-left: auto;">
+                    <div th:style="${unitPrintCard.isShowImage()} ? 'width: 70%; margin-left: auto;' : 'width: 100%'">
                         <div style="display: flex; flex-direction: column; height: 100%;">
                             <div style="display: flex;">
                                 <div class="typAndCategory">
-                                    <div th:text="${printCard.getProfile().getType()}"></div>
-                                    <div th:text="${printCard.getShortCategory()}"></div>
+                                    <div th:text="${unitPrintCard.getProfile().getType()}"></div>
+                                    <div th:text="${unitPrintCard.getShortCategory()}"></div>
                                 </div>
                                 <table class="attribut">
                                     <thead>
@@ -149,21 +149,22 @@
                                         <th>WIP</th>
                                         <th>ARM</th>
                                         <th>BTS</th>
-                                        <th th:text="${printCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds</th>
+                                        <th th:text="${unitPrintCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds
+                                        </th>
                                         <th>S</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td th:text="${printCard.getMovement()}">0-0</td>
-                                        <td th:text="${printCard.getProfile().closeCombat}">0</td>
-                                        <td th:text="${printCard.getProfile().ballisticSkill}">0</td>
-                                        <td th:text="${printCard.getProfile().physique}">0</td>
-                                        <td th:text="${printCard.getProfile().willpower}">0</td>
-                                        <td th:text="${printCard.getProfile().armor}">0</td>
-                                        <td th:text="${printCard.getProfile().bioTechnologicalShield}">0</td>
-                                        <td th:text="${printCard.getProfile().wounds}">0</td>
-                                        <td th:text="${printCard.getProfile().silhouette}">0</td>
+                                        <td th:text="${unitPrintCard.getMovement()}">0-0</td>
+                                        <td th:text="${unitPrintCard.getProfile().closeCombat}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().ballisticSkill}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().physique}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().willpower}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().armor}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().bioTechnologicalShield}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().wounds}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().silhouette}">0</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -171,26 +172,26 @@
 
                             <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
                                 <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
-                                    <b>Equipment:</b> <span th:text="${printCard.prettyEquipments}"></span>
+                                    <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments}"></span>
                                 </div>
                                 <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
-                                    <b>Skills:</b> <span th:text="${printCard.prettySkills}"></span>
+                                    <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills}"></span>
                                 </div>
-                                <div th:if="${printCard.showNotes()}"
+                                <div th:if="${unitPrintCard.showNotes()}"
                                      style="background-color: rgba(255, 255, 255, 0.8); padding: 2px">
-                                    <b>Notes:</b> <span th:text="${printCard.getNotes()}"></span>
+                                    <b>Notes:</b> <span th:text="${unitPrintCard.getNotes()}"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div th:if="${printCard.getProfile().getWeapons() != null and not #lists.isEmpty(printCard.getProfile().getWeapons())}">
+            <div th:if="${unitPrintCard.getProfile().getWeapons() != null and not #lists.isEmpty(unitPrintCard.getProfile().getWeapons())}">
                 <table class="weapon">
                     <thead>
                     <tr>
                         <th>Weapon Name</th>
-                        <th th:text="${printCard.getRangeHeader()}">Range</th>
+                        <th th:text="${unitPrintCard.getRangeHeader()}">Range</th>
                         <th>PS</th>
                         <th>B</th>
                         <th>Ammo</th>
@@ -198,23 +199,23 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="weapon : ${printCard.getProfile().weapons}">
-                        <td th:text="${printCard.prettyWeaponName(weapon, printCard.isUseInch())}"></td>
+                    <tr th:each="weapon : ${unitPrintCard.getWeapons()}">
+                        <td th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
                         <td>
                             <div style="display: flex;">
                                 <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
-                                     th:text="${printCard.getRangeModifier(range, printCard.isUseInch())}"
+                                     th:text="${printUtils.getRangeModifier(range, unitPrintCard.isUseInch())}"
                                      th:class="${rangeModifierClassMap.get(range.modifier())}">
                                 </div>
-                                <div th:if="${printCard.getRangeTemplate(weapon) != null}"
-                                     th:text="${printCard.getRangeTemplate(weapon)}">
+                                <div th:if="${printUtils.getRangeTemplate(weapon) != null}"
+                                     th:text="${printUtils.getRangeTemplate(weapon)}">
                                 </div>
                             </div>
                         </td>
-                        <td th:text="${printCard.getWeaponPsWithExtra(printCard.getProfile(), weapon)}"></td>
-                        <td th:text="${printCard.getWeaponBurstWithExtra(printCard.getProfile(), weapon)}"></td>
+                        <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
+                        <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
                         <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-                        <td th:text="${printCard.getWeaponPropertiesString(weapon)}" style="font-size: 4pt"></td>
+                        <td th:text="${printUtils.getWeaponPropertiesString(weapon)}" style="font-size: 4pt"></td>
                     </tr>
                     </tbody>
                 </table>

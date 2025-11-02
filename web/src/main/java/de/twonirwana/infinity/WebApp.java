@@ -3,10 +3,12 @@ package de.twonirwana.infinity;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.HashUtil;
 import de.twonirwana.infinity.util.ImageUtils;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.rendering.template.JavalinThymeleaf;
@@ -28,14 +30,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
 import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
@@ -52,8 +52,6 @@ public class WebApp {
     private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
-    private final static String DISTINCT_UNITS = "distinct";
-    private final static String ORGINAL_UNITS = "original";
 
     public static void main(String[] args) {
         /*
@@ -219,17 +217,12 @@ public class WebApp {
                 return;
             }
 
-            String distinctUnitKey = ctx.queryParam("filter");
-            final boolean distinct;
-            if (DISTINCT_UNITS.equals(distinctUnitKey)) {
-                distinct = true;
-            } else if (ORGINAL_UNITS.equals(distinctUnitKey)) {
-                distinct = false;
-            } else {
-                log.error("Invalid distinctUnitKey '{}'", distinctUnitKey);
-                ctx.status(400).html("Invalid filter: " + distinctUnitKey);
-                return;
-            }
+            final boolean removeImages = getCheckboxValue(ctx, "removeImages");
+            final boolean showEquipmentWeapons = getCheckboxValue(ctx, "showEquipmentWeapons");
+            final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
+            final boolean distinct = getCheckboxValue(ctx, "distinctUnits");
+
+            Set<Weapon.Type> weaponTypes = getShowWeaponType(showSkillWeapon, showEquipmentWeapons);
 
             String styleKey = ctx.queryParam("style");
             final Optional<HtmlPrinter.Template> styleOptional = Arrays.stream(HtmlPrinter.Template.values())
@@ -243,7 +236,7 @@ public class WebApp {
 
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = "%s-%s-%s-%s".formatted(armyCodeHash, styleOptional.get(), unit, distinctUnitKey);
+            String fileName = getFileName(armyCodeHash, styleOptional.get(), unit, distinct, weaponTypes, removeImages);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 registry.counter("infinity.generate.existing").increment();
@@ -293,7 +286,7 @@ public class WebApp {
                             .toList();
                 }
 
-                htmlPrinter.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, styleOptional.get());
+                htmlPrinter.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, styleOptional.get());
                 log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
                 registry.counter("infinity.generate.list", "sectorial", al.getSectorial().getSlug()).increment();
 
@@ -309,6 +302,35 @@ public class WebApp {
             }
 
         });
+    }
+
+    private static String getFileName(String armyCodeHash, HtmlPrinter.Template template, String unit, boolean distinctUnit, Set<Weapon.Type> weaponTypes, boolean removeImage) {
+        return "%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
+                template,
+                unit,
+                distinctUnit ? "distinct" : "all",
+                weaponTypes.stream().map(Enum::name).sorted().collect(Collectors.joining("-")),
+                removeImage ? "noImage" : "showImage"
+        );
+
+    }
+
+    private static Set<Weapon.Type> getShowWeaponType(boolean showSkillWeapon, boolean showEquipmentWeapon) {
+        Set<Weapon.Type> types = new HashSet<>();
+        types.add(Weapon.Type.WEAPON);
+        types.add(Weapon.Type.TURRET);
+        if (showSkillWeapon) {
+            types.add(Weapon.Type.SKILL);
+        }
+        if (showEquipmentWeapon) {
+            types.add(Weapon.Type.EQUIPMENT);
+        }
+        return types;
+    }
+
+    private static boolean getCheckboxValue(Context ctx, String key) {
+        String value = ctx.queryParam(key);
+        return "true".equals(value);
     }
 
     private static void startPage(Javalin webApp, PrometheusMeterRegistry registry) {

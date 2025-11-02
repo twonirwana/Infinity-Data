@@ -9,7 +9,7 @@ import java.util.Map;
 @Data
 public class Weapon {
     private int id;
-    private String type; //always WEAPON, BS/CC weapon type is in weapon filter
+    private String type; //always WEAPON, SKILL or EQUIBMENT
     private String name;
     private String mode;
     private String wiki;

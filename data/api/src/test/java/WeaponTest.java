@@ -7,7 +7,7 @@ public class WeaponTest {
 
     @Test
     void testRange() {
-        Weapon underTest = new Weapon(1, null, "Flash Pulse",
+        Weapon underTest = new Weapon(1, null, Weapon.Type.WEAPON, "Flash Pulse",
                 null, null, null, null, null, null, null, null,
                 "0", "+3", "+3", "-3", "-3", "-3", "-6",
                 null, null, null);

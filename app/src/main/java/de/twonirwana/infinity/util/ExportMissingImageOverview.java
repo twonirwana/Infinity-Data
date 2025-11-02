@@ -79,12 +79,12 @@ public class ExportMissingImageOverview {
                         p.getName(),
                         imageExists,
                         p.getWeapons().stream()
-                                .filter(w -> w.getType() == Weapon.Type.BS)
+                                .filter(w -> w.getSkill() == Weapon.Skill.BS)
                                 .collect(Collectors.groupingBy(Weapon::getId)).values().stream()
                                 .map(List::getFirst)
                                 .map(Weapon::getName).collect(Collectors.joining(", ")),
                         p.getWeapons().stream()
-                                .filter(w -> w.getType() == Weapon.Type.CC)
+                                .filter(w -> w.getSkill() == Weapon.Skill.CC)
                                 .collect(Collectors.groupingBy(Weapon::getId)).values().stream()
                                 .map(List::getFirst)
                                 .map(Weapon::getName).collect(Collectors.joining(", "))
