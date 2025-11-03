@@ -105,8 +105,8 @@ public class ManualConsistencyTest {
 
         SoftAssertions.assertSoftly(a -> {
             a.assertThat(res.size()).isEqualTo(11192);
-            a.assertThat(troopers.size()).isEqualTo(12155);
-            a.assertThat(trooperProfiles.size()).isEqualTo(12716);
+            a.assertThat(troopers.size()).isEqualTo(12161);
+            a.assertThat(trooperProfiles.size()).isEqualTo(12722);
             a.assertThat(unitIdCount).isEqualTo(877L);
             a.assertThat(unitOptionCount).isEqualTo(3091L);
         });
