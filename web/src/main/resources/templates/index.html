@@ -138,29 +138,26 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
         }
 
-        /* --- New Checkbox Styles --- */
         .checkbox-group {
             margin-top: 1.5em;
             margin-bottom: 0.5em;
             display: flex;
             flex-direction: column;
-            gap: 1em; /* Adds spacing between checkboxes */
+            gap: 1em;
         }
 
         .checkbox-label {
-            /* Override default label styles */
-            display: flex; /* Use flex to align custom checkbox and text */
+            display: flex;
             align-items: center;
             cursor: pointer;
-            font-size: 1rem; /* Match other form inputs */
+            font-size: 1rem;
             color: var(--text-color);
-            text-transform: none; /* Normal case */
-            font-weight: 400; /* Normal weight */
+            text-transform: none;
+            font-weight: 400;
             letter-spacing: 0.5px;
-            margin-bottom: 0; /* Remove default label margin */
+            margin-bottom: 0;
         }
 
-        /* Hide original checkbox */
         .checkbox-label input[type="checkbox"] {
             opacity: 0;
             width: 0;
@@ -175,12 +172,11 @@
             height: 18px;
             background-color: rgba(0, 0, 0, 0.4);
             border: 1px solid var(--primary-color-dark);
-            margin-right: 12px; /* Space between box and text */
+            margin-right: 12px;
             transition: all 0.3s ease-in-out;
-            flex-shrink: 0; /* Prevent box from shrinking */
+            flex-shrink: 0;
         }
 
-        /* Style for the checkmark (using pseudo-element) */
         .checkbox-custom::after {
             content: "";
             position: absolute;
@@ -194,25 +190,19 @@
             transform: rotate(45deg);
         }
 
-        /* Show checkmark when checked */
         .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
             display: block;
         }
 
-        /* Highlight box when checked */
         .checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
             border-color: var(--primary-color-glow);
         }
 
-        /* Focus state */
         .checkbox-label input[type="checkbox"]:focus-visible + .checkbox-custom {
             outline: none;
             border-color: var(--primary-color-glow);
             box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
-
-        /* --- End of New Checkbox Styles --- */
-
 
         footer {
             text-align: center;

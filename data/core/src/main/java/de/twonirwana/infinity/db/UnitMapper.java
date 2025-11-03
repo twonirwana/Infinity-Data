@@ -245,6 +245,27 @@ public class UnitMapper {
                                                           Map<Integer, Equipment> equipmentIdMap,
                                                           SectorialImage sectorialImage,
                                                           SectorialFilter sectorialFilter) {
+        return getProfileGroupFromInclude(unit, profileIncludes).stream()
+                .flatMap(pgo ->
+                        IntStream.range(0, pgo.include().getQ())
+                                .boxed()
+                                .map(i -> createTrooper(
+                                        sectorial,
+                                        unit,
+                                        pgo.group().getId(),
+                                        pgo.option().getId(),
+                                        pgo.group(),
+                                        pgo.group().getProfiles(),
+                                        pgo.option(),
+                                        weaponIdMap,
+                                        skillIdMap,
+                                        equipmentIdMap,
+                                        sectorialImage,
+                                        sectorialFilter))
+                ).toList();
+    }
+
+    private static List<ProfileIncludeGroupAndOption> getProfileGroupFromInclude(Unit unit, List<ProfileInclude> profileIncludes) {
         return profileIncludes.stream()
                 .flatMap(pi -> {
                     ProfileGroup addProfileGroup = getProfileGroupFromInclude(unit, pi);
@@ -252,22 +273,15 @@ public class UnitMapper {
                         throw new IllegalStateException("Additional unit group size is wrong: " + unit);
                     }
                     ProfileOption addProfileOption = getProfileOptionFromInclude(addProfileGroup, pi);
-                    return IntStream.range(0, pi.getQ())
-                            .boxed()
-                            .map(i -> createTrooper(
-                                    sectorial,
-                                    unit,
-                                    addProfileGroup.getId(),
-                                    addProfileOption.getId(),
-                                    addProfileGroup,
-                                    addProfileGroup.getProfiles(),
-                                    addProfileOption,
-                                    weaponIdMap,
-                                    skillIdMap,
-                                    equipmentIdMap,
-                                    sectorialImage,
-                                    sectorialFilter));
-                }).toList();
+                    ProfileIncludeGroupAndOption addProfileGroupAndOption = new ProfileIncludeGroupAndOption(pi, addProfileGroup, addProfileOption);
+                    if (!addProfileOption.getIncludes().isEmpty()) { //recusive includes, currently only for 504-1091-3-1-1 ZONDMATE
+                        return Stream.concat(Stream.of(addProfileGroupAndOption),
+                                getProfileGroupFromInclude(unit, addProfileOption.getIncludes()).stream()
+                        );
+                    }
+                    return Stream.of(addProfileGroupAndOption);
+                })
+                .toList();
     }
 
     private static List<de.twonirwana.infinity.unit.api.Weapon> getUnitWeapons(Unit unit,
@@ -714,6 +728,10 @@ public class UnitMapper {
             return new ExtraValue(f.getId(), f.getName(), ExtraValue.Type.Text, null);
         }));
         return new SectorialFilter(weaponFilter, skillFilter, equipmentFilter, categoryFilter, characteristicsFilter, typeFilter, peripheralFilter, extraFilter);
+    }
+
+    private record ProfileIncludeGroupAndOption(ProfileInclude include, ProfileGroup group, ProfileOption option) {
+
     }
 
     private record SectorialFilter(Map<Integer, Weapon> weaponFilter,
