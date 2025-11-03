@@ -336,7 +336,8 @@ public class WebApp {
     private static void startPage(Javalin webApp, PrometheusMeterRegistry registry) {
         webApp.get("/", ctx -> {
             registry.counter("infinity.base.called").increment();
-            Map<String, String> model = Map.of(
+            Map<String, Object> model = Map.of(
+                    "contributors", List.of(Config.get("website.contributors", "").split(",")),
                     "imprint", Config.get("website.imprint", "")
             );
             ctx.render("templates/index.html", model);
