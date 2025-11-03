@@ -278,15 +278,23 @@
 </div>
 
 <footer>
-    <a th:href="@{/help}" target="_blank">Help</a>
-    <span class="footer-separator">|</span>
-    <a href="mailto:contact@infinity.2nirwana.de">Contact</a>
-    <span class="footer-separator">|</span>
-    <span th:if="${!imprint.isEmpty()}">
-        <a href="imprint">Imprint</a>
+    <div>
+        <a th:href="@{/help}" target="_blank">Help</a>
         <span class="footer-separator">|</span>
-    </span>
-    <a href="https://github.com/twonirwana/Infinity-Data" target="_blank">Source Code</a>
+        <a href="mailto:contact@infinity.2nirwana.de">Contact</a>
+        <span class="footer-separator">|</span>
+        <span th:if="${!imprint.isEmpty()}">
+            <a href="imprint">Imprint</a>
+            <span class="footer-separator">|</span>
+        </span>
+        <a href="https://github.com/twonirwana/Infinity-Data" target="_blank">Source Code</a>
+    </div>
+
+    <div style="margin-top: 1em; font-size: 0.9em;">
+        <p style="margin: 0;">Special thanks to the following contributors for helping with the images:</p>
+        <p style="margin: 0.25em 0 0 0;"><b>Tristan228</b>,
+            <b>Pandarine</b>, <b>Stoneman95</b>, and <b>ikildkenny</b>!</p>
+    </div>
 </footer>
 
 </body>
