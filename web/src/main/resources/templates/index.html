@@ -289,11 +289,18 @@
         </span>
         <a href="https://github.com/twonirwana/Infinity-Data" target="_blank">Source Code</a>
     </div>
-
     <div style="margin-top: 1em; font-size: 0.9em;">
         <p style="margin: 0;">Special thanks to the following contributors for helping with the images:</p>
-        <p style="margin: 0.25em 0 0 0;"><b>Tristan228</b>,
-            <b>Pandarine</b>, <b>Stoneman95</b>, and <b>ikildkenny</b>!</p>
+        <p style="margin: 0.25em 0 0 0;" th:if="${contributors != null and !contributors.isEmpty()}">
+            <th:block th:each="contributor, iterStat : ${contributors}">
+                <b th:text="${contributor}">ContributorName</b>
+                <th:block th:switch="${iterStat.size - iterStat.count}">
+                    <th:block th:case="0">!</th:block>
+                    <th:block th:case="1"> and</th:block>
+                    <th:block th:case="*">,</th:block>
+                </th:block>
+            </th:block>
+        </p>
     </div>
 </footer>
 
