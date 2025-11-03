@@ -101,7 +101,6 @@ public class HtmlPrinter {
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Show a list of hacking programs?
-     * Option to prefere custom images
      * Max Image width
      * Second page for units with more then 6 weapons?
      * weapon add saving modifier, savingNum to table? -> in notes?
@@ -247,8 +246,8 @@ public class HtmlPrinter {
         Set<String> usedImages = new CopyOnWriteArraySet<>();
         for (UnitOption unitOption : unitOptions) {
             copyLogos(unitOption, logoImagePath, imageOutputPath);
-            copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath);
             copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
+            copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath); //customUnitImage have priority and overwrite CB images
         }
 
         String primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);

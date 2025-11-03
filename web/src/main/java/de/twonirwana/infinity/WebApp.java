@@ -57,7 +57,6 @@ public class WebApp {
         /*
         todo:
          * ko-fi
-         * option to prefere custom images
          */
 
         int port = Config.getInt("server.port", 7070);
@@ -71,7 +70,6 @@ public class WebApp {
 
         moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
         moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
-        moveFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER, true);
         crateFileIfNotExists(ARMY_UNIT_HASH_FILE);
         crateFileIfNotExists(INVALID_ARMY_CODE_FILE);
         crateFileIfNotExists(MISSING_UNIT_ARMY_CODE_FILE);
@@ -103,6 +101,8 @@ public class WebApp {
                                 CARD_IMAGE_FOLDER + p.getCombinedProfileId() + ".png");
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
+            //customUnitImages have priority and overwrite CB Images
+            moveFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER, true);
         }
 
         Javalin webApp = Javalin.create(config -> {
@@ -384,13 +384,10 @@ public class WebApp {
                     if (!file.toFile().isDirectory()) {
                         Path targetPath = targetDir.resolve(file.getFileName());
                         if (onlyCopy) {
-                            if (!targetPath.toFile().exists()) {
-                                Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                            }
+                            Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
                         } else {
                             Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
                         }
-
                         count++;
                     }
                 }
