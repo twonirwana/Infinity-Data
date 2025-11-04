@@ -11,7 +11,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
+import de.twonirwana.infinity.HackingProgram;
 import de.twonirwana.infinity.Sectorial;
+import de.twonirwana.infinity.model.Equipment;
 import de.twonirwana.infinity.model.Faction;
 import de.twonirwana.infinity.model.Metadata;
 import de.twonirwana.infinity.model.SectorialList;
@@ -57,6 +59,9 @@ public class DataLoader {
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     @Getter
     private final Map<Integer, Sectorial> sectorialIdMap;
+
+    @Getter
+    private final List<HackingProgram> allHackingPrograms;
 
     public DataLoader() throws IOException, URISyntaxException {
         this(false);
@@ -109,6 +114,33 @@ public class DataLoader {
         }
         sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, metadata, sectorialImageMap);
 
+
+        allHackingPrograms = getHackingPrograms(metadata);
+
+    }
+
+    private static List<HackingProgram> getHackingPrograms(Metadata metadata) {
+        Map<Integer, Equipment> equipmentMap = metadata.getEquips().stream()
+                .collect(Collectors.toMap(Equipment::getId, Function.identity()));
+
+        return metadata.getHack().stream()
+                .map(h -> new HackingProgram(
+                        h.getOpponent(),
+                        h.getSpecial(),
+                        Optional.ofNullable(h.getSkillType()).orElse(List.of()),
+                        h.getExtra(),
+                        h.getDamage(),
+                        Optional.ofNullable(h.getDevices()).orElse(List.of()),
+                        Optional.ofNullable(h.getDevices()).orElse(List.of()).stream()
+                                .map(equipmentMap::get)
+                                .map(Equipment::getName)
+                                .toList(),
+                        Optional.ofNullable(h.getTarget()).orElse(List.of()),
+                        h.getAttack(),
+                        h.getName().replace(" ", " "),
+                        h.getBurst()
+                ))
+                .toList();
     }
 
     private static void downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {

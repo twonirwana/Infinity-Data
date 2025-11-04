@@ -223,6 +223,73 @@
         </div>
     </div>
 </div>
+<div class="card" style="margin: 1px" th:if="${programs != null and not #lists.isEmpty(programs)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+        <div th:style="'height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Hacking Programs 1</h2>
+        </div>
+        <table class="weapon">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Device</th>
+                <th>Attack/Opp.<br>Mod</th>
+                <th>PS</th>
+                <th>B</th>
+                <th>Target</th>
+                <th>Skill Type</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="program : ${programs}">
+                <td th:text="${program.getHackingProgram().getName()}"></td>
+                <td th:text="${program.getDeviceNames()}"></td>
+                <td th:text="${program.getModifier()}"></td>
+                <td th:text="${program.getHackingProgram().getPs()}"></td>
+                <td th:text="${program.getHackingProgram().getBurst()}"></td>
+                <td th:text="${program.getTargets()}"></td>
+                <td th:text="${program.getSkillType()}"></td>
+                <td th:text="${program.getHackingProgram().getDescription()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card" style="margin: 1px" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+
+        <div th:style="'height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Hacking Programs 2</h2>
+        </div>
+        <table class="weapon">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Device</th>
+                <th>Attack/Opp.<br>Mod</th>
+                <th>PS</th>
+                <th>B</th>
+                <th>Target</th>
+                <th>Skill Type</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="program : ${programs2}">
+                <td th:text="${program.getHackingProgram().getName()}"></td>
+                <td th:text="${program.getDeviceNames()}"></td>
+                <td th:text="${program.getModifier()}"></td>
+                <td th:text="${program.getHackingProgram().getPs()}"></td>
+                <td th:text="${program.getHackingProgram().getBurst()}"></td>
+                <td th:text="${program.getTargets()}"></td>
+                <td th:text="${program.getSkillType()}"></td>
+                <td th:text="${program.getHackingProgram().getDescription()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>
 

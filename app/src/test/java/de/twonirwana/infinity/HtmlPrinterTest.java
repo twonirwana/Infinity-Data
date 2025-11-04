@@ -23,14 +23,17 @@ public class HtmlPrinterTest {
     String fileName = "testFile";
     Sectorial sectorial;
     UnitOption unitOption;
+    HackingProgram hackingProgram;
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
         for (boolean useInch : new boolean[]{true, false}) {
             for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                 for (boolean showImage : new boolean[]{true, false}) {
-                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                        testData.add(Arguments.of(useInch, weaponOption, showImage, template));
+                    for (boolean showHackingProgram : new boolean[]{true, false}) {
+                        for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                            testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, template));
+                        }
                     }
                 }
             }
@@ -58,7 +61,7 @@ public class HtmlPrinterTest {
                         new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
                         new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
                 )),
-                new Weapon(6, Weapon.Skill.BS, Weapon.Type.SKILL, "skill weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("direct (Small Teardrop)"), null, null, null, null, null, null, null,"profile", 2, List.of(
+                new Weapon(6, Weapon.Skill.BS, Weapon.Type.SKILL, "skill weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("direct (Small Teardrop)"), null, null, null, null, null, null, null, "profile", 2, List.of(
                         new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
                         new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
                         new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
@@ -74,9 +77,13 @@ public class HtmlPrinterTest {
                         new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
                 ))
         );
-        List<Equipment> equipments = List.of(new Equipment(1, "equipment", "wiki", 1, List.of(
+
+        hackingProgram = new HackingProgram("-3", "hacking description", List.of("short"), 1, "4", List.of(101, 102), List.of("Hacking Device", "Hacking Device+"), List.of("all"), "+3", "Hacking Name", "2");
+
+        List<Equipment> equipments = List.of(new Equipment(101, "equipment", "wiki", 1, List.of(
                 new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
-                new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f))
+                new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f)
+        )
         ));
         TrooperProfile trooperProfile = new TrooperProfile(sectorial, 1, 2, 3, 4, "name", List.of(10, 10), 10, 10, 10, 10, 3, 3, 2, false, 2, "notes", "type", 3, weapons, skills, equipments, List.of("char1", "char2"), "logo.png", List.of("image.png"), List.of(new Order(Order.Type.REGULAR, 0, 1)));
         Trooper trooper = new Trooper(sectorial, 1, 2, 3, "optionName", "category", "0.5", 20, List.of(trooperProfile), List.of(), "note", "groupNote");
@@ -86,8 +93,8 @@ public class HtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, HtmlPrinter.Template template) {
-        underTest.writeCards(List.of(unitOption), fileName, "", sectorial, "", "", "", "", useInch, weaponOption, showImage, template);
+    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, HtmlPrinter.Template template) {
+        underTest.writeCards(List.of(unitOption), List.of(), fileName, "", sectorial, "", "", "", "", useInch, weaponOption, showImage, showHackingProgram, template);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

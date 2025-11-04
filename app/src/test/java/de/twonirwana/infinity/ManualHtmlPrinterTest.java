@@ -87,12 +87,14 @@ public class ManualHtmlPrinterTest {
         for (boolean useInch : new boolean[]{true, false}) {
             for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                 for (boolean showImage : new boolean[]{true, false}) {
-                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                        testData.addAll(
-                                armyCodeAndUnits.stream()
-                                        .map(a -> Arguments.of(a.get(0), a.get(1), useInch, weaponOption, showImage, template))
-                                        .toList()
-                        );
+                    for (boolean showHackingPrograms : new boolean[]{true, false}) {
+                        for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                            testData.addAll(
+                                    armyCodeAndUnits.stream()
+                                            .map(a -> Arguments.of(a.get(0), a.get(1), useInch, weaponOption, showImage, showHackingPrograms, template))
+                                            .toList()
+                            );
+                        }
                     }
                 }
             }
@@ -102,7 +104,7 @@ public class ManualHtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, HtmlPrinter.Template template) throws IOException {
+    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
         assertThat(db.validateArmyCodeUnits(armyCode)).isEmpty();
@@ -124,7 +126,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, weaponOption, showImage, template);
+        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), al.getSectorial(), fileName, armyCode, useInch, weaponOption, showImage, showHackingPrograms, template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

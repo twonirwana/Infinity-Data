@@ -11,7 +11,7 @@ public class Program {
     private String opponent;
     private String special;
     private List<String> skillType;
-    private int extra;
+    private int extra; //what is this and to what does it link?
     private String damage;
     private List<Integer> devices;
     private List<String> target;
