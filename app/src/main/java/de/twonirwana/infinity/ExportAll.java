@@ -8,7 +8,10 @@ public class ExportAll {
     public static void main(String[] args) throws IOException {
         Database db = new DatabaseImp();
 
-        db.getAllHackingPrograms().forEach(System.out::println);
+        CsvPrinter.printAll(db);
+
+        HtmlPrinter htmlPrinter = new HtmlPrinter();
+        htmlPrinter.printAll(db, true, HtmlPrinter.Template.a7_image);
 
     }
 

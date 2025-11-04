@@ -97,7 +97,6 @@ public class HtmlPrinter {
      * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
-     * Show a list of hacking programs?
      * Max Image width
      * Second page for units with more then 6 weapons?
      * weapon add saving modifier, savingNum to table? -> in notes?
