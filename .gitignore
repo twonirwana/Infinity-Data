@@ -1,5 +1,6 @@
 .idea/
 .gradle/
+.history/
 /build/
 /app/build/
 /app/out/
