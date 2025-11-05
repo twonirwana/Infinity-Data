@@ -41,7 +41,7 @@ import java.util.stream.Stream;
  * The difference between a unit with one group with multiple profiles and one with multiple groups (each with a single profile) is that the former will only ever have one model on the board, it's just its stats change.
  * <p>
  * ### Options
- * These are the different loadouts availiable to a model. This corresponds to the multiple lines to choose between under the profile in builder.
+ * These are the different loadouts available to a model. This corresponds to the multiple lines to choose between under the profile in builder.
  * <p>
  * ### Items
  * Skills, Equipment and Weapons are all treated basically the same in the backend. Both Profiles and Options have lists of each associated with a given selection, and the resultant model will have the union of both.

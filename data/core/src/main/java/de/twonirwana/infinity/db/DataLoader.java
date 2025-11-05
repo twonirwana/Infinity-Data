@@ -47,10 +47,10 @@ public class DataLoader {
     private static final String META_DATA_URL = "https://api.corvusbelli.com/army/infinity/en/metadata";
     private static final String UNIT_IMAGE_URL = "https://api.corvusbelli.com/army/units/en/%d/miniatures";
     private static final String META_DATA_FILE_NAME = "metadata.json";
-    private static final String META_DATA_FILE_PATH = RECOURCES_FOLDER + "/" + META_DATA_FILE_NAME;
-    private static final String SECTORIAL_FOLDER = RECOURCES_FOLDER + "/sectorialList/";
+    private static final String META_DATA_FILE_PATH = RESOURCES_FOLDER + "/" + META_DATA_FILE_NAME;
+    private static final String SECTORIAL_FOLDER = RESOURCES_FOLDER + "/sectorialList/";
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
-    private static final String IMAGE_DATA_FOLDER = RECOURCES_FOLDER + "/sectorialImageData/";
+    private static final String IMAGE_DATA_FOLDER = RESOURCES_FOLDER + "/sectorialImageData/";
     private static final String IMAGE_DATA_FILE_FORMAT = IMAGE_DATA_FOLDER + "/sectorialImage%d-%s.json";
 
     private static final String ARCHIVE_FOLDER = "archive";
@@ -222,7 +222,7 @@ public class DataLoader {
     }
 
     private static Metadata loadMetadata(boolean forceUpdate) throws IOException, URISyntaxException {
-        createFolderIfNotExists(RECOURCES_FOLDER);
+        createFolderIfNotExists(RESOURCES_FOLDER);
         Path path = Paths.get(META_DATA_FILE_PATH);
         if (!path.toFile().exists() || forceUpdate) {
             BufferedInputStream metaDataInput = getStreamForURL(META_DATA_URL);
