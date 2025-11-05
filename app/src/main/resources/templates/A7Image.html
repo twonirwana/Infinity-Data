@@ -112,6 +112,22 @@
             justify-content: space-evenly;
         }
 
+        .unit-image {
+            max-width: 25mm;
+            width: auto;
+            height: auto;
+            max-height: 100%;
+            display: block;
+        }
+
+          /* optional: keep previous background fallback container */
+        .content-row {
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+        }
+
+
     </style>
 </head>
 <body>
@@ -129,7 +145,11 @@
                          alt="unit image" style="height: 25px; width: auto; ">
                 </div>
             </div>
-            <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
+            <div class="content-row" style="background-repeat: no-repeat; background-position: left; height: 100%;">
+                <img th:if="${unitPrintCard.isShowImage()}"
+                    th:src="@{{imageName}(imageName=${unitPrintCard.getUnitImageName()})}"
+                    alt="unit image" class="unit-image"/>
+
                 <div style="display: flex; height: 100%;">
                     <div th:style="${unitPrintCard.isShowImage()} ? 'width: 70%; margin-left: auto;' : 'width: 100%'">
                         <div style="display: flex; flex-direction: column; height: 100%;">
