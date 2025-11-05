@@ -47,7 +47,7 @@ public class ImageUtils {
             File inputFile = new File(filePathIn);
             File outFile = new File(filePathOut);
             if (!inputFile.exists()) {
-                log.error("file not found: {}", filePathIn);
+                log.error("file not found: {}", inputFile.getAbsolutePath());
                 return;
             }
             if (outFile.exists()) {
