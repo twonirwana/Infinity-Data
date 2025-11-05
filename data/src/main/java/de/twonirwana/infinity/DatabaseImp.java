@@ -77,4 +77,9 @@ public class DatabaseImp implements Database {
     public List<String> validateArmyCodeUnits(String armyCode) {
         return ArmyCodeLoader.missingUnitsInArmyCode(armyCode, loader);
     }
+
+    @Override
+    public List<HackingProgram> getAllHackingPrograms() {
+        return loader.getAllHackingPrograms();
+    }
 }

@@ -1,9 +1,7 @@
 package de.twonirwana.infinity;
 
 import com.google.common.collect.ImmutableMap;
-import de.twonirwana.infinity.unit.api.TrooperProfile;
-import de.twonirwana.infinity.unit.api.UnitOption;
-import de.twonirwana.infinity.unit.api.Weapon;
+import de.twonirwana.infinity.unit.api.*;
 import de.twonirwana.infinity.util.ImageUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
@@ -17,11 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.twonirwana.infinity.Database.*;
 
@@ -100,21 +97,22 @@ public class HtmlPrinter {
      * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
-     * Show a list of hacking programs?
      * Max Image width
      * Second page for units with more then 6 weapons?
      * weapon add saving modifier, savingNum to table? -> in notes?
      */
 
     public void printCardForArmyCode(List<UnitOption> unitOptions,
+                                     List<HackingProgram> allHackingPrograms,
                                      Sectorial sectorial,
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
                                      Set<Weapon.Type> showWeaponOfType,
                                      boolean showImage,
+                                     boolean showHackingPrograms,
                                      Template template) {
-        writeCards(unitOptions, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, showWeaponOfType, showImage, template);
+        writeCards(unitOptions, allHackingPrograms, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, showWeaponOfType, showImage, showHackingPrograms, template);
     }
 
     public void printAll(Database db, boolean useInch, Template template) {
@@ -206,6 +204,7 @@ public class HtmlPrinter {
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
         writeCards(List.of(unitOption),
+                List.of(),
                 fileName,
                 "-",
                 unitOption.getSectorial(),
@@ -216,10 +215,12 @@ public class HtmlPrinter {
                 useInch,
                 Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
                 true,
+                false,
                 template);
     }
 
     public void writeCards(List<UnitOption> unitOptions,
+                           List<HackingProgram> allHackingPrograms,
                            String fileName,
                            String armyCode,
                            Sectorial sectorial,
@@ -230,6 +231,7 @@ public class HtmlPrinter {
                            boolean useInch,
                            Set<Weapon.Type> showWeaponOfType,
                            boolean showImage,
+                           boolean showHackingPrograms,
                            Template template) {
         String outputPath = HTML_OUTPUT_PATH + outputFolder;
         String imageOutputPath = outputPath + IMAGE_FOLDER;
@@ -258,6 +260,20 @@ public class HtmlPrinter {
                 .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage).stream())
                 .toList();
 
+        List<PrintHackingProgram> usedHackingPrograms = showHackingPrograms ? getUsedHackingPrograms(unitOptions, allHackingPrograms) : List.of();
+
+        final List<PrintHackingProgram> programsCard1;
+        final List<PrintHackingProgram> programsCard2;
+
+        int maxProgramsOnFirstCard = 7;
+        if (usedHackingPrograms.size() > maxProgramsOnFirstCard) {
+            programsCard1 = usedHackingPrograms.subList(0, maxProgramsOnFirstCard);
+            programsCard2 = usedHackingPrograms.subList(maxProgramsOnFirstCard, usedHackingPrograms.size());
+        } else {
+            programsCard1 = usedHackingPrograms;
+            programsCard2 = List.of();
+        }
+
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
         context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
@@ -268,6 +284,8 @@ public class HtmlPrinter {
         context.setVariable("headerColor", headerColor);
         context.setVariable("showImage", true);
         context.setVariable("printUtils", new PrintUtils());
+        context.setVariable("programs", programsCard1);
+        context.setVariable("programs2", programsCard2);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -275,6 +293,46 @@ public class HtmlPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<PrintHackingProgram> getUsedHackingPrograms(List<UnitOption> unitOptions, List<HackingProgram> allHackingPrograms) {
+        Set<Integer> hackingDeviceIds = allHackingPrograms.stream()
+                .flatMap(h -> Optional.ofNullable(h.getDeviceIds()).orElse(List.of()).stream())
+                .collect(Collectors.toSet());
+
+        Set<Equipment> unitHackingDevices = unitOptions.stream()
+                .flatMap(u -> u.getAllTrooper().stream())
+                .flatMap(u -> u.getProfiles().stream())
+                .flatMap(u -> u.getEquipment().stream())
+                .filter(h -> hackingDeviceIds.contains(h.getId()))
+                .collect(Collectors.toSet());
+
+        Set<Integer> usedHackingDeviceIds = unitHackingDevices.stream()
+                .map(Equipment::getId)
+                .collect(Collectors.toSet());
+
+        Set<HackingProgram> usedHackingProgramsFromDevices = allHackingPrograms.stream()
+                .filter(h -> h.getDeviceIds().stream().anyMatch(usedHackingDeviceIds::contains))
+                .collect(Collectors.toSet());
+
+
+        Set<String> usedHackingDeviceExtras = unitHackingDevices.stream()
+                .flatMap(e -> e.getExtras().stream())
+                .map(ExtraValue::getText)
+                .collect(Collectors.toSet());
+
+        Set<HackingProgram> hackingProgramInUnitExtras = allHackingPrograms.stream()
+                .filter(h -> usedHackingDeviceExtras.stream()
+                        .anyMatch(e -> e.contains(h.getName()))
+                ).collect(Collectors.toSet());
+
+        return Stream.concat(
+                        usedHackingProgramsFromDevices.stream(),
+                        hackingProgramInUnitExtras.stream()
+                ).distinct()
+                .sorted(Comparator.comparing(HackingProgram::getName))
+                .map(PrintHackingProgram::new)
+                .toList();
     }
 
     public enum Template {

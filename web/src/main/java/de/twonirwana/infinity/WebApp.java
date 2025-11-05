@@ -286,7 +286,7 @@ public class WebApp {
                             .toList();
                 }
 
-                htmlPrinter.printCardForArmyCode(armyListOptions, al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, styleOptional.get());
+                htmlPrinter.printCardForArmyCode(armyListOptions, database.getAllHackingPrograms(), al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, true, styleOptional.get());
                 log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
                 registry.counter("infinity.generate.list", "sectorial", al.getSectorial().getSlug()).increment();
 
@@ -310,8 +310,7 @@ public class WebApp {
                 unit,
                 distinctUnit ? "distinct" : "all",
                 weaponTypes.stream().map(Enum::name).sorted().collect(Collectors.joining("-")),
-                removeImage ? "noImage" : "showImage"
-        );
+                removeImage ? "noImage" : "showImage");
 
     }
 

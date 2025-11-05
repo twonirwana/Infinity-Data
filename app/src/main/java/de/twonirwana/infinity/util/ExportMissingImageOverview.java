@@ -35,6 +35,7 @@ public class ExportMissingImageOverview {
         imageFile.createNewFile();
         AtomicLong imageExists = new AtomicLong();
         AtomicLong trooperProfileCount = new AtomicLong();
+        AtomicLong activeProfileCount = new AtomicLong();
         Files.writeString(imageFile.toPath(), "File Name\\ID\\Sectorial\\Cost\\SWC\\Name\\Image exists\\BS Weapons\\CC Weapons\n");
         db.getAllSectorials().stream()
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
@@ -42,6 +43,9 @@ public class ExportMissingImageOverview {
                         .forEach(t -> t.getProfiles()
                                 .forEach(p -> {
                                     trooperProfileCount.incrementAndGet();
+                                    if (!u.getSectorial().isDiscontinued()) {
+                                        activeProfileCount.incrementAndGet();
+                                    }
                                     try {
                                         Files.writeString(imageFile.toPath(), imageData(u, t, p, imageExists), StandardOpenOption.APPEND);
                                     } catch (IOException e) {
@@ -49,7 +53,7 @@ public class ExportMissingImageOverview {
                                     }
                                 })));
 
-        System.out.println("Total trooper profiles: " + trooperProfileCount.get() + " with image: " + imageExists.get());
+        System.out.printf("Total trooper profiles: %d, active trooper profiles: %d with image: %d%n", trooperProfileCount.get(), activeProfileCount.get(), imageExists.get());
     }
 
     private static String getImage(TrooperProfile profile) {

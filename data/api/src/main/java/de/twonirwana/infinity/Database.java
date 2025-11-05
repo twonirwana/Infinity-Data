@@ -28,4 +28,6 @@ public interface Database {
 
     List<String> validateArmyCodeUnits(String armyCode);
 
+    List<HackingProgram> getAllHackingPrograms();
+
 }
