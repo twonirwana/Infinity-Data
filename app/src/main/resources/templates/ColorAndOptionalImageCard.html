@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            size: 99mm 70mm;
+            size: [[${pageSize}]];
             margin: 0;
         }
 
@@ -19,26 +19,25 @@
         }
 
         html, body {
-            width: 99mm;
-            height: 70mm;
+            width: [[${cardWidthInMm}]];
+            height: [[${cardHeightInMm}]];
             margin: 0;
             padding: 0;
         }
 
         body {
             font-family: "Inter", Arial, Helvetica, sans-serif;
-            font-size: 6pt;
+            font-size: [[${primaryFontSize}]];
         }
 
         h2 {
-            margin: 5px;
             color: [[${headerColor}]];
         }
 
         .card {
             box-sizing: border-box;
-            width: 99mm;
-            height: 70mm;
+            width: [[${cardWidthInMm}]];
+            height: [[${cardHeightInMm}]];
             display: grid;
             gap: 1mm;
             border: 2px solid [[${primaryColor}]];
@@ -57,7 +56,6 @@
         }
 
         .weapon th, .weapon td {
-            padding: 1px 2px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -66,7 +64,6 @@
             background-color: [[${secondaryColor}]];
             color: white;
             font-weight: bold;
-            white-space: nowrap;
         }
 
         tr {
@@ -113,21 +110,61 @@
             justify-content: space-evenly;
         }
 
+        .unit-header {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .unit-header-logo-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .unit-header-logo {
+            height: 100%;
+            width: auto;
+        }
+
+        .unit-header-title {
+            margin: 0 auto 0 0;
+            font-size: 1.5em;
+            align-items: center;
+            padding: 2%;
+        }
+
+        .unit-header-icon-group {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+        }
+
+        .unit-header-icon {
+            height: 100%;
+            width: auto;
+        }
+
     </style>
 </head>
 <body>
 <div th:each="unitPrintCard : ${unitPrintCards}">
-    <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}" style="margin: 1px">
+    <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
         <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
-            <div th:style="'display: flex; background-color:' + ${primaryColor}">
-                <img th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().logo})}"
-                     alt="logo missing" style="height: 25px; width: auto;">
-                <h2 style="margin-right: auto;">
-                    <span th:text="${unitPrintCard.getUnitName()}">Trooper Profile Name</span>
+            <div class="unit-header" th:style="|background-color: ${primaryColor}|">
+
+                <div class="unit-header-logo-wrapper">
+                    <img th:src="@{image/{imageName}(imageName=${unitPrintCard.profile.logo})}"
+                         alt="Logo" class="unit-header-logo">
+                </div>
+
+                <h2 class="unit-header-title">
+                    <span th:text="${unitPrintCard.unitName}">Trooper Profile Name</span>
                 </h2>
-                <div th:each="imageName : ${unitPrintCard.getIconFileNames()}">
-                    <img th:src="@{image/{fileName}(fileName=${imageName})}"
-                         alt="unit image" style="height: 25px; width: auto; ">
+
+                <div class="unit-header-icon-group">
+                    <th:block th:each="imageName : ${unitPrintCard.iconFileNames}">
+                        <img th:src="@{image/{fileName}(fileName=${imageName})}"
+                             alt="Unit icon" class="unit-header-icon">
+                    </th:block>
                 </div>
             </div>
             <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
@@ -215,7 +252,8 @@
                         <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
                         <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
                         <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-                        <td th:text="${printUtils.getWeaponPropertiesString(weapon)}" style="font-size: 4pt"></td>
+                        <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
+                            th:style="'font-size: ' + ${secondaryFontSize}"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -223,9 +261,9 @@
         </div>
     </div>
 </div>
-<div class="card" style="margin: 1px" th:if="${programs != null and not #lists.isEmpty(programs)}">
+<div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
-        <div th:style="'height:fit-content; background-color:' + ${primaryColor}">
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
             <h2>Hacking Programs 1</h2>
         </div>
         <table class="weapon">
@@ -256,10 +294,10 @@
         </table>
     </div>
 </div>
-<div class="card" style="margin: 1px" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
+<div class="card" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
-        <div th:style="'height:fit-content; background-color:' + ${primaryColor}">
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
             <h2>Hacking Programs 2</h2>
         </div>
         <table class="weapon">
