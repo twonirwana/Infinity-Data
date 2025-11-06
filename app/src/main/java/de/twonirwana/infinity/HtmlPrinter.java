@@ -3,6 +3,7 @@ package de.twonirwana.infinity;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.unit.api.*;
 import de.twonirwana.infinity.util.ImageUtils;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -274,6 +275,9 @@ public class HtmlPrinter {
             programsCard2 = List.of();
         }
 
+        int cardWidthInMm = template.widthInMm;
+        int cardHeightInMm = template.heightInMm;
+
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
         context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
@@ -286,6 +290,11 @@ public class HtmlPrinter {
         context.setVariable("printUtils", new PrintUtils());
         context.setVariable("programs", programsCard1);
         context.setVariable("programs2", programsCard2);
+        context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
+        context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
+        context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
+        context.setVariable("primaryFontSize", template.primaryFontSize);
+        context.setVariable("secondaryFontSize", template.secondaryFontSize);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -335,13 +344,16 @@ public class HtmlPrinter {
                 .toList();
     }
 
+    @AllArgsConstructor
     public enum Template {
-        a7_image("A7Image"),
-        card_bw("CardBW");
+        a7_image("ColorAndOptionalImageCard", 99, 70, "6pt", "4pt"),
+        a4_image("ColorAndOptionalImageCard", 297, 210, "18pt", "12pt"),
+        letter_image("ColorAndOptionalImageCard", 279, 216, "18pt", "12pt"),
+        card_bw("CardBW", 0, 0, "0", "0");
         final String fileName;
-
-        Template(String fileName) {
-            this.fileName = fileName;
-        }
+        final int widthInMm;
+        final int heightInMm;
+        final String primaryFontSize;
+        final String secondaryFontSize;
     }
 }

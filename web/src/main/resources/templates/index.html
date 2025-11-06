@@ -226,6 +226,16 @@
             color: var(--primary-color-dark);
         }
 
+        .help {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .help a {
+            color: var(--primary-color-glow);
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -239,7 +249,9 @@
         <label for="style-selector">Select Card Style:</label>
         <div class="select-wrapper">
             <select id="style-selector" name="style">
-                <option value="a7_image" selected>Color and image - DIN-A7</option>
+                <option value="a4_image" selected>Color and image - DIN-A4</option>
+                <option value="a7_image" >Color and image - DIN-A7</option>
+                <option value="letter_image" >Color and image - US Letter</option>
                 <option value="card_bw">Black and white - playing card</option>
             </select>
         </div>
@@ -275,12 +287,15 @@
 
         <button type="submit">Generate and View Cards</button>
     </form>
+
+    <div class="help">
+        <a th:href="@{/help}" target="_blank">Help</a>
+    </div>
+
 </div>
 
 <footer>
     <div>
-        <a th:href="@{/help}" target="_blank">Help</a>
-        <span class="footer-separator">|</span>
         <a href="mailto:contact@infinity.2nirwana.de">Contact</a>
         <span class="footer-separator">|</span>
         <span th:if="${!imprint.isEmpty()}">
