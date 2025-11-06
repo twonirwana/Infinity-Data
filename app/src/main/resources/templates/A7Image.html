@@ -111,11 +111,8 @@
         }
 
         .unit-image {
-            flex: 0 0 20mm;
-            max-width: 20mm;
-            width: 20mm;
-            height: auto;
-            display: block;
+            width: auto;
+            height: 60mm;
         }
 
         .type-category-pane {
@@ -174,10 +171,6 @@
                 </div>
             </div>
             <div class="content-row" style="background-repeat: no-repeat; background-position: left; height: 100%;">
-                <img th:if="${unitPrintCard.isShowImage()}"
-                     th:src="@{{imageName}(imageName=${unitPrintCard.getUnitImageName()})}"
-                     alt="unit image" class="unit-image"/>
-
                 <div class="type-category-pane">
                     <div th:class="${unitPrintCard.isShowImage()} ? 'show-trooper-img' : 'no-trooper-img'">
                         <div style="display: flex; flex-direction: column; height: 100%;">
@@ -267,6 +260,27 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    <div th:if="${unitPrintCard.isShowImage()}" class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}" style="margin: 1px">
+        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
+            <div th:style="'display: flex; background-color:' + ${primaryColor}">
+                <img th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().logo})}"
+                     alt="logo missing" style="height: 25px; width: auto;">
+                <h2 style="margin-right: auto;">
+                    <span th:text="${unitPrintCard.getUnitName()}">Trooper Profile Name</span>
+                </h2>
+                <div th:each="imageName : ${unitPrintCard.getIconFileNames()}">
+                    <img th:src="@{image/{fileName}(fileName=${imageName})}"
+                         alt="unit image" style="height: 25px; width: auto; ">
+                </div>
+            </div>
+            <div class="content-row" style="background-repeat: no-repeat; background-position: left; height: 100%;">
+                <img th:if="${unitPrintCard.isShowImage()}"
+                     th:src="@{{imageName}(imageName=${unitPrintCard.getUnitImageName()})}"
+                     class="unit-image"/>
+            </div>
+
         </div>
     </div>
 </div>
