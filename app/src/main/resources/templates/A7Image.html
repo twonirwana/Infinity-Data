@@ -5,152 +5,6 @@
     <title th:text="${listName}">list name</title>
     <meta name="armyCode" th:content="${armyCode}">
     <meta charset="UTF-8">
-    <style>
-        @page {
-            size: 99mm 70mm;
-            margin: 0;
-        }
-
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-
-        html, body {
-            width: 99mm;
-            height: 70mm;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Inter", Arial, Helvetica, sans-serif;
-            font-size: 6pt;
-        }
-
-        h2 {
-            margin: 5px;
-            color: [[${headerColor}]];
-        }
-
-        .card {
-            box-sizing: border-box;
-            width: 99mm;
-            height: 70mm;
-            display: grid;
-            gap: 1mm;
-            border: 2px solid [[${primaryColor}]];
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .attribut th, .attribut td {
-            padding: 1px 2px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .weapon th, .weapon td {
-            padding: 1px 2px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        th {
-            background-color: [[${secondaryColor}]];
-            color: white;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        tr {
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        .rangePlus6 {
-            flex: 1;
-            background-color: yellowgreen;
-        }
-
-        .rangePlus3 {
-            flex: 1;
-            background-color: darkseagreen;
-        }
-
-        .range0 {
-            flex: 1;
-            background-color: deepskyblue;
-        }
-
-        .rangeMinus3 {
-            flex: 1;
-            background-color: orange;
-        }
-
-        .rangeMinus6 {
-            flex: 1;
-            background-color: orangered;
-        }
-
-        .content-row {
-            display: flex;
-            align-items: stretch;
-            gap: 2mm;
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        .unit-image {
-            flex: 0 0 20mm;
-            max-width: 20mm;
-            width: 20mm;
-            height: auto;
-            display: block;
-        }
-
-        .right-pane {
-            flex: 1 1 auto;
-            display: flex;
-            align-items: stretch;
-            justify-content: flex-end;
-        }
-
-        .right-content {
-            flex: 1 1 auto;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            padding-left: 2mm;
-        }
-
-        .attributes-row {
-            display: flex;
-            width: 100%;
-            gap: 2mm;
-        }
-
-        .typAndCategory {
-            flex: 0 0 12mm;
-            box-sizing: border-box;
-            padding: 0.5mm;
-            text-align: center;
-        }
-
-        table.attribut {
-            flex: 1 1 auto;
-            width: auto;
-        }
-    </style>
 </head>
 <body>
 <div th:each="unitPrintCard : ${unitPrintCards}">
@@ -172,8 +26,8 @@
                      th:src="@{{imageName}(imageName=${unitPrintCard.getUnitImageName()})}"
                      alt="unit image" class="unit-image"/>
 
-                <div class="right-pane">
-                    <div th:class="${unitPrintCard.isShowImage()} ? 'right-content'">
+                <div class="type-category-pane">
+                    <div th:class="${unitPrintCard.isShowImage()} ? 'show-trooper-img' : 'no-trooper-img'">
                         <div style="display: flex; flex-direction: column; height: 100%;">
                             <div class="attributes-row">
                                 <div class="typAndCategory">
@@ -332,5 +186,157 @@
     </div>
 </div>
 </body>
+<style>
+    @page {
+        size: 99mm 70mm;
+        margin: 0;
+    }
+
+    @media print {
+        body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+
+    html, body {
+        width: 99mm;
+        height: 70mm;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: "Inter", Arial, Helvetica, sans-serif;
+        font-size: 6pt;
+    }
+
+    h2 {
+        margin: 5px;
+        color: [[${headerColor}]];
+    }
+
+    .card {
+        box-sizing: border-box;
+        width: 99mm;
+        height: 70mm;
+        display: grid;
+        gap: 1mm;
+        border: 2px solid [[${primaryColor}]];
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attribut th, .attribut td {
+        padding: 1px 2px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    .weapon th, .weapon td {
+        padding: 1px 2px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background-color: [[${secondaryColor}]];
+        color: white;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    tr {
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .rangePlus6 {
+        flex: 1;
+        background-color: yellowgreen;
+    }
+
+    .rangePlus3 {
+        flex: 1;
+        background-color: darkseagreen;
+    }
+
+    .range0 {
+        flex: 1;
+        background-color: deepskyblue;
+    }
+
+    .rangeMinus3 {
+        flex: 1;
+        background-color: orange;
+    }
+
+    .rangeMinus6 {
+        flex: 1;
+        background-color: orangered;
+    }
+
+    .content-row {
+        display: flex;
+        align-items: stretch;
+        gap: 2mm;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .unit-image {
+        flex: 0 0 20mm;
+        max-width: 20mm;
+        width: 20mm;
+        height: auto;
+        display: block;
+    }
+
+    .type-category-pane {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: stretch;
+        justify-content: flex-end;
+    }
+
+    .show-trooper-img {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding-left: 2mm;
+    }
+
+    .no-trooper-img {
+        flex: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .attributes-row {
+        display: flex;
+        width: 100%;
+        gap: 2mm;
+    }
+
+    .typAndCategory {
+        flex: 0 0 12mm;
+        box-sizing: border-box;
+        padding: 0.5mm;
+        text-align: center;
+    }
+
+    table.attribut {
+        flex: 1 1 auto;
+        width: auto;
+    }
+</style>
 </html>
 
