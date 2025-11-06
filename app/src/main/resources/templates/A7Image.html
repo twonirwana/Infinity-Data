@@ -102,17 +102,58 @@
             background-color: orangered;
         }
 
-        .typAndCategory {
-            padding-right: 2px;
-            text-align: center;
+        .content-row {
             display: flex;
-            flex-direction: column;
-            background-color: rgba(255, 255, 255, 0.8);
-            font-weight: bold;
+            align-items: stretch;
+            gap: 2mm;
             height: 100%;
-            justify-content: space-evenly;
+            box-sizing: border-box;
         }
 
+        .unit-image {
+            flex: 0 0 20mm;
+            max-width: 20mm;
+            width: 20mm;
+            height: auto;
+            display: block;
+        }
+
+        .show-trooper-img {
+            flex: 1 1 auto;
+            display: flex;
+            align-items: stretch;
+            justify-content: flex-end;
+        }
+
+        .no-trooper-img {
+            display: flex;
+        }
+
+        .trooper-info {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding-left: 2mm;
+        }
+
+        .attributes-row {
+            display: flex;
+            width: 100%;
+            gap: 2mm;
+        }
+
+        .typAndCategory {
+            flex: 0 0 12mm;
+            box-sizing: border-box;
+            padding: 0.5mm;
+            text-align: center;
+        }
+
+        table.attribut {
+            flex: 1 1 auto;
+            width: auto;
+        }
     </style>
 </head>
 <body>
@@ -130,11 +171,15 @@
                          alt="unit image" style="height: 25px; width: auto; ">
                 </div>
             </div>
-            <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
-                <div style="display: flex; height: 100%;">
-                    <div th:style="${unitPrintCard.isShowImage()} ? 'width: 70%; margin-left: auto;' : 'width: 100%'">
+            <div class="content-row" style="background-repeat: no-repeat; background-position: left; height: 100%;">
+                <img th:if="${unitPrintCard.isShowImage()}"
+                     th:src="@{{imageName}(imageName=${unitPrintCard.getUnitImageName()})}"
+                     alt="unit image" class="unit-image"/>
+
+                <div th:class="${unitPrintCard.isShowImage()} ? 'show-trooper-img' : 'no-trooper-img'">
+                    <div th:class="${unitPrintCard.isShowImage()} ? 'trooper-info'">
                         <div style="display: flex; flex-direction: column; height: 100%;">
-                            <div style="display: flex;">
+                            <div class="attributes-row">
                                 <div class="typAndCategory">
                                     <div th:text="${unitPrintCard.getProfile().getType()}"></div>
                                     <div th:text="${unitPrintCard.getShortCategory()}"></div>
