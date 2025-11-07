@@ -13,6 +13,7 @@ class ArmyCodeLoaderTest {
 
     private static Stream<Arguments> testData() {
         return Stream.of(
+                Arguments.of("gfUGbm9tYWRzASCBLAEBAQACAIbiAQEAAIGeAQEA", "ArmyCodeData[sectorialId=501, sectorialName=nomads, armyName= , maxPoints=300, combatGroups={1=[1762-1-1, 414-1-1]}]"),
                 Arguments.of("glsKc2hhc3Zhc3RpaQdTaGFzIHYzgSwCAQEACgCCFQEEAACB9gEEAACCEAEDAACB9QEJAACB%2FQEBAACCFAEBAACCFAEBAACB9wEDAACCEAEEAACCDAEBAAIBAAYAgf8BAQAAhQoBAwAAhQoBCAAAhQoBBgAAhRABAgAAggEBhyUA", "ArmyCodeData[sectorialId=603, sectorialName=shasvastii, armyName=Shas v3, maxPoints=300, combatGroups={1=[533-1-4, 502-1-4, 528-1-3, 501-1-9, 509-1-1, 532-1-1, 532-1-1, 503-1-3, 528-1-4, 524-1-1], 2=[511-1-1, 1290-1-3, 1290-1-8, 1290-1-6, 1296-1-2, 513-1-1829]}]"),
                 Arguments.of("gfcHYmFrdW5pbg9Kb05pUm8tRGljaG9yZCGBLAIBAAgBhC8BAQACga8BAwADga8BBQAEga0BAgAFgaABBgAGhkMBAQAHgZ4BAQAIgZ4BCQACAAcBgZkBAQAChtUBAQADgZoBAQAEgZsBAgAFgZEBBgAGgZEBAQAHhkQBBAA", "ArmyCodeData[sectorialId=503, sectorialName=bakunin, armyName=JoNiRo-Dichord!, maxPoints=300, combatGroups={1=[1071-1-1, 431-1-3, 431-1-5, 429-1-2, 416-1-6, 1603-1-1, 414-1-1, 414-1-9], 2=[409-1-1, 1749-1-1, 410-1-1, 411-1-2, 401-1-6, 401-1-1, 1604-1-4]}]"),
                 Arguments.of("gloFbW9yYXQhIE1vcmF0cyAzMDBwdCAtIFNpbmdsZSBTb2dlcmF0IHYygSwCAQEACgCCCgEFAACCBgEDAACGJAEBAACCEwEBAACB%2BQEBAACB%2BQEBAACB%2BQEBAACB%2FQECAACB%2BAEFAACCBwECAAIBAAUAgfEBBwAAgfEBCwAAhicBBAAAghQBAQAAgfgBBQA%3D", "ArmyCodeData[sectorialId=602, sectorialName=morat, armyName= Morats 300pt - Single Sogerat v2, maxPoints=300, combatGroups={1=[522-1-5, 518-1-3, 1572-1-1, 531-1-1, 505-1-1, 505-1-1, 505-1-1, 509-1-2, 504-1-5, 519-1-2], 2=[497-1-7, 497-1-11, 1575-1-4, 532-1-1, 504-1-5]}]"),
@@ -26,7 +27,12 @@ class ArmyCodeLoaderTest {
                 Arguments.of("g%2BoIc3Rhcm1hZGEKRnVyb3JlIDIuMIEsAgEACgGFsgEDAAKFsAEFAAOFtwEBAASFrgECAAWFuwEBAAaFvQEBAAeFtQEEAAiFtQEEAAmGSQEFAAqFuAECAAIABQGGSQEGAAKHUgEBAAMyAQIABIZKAQIABYZKAQIA", "ArmyCodeData[sectorialId=1002, sectorialName=starmada, armyName=Furore 2.0, maxPoints=300, combatGroups={1=[1458-1-3, 1456-1-5, 1463-1-1, 1454-1-2, 1467-1-1, 1469-1-1, 1461-1-4, 1461-1-4, 1609-1-5, 1464-1-2], 2=[1609-1-6, 1874-1-1, 50-1-2, 1610-1-2, 1610-1-2]}]"),
                 Arguments.of("gZIQaGFzc2Fzc2luLWJhaHJhbQCBLAIBAAoBgVEBBAACgVEBAgADgS0BDgAEgT0BAQAFgT4BAQAGgUwBAQAHgwsBAQAIgwsBAQAJgTgBBAAKgTgBBAACAAUBgU4BAQACgVQBBQADgVQBBQAEhgsBAwAFhgsBAwA%3D", "ArmyCodeData[sectorialId=402, sectorialName=hassassin-bahram, armyName=null, maxPoints=300, combatGroups={1=[337-1-4, 337-1-2, 301-1-14, 317-1-1, 318-1-1, 332-1-1, 779-1-1, 779-1-1, 312-1-4, 312-1-4], 2=[334-1-1, 340-1-5, 340-1-5, 1547-1-3, 1547-1-3]}]"),
                 Arguments.of("gr4Nc3RlZWwtcGhhbGFueAkgMjAwIG15cm2AyAEBAQAIAIJdAQEAAILRAQMAAIJMAQMAAIJMAQIAAIJMAQQAAIJZAQMAAIJjAYhhAACCUwEBAA%3D%3D", "ArmyCodeData[sectorialId=702, sectorialName=steel-phalanx, armyName= 200 myrm, maxPoints=200, combatGroups={1=[605-1-1, 721-1-3, 588-1-3, 588-1-2, 588-1-4, 601-1-3, 611-1-2145, 595-1-1]}]"),
-                Arguments.of("gr4Nc3RlZWwtcGhhbGFueAkgMjAwIG15cm2AyAEBAQAIAIJdAQEAAILRAQMAAIJMAQMAAIJMAQIAAIJMAQQAAIJZAQMAAIJjAYhhAACCUwEBAA", "ArmyCodeData[sectorialId=702, sectorialName=steel-phalanx, armyName= 200 myrm, maxPoints=200, combatGroups={1=[605-1-1, 721-1-3, 588-1-3, 588-1-2, 588-1-4, 601-1-3, 611-1-2145, 595-1-1]}]")
+                Arguments.of("gr4Nc3RlZWwtcGhhbGFueAkgMjAwIG15cm2AyAEBAQAIAIJdAQEAAILRAQMAAIJMAQMAAIJMAQIAAIJMAQQAAIJZAQMAAIJjAYhhAACCUwEBAA", "ArmyCodeData[sectorialId=702, sectorialName=steel-phalanx, armyName= 200 myrm, maxPoints=200, combatGroups={1=[605-1-1, 721-1-3, 588-1-3, 588-1-2, 588-1-4, 601-1-3, 611-1-2145, 595-1-1]}]"),
+                //with reinforcement
+                Arguments.of("gloFbW9yYXQBIIEsBAEBAAMAhiQBAQAAggYBBwAAgewBCwACAQABAIYoAQIAAwEBAwCGTwEBAACGTgEBAACGTgEBAAQBAQIAhk0BAQAAhk0BAQA%3D", "ArmyCodeData[sectorialId=602, sectorialName=morat, armyName= , maxPoints=300, combatGroups={1=[1572-1-1, 518-1-7, 492-1-11], 2=[1576-1-2], 3=[1615-1-1, 1614-1-1, 1614-1-1], 4=[1613-1-1, 1613-1-1]}]"),
+                Arguments.of("gloFbW9yYXQBIIEsAgEBAQEAhkwBAgACAQEBAIZQAQEA", "ArmyCodeData[sectorialId=602, sectorialName=morat, armyName= , maxPoints=300, combatGroups={1=[1612-1-2], 2=[1616-1-1]}]"),
+                Arguments.of("gloFbW9yYXQBIIEsBAEBAAEAhiQBAQACAQABAIYoAQIAAwEBBACGTwEBAACGTwECAACGTwEDAACGTwEEAAQBAQQAhk0BAQAAhk0BAgAAhk0BAwAAhk0BBAA%3D", "ArmyCodeData[sectorialId=602, sectorialName=morat, armyName= , maxPoints=300, combatGroups={1=[1572-1-1], 2=[1576-1-2], 3=[1615-1-1, 1615-1-2, 1615-1-3, 1615-1-4], 4=[1613-1-1, 1613-1-2, 1613-1-3, 1613-1-4]}]"),
+                Arguments.of("gloFbW9yYXQBIIEsBAEBAAEAhiQBAQACAQABAIYoAQIAAwEBAQCGTwEBAAQBAQEAhk4BAQA%3D", "ArmyCodeData[sectorialId=602, sectorialName=morat, armyName= , maxPoints=300, combatGroups={1=[1572-1-1], 2=[1576-1-2], 3=[1615-1-1], 4=[1614-1-1]}]")
         );
     }
 
@@ -36,5 +42,6 @@ class ArmyCodeLoaderTest {
         // System.out.printf("   Arguments.of(\"%s\", \"%s\"),%n", armyCode, ArmyCodeLoader.mapArmyCode(armyCode).toString());
         assertThat(ArmyCodeLoader.mapArmyCode(armyCode).toString()).isEqualTo(expectedArmyData);
     }
+
 
 }

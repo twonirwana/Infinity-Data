@@ -51,6 +51,7 @@ import java.util.stream.Stream;
 public class UnitMapper {
 
     public static Map<Sectorial, List<UnitOption>> getUnits(Map<Sectorial, SectorialList> sectorialListMap,
+                                                            Map<Sectorial, SectorialList> reenforcementListMap,
                                                             Metadata metadata,
                                                             Map<Sectorial, SectorialImage> sectorialImageMap) {
         Map<Integer, List<Weapon>> weaponIdMap = metadata.getWeapons().stream()
@@ -59,15 +60,29 @@ public class UnitMapper {
         Map<Integer, Equipment> equipmentIdMap = metadata.getEquips().stream().collect(Collectors.toMap(Equipment::getId, Function.identity()));
 
         return sectorialListMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getUnits().stream()
-                        .flatMap(u -> getUnitOption(e.getKey(),
-                                u,
-                                weaponIdMap,
-                                skillIdMap,
-                                equipmentIdMap,
-                                sectorialImageMap.get(e.getKey()),
-                                getSectorialFilter(e.getValue())).stream())
-                        .toList()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> Stream.concat(e.getValue().getUnits().stream()
+                                                .flatMap(u -> getUnitOption(e.getKey(),
+                                                        u,
+                                                        weaponIdMap,
+                                                        skillIdMap,
+                                                        equipmentIdMap,
+                                                        sectorialImageMap.get(e.getKey()),
+                                                        getSectorialFilter(e.getValue()),
+                                                        false).stream()),
+                                        reenforcementListMap.containsKey(e.getKey()) ? reenforcementListMap.get(e.getKey()).getUnits().stream()
+                                                .flatMap(u -> getUnitOption(e.getKey(),
+                                                        u,
+                                                        weaponIdMap,
+                                                        skillIdMap,
+                                                        equipmentIdMap,
+                                                        sectorialImageMap.get(e.getKey()),
+                                                        getSectorialFilter(e.getValue()),
+                                                        true
+                                                ).stream())
+                                                : Stream.empty()
+                                )
+
+                                .toList()
                 ));
     }
 
@@ -77,7 +92,8 @@ public class UnitMapper {
                                                   Map<Integer, Skill> skillIdMap,
                                                   Map<Integer, Equipment> equipmentIdMap,
                                                   SectorialImage sectorialImage,
-                                                  SectorialFilter sectorialFilter) {
+                                                  SectorialFilter sectorialFilter,
+                                                  boolean reinforcement) {
 
 
         List<UnitOption> result = new ArrayList<>();
@@ -127,7 +143,8 @@ public class UnitMapper {
                                 additionalTroopers,
                                 unitOption.getName(),
                                 unitOption.getPoints(),
-                                unitOption.getSwc());
+                                unitOption.getSwc(),
+                                reinforcement);
 
                     })
                     .distinct()
@@ -182,7 +199,8 @@ public class UnitMapper {
                                 additionalTroopers,
                                 null,
                                 profileOption.getPoints(),
-                                profileOption.getSwc());
+                                profileOption.getSwc(),
+                                reinforcement);
 
                     })
                     .toList());
@@ -204,7 +222,7 @@ public class UnitMapper {
                                         equipmentIdMap,
                                         sectorialImage,
                                         sectorialFilter);
-                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of(), null, o.getPoints(), o.getSwc());
+                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of(), null, o.getPoints(), o.getSwc(), reinforcement);
                             })).toList());
         }
         return result;
@@ -217,7 +235,8 @@ public class UnitMapper {
                                                List<Trooper> additionalTroopers,
                                                String unitOptionName,
                                                int totalCost,
-                                               String totalSwc) {
+                                               String totalSwc,
+                                               boolean reinforcement) {
 
         return new UnitOption(sectorial,
                 unit.getId(),
@@ -233,7 +252,8 @@ public class UnitMapper {
                 additionalTroopers,
                 totalCost,
                 totalSwc,
-                unit.getNotes());
+                unit.getNotes(),
+                reinforcement);
     }
 
     //additional units have the same id, independent if they are from a unitOption or a groupOption
@@ -350,6 +370,7 @@ public class UnitMapper {
         List<ExtraValue> extras = Optional.ofNullable(pi.getExtra()).stream()
                 .flatMap(Collection::stream)
                 .map(extraFilter::get)
+                .filter(Objects::nonNull)
                 .toList();
         //turret logic, id 226 contains all kinds of turrets and it needs to be filtered over the mode
         if (pi.getId() == 226) {

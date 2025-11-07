@@ -38,6 +38,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static de.twonirwana.infinity.Database.*;
 
@@ -93,8 +94,21 @@ public class DataLoader {
                         Utils.getFileNameFromUrl(f.getLogo())))
                 .collect(Collectors.toMap(Sectorial::getId, Function.identity()));
         Map<Sectorial, SectorialList> sectorialListMap = sectorialIdMap.values().stream()
-                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f, update)));
+                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f.getId(), f.getSlug(), update)));
 
+        Map<Sectorial, SectorialList> reenforcementListMap = sectorialListMap.entrySet().stream()
+                .flatMap(e -> {
+                    if(e.getValue().getReinforcements() != null){
+                        return Stream.of(e);
+                    } else {
+                        log.info("reinforcements not found in %d - %s".formatted(e.getKey().getId(), e.getKey().getSlug()));
+                        return Stream.empty();
+                    }
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, e ->
+                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", update)));
+
+        //todo ref image
         sectorialIdMap.values()
                 .forEach(s -> downloadImageDataFile(s, update));
         Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
@@ -112,8 +126,7 @@ public class DataLoader {
             downloadAllSectorialLogos(metadata.getFactions().stream().map(Faction::getLogo).collect(Collectors.toSet()));
             copyNewVersionIntoArchive(sectorialListMap);
         }
-        sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, metadata, sectorialImageMap);
-
+        sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, reenforcementListMap, metadata, sectorialImageMap);
 
         allHackingPrograms = getHackingPrograms(metadata);
 
@@ -183,12 +196,12 @@ public class DataLoader {
         }
     }
 
-    private static SectorialList loadSectorial(Sectorial sectorial, boolean forceUpdate) {
+    private static SectorialList loadSectorial(int id, String name, boolean forceUpdate) {
         createFolderIfNotExists(SECTORIAL_FOLDER);
-        Path path = Paths.get(SECTORIAL_FOLDER, SECTORIAL_FILE_FORMAT.formatted(sectorial.getId(), sectorial.getSlug()));
+        Path path = Paths.get(SECTORIAL_FOLDER, SECTORIAL_FILE_FORMAT.formatted(id, name));
         if (!path.toFile().exists() || forceUpdate) {
             try {
-                BufferedInputStream in = getStreamForURL(FACTION_URL_FORMAT.formatted(sectorial.getId()));
+                BufferedInputStream in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
                 savePrettyJson(in, path);
             } catch (IOException | URISyntaxException e) {
                 throw new RuntimeException(e);
