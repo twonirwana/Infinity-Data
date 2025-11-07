@@ -5,10 +5,7 @@ import de.twonirwana.infinity.unit.api.ExtraValue;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.Weapon;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -72,6 +69,7 @@ public class PrintUtils {
                 weapon.getExtras().stream(),
                 trooperProfile.getSkills().stream()
                         .filter(s -> s.getName().equals(weaponSkill))
+                        .filter(s -> isWeaponOrHasBsProperty(weapon)) //only weapon or bs trait get skill extra
                         .flatMap(s -> s.getExtras().stream())
         ).toList();
         final List<String> burstExtra;
@@ -85,7 +83,6 @@ public class PrintUtils {
                     .map(s -> "+" + s)
                     .toList();
         }
-
 
         List<String> sdExtra = weaponAndSkillExtra.stream()
                 .map(PrintUtils::toSpecialDieExtra)
@@ -101,18 +98,19 @@ public class PrintUtils {
             return weapon.getDamage();
         }
         String weaponSkill = getWeaponSkill(weapon);
-        List<ExtraValue> skillExtra =
-                trooperProfile.getSkills().stream()
-                        .filter(s -> s.getName().equals(weaponSkill))
-                        .flatMap(s -> s.getExtras().stream())
-                        .toList();
-
-        Optional<Integer> srExtra = skillExtra.stream()
-                .map(PrintUtils::toSrExtra)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(Integer::parseInt)
-                .findFirst();
+        Optional<Integer> srExtra;
+        if (isWeaponOrHasBsProperty(weapon)) { //only weapon or bs trait get skill extra
+            srExtra = trooperProfile.getSkills().stream()
+                    .filter(s -> s.getName().equals(weaponSkill))
+                    .flatMap(s -> s.getExtras().stream())
+                    .map(PrintUtils::toSrExtra)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(Integer::parseInt)
+                    .findFirst();
+        } else {
+            srExtra = Optional.empty();
+        }
 
         Optional<Integer> psExtra = weapon.getExtras().stream()
                 .map(PrintUtils::toPsExtra)
@@ -228,6 +226,49 @@ public class PrintUtils {
             return Optional.of(matcher.group(1));
         }
         return Optional.empty();
+    }
+
+    public static String getRangeClass(String range, Map<String, String> rangeClassMap) {
+        if (range == null) {
+            return null;
+        }
+        return rangeClassMap.getOrDefault(range, "");
+    }
+
+    public static String get20cmRangeName(boolean useInch) {
+        return useInch ? "≤8" : "≤20";
+    }
+
+    public static String get40cmRangeName(boolean useInch) {
+        return useInch ? "≤16" : "≤40";
+    }
+
+    public static String get60cmRangeName(boolean useInch) {
+        return useInch ? "≤24" : "≤60";
+    }
+
+    public static String get80cmRangeName(boolean useInch) {
+        return useInch ? "≤32" : "≤80";
+    }
+
+    public static String get100cmRangeName(boolean useInch) {
+        return useInch ? "≤40" : "≤100";
+    }
+
+    public static String get120cmRangeName(boolean useInch) {
+        return useInch ? "≤48" : "≤120";
+    }
+
+    public static String get240cmRangeName(boolean useInch) {
+        return useInch ? "≤96″" : "≤240cm";
+    }
+
+    private static boolean isWeaponOrHasBsProperty(Weapon weapon) {
+        if (weapon.getType() == Weapon.Type.WEAPON) {
+            return true;
+        }
+        return weapon.getProperties().stream()
+                .anyMatch(p -> p.contains("BS Weapon"));
     }
 
     public String getRangeTemplate(Weapon weapon) {
