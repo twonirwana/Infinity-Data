@@ -129,29 +129,57 @@ public class ArmyCodeLoader {
     }
 
     private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
-        data.get(); // always starts with 0
-        CombatGroupMember result = new CombatGroupMember(
-                readVLI(data),
-                readVLI(data),
-                readVLI(data)
+        CombatGroupMember result;
+        final int unitId = readVLI(data);
+        final int groupId = readVLI(data);
+        final int optionId = readVLI(data);
+        int zero = data.get(); //always 0
+
+        result = new CombatGroupMember(
+                unitId,
+                groupId,
+                optionId
         );
-        data.get(); // always ends with 0
         return result;
     }
 
     private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data) {
-        int groupId = readVLI(data);
-        data.get();// always 1
 
-        data.mark(); //not sure why
-        int result = data.get();
-        if (result != 0) {
-            data.reset();
+        /*
+        for debugging
+        List<Integer> number = new ArrayList<>();
+        int p = data.position();
+        while (data.hasRemaining()) {
+            number.add(readVLI(data));
         }
-        int group_size = ArmyCodeLoader.readVLI(data);
-        return IntStream.range(0, group_size).boxed()
-                .map(i -> getCombatGroupMemberFromCode(data))
-                .toList();
+        data.position(p);
+        log.info(number.toString());
+        */
+
+        int combatGroupId = readVLI(data);
+        int versionSwitch = readVLI(data);
+        Integer reinforcement = null; //reinforcement ?0 no, 1 yes
+        if (versionSwitch == 1) {
+            reinforcement = readVLI(data);
+        }
+        int combatGroupSize = readVLI(data);
+        Integer fillerZero = null; //no use?
+        if (versionSwitch == 1) {
+            fillerZero = readVLI(data);
+        }
+
+        List<CombatGroupMember> result = new ArrayList<>();
+        for (int i = 0; i < combatGroupSize; i++) {
+            if (versionSwitch == 0) {
+                int unitCount = readVLI(data);
+            }
+            result.add(getCombatGroupMemberFromCode(data));
+            if (i < combatGroupSize - 1 && versionSwitch == 1) { //only for version 1
+                int inBetweenMemberZero = readVLI(data); //always 0
+            }
+        }
+
+        return result;
     }
 
     private static byte[] decodeArmyCode(String armyCode) {

@@ -31,6 +31,7 @@ public class UnitOption {
     //todo ggf list of faction where the unit is also aka Unit.factions
 
     String note;
+    boolean reinforcementUnit;
 
     public List<Trooper> getAllTrooper() {
         return Stream.concat(Stream.of(primaryUnit), additionalUnits.stream())
