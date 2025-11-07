@@ -244,20 +244,26 @@
                     <tbody>
                     <tr th:each="weapon : ${unitPrintCard.getWeapons()}">
                         <td th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
-                        <td th:text="${weapon.getUpTo20cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo20cmRangeModi(),rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo40cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo40cmRangeModi(),rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo60cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo60cmRangeModi(),rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo80cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo80cmRangeModi(),rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo100cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo100cmRangeModi(),rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo120cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo120cmRangeModi(),rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo240cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass(weapon.getUpTo240cmRangeModi(),rangeModifierClassMap)}"></td>
+                        <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
+                            <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
+                        </th:block>
+
+                        <th:block th:if="${printUtils.getRangeTemplate(weapon) == null}">
+                            <td th:text="${weapon.getUpTo20cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo20cmRangeModi(),rangeModifierClassMap)}"></td>
+                            <td th:text="${weapon.getUpTo40cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo40cmRangeModi(),rangeModifierClassMap)}"></td>
+                            <td th:text="${weapon.getUpTo60cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo60cmRangeModi(),rangeModifierClassMap)}"></td>
+                            <td th:text="${weapon.getUpTo80cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo80cmRangeModi(),rangeModifierClassMap)}"></td>
+                            <td th:text="${weapon.getUpTo100cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo100cmRangeModi(),rangeModifierClassMap)}"></td>
+                            <td th:text="${weapon.getUpTo120cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo120cmRangeModi(),rangeModifierClassMap)}"></td>
+                            <td th:text="${weapon.getUpTo240cmRangeModi()}"
+                                th:class="${printUtils.getRangeClass(weapon.getUpTo240cmRangeModi(),rangeModifierClassMap)}"></td>
+                        </th:block>
 
                         <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
                         <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
