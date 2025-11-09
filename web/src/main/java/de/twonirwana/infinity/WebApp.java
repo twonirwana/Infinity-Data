@@ -286,7 +286,7 @@ public class WebApp {
                             .toList();
                 }
 
-                htmlPrinter.printCardForArmyCode(armyListOptions, database.getAllHackingPrograms(), al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, true, styleOptional.get());
+                htmlPrinter.printCardForArmyCode(armyListOptions, database.getAllHackingPrograms(), database.getAllMartialArtLevels(), al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, true, styleOptional.get());
                 log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
                 registry.counter("infinity.generate.list",
                         "sectorial", al.getSectorial().getSlug(),

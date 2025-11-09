@@ -20,10 +20,11 @@ public class HtmlPrinterTest {
             Set.of(Weapon.Type.WEAPON),
             Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET));
     HtmlPrinter underTest;
-    String fileName = "testFile";
+    String fileName;
     Sectorial sectorial;
     UnitOption unitOption;
     HackingProgram hackingProgram;
+    List<MartialArtLevel> martialArtLevels;
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
@@ -46,10 +47,12 @@ public class HtmlPrinterTest {
         underTest = new HtmlPrinter();
         sectorial = new Sectorial(1, 1, "name", "slug", false, "logo.png");
 
-        List<Skill> skills = List.of(new Skill(1, "skill", "wiki", 1, List.of(
-                new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
-                new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f))
-        ));
+        List<Skill> skills = List.of(
+                new Skill(1, "skill", "wiki", 1, List.of(
+                        new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f))
+                ),
+                new Skill(2, "Martial Arts L3", "wiki", 1, List.of()));
         List<Weapon> weapons = List.of(
                 new Weapon(4, Weapon.Skill.BS, Weapon.Type.WEAPON, "weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", "+6", "profile", 2, List.of(
                         new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
@@ -99,6 +102,8 @@ public class HtmlPrinterTest {
         ));
         TrooperProfile trooperProfile = new TrooperProfile(sectorial, 1, 2, 3, 4, "name", List.of(10, 10), 10, 10, 10, 10, 3, 3, 2, false, 2, "notes", "type", 3, weapons, skills, equipments, List.of("char1", "char2"), "logo.png", List.of("image.png"), List.of(new Order(Order.Type.REGULAR, 0, 1)));
         Trooper trooper = new Trooper(sectorial, 1, 2, 3, "optionName", "category", "0.5", 20, List.of(trooperProfile), List.of(), "note", "groupNote");
+        martialArtLevels = List.of(new MartialArtLevel("-3", "-", "+3", "3", "+1SD"));
+
         unitOption = new UnitOption(sectorial, 1, 2, 3, "isc", "iscAbbr", "unitName", "optionName", "slug", "unitOptionName",
                 trooper, List.of(), 20, "0.5", "note", false);
     }
@@ -106,7 +111,8 @@ public class HtmlPrinterTest {
     @ParameterizedTest
     @MethodSource("generateTestData")
     void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, HtmlPrinter.Template template) {
-        underTest.writeCards(List.of(unitOption), List.of(), fileName, "", sectorial, "", "", "", "", useInch, weaponOption, showImage, showHackingProgram, template);
+        fileName = "testFile_" + System.currentTimeMillis();
+        underTest.writeCards(List.of(unitOption), List.of(), martialArtLevels, fileName, "", sectorial, "", "", "", "", useInch, weaponOption, showImage, showHackingProgram, template);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

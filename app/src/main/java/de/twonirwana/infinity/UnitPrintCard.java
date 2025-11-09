@@ -5,6 +5,7 @@ import de.twonirwana.infinity.unit.api.*;
 import lombok.Value;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -18,13 +19,23 @@ public class UnitPrintCard {
     boolean useInch;
     Set<Weapon.Type> showWeaponOfType;
     boolean showImage;
+    MartialArtLevel martialArtLevels;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
                                                      boolean useInch,
                                                      Set<Weapon.Type> showWeaponOfType,
-                                                     boolean showImage) {
+                                                     boolean showImage,
+                                                     List<MartialArtLevel> allMartialArtLevels) {
+        Map<String, MartialArtLevel> martialArtLevelMap = allMartialArtLevels.stream()
+                .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
         return unitOption.getAllTrooper().stream()
-                .flatMap(t -> t.getProfiles().stream().map(p -> new UnitPrintCard(unitOption, t, p, useInch, showWeaponOfType, showImage)))
+                .flatMap(t -> t.getProfiles().stream().map(p -> new UnitPrintCard(unitOption,
+                        t,
+                        p,
+                        useInch,
+                        showWeaponOfType,
+                        showImage,
+                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null))))
                 .toList();
     }
 
@@ -48,6 +59,7 @@ public class UnitPrintCard {
         if (PrintUtils.toSrExtra(extraValue).isPresent()) {
             return false;
         }
+        //martial arts is still shown
         return true;
     }
 
@@ -150,8 +162,15 @@ public class UnitPrintCard {
 
     public String prettySkills() {
         return profile.getSkills().stream()
-                .filter(UnitPrintCard::notAppliedToWeapon)
-                .map(this::getSkillNameAndExtra).collect(Collectors.joining(", "));
+                .filter(UnitPrintCard::notAppliedToWeapon).map(this::getSkillNameAndExtra)
+                .collect(Collectors.joining(", "));
+    }
+
+    public String getMartialArtsBonus() {
+        if (martialArtLevels == null) {
+            return "CC";
+        }
+        return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevels.getAttackerModi(), martialArtLevels.getOpponentModi());
     }
 
     public String prettyEquipments() {

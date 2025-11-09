@@ -244,13 +244,13 @@
                     </thead>
                     <tbody>
                     <tr th:each="weapon : ${unitPrintCard.getWeapons()}">
-                        <td th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
+                        <td style="white-space: pre" th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
                         <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
                             <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
                         </th:block>
 
                         <th:block th:if="${printUtils.isCC(weapon)}">
-                            <td colspan="7">CC</td>
+                            <td colspan="7" th:text="${unitPrintCard.getMartialArtsBonus()}">CC</td>
                         </th:block>
 
                         <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
@@ -271,7 +271,7 @@
                         </th:block>
 
                         <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
-                        <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
+                        <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
                         <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
                         <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
                             th:style="' white-space: normal; font-size: ' + ${secondaryFontSize}"></td>

@@ -2,6 +2,7 @@ package de.twonirwana.infinity;
 
 import com.google.common.base.Joiner;
 import de.twonirwana.infinity.unit.api.ExtraValue;
+import de.twonirwana.infinity.unit.api.Skill;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.Weapon;
 
@@ -12,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PrintUtils {
+    public static final String CC_ATTACK_SKILL_NAME = "CC Attack";
+    public static final String BS_ATTACK_SKILL_NAME = "BS Attack";
     private static final Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
     private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
     private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
@@ -23,6 +26,7 @@ public class PrintUtils {
     private static final String MINUS_3_MODI = "-3";
     private static final String MINUS_6_MODI = "-6";
     private static final String XVISOR_NAME = "X Visor";
+    private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L";
 
     public static String getRangeHeader(boolean useInch) {
         return "Range %s".formatted(useInch ? "″" : "cm");
@@ -48,6 +52,20 @@ public class PrintUtils {
         return out;
     }
 
+    public static boolean skillIsMartialArt(Skill skill) {
+        return skill.getName().startsWith(MARTIAL_ARTS_SKILL_NAME_PREFIX);
+    }
+
+    public static Optional<MartialArtLevel> getMartialArtLevel(TrooperProfile profile, Map<String, MartialArtLevel> allMartialArtLevels) {
+        return profile.getSkills().stream()
+                .filter(PrintUtils::skillIsMartialArt)
+                .map(Skill::getName)
+                .map(s -> s.replace(MARTIAL_ARTS_SKILL_NAME_PREFIX, ""))
+                .map(allMartialArtLevels::get)
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
     private static String getExtraString(Weapon weapon, boolean useInch) {
         return weapon.getExtras().stream()
                 .filter(e -> toPsExtra(e).isEmpty())
@@ -57,21 +75,18 @@ public class PrintUtils {
                 .collect(Collectors.joining(", "));
     }
 
-    public static final String CC_ATTACK_SKILL_NAME =  "CC Attack";
-    public static final String BS_ATTACK_SKILL_NAME =  "BS Attack";
-
     private static String getWeaponSkill(Weapon weapon) {
-        return Weapon.Skill.CC == weapon.getSkill() ? CC_ATTACK_SKILL_NAME: BS_ATTACK_SKILL_NAME;
+        return Weapon.Skill.CC == weapon.getSkill() ? CC_ATTACK_SKILL_NAME : BS_ATTACK_SKILL_NAME;
     }
 
-    public static String getWeaponBurstWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+    public static String getWeaponBurstWithExtra(UnitPrintCard unitPrintCard, Weapon weapon) {
         if (weapon.getBurst() == null) {
             return "";
         }
         String weaponSkill = getWeaponSkill(weapon);
         List<ExtraValue> weaponAndSkillExtra = Stream.concat(
                 weapon.getExtras().stream(),
-                trooperProfile.getSkills().stream()
+                unitPrintCard.getProfile().getSkills().stream()
                         .filter(s -> s.getName().equals(weaponSkill))
                         .filter(s -> isWeaponOrHasBsProperty(weapon)) //only weapon or bs trait get skill extra
                         .flatMap(s -> s.getExtras().stream())
@@ -94,7 +109,15 @@ public class PrintUtils {
                 .map(Optional::get)
                 .map("+%sSD"::formatted)
                 .toList();
-        return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra);
+
+        String maBurstBonus = "";
+        if (weapon.getSkill() == Weapon.Skill.CC
+                && unitPrintCard.getMartialArtLevels() != null
+                && !"0".equals(unitPrintCard.getMartialArtLevels().getBurst())) {
+            maBurstBonus = unitPrintCard.getMartialArtLevels().getBurst();
+        }
+
+        return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra) + maBurstBonus;
     }
 
     public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
@@ -219,7 +242,7 @@ public class PrintUtils {
         return Optional.empty();
     }
 
-     static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
+    static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
         if (extraValue.getText() == null) {
             return Optional.empty();
         }

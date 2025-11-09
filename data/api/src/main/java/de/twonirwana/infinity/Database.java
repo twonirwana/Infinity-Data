@@ -30,4 +30,5 @@ public interface Database {
 
     List<HackingProgram> getAllHackingPrograms();
 
+    List<MartialArtLevel> getAllMartialArtLevels();
 }

@@ -12,6 +12,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import de.twonirwana.infinity.HackingProgram;
+import de.twonirwana.infinity.MartialArtLevel;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.model.Equipment;
 import de.twonirwana.infinity.model.Faction;
@@ -64,6 +65,9 @@ public class DataLoader {
     @Getter
     private final List<HackingProgram> allHackingPrograms;
 
+    @Getter
+    private final List<MartialArtLevel> allMartialArtLevels;
+
     public DataLoader() throws IOException, URISyntaxException {
         this(false);
     }
@@ -98,7 +102,7 @@ public class DataLoader {
 
         Map<Sectorial, SectorialList> reenforcementListMap = sectorialListMap.entrySet().stream()
                 .flatMap(e -> {
-                    if(e.getValue().getReinforcements() != null){
+                    if (e.getValue().getReinforcements() != null) {
                         return Stream.of(e);
                     } else {
                         log.info("reinforcements not found in %d - %s".formatted(e.getKey().getId(), e.getKey().getSlug()));
@@ -128,11 +132,18 @@ public class DataLoader {
         }
         sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, reenforcementListMap, metadata, sectorialImageMap);
 
-        allHackingPrograms = getHackingPrograms(metadata);
+        allHackingPrograms = mapHackingPrograms(metadata);
 
+        allMartialArtLevels = mapMartialArt(metadata);
     }
 
-    private static List<HackingProgram> getHackingPrograms(Metadata metadata) {
+    private static List<MartialArtLevel> mapMartialArt(Metadata metadata) {
+        return metadata.getMartialArts().stream()
+                .map(m -> new MartialArtLevel(m.getOpponent(), m.getDamage(), m.getAttack(), m.getName(), m.getBurst()))
+                .toList();
+    }
+
+    private static List<HackingProgram> mapHackingPrograms(Metadata metadata) {
         Map<Integer, Equipment> equipmentMap = metadata.getEquips().stream()
                 .collect(Collectors.toMap(Equipment::getId, Function.identity()));
 

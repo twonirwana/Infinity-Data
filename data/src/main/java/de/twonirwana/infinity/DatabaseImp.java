@@ -82,4 +82,9 @@ public class DatabaseImp implements Database {
     public List<HackingProgram> getAllHackingPrograms() {
         return loader.getAllHackingPrograms();
     }
+
+    @Override
+    public List<MartialArtLevel> getAllMartialArtLevels() {
+        return loader.getAllMartialArtLevels();
+    }
 }

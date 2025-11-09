@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled //only for manual check that everything works
+//@Disabled //only for manual check that everything works
 //complex profiles:
 // - Polaris 1522,
 // - Scylla 721
@@ -126,7 +126,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), al.getSectorial(), fileName, armyCode, useInch, weaponOption, showImage, showHackingPrograms, template);
+        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), al.getSectorial(), fileName, armyCode, useInch, weaponOption, showImage, showHackingPrograms, template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

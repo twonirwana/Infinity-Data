@@ -4,6 +4,7 @@ import de.twonirwana.infinity.DatabaseImp;
 import de.twonirwana.infinity.UnitPrintCard;
 import de.twonirwana.infinity.unit.api.Weapon;
 
+import java.util.List;
 import java.util.Set;
 
 public class UnitNameCheck {
@@ -26,7 +27,7 @@ public class UnitNameCheck {
 
 
         new DatabaseImp().getAllUnitOptions().stream()
-                .flatMap(u -> UnitPrintCard.fromUnitOption(u, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL), true).stream())
+                .flatMap(u -> UnitPrintCard.fromUnitOption(u, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL), true, List.of()).stream())
                 .map(c -> {
                     String oldName = c.getProfile().getName();
                     String newName = c.getUnitName();
