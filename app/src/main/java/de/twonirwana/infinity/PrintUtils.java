@@ -57,8 +57,11 @@ public class PrintUtils {
                 .collect(Collectors.joining(", "));
     }
 
+    public static final String CC_ATTACK_SKILL_NAME =  "CC Attack";
+    public static final String BS_ATTACK_SKILL_NAME =  "BS Attack";
+
     private static String getWeaponSkill(Weapon weapon) {
-        return Weapon.Skill.CC == weapon.getSkill() ? "CC Attack" : "BS Attack";
+        return Weapon.Skill.CC == weapon.getSkill() ? CC_ATTACK_SKILL_NAME: BS_ATTACK_SKILL_NAME;
     }
 
     public static String getWeaponBurstWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
@@ -216,7 +219,7 @@ public class PrintUtils {
         return Optional.empty();
     }
 
-    private static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
+     static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
         if (extraValue.getText() == null) {
             return Optional.empty();
         }

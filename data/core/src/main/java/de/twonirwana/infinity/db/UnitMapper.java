@@ -456,7 +456,9 @@ public class UnitMapper {
                 weapon.getDamage(),
                 weapon.getSaving(),
                 weapon.getSavingNum(),
-                Optional.ofNullable(weapon.getProperties()).orElse(List.of()),
+                Optional.ofNullable(weapon.getProperties()).orElse(List.of()).stream()
+                        .filter(Objects::nonNull)
+                        .toList(),
                 getUpToRangeModi(weapon.getDistance(), 20),
                 getUpToRangeModi(weapon.getDistance(), 40),
                 getUpToRangeModi(weapon.getDistance(), 60),
@@ -466,7 +468,10 @@ public class UnitMapper {
                 getUpToRangeModi(weapon.getDistance(), 240),
                 weapon.getProfile(),
                 quantity,
-                Optional.ofNullable(extras).orElse(List.of()));
+                Optional.ofNullable(extras).orElse(List.of()).stream()
+                        .filter(Objects::nonNull)
+                        .toList()
+        );
     }
 
     private static String getUpToRangeModi(Map<String, RangeBand> rangeBandMap, int cmRange) {
@@ -514,7 +519,10 @@ public class UnitMapper {
                 skill.getName(),
                 skill.getWiki(),
                 quantity, // quantity is always null or 1
-                extras);
+                extras.stream()
+                        .filter(Objects::nonNull)
+                        .toList()
+        );
     }
 
     private static List<de.twonirwana.infinity.unit.api.Equipment> getUnitEquipments(Unit unit,
@@ -552,7 +560,9 @@ public class UnitMapper {
                 equipment.getName(),
                 equipment.getWiki(),
                 quantity,
-                extras
+                extras.stream()
+                        .filter(Objects::nonNull)
+                        .toList()
         );
     }
 

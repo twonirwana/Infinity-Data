@@ -210,10 +210,10 @@
 
                             <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
                                 <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
-                                    <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments}"></span>
+                                    <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
                                 </div>
                                 <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
-                                    <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills}"></span>
+                                    <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills()}"></span>
                                 </div>
                                 <div th:if="${unitPrintCard.showNotes()}"
                                      style="background-color: rgba(255, 255, 255, 0.8); padding: 2px">
