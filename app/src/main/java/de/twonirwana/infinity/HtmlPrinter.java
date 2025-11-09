@@ -107,6 +107,7 @@ public class HtmlPrinter {
 
     public void printCardForArmyCode(List<UnitOption> unitOptions,
                                      List<HackingProgram> allHackingPrograms,
+                                     List<MartialArtLevel> allMartialArtLevels,
                                      Sectorial sectorial,
                                      String fileName,
                                      String armyCode,
@@ -115,14 +116,14 @@ public class HtmlPrinter {
                                      boolean showImage,
                                      boolean showHackingPrograms,
                                      Template template) {
-        writeCards(unitOptions, allHackingPrograms, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, showWeaponOfType, showImage, showHackingPrograms, template);
+        writeCards(unitOptions, allHackingPrograms, allMartialArtLevels, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, showWeaponOfType, showImage, showHackingPrograms, template);
     }
 
     public void printAll(Database db, boolean useInch, Template template) {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, template));
+                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -199,6 +200,8 @@ public class HtmlPrinter {
     }
 
     public void writeToFile(UnitOption unitOption,
+                            List<MartialArtLevel> allMartialArtLevels,
+
                             String unitImagePath,
                             String customUnitImagePath,
                             String logoImagePath,
@@ -208,6 +211,7 @@ public class HtmlPrinter {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
         writeCards(List.of(unitOption),
                 List.of(),
+                allMartialArtLevels,
                 fileName,
                 "-",
                 unitOption.getSectorial(),
@@ -224,6 +228,7 @@ public class HtmlPrinter {
 
     public void writeCards(List<UnitOption> unitOptions,
                            List<HackingProgram> allHackingPrograms,
+                           List<MartialArtLevel> allMartialArtLevels,
                            String fileName,
                            String armyCode,
                            Sectorial sectorial,
@@ -260,7 +265,7 @@ public class HtmlPrinter {
         String headerColor = HEADER_TEXT_COLOR.getOrDefault(sectorial.getParentId() - 1, "white");
 
         List<UnitPrintCard> unitPrintCards = unitOptions.stream()
-                .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage).stream())
+                .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels).stream())
                 .toList();
 
         List<PrintHackingProgram> usedHackingPrograms = showHackingPrograms ? getUsedHackingPrograms(unitOptions, allHackingPrograms) : List.of();

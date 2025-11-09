@@ -239,7 +239,7 @@
                         </div>
                     </td>
                     <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
-                    <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
+                    <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
                     <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
                 </tr>
 
