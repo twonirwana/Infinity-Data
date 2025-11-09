@@ -1,5 +1,6 @@
 package de.twonirwana.infinity.unit.api;
 
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
@@ -11,6 +12,7 @@ public class Skill {
     String wiki;
 
     Integer quantity;
+    @NonNull
     List<ExtraValue> extras;
 
 }

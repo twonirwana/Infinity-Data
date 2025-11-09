@@ -346,7 +346,7 @@ public class UnitMapper {
         }
 
         //add discover
-        if(allProfileWeapons.stream().noneMatch(w -> w.getId() == 131)) { //discover can already be given by a skill
+        if (allProfileWeapons.stream().noneMatch(w -> w.getId() == 131)) { //discover can already be given by a skill
             allProfileWeapons.addAll(weaponIdMap.get(131).stream()
                     .map(w -> mapWeapon(w, null, List.of()))
                     .toList());
@@ -456,7 +456,7 @@ public class UnitMapper {
                 weapon.getDamage(),
                 weapon.getSaving(),
                 weapon.getSavingNum(),
-                weapon.getProperties(),
+                Optional.ofNullable(weapon.getProperties()).orElse(List.of()),
                 getUpToRangeModi(weapon.getDistance(), 20),
                 getUpToRangeModi(weapon.getDistance(), 40),
                 getUpToRangeModi(weapon.getDistance(), 60),
@@ -466,7 +466,7 @@ public class UnitMapper {
                 getUpToRangeModi(weapon.getDistance(), 240),
                 weapon.getProfile(),
                 quantity,
-                extras);
+                Optional.ofNullable(extras).orElse(List.of()));
     }
 
     private static String getUpToRangeModi(Map<String, RangeBand> rangeBandMap, int cmRange) {

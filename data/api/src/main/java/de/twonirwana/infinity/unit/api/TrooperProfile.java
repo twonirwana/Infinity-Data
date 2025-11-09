@@ -1,6 +1,7 @@
 package de.twonirwana.infinity.unit.api;
 
 import de.twonirwana.infinity.Sectorial;
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class TrooperProfile {
     int optionId;
     int profileId;
     String name;
+    @NonNull
     List<Integer> movementInCm;
     Integer closeCombat;
     Integer ballisticSkill;
@@ -38,12 +40,18 @@ public class TrooperProfile {
     String notes;
     String type;
     int availability;
+    @NonNull
     List<Weapon> weapons;
+    @NonNull
     List<Skill> skills;
+    @NonNull
     List<Equipment> equipment;
+    @NonNull
     List<String> characteristics;
     String logo;
+    @NonNull
     List<String> imageNames;
+    @NonNull
     List<Order> orders;
 
     public String getCombinedProfileId() {

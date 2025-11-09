@@ -1,5 +1,6 @@
 package de.twonirwana.infinity.unit.api;
 
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Weapon {
     String damage; //int?
     String saving; //int?
     String savingNum; //int?
+    @NonNull
     List<String> properties;
     //8 inch
     String upTo20cmRangeModi;
@@ -39,6 +41,7 @@ public class Weapon {
     //the profile of a deployable weapon
     String profile;
     Integer quantity;
+    @NonNull
     List<ExtraValue> extras;
 
     private static int getFromRange(int currentIndex) {
