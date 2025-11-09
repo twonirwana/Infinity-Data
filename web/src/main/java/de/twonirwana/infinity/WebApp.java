@@ -288,7 +288,15 @@ public class WebApp {
 
                 htmlPrinter.printCardForArmyCode(armyListOptions, database.getAllHackingPrograms(), al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, true, styleOptional.get());
                 log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
-                registry.counter("infinity.generate.list", "sectorial", al.getSectorial().getSlug()).increment();
+                registry.counter("infinity.generate.list",
+                        "sectorial", al.getSectorial().getSlug(),
+                        "style", styleOptional.get().name(),
+                        "unit", unit,
+                        "removeImages", String.valueOf(removeImages),
+                        "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
+                        "showSkillWeapon", String.valueOf(showSkillWeapon),
+                        "distinct", String.valueOf(distinct)
+                ).increment();
 
                 Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
 

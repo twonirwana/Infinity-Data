@@ -12,13 +12,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PrintUtils {
-    private final static Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
-    private final static Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
-    private final static Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
-    private final static Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR-(\\d)");
+    private static final Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
+    private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
+    private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
+    private static final Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR-(\\d)");
     private static final String SMALL_SUFFIX = " (Small Teardrop)";
     private static final String LARGE_SUFFIX = " (Large Teardrop)";
-    private final static Set<String> REMOVE_WEAPON_TRAITS = Set.of("[***]", "[**]", "[*]");
+    private static final Set<String> REMOVE_WEAPON_TRAITS = Set.of("[***]", "[**]", "[*]");
+    private static final String CC_PROPERTY = "CC";
+    private static final String MINUS_3_MODI = "-3";
+    private static final String MINUS_6_MODI = "-6";
+    private static final String XVISOR_NAME = "X Visor";
 
     public static String getRangeHeader(boolean useInch) {
         return "Range %s".formatted(useInch ? "″" : "cm");
@@ -34,7 +38,7 @@ public class PrintUtils {
         } else {
             out = weapon.getName();
         }
-        if (weapon.getExtras() != null && weapon.getExtras().stream()
+        if (weapon.getExtras().stream()
                 .filter(e -> toPsExtra(e).isEmpty())
                 .filter(e -> toBurstExtra(e).isEmpty())
                 .filter(e -> toSpecialDieExtra(e).isEmpty())
@@ -45,9 +49,6 @@ public class PrintUtils {
     }
 
     private static String getExtraString(Weapon weapon, boolean useInch) {
-        if (weapon.getExtras() == null) {
-            return "";
-        }
         return weapon.getExtras().stream()
                 .filter(e -> toPsExtra(e).isEmpty())
                 .filter(e -> toBurstExtra(e).isEmpty())
@@ -139,12 +140,10 @@ public class PrintUtils {
     }
 
     public static String getWeaponPropertiesString(Weapon weapon) {
-        if (weapon.getProperties() == null) {
-            return "";
-        }
         return weapon.getProperties().stream()
                 .map(PrintUtils::stripTeardropSuffix)
                 .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
+                .filter(s -> !CC_PROPERTY.equals(s)) //shown in range
                 .collect(Collectors.joining(", "));
     }
 
@@ -228,11 +227,12 @@ public class PrintUtils {
         return Optional.empty();
     }
 
-    public static String getRangeClass(String range, Map<String, String> rangeClassMap) {
+    public static String getRangeClass(TrooperProfile profile, String range, Map<String, String> rangeClassMap) {
         if (range == null) {
             return null;
         }
-        return rangeClassMap.getOrDefault(range, "");
+        String updatedRange = applyXVisorToRangeModi(profile, range);
+        return rangeClassMap.getOrDefault(updatedRange, "");
     }
 
     public static String get20cmRangeName(boolean useInch) {
@@ -271,13 +271,31 @@ public class PrintUtils {
                 .anyMatch(p -> p.contains("BS Weapon"));
     }
 
+    public static String applyXVisorToRangeModi(TrooperProfile profile, String rangeModi) {
+        if (rangeModi == null) {
+            return null;
+        }
+        if (profile.getEquipment().stream().anyMatch(s -> XVISOR_NAME.equals(s.getName()))) {
+            if (rangeModi.equals(MINUS_3_MODI)) {
+                return "0*";
+            } else if (rangeModi.equals(MINUS_6_MODI)) {
+                return "-3*";
+            }
+        }
+        return rangeModi;
+    }
+
     public String getRangeTemplate(Weapon weapon) {
-        if (weapon.getRangeCombinedModifiers().isEmpty() && weapon.getProperties() != null) {
+        if (weapon.getRangeCombinedModifiers().isEmpty()) {
             return weapon.getProperties().stream().map(PrintUtils::getTeardropType)
                     .filter(Objects::nonNull)
                     .findFirst()
                     .orElse(null);
         }
         return null;
+    }
+
+    public boolean isCC(Weapon weapon) {
+        return "CC Mode".equals(weapon.getMode()) || weapon.getProperties().contains("CC");
     }
 }

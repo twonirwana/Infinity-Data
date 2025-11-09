@@ -65,7 +65,9 @@ public class HtmlPrinter {
     );
     private static final Map<String, String> RANGE_CLASS_MAP = Map.of(
             "0", "range0",
+            "0*", "range0", //x-visor modified
             "-3", "rangeMinus3",
+            "-3*", "rangeMinus3", //x-visor modified
             "+3", "rangePlus3",
             "-6", "rangeMinus6",
             "+6", "rangePlus6");

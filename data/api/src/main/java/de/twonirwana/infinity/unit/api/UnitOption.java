@@ -1,6 +1,7 @@
 package de.twonirwana.infinity.unit.api;
 
 import de.twonirwana.infinity.Sectorial;
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class UnitOption {
 
     Trooper primaryUnit;
 
+    @NonNull
     List<Trooper> additionalUnits;
     int totalCost;
     String totalSpecialWeaponCost;

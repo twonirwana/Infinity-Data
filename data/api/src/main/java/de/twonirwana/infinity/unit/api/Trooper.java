@@ -1,6 +1,7 @@
 package de.twonirwana.infinity.unit.api;
 
 import de.twonirwana.infinity.Sectorial;
+import lombok.NonNull;
 import lombok.Value;
 
 import java.util.List;
@@ -23,8 +24,10 @@ public class Trooper {
     int cost;
 
     //some troopers with transformation etc have mutlipe profiles
+    @NonNull
     List<TrooperProfile> profiles;
 
+    @NonNull
     List<String> peripheral;
     String notes;
     String groupNote;
