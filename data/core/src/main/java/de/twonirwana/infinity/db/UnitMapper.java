@@ -346,9 +346,11 @@ public class UnitMapper {
         }
 
         //add discover
-        allProfileWeapons.addAll(weaponIdMap.get(131).stream()
-                .map(w -> mapWeapon(w, null, List.of()))
-                .toList());
+        if(allProfileWeapons.stream().noneMatch(w -> w.getId() == 131)) { //discover can already be given by a skill
+            allProfileWeapons.addAll(weaponIdMap.get(131).stream()
+                    .map(w -> mapWeapon(w, null, List.of()))
+                    .toList());
+        }
 
         return allProfileWeapons.stream()
                 .distinct()
