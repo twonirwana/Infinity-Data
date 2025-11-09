@@ -28,6 +28,29 @@ public class UnitPrintCard {
                 .toList();
     }
 
+    private static boolean notAppliedToWeapon(Skill skill) {
+        if (!Set.of(PrintUtils.BS_ATTACK_SKILL_NAME, PrintUtils.CC_ATTACK_SKILL_NAME).contains(skill.getName())) {
+            return true;
+        }
+        if (skill.getExtras().size() != 1) {
+            return true;
+        }
+        ExtraValue extraValue = skill.getExtras().getFirst();
+        if (PrintUtils.toSpecialDieExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.toBurstExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.toPsExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.toSrExtra(extraValue).isPresent()) {
+            return false;
+        }
+        return true;
+    }
+
     public List<Weapon> getWeapons() {
         return profile.getWeapons().stream()
                 .filter(w -> showWeaponOfType.contains(w.getType()))
@@ -64,7 +87,6 @@ public class UnitPrintCard {
                 .distinct()
                 .collect(Collectors.joining(""));
     }
-
 
     public boolean showNotes() {
         return !Strings.isNullOrEmpty(getNotes()) && getProfile().getWeapons().size() < 6;
@@ -127,7 +149,9 @@ public class UnitPrintCard {
     }
 
     public String prettySkills() {
-        return profile.getSkills().stream().map(this::getSkillNameAndExtra).collect(Collectors.joining(", "));
+        return profile.getSkills().stream()
+                .filter(UnitPrintCard::notAppliedToWeapon)
+                .map(this::getSkillNameAndExtra).collect(Collectors.joining(", "));
     }
 
     public String prettyEquipments() {
