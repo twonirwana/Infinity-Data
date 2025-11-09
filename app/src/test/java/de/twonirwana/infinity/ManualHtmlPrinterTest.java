@@ -29,7 +29,7 @@ import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@Disabled //only for manual check that everything works
+@Disabled //only for manual check that everything works
 //complex profiles:
 // - Polaris 1522,
 // - Scylla 721
