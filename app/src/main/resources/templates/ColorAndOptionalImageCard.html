@@ -58,6 +58,7 @@
         .weapon th, .weapon td {
             border: 1px solid #ddd;
             text-align: center;
+            white-space: nowrap;
         }
 
         th {
@@ -269,7 +270,7 @@
                         <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
                         <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
                         <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
-                            th:style="'font-size: ' + ${secondaryFontSize}"></td>
+                            th:style="' white-space: normal; font-size: ' + ${secondaryFontSize}"></td>
                     </tr>
                     </tbody>
                 </table>

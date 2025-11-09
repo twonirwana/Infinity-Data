@@ -75,6 +75,12 @@ public class HtmlPrinterTest {
                         new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
                         new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
                         new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
+                )),
+                new Weapon(8, Weapon.Skill.BS, Weapon.Type.WEAPON, "teardrop weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("Intuitive Attack",
+                        "Direct Template (Large Teardrop)"), null, null, null, null, null, null, null, "profile", 2, List.of(
+                        new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
+                        new ExtraValue(2, "+2B", ExtraValue.Type.Text, null),
+                        new ExtraValue(3, "+1SD", ExtraValue.Type.Text, null)
                 ))
         );
 
