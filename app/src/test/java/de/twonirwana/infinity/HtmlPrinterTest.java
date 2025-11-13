@@ -25,15 +25,19 @@ public class HtmlPrinterTest {
     UnitOption unitOption;
     HackingProgram hackingProgram;
     List<MartialArtLevel> martialArtLevels;
+    List<MetaChemistryRoll> metaChemistryRolls;
+    List<BootyRoll> bootyRolls;
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
         for (boolean useInch : new boolean[]{true, false}) {
-            for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
-                for (boolean showImage : new boolean[]{true, false}) {
-                    for (boolean showHackingProgram : new boolean[]{true, false}) {
-                        for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                            testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, template));
+            for (boolean showSavingRollInstantOfAmmo : new boolean[]{true, false}) {
+                for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
+                    for (boolean showImage : new boolean[]{true, false}) {
+                        for (boolean showHackingProgram : new boolean[]{true, false}) {
+                            for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                                testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, showSavingRollInstantOfAmmo, template));
+                            }
                         }
                     }
                 }
@@ -48,11 +52,12 @@ public class HtmlPrinterTest {
         sectorial = new Sectorial(1, 1, "name", "slug", false, "logo.png");
 
         List<Skill> skills = List.of(
-                new Skill(1, "skill", "wiki", 1, List.of(
+                new Skill(1, "Booty", "wiki", 1, List.of(
                         new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
                         new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f))
                 ),
-                new Skill(2, "Martial Arts L3", "wiki", 1, List.of()));
+                new Skill(2, "MetaChemistry", "wiki", 1, List.of()),
+                new Skill(3, "Martial Arts L3", "wiki", 1, List.of()));
         List<Weapon> weapons = List.of(
                 new Weapon(4, Weapon.Skill.BS, Weapon.Type.WEAPON, "weapon name", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", "+6", "profile", 2, List.of(
                         new ExtraValue(1, "PS=6", ExtraValue.Type.Text, null),
@@ -95,7 +100,26 @@ public class HtmlPrinterTest {
 
         hackingProgram = new HackingProgram("-3", "hacking description", List.of("short"), 1, "4", List.of(101, 102), List.of("Hacking Device", "Hacking Device+"), List.of("all"), "+3", "Hacking Name", "2");
 
-        List<Equipment> equipments = List.of(new Equipment(101, "equipment", "wiki", 1, List.of(
+        metaChemistryRolls = List.of(
+                new MetaChemistryRoll(1, "1-3", "Ph20"),
+                new MetaChemistryRoll(2, "4-10", "Bonus Arm"),
+                new MetaChemistryRoll(3, "11-19", "Regeneration"),
+                new MetaChemistryRoll(4, "20", "BS20")
+        );
+
+        bootyRolls = List.of(
+                new BootyRoll(1, "1-3", "Knife", List.of()),
+                new BootyRoll(2, "4-10", "Armor +3", List.of()),
+                new BootyRoll(3, "11-19", "HMG", List.of(
+                        new Weapon(11, Weapon.Skill.BS, Weapon.Type.WEAPON, "HMG", "mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", null, "profile", 1, List.of()))
+                ),
+                new BootyRoll(4, "20", "BS20", List.of(
+                        new Weapon(12, Weapon.Skill.BS, Weapon.Type.WEAPON, "Multi Pistol", "AP Mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", null, "profile", 1, List.of()),
+                        new Weapon(13, Weapon.Skill.BS, Weapon.Type.WEAPON, "Multi Pistol", "Shock Mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", null, "profile", 1, List.of()),
+                        new Weapon(14, Weapon.Skill.BS, Weapon.Type.WEAPON, "Multi Pistol", "DA Mode", "wiki", new Ammunition(4, "ammo", "wiki"), "3", "7", "saving", "savingNum", List.of("property"), "+3", "+3", "0", "-3", "-3", "-6", null, "profile", 1, List.of()))
+                ));
+
+        List<Equipment> equipments = List.of(new Equipment(101, "Hacking Device", "wiki", 1, List.of(
                 new ExtraValue(2, "extra", ExtraValue.Type.Text, null),
                 new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f)
         )
@@ -110,9 +134,9 @@ public class HtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, HtmlPrinter.Template template) {
+    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInstantOfAmmo, HtmlPrinter.Template template) {
         fileName = "testFile_" + System.currentTimeMillis();
-        underTest.writeCards(List.of(unitOption), List.of(), martialArtLevels, fileName, "", sectorial, "", "", "", "", useInch, weaponOption, showImage, showHackingProgram, template);
+        underTest.writeCards(List.of(unitOption), List.of(hackingProgram), martialArtLevels, bootyRolls, metaChemistryRolls, fileName, "", sectorial, "", "", "", "", useInch, showSavingRollInstantOfAmmo, weaponOption, showImage, showHackingProgram, template);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

@@ -18,11 +18,13 @@
             }
         }
 
-        body {
+        html, body {
             font-family: 'Orbitron', sans-serif;
 
             width: 700px;
             height: 454px;
+            margin: 0;
+            padding: 0;
         }
 
         .card {
@@ -39,6 +41,7 @@
             height: 454px;
             display: grid;
             box-sizing: border-box;
+            gap: 1mm;
 
         }
 
@@ -74,11 +77,11 @@
             padding: 5px;
         }
 
-        .cap-box, .cost-box {
-            width: 12.5%;
+        .cap-box, .cost-box, .ava-box {
+            width: 15%;
             text-align: center;
             border-right: 1px solid #bbb;
-            padding: 5px;
+            padding: 3px;
             font-weight: bold;
         }
 
@@ -175,6 +178,7 @@
                     SWC
                 </div>
                 <div class="cost-box" th:text="'C: ' + ${unitPrintCard.getUnitOption().getTotalCost()}">C:</div>
+                <div class="ava-box" th:text="'AVA: ' + ${unitPrintCard.getAva()}">C:</div>
             </div>
         </div>
 

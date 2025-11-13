@@ -166,6 +166,15 @@ public class UnitPrintCard {
                 .collect(Collectors.joining(", "));
     }
 
+    public String getAva() {
+        if (profile.getAvailability() == -1) {
+            return "-";
+        } else if (profile.getAvailability() == 255) {
+            return "*";
+        }
+        return profile.getAvailability() + "";
+    }
+
     public String getMartialArtsBonus() {
         if (martialArtLevels == null) {
             return "CC";
