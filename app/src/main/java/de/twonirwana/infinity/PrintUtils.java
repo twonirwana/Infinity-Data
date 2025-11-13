@@ -171,20 +171,57 @@ public class PrintUtils {
             if (weapon.getSaving().equals("-") || weapon.getSaving().isEmpty()) {
                 return weapon.getProbabilityOfSurvival();
             }
-            return getSavingRoll(weapon, null); //PARA weapons
+            return getSavingRoll(weapon, null, trooperProfile); //PARA weapons
         }
 
-        return getSavingRoll(weapon, modifiedPs);
+        return getSavingRoll(weapon, modifiedPs, trooperProfile);
     }
 
-    public static String getSavingRoll(Weapon weapon, String ps) {
+    public static String getSavingRoll(Weapon weapon, String ps, TrooperProfile trooperProfile) {
         final String psOp;
         if (ps == null || "-".equals(ps)) {
             psOp = "";
         } else {
             psOp = ps + "+";
         }
-        return "%sd ≤ %s%s".formatted(weapon.getSavingNum(), psOp, weapon.getSaving());
+        String weaponSkill = getWeaponSkill(weapon);
+        Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
+        Set<String> weaponExtra = Optional.ofNullable(trooperProfile)
+                .map(TrooperProfile::getSkills).orElse(List.of()).stream()
+                .filter(s -> s.getName().equals(weaponSkill))
+                .flatMap(s -> s.getExtras().stream())
+                .map(ExtraValue::getText)
+                .filter(Objects::nonNull)
+                .filter(relevantWeaponSkillExtras::contains)
+                .collect(Collectors.toSet());
+
+
+        List<String> extraList = new ArrayList<>();
+        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("T2")) || weaponExtra.contains("T2")) {
+            extraList.add("T2");
+        }
+        if (weapon.getProperties().contains("Continous Damage") || weaponExtra.contains("Continous Damage")) {
+            extraList.add("C");
+        }
+        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("Shock")) || weaponExtra.contains("Shock")) {
+            extraList.add("S");
+        }
+        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("E/M"))) {
+            extraList.add("E");
+        }
+
+        String saving = weapon.getSaving();
+        if (weaponExtra.contains("AP")) {
+            if ("BTS".equals(saving)) {
+                saving = "BTS/2";
+            } else if ("ARM".equals(saving)) {
+                saving = "ARM/2";
+            }
+        }
+        String extraString = extraList.isEmpty() ? "" : " " + Joiner.on(" ").join(extraList);
+
+
+        return "%sd ≤ %s%s%s".formatted(weapon.getSavingNum(), psOp, saving, extraString);
     }
 
     public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {

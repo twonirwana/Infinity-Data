@@ -491,7 +491,7 @@
                     <td class="weaponPadding"
                         th:text="${weapon.getBurst()}"></td>
                     <td class="weaponPadding" th:if="${showSavingRollInstantOfAmmo}"
-                        th:text="${printUtils.getSavingRoll(weapon, weapon.getProbabilityOfSurvival())}"></td>
+                        th:text="${printUtils.getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null)}"></td>
 
                     <td th:if="${!showSavingRollInstantOfAmmo}"
                         th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
