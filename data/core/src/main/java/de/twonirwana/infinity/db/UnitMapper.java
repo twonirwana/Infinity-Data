@@ -421,7 +421,7 @@ public class UnitMapper {
         return List.of();
     }
 
-    private static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras) {
+    public static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras) {
         de.twonirwana.infinity.unit.api.Ammunition ammunition = Optional.ofNullable(weapon.getAmmunition())
                 .map(a -> new de.twonirwana.infinity.unit.api.Ammunition(a.getId(), a.getName(), a.getWiki()))
                 .orElse(null);

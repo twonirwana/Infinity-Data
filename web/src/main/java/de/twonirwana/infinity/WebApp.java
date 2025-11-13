@@ -221,6 +221,7 @@ public class WebApp {
             final boolean showEquipmentWeapons = getCheckboxValue(ctx, "showEquipmentWeapons");
             final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
             final boolean distinct = getCheckboxValue(ctx, "distinctUnits");
+            final boolean showSavingRollInstantOfAmmo = getCheckboxValue(ctx, "showSavingRollInstantOfAmmo");
 
             Set<Weapon.Type> weaponTypes = getShowWeaponType(showSkillWeapon, showEquipmentWeapons);
 
@@ -236,7 +237,7 @@ public class WebApp {
 
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = getFileName(armyCodeHash, styleOptional.get(), unit, distinct, weaponTypes, removeImages);
+            String fileName = getFileName(armyCodeHash, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInstantOfAmmo);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 registry.counter("infinity.generate.existing").increment();
@@ -286,12 +287,26 @@ public class WebApp {
                             .toList();
                 }
 
-                htmlPrinter.printCardForArmyCode(armyListOptions, database.getAllHackingPrograms(), database.getAllMartialArtLevels(), al.getSectorial(), fileName, armyCode, useInch, weaponTypes, !removeImages, true, styleOptional.get());
+                htmlPrinter.printCardForArmyCode(armyListOptions,
+                        database.getAllHackingPrograms(),
+                        database.getAllMartialArtLevels(),
+                        database.getAllBootyRolls(),
+                        database.getAllMetaChemistryRolls(),
+                        al.getSectorial(),
+                        fileName,
+                        armyCode,
+                        useInch,
+                        showSavingRollInstantOfAmmo,
+                        weaponTypes,
+                        !removeImages,
+                        true,
+                        styleOptional.get());
                 log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
                 registry.counter("infinity.generate.list",
                         "sectorial", al.getSectorial().getSlug(),
                         "style", styleOptional.get().name(),
                         "unit", unit,
+                        "savingRoll", String.valueOf(showSavingRollInstantOfAmmo),
                         "removeImages", String.valueOf(removeImages),
                         "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
                         "showSkillWeapon", String.valueOf(showSkillWeapon),
@@ -312,13 +327,14 @@ public class WebApp {
         });
     }
 
-    private static String getFileName(String armyCodeHash, HtmlPrinter.Template template, String unit, boolean distinctUnit, Set<Weapon.Type> weaponTypes, boolean removeImage) {
-        return "%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
+    private static String getFileName(String armyCodeHash, HtmlPrinter.Template template, String unit, boolean distinctUnit, Set<Weapon.Type> weaponTypes, boolean removeImage, boolean showSavingRollInstantOfAmmo) {
+        return "%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
                 template,
                 unit,
                 distinctUnit ? "distinct" : "all",
                 weaponTypes.stream().map(Enum::name).sorted().collect(Collectors.joining("-")),
-                removeImage ? "noImage" : "showImage");
+                removeImage ? "noImage" : "showImage",
+                showSavingRollInstantOfAmmo ? "savingRoll" : "psAndAmmo");
 
     }
 

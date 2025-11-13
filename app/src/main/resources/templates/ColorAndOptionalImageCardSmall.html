@@ -27,7 +27,7 @@
 
         body {
             font-family: "Inter", Arial, Helvetica, sans-serif;
-            font-size: 18pt
+            font-size: 6pt;
         }
 
         h2 {
@@ -40,7 +40,7 @@
             height: [[${cardHeightInMm}]];
             display: grid;
             gap: 1mm;
-            border: 5px solid [[${primaryColor}]];
+            border: 2px solid [[${primaryColor}]];
             overflow: hidden;
         }
 
@@ -51,33 +51,33 @@
 
         .attribut th, .attribut td {
             padding: 1px 2px;
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             text-align: center;
         }
 
         .weapon th, .weapon td {
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             text-align: center;
             white-space: nowrap;
         }
 
         .weaponPadding {
-            padding-right: 5px;
-            padding-left: 5px;
+            padding-right: 2px;
+            padding-left: 2px;
         }
 
         .hacking th, .hacking td {
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             text-align: center;
         }
 
         .chem th, .chem td {
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             text-align: center;
         }
 
         .booty th, .booty td {
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             text-align: center;
         }
 
@@ -304,7 +304,7 @@
                             th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
                         <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
-                            style="white-space: normal; font-size: 12pt"></td>
+                            style="white-space: normal; font-size: 4pt"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -497,7 +497,7 @@
                         th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
                     <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
-                        style="white-space: normal; font-size: 12pt"></td>
+                        style="white-space: normal; font-size: 4pt"></td>
                 </tr>
                 </tbody>
             </table>

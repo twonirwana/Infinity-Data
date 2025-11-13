@@ -38,7 +38,11 @@ public class PrintUtils {
         }
         String out;
         if (weapon.getMode() != null) {
-            out = "%s [%s]".formatted(weapon.getName(), weapon.getMode().replace(" Mode", ""));
+            out = "%s [%s]".formatted(weapon.getName(), weapon.getMode()
+                    .replace("Anti-Material", "DA")
+                    .replace("Anti-materiel", "DA")
+                    .replace("Anti-Materiel", "DA")
+                    .replace(" Mode", ""));
         } else {
             out = weapon.getName();
         }
@@ -114,15 +118,17 @@ public class PrintUtils {
         if (weapon.getSkill() == Weapon.Skill.CC
                 && unitPrintCard.getMartialArtLevels() != null
                 && !"0".equals(unitPrintCard.getMartialArtLevels().getBurst())) {
-            maBurstBonus = unitPrintCard.getMartialArtLevels().getBurst();
+            maBurstBonus = unitPrintCard.getMartialArtLevels().getBurst()
+                    .replace("B, ", "")
+                    .replace("B", "");
         }
 
         return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra) + maBurstBonus;
     }
 
     public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
-        if (weapon.getDamage() == null || weapon.getDamage().equals("-") || weapon.getDamage().equals("*")) {
-            return weapon.getDamage();
+        if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*") || weapon.getProbabilityOfSurvival().equals("-")) {
+            return weapon.getProbabilityOfSurvival();
         }
         String weaponSkill = getWeaponSkill(weapon);
         Optional<Integer> srExtra;
@@ -146,17 +152,39 @@ public class PrintUtils {
                 .map(Integer::parseInt)
                 .findFirst();
 
-        int damage = psExtra.orElse(Integer.parseInt(weapon.getDamage()));
+        int ps = psExtra.orElse(Integer.parseInt(weapon.getProbabilityOfSurvival()));
         if (srExtra.isPresent()) {
-            damage = damage - srExtra.get();
+            ps = ps - srExtra.get();
         }
 
         if (psExtra.isPresent() || srExtra.isPresent()) {
-            return damage + "*";
+            return ps + "*";
+        }
+        return ps + "";
+    }
+
+    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        String modifiedPs = getWeaponPsWithExtra(trooperProfile, weapon);
+        if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*")) {
+            return weapon.getProbabilityOfSurvival();
+        } else if (weapon.getProbabilityOfSurvival().equals("-")) {
+            if (weapon.getSaving().equals("-") || weapon.getSaving().isEmpty()) {
+                return weapon.getProbabilityOfSurvival();
+            }
+            return getSavingRoll(weapon, null); //PARA weapons
         }
 
-        return damage + "";
+        return getSavingRoll(weapon, modifiedPs);
+    }
 
+    public static String getSavingRoll(Weapon weapon, String ps) {
+        final String psOp;
+        if (ps == null || "-".equals(ps)) {
+            psOp = "";
+        } else {
+            psOp = ps + "+";
+        }
+        return "%sd ≤ %s%s".formatted(weapon.getSavingNum(), psOp, weapon.getSaving());
     }
 
     public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {
@@ -253,12 +281,19 @@ public class PrintUtils {
         return Optional.empty();
     }
 
-    public static String getRangeClass(TrooperProfile profile, String range, Map<String, String> rangeClassMap) {
+    public static String getRangeClassWithOptionalXVisor(TrooperProfile profile, String range, Map<String, String> rangeClassMap) {
         if (range == null) {
             return null;
         }
         String updatedRange = applyXVisorToRangeModi(profile, range);
         return rangeClassMap.getOrDefault(updatedRange, "");
+    }
+
+    public static String getRangeClass(String range, Map<String, String> rangeClassMap) {
+        if (range == null) {
+            return null;
+        }
+        return rangeClassMap.getOrDefault(range, "");
     }
 
     public static String get20cmRangeName(boolean useInch) {

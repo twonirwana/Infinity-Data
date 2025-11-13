@@ -97,33 +97,51 @@ public class HtmlPrinter {
 
     /*todo:
      * T2, AP, Shock, Continous Damage from Skill to weapon table
-     * dina7 format: points and sws
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Max Image width
      * Second page for units with more then 6 weapons?
-     * weapon add saving modifier, savingNum to table? -> in notes?
      */
 
     public void printCardForArmyCode(List<UnitOption> unitOptions,
                                      List<HackingProgram> allHackingPrograms,
                                      List<MartialArtLevel> allMartialArtLevels,
+                                     List<BootyRoll> allBootyRolls,
+                                     List<MetaChemistryRoll> allMetaChemistryRolls,
                                      Sectorial sectorial,
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
+                                     boolean showSavingRollInstantOfAmmo,
                                      Set<Weapon.Type> showWeaponOfType,
                                      boolean showImage,
                                      boolean showHackingPrograms,
                                      Template template) {
-        writeCards(unitOptions, allHackingPrograms, allMartialArtLevels, fileName, armyCode, sectorial, UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, CARD_FOLDER, useInch, showWeaponOfType, showImage, showHackingPrograms, template);
+        writeCards(unitOptions,
+                allHackingPrograms,
+                allMartialArtLevels,
+                allBootyRolls,
+                allMetaChemistryRolls,
+                fileName,
+                armyCode,
+                sectorial,
+                UNIT_IMAGE_FOLDER,
+                CUSTOM_UNIT_IMAGE_FOLDER,
+                UNIT_LOGOS_FOLDER,
+                CARD_FOLDER,
+                useInch,
+                showSavingRollInstantOfAmmo,
+                showWeaponOfType,
+                showImage,
+                showHackingPrograms,
+                template);
     }
 
     public void printAll(Database db, boolean useInch, Template template) {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, template));
+                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, false, template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -201,17 +219,19 @@ public class HtmlPrinter {
 
     public void writeToFile(UnitOption unitOption,
                             List<MartialArtLevel> allMartialArtLevels,
-
                             String unitImagePath,
                             String customUnitImagePath,
                             String logoImagePath,
                             String outputFolder,
                             boolean useInch,
+                            boolean showSavingRollInstantOfAmmo,
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
         writeCards(List.of(unitOption),
                 List.of(),
                 allMartialArtLevels,
+                List.of(),
+                List.of(),
                 fileName,
                 "-",
                 unitOption.getSectorial(),
@@ -220,6 +240,7 @@ public class HtmlPrinter {
                 logoImagePath,
                 outputFolder,
                 useInch,
+                showSavingRollInstantOfAmmo,
                 Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
                 true,
                 false,
@@ -229,6 +250,8 @@ public class HtmlPrinter {
     public void writeCards(List<UnitOption> unitOptions,
                            List<HackingProgram> allHackingPrograms,
                            List<MartialArtLevel> allMartialArtLevels,
+                           List<BootyRoll> allBootyRolls,
+                           List<MetaChemistryRoll> allMetaChemistryRolls,
                            String fileName,
                            String armyCode,
                            Sectorial sectorial,
@@ -237,6 +260,7 @@ public class HtmlPrinter {
                            String logoImagePath,
                            String outputFolder,
                            boolean useInch,
+                           boolean showSavingRollInstantOfAmmo,
                            Set<Weapon.Type> showWeaponOfType,
                            boolean showImage,
                            boolean showHackingPrograms,
@@ -273,7 +297,7 @@ public class HtmlPrinter {
         final List<PrintHackingProgram> programsCard1;
         final List<PrintHackingProgram> programsCard2;
 
-        int maxProgramsOnFirstCard = 7;
+        int maxProgramsOnFirstCard = template.numberOfHackingProgramsPerCard;
         if (usedHackingPrograms.size() > maxProgramsOnFirstCard) {
             programsCard1 = usedHackingPrograms.subList(0, maxProgramsOnFirstCard);
             programsCard2 = usedHackingPrograms.subList(maxProgramsOnFirstCard, usedHackingPrograms.size());
@@ -285,6 +309,9 @@ public class HtmlPrinter {
         int cardWidthInMm = template.widthInMm;
         int cardHeightInMm = template.heightInMm;
 
+        boolean hasBooty = hasAnySkill(unitOptions, "Booty");
+        boolean hasMetaChemistry = hasAnySkill(unitOptions, "MetaChemistry");
+
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
         context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
@@ -293,15 +320,17 @@ public class HtmlPrinter {
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("headerColor", headerColor);
-        context.setVariable("showImage", true);
+        context.setVariable("showSavingRollInstantOfAmmo", showSavingRollInstantOfAmmo);
         context.setVariable("printUtils", new PrintUtils());
         context.setVariable("programs", programsCard1);
         context.setVariable("programs2", programsCard2);
+        context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(allMetaChemistryRolls) : List.of());
+        context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(allBootyRolls) : List.of());
+        context.setVariable("bootyWeapons", hasBooty ? mapBootyWeapons(allBootyRolls) : List.of());
         context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
         context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
         context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
-        context.setVariable("primaryFontSize", template.primaryFontSize);
-        context.setVariable("secondaryFontSize", template.secondaryFontSize);
+        context.setVariable("useInch", useInch);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -309,6 +338,44 @@ public class HtmlPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean hasAnySkill(List<UnitOption> unitOptions, String skillName) {
+        return unitOptions.stream()
+                .flatMap(u -> u.getAllTrooper().stream())
+                .flatMap(t -> t.getProfiles().stream())
+                .flatMap(s -> s.getSkills().stream())
+                .anyMatch(s -> skillName.equals(s.getName()));
+    }
+
+    private List<PrintDoubleTable> mapToPrintMetaChemistry(List<MetaChemistryRoll> metaChemistryRolls) {
+        int halfCount = (metaChemistryRolls.size() / 2) - 1;
+        List<PrintDoubleTable> printMetaChemistries = new ArrayList<>();
+        for (int i = 0; i <= halfCount; i++) {
+            MetaChemistryRoll r1 = metaChemistryRolls.get(i);
+            MetaChemistryRoll r2 = metaChemistryRolls.get(halfCount + i + 1);
+            printMetaChemistries.add(new PrintDoubleTable(r1.getRoll(), r1.getBonus(), r2.getRoll(), r2.getBonus()));
+        }
+        return printMetaChemistries;
+    }
+
+    private List<PrintDoubleTable> mapToPrintBootyRoll(List<BootyRoll> bootyRolls) {
+        int halfCount = (bootyRolls.size() / 2) - 1;
+        List<PrintDoubleTable> doubleTables = new ArrayList<>();
+        for (int i = 0; i <= halfCount; i++) {
+            BootyRoll r1 = bootyRolls.get(i);
+            BootyRoll r2 = bootyRolls.get(halfCount + i + 1);
+            doubleTables.add(new PrintDoubleTable(r1.getRoll(), r1.getBonus(), r2.getRoll(), r2.getBonus()));
+        }
+        return doubleTables;
+    }
+
+    private List<Weapon> mapBootyWeapons(List<BootyRoll> bootyRolls) {
+        return bootyRolls.stream()
+                .flatMap(b -> b.getWeapons().stream())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
     private List<PrintHackingProgram> getUsedHackingPrograms(List<UnitOption> unitOptions, List<HackingProgram> allHackingPrograms) {
@@ -353,14 +420,13 @@ public class HtmlPrinter {
 
     @AllArgsConstructor
     public enum Template {
-        a7_image("ColorAndOptionalImageCard", 99, 70, "6pt", "4pt"),
-        a4_image("ColorAndOptionalImageCard", 297, 210, "18pt", "12pt"),
-        letter_image("ColorAndOptionalImageCard", 279, 216, "18pt", "12pt"),
-        card_bw("CardBW", 0, 0, "0", "0");
+        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7),
+        a4_image("ColorAndOptionalImageCard", 297, 210, 10),
+        letter_image("ColorAndOptionalImageCard", 279, 216, 10),
+        card_bw("CardBW", 0, 0, 0);
         final String fileName;
         final int widthInMm;
         final int heightInMm;
-        final String primaryFontSize;
-        final String secondaryFontSize;
+        final int numberOfHackingProgramsPerCard;
     }
 }

@@ -87,4 +87,14 @@ public class DatabaseImp implements Database {
     public List<MartialArtLevel> getAllMartialArtLevels() {
         return loader.getAllMartialArtLevels();
     }
+
+    @Override
+    public List<BootyRoll> getAllBootyRolls() {
+        return loader.getBootyRolls();
+    }
+
+    @Override
+    public List<MetaChemistryRoll> getAllMetaChemistryRolls() {
+        return loader.getMetaChemistry();
+    }
 }

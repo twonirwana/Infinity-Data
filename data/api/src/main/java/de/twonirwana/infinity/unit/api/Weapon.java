@@ -19,7 +19,7 @@ public class Weapon {
     String wiki;
     Ammunition ammunition;
     String burst; //int?
-    String damage; //int?
+    String probabilityOfSurvival; //int?
     String saving; //int?
     String savingNum; //int?
     @NonNull

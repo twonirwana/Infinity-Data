@@ -31,4 +31,8 @@ public interface Database {
     List<HackingProgram> getAllHackingPrograms();
 
     List<MartialArtLevel> getAllMartialArtLevels();
+
+    List<BootyRoll> getAllBootyRolls();
+
+    List<MetaChemistryRoll> getAllMetaChemistryRolls();
 }

@@ -11,9 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
-import de.twonirwana.infinity.HackingProgram;
-import de.twonirwana.infinity.MartialArtLevel;
-import de.twonirwana.infinity.Sectorial;
+import de.twonirwana.infinity.*;
 import de.twonirwana.infinity.model.Equipment;
 import de.twonirwana.infinity.model.Faction;
 import de.twonirwana.infinity.model.Metadata;
@@ -24,6 +22,7 @@ import de.twonirwana.infinity.model.specops.SpecopsNestedItem;
 import de.twonirwana.infinity.model.specops.SpecopsNestedItemDeserializer;
 import de.twonirwana.infinity.model.unit.Profile;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.Weapon;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,6 +66,12 @@ public class DataLoader {
 
     @Getter
     private final List<MartialArtLevel> allMartialArtLevels;
+
+    @Getter
+    private final List<MetaChemistryRoll> metaChemistry;
+
+    @Getter
+    private final List<BootyRoll> bootyRolls;
 
     public DataLoader() throws IOException, URISyntaxException {
         this(false);
@@ -135,11 +140,41 @@ public class DataLoader {
         allHackingPrograms = mapHackingPrograms(metadata);
 
         allMartialArtLevels = mapMartialArt(metadata);
+
+        bootyRolls = mapBootyRolls(metadata);
+
+        metaChemistry = mapChemistryRolls(metadata);
     }
 
     private static List<MartialArtLevel> mapMartialArt(Metadata metadata) {
         return metadata.getMartialArts().stream()
                 .map(m -> new MartialArtLevel(m.getOpponent(), m.getDamage(), m.getAttack(), m.getName(), m.getBurst()))
+                .toList();
+    }
+
+    private static List<MetaChemistryRoll> mapChemistryRolls(Metadata metadata) {
+        return metadata.getMetachemistry().stream()
+                .map(t -> new MetaChemistryRoll(t.getId(), t.getName(), t.getValue()))
+                .toList();
+    }
+
+    private static List<BootyRoll> mapBootyRolls(Metadata metadata) {
+        Map<String, List<Weapon>> weaponNameMap = metadata.getWeapons().stream()
+                .map(w -> UnitMapper.mapWeapon(w, null, List.of()))
+                .collect(Collectors.groupingBy(Weapon::getName));
+        Map<String, List<Weapon>> bootyWeaponMapping = Map.of(
+                "5-6", weaponNameMap.get("Grenades"),
+                "7-8", weaponNameMap.get("DA CC Weapon"),
+                "10", weaponNameMap.get("EXP CC Weapon"),
+                "11", weaponNameMap.get("Adhesive Launcher Rifle"),
+                "13", weaponNameMap.get("Panzerfaust"),
+                "14", weaponNameMap.get("Monofilament CC Weapon"),
+                "16", weaponNameMap.get("MULTI Rifle"),
+                "17", weaponNameMap.get("MULTI Sniper Rifle"),
+                "20", weaponNameMap.get("Heavy Machine Gun"));
+
+        return metadata.getBooty().stream()
+                .map(t -> new BootyRoll(t.getId(), t.getName(), t.getValue(), bootyWeaponMapping.getOrDefault(t.getName(), List.of())))
                 .toList();
     }
 
