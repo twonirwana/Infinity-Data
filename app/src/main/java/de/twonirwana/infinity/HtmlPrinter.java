@@ -96,7 +96,6 @@ public class HtmlPrinter {
     }
 
     /*todo:
-     * T2, AP, Shock, Continous Damage from Skill to weapon table
      * Mark profiles cards that belong to the same trooper, like transformations
      * Mark trooper cards that belong to the same unit, like peripherals
      * Max Image width
