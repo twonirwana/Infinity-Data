@@ -2,10 +2,7 @@ package de.twonirwana.infinity.util;
 
 import de.twonirwana.infinity.Database;
 import de.twonirwana.infinity.DatabaseImp;
-import de.twonirwana.infinity.unit.api.Trooper;
-import de.twonirwana.infinity.unit.api.TrooperProfile;
-import de.twonirwana.infinity.unit.api.UnitOption;
-import de.twonirwana.infinity.unit.api.Weapon;
+import de.twonirwana.infinity.unit.api.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,30 +33,34 @@ public class ExportMissingImageOverview {
         AtomicLong imageExists = new AtomicLong();
         AtomicLong trooperProfileCount = new AtomicLong();
         AtomicLong activeProfileCount = new AtomicLong();
-        Files.writeString(imageFile.toPath(), "File Name\\ID\\Sectorial\\Cost\\SWC\\Name\\Image exists\\BS Weapons\\CC Weapons\n");
+        Files.writeString(imageFile.toPath(), "File Name\\ID\\Sectorial\\Cost\\SWC\\Name\\Image exists\\BS Weapons\\CC Weapons\\Equipment\\Reinforcement\n");
         db.getAllSectorials().stream()
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> u.getAllTrooper()
-                        .forEach(t -> t.getProfiles()
-                                .forEach(p -> {
+                .flatMap(u -> u.getAllTrooper().stream()
+                        .flatMap(t -> t.getProfiles().stream()
+                                .map(p -> {
                                     trooperProfileCount.incrementAndGet();
-                                    if (!u.getSectorial().isDiscontinued()) {
+                                    if (!u.getSectorial().isDiscontinued() && !u.isReinforcementUnit() && !u.isMerc()) {
                                         activeProfileCount.incrementAndGet();
                                     }
-                                    try {
-                                        Files.writeString(imageFile.toPath(), imageData(u, t, p, imageExists), StandardOpenOption.APPEND);
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                })));
+                                    return imageData(u, t, p, imageExists);
+
+                                })))
+                .distinct()
+                .forEach(s -> {
+                    try {
+                        Files.writeString(imageFile.toPath(), s, StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
         System.out.printf("Total trooper profiles: %d, active trooper profiles: %d with image: %d%n", trooperProfileCount.get(), activeProfileCount.get(), imageExists.get());
     }
 
     private static String getImage(TrooperProfile profile) {
         String imageName = profile.getCombinedProfileId() + ".png";
-        if (profile.getImageNames() != null
-                && !profile.getImageNames().isEmpty()
+        if (!profile.getImageNames().isEmpty()
                 && new File(UNIT_IMAGE_FOLDER + profile.getImageNames().getFirst()).exists()) {
             return UNIT_IMAGE_FOLDER + imageName;
         }
@@ -91,7 +92,11 @@ public class ExportMissingImageOverview {
                                 .filter(w -> w.getSkill() == Weapon.Skill.CC)
                                 .collect(Collectors.groupingBy(Weapon::getId)).values().stream()
                                 .map(List::getFirst)
-                                .map(Weapon::getName).collect(Collectors.joining(", "))
+                                .map(Weapon::getName).collect(Collectors.joining(", ")),
+                        p.getEquipment().stream()
+                                .map(Equipment::getName)
+                                .collect(Collectors.joining(", ")),
+                        u.isReinforcementUnit()
                 ).map(Objects::toString)
                 .collect(Collectors.joining("\\")) + "\n";
     }
