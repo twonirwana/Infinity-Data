@@ -295,7 +295,7 @@
                         <td th:if="${!showSavingRollInstantOfAmmo}"
                             th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
-                        <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
+                        <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInstantOfAmmo)}"
                             style="white-space: normal; font-size: 4pt"></td>
                     </tr>
                     </tbody>
@@ -488,7 +488,7 @@
                     <td th:if="${!showSavingRollInstantOfAmmo}"
                         th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
-                    <td th:text="${printUtils.getWeaponPropertiesString(weapon)}"
+                    <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInstantOfAmmo)}"
                         style="white-space: normal; font-size: 4pt"></td>
                 </tr>
                 </tbody>

@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -85,6 +86,7 @@ public class ExportMissingImageOverview {
                         imageExists,
                         p.getWeapons().stream()
                                 .filter(w -> w.getSkill() == Weapon.Skill.BS)
+                                .filter(w -> Set.of(Weapon.Type.WEAPON, Weapon.Type.TURRET).contains(w.getType()))
                                 .collect(Collectors.groupingBy(Weapon::getId)).values().stream()
                                 .map(List::getFirst)
                                 .map(Weapon::getName).collect(Collectors.joining(", ")),

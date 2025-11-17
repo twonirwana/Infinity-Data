@@ -26,6 +26,7 @@ public class PrintUtils {
     private static final String MINUS_3_MODI = "-3";
     private static final String MINUS_6_MODI = "-6";
     private static final String XVISOR_NAME = "X Visor";
+    private static final String VIRAL_TRAIT = "Bioweapon (DA+SHOCK)";
     private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L";
 
     public static String getRangeHeader(boolean useInch) {
@@ -203,7 +204,7 @@ public class PrintUtils {
         if (weapon.getProperties().contains("Continous Damage") || weaponExtra.contains("Continous Damage")) {
             extraList.add("C");
         }
-        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("Shock")) || weaponExtra.contains("Shock")) {
+        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("Shock")) || weaponExtra.contains("Shock") || weapon.getProperties().contains(VIRAL_TRAIT)) {
             extraList.add("S");
         }
         if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("E/M"))) {
@@ -220,8 +221,14 @@ public class PrintUtils {
         }
         String extraString = extraList.isEmpty() ? "" : " " + Joiner.on(" ").join(extraList);
 
+        final String savingNumber;
+        if(weapon.getProperties().contains(VIRAL_TRAIT)){
+            savingNumber = "2";
+        } else {
+            savingNumber = weapon.getSavingNum();
+        }
 
-        return "%sd ≤ %s%s%s".formatted(weapon.getSavingNum(), psOp, saving, extraString);
+        return "%sd ≤ %s%s%s".formatted(savingNumber, psOp, saving, extraString);
     }
 
     public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {
@@ -230,11 +237,12 @@ public class PrintUtils {
                 rangeModifier.modifier());
     }
 
-    public static String getWeaponPropertiesString(Weapon weapon) {
+    public static String getWeaponPropertiesString(Weapon weapon, boolean showSavingRollInstantOfAmmo) {
         return weapon.getProperties().stream()
                 .map(PrintUtils::stripTeardropSuffix)
                 .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
                 .filter(s -> !CC_PROPERTY.equals(s)) //shown in range
+                .filter(s -> !VIRAL_TRAIT.equals(s) || !showSavingRollInstantOfAmmo)
                 .collect(Collectors.joining(", "));
     }
 
