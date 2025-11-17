@@ -54,11 +54,7 @@ public class WebApp {
     private final static String CM_UNIT_KEY = "cm";
 
     public static void main(String[] args) {
-        /*
-        todo:
-         * ko-fi
-         */
-
+        final long startupTime = System.currentTimeMillis();
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
         String contextPath = Config.get("server.contextPath", "/");
@@ -68,8 +64,6 @@ public class WebApp {
         createFolderIfNotExists(CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
 
-        moveFiles(CARD_IMAGE_FOLDER, CARD_IMAGE_ARCHIVE_FOLDER, true);
-        moveFiles(CARD_FOLDER, CARD_ARCHIVE_FOLDER, false);
         crateFileIfNotExists(ARMY_UNIT_HASH_FILE);
         crateFileIfNotExists(INVALID_ARMY_CODE_FILE);
         crateFileIfNotExists(MISSING_UNIT_ARMY_CODE_FILE);
@@ -125,7 +119,7 @@ public class WebApp {
         startPage(webApp, registry);
 
         //page that generates cards for the given parameter
-        generateCardPage(webApp, registry, contextPath, database, htmlPrinter);
+        generateCardPage(webApp, startupTime, registry, contextPath, database, htmlPrinter);
 
         //page for a generated card set
         viewCardPage(webApp, registry);
@@ -196,7 +190,12 @@ public class WebApp {
         });
     }
 
-    private static void generateCardPage(Javalin webApp, PrometheusMeterRegistry registry, String contextPath, Database database, HtmlPrinter htmlPrinter) {
+    private static void generateCardPage(Javalin webApp,
+                                         final long startupTime,
+                                         PrometheusMeterRegistry registry,
+                                         String contextPath,
+                                         Database database,
+                                         HtmlPrinter htmlPrinter) {
         webApp.get("/generate", ctx -> {
             registry.counter("infinity.generate.called").increment();
             String armyCode = ctx.queryParam("armyCode");
@@ -237,7 +236,7 @@ public class WebApp {
 
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = getFileName(armyCodeHash, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInstantOfAmmo);
+            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInstantOfAmmo);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 registry.counter("infinity.generate.existing").increment();
@@ -327,8 +326,16 @@ public class WebApp {
         });
     }
 
-    private static String getFileName(String armyCodeHash, HtmlPrinter.Template template, String unit, boolean distinctUnit, Set<Weapon.Type> weaponTypes, boolean removeImage, boolean showSavingRollInstantOfAmmo) {
-        return "%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
+    private static String getFileName(String armyCodeHash,
+                                      long startupTime,
+                                      HtmlPrinter.Template template,
+                                      String unit,
+                                      boolean distinctUnit,
+                                      Set<Weapon.Type> weaponTypes,
+                                      boolean removeImage,
+                                      boolean showSavingRollInstantOfAmmo) {
+        return "%s-%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
+                startupTime,
                 template,
                 unit,
                 distinctUnit ? "distinct" : "all",
