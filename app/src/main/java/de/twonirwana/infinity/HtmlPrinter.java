@@ -111,7 +111,7 @@ public class HtmlPrinter {
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
-                                     boolean showSavingRollInstantOfAmmo,
+                                     boolean showSavingRollInsteadOfAmmo,
                                      Set<Weapon.Type> showWeaponOfType,
                                      boolean showImage,
                                      boolean showHackingPrograms,
@@ -129,7 +129,7 @@ public class HtmlPrinter {
                 UNIT_LOGOS_FOLDER,
                 CARD_FOLDER,
                 useInch,
-                showSavingRollInstantOfAmmo,
+                showSavingRollInsteadOfAmmo,
                 showWeaponOfType,
                 showImage,
                 showHackingPrograms,
@@ -223,7 +223,7 @@ public class HtmlPrinter {
                             String logoImagePath,
                             String outputFolder,
                             boolean useInch,
-                            boolean showSavingRollInstantOfAmmo,
+                            boolean showSavingRollInsteadOfAmmo,
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
         writeCards(List.of(unitOption),
@@ -239,7 +239,7 @@ public class HtmlPrinter {
                 logoImagePath,
                 outputFolder,
                 useInch,
-                showSavingRollInstantOfAmmo,
+                showSavingRollInsteadOfAmmo,
                 Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
                 true,
                 false,
@@ -259,7 +259,7 @@ public class HtmlPrinter {
                            String logoImagePath,
                            String outputFolder,
                            boolean useInch,
-                           boolean showSavingRollInstantOfAmmo,
+                           boolean showSavingRollInsteadOfAmmo,
                            Set<Weapon.Type> showWeaponOfType,
                            boolean showImage,
                            boolean showHackingPrograms,
@@ -319,7 +319,7 @@ public class HtmlPrinter {
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("headerColor", headerColor);
-        context.setVariable("showSavingRollInstantOfAmmo", showSavingRollInstantOfAmmo);
+        context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
         context.setVariable("printUtils", new PrintUtils());
         context.setVariable("programs", programsCard1);
         context.setVariable("programs2", programsCard2);

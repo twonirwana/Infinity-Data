@@ -222,7 +222,7 @@ public class PrintUtils {
         String extraString = extraList.isEmpty() ? "" : " " + Joiner.on(" ").join(extraList);
 
         final String savingNumber;
-        if(weapon.getProperties().contains(VIRAL_TRAIT)){
+        if (weapon.getProperties().contains(VIRAL_TRAIT)) {
             savingNumber = "2";
         } else {
             savingNumber = weapon.getSavingNum();
@@ -237,12 +237,12 @@ public class PrintUtils {
                 rangeModifier.modifier());
     }
 
-    public static String getWeaponPropertiesString(Weapon weapon, boolean showSavingRollInstantOfAmmo) {
+    public static String getWeaponPropertiesString(Weapon weapon, boolean showSavingRollInsteadOfAmmo) {
         return weapon.getProperties().stream()
                 .map(PrintUtils::stripTeardropSuffix)
                 .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
                 .filter(s -> !CC_PROPERTY.equals(s)) //shown in range
-                .filter(s -> !VIRAL_TRAIT.equals(s) || !showSavingRollInstantOfAmmo)
+                .filter(s -> !VIRAL_TRAIT.equals(s) || !showSavingRollInsteadOfAmmo)
                 .collect(Collectors.joining(", "));
     }
 

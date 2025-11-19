@@ -248,10 +248,10 @@
                         <th th:text="${printUtils.get100cmRangeName(unitPrintCard.isUseInch())}">100</th>
                         <th th:text="${printUtils.get120cmRangeName(unitPrintCard.isUseInch())}">120</th>
                         <th th:text="${printUtils.get240cmRangeName(unitPrintCard.isUseInch())}">240cm</th>
-                        <th th:if="${!showSavingRollInstantOfAmmo}">PS</th>
+                        <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
                         <th class="weaponPadding">B</th>
-                        <th class="weaponPadding" th:if="${showSavingRollInstantOfAmmo}">Saving Roll</th>
-                        <th th:if="${!showSavingRollInstantOfAmmo}">Ammo</th>
+                        <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                        <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
                         <th>Traits</th>
                     </tr>
                     </thead>
@@ -284,18 +284,18 @@
                                 th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
                         </th:block>
 
-                        <td th:if="${!showSavingRollInstantOfAmmo}"
+                        <td th:if="${!showSavingRollInsteadOfAmmo}"
                             th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
 
                         <td class="weaponPadding"
                             th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
-                        <td class="weaponPadding" th:if="${showSavingRollInstantOfAmmo}"
+                        <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
                             th:text="${printUtils.getWeaponSavingRollWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
 
-                        <td th:if="${!showSavingRollInstantOfAmmo}"
+                        <td th:if="${!showSavingRollInsteadOfAmmo}"
                             th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
-                        <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInstantOfAmmo)}"
+                        <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
                             style="white-space: normal; font-size: 4pt"></td>
                     </tr>
                     </tbody>
@@ -441,10 +441,10 @@
                     <th th:text="${printUtils.get100cmRangeName(useInch)}">100</th>
                     <th th:text="${printUtils.get120cmRangeName(useInch)}">120</th>
                     <th th:text="${printUtils.get240cmRangeName(useInch)}">240cm</th>
-                    <th th:if="${!showSavingRollInstantOfAmmo}">PS</th>
+                    <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
                     <th class="weaponPadding">B</th>
-                    <th class="weaponPadding" th:if="${showSavingRollInstantOfAmmo}">Saving Roll</th>
-                    <th th:if="${!showSavingRollInstantOfAmmo}">Ammo</th>
+                    <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                    <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
                     <th>Traits</th>
                 </tr>
                 </thead>
@@ -477,18 +477,18 @@
                             th:class="${printUtils.getRangeClass( weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
                     </th:block>
 
-                    <td th:if="${!showSavingRollInstantOfAmmo}"
+                    <td th:if="${!showSavingRollInsteadOfAmmo}"
                         th:text="${weapon.getProbabilityOfSurvival()}"></td>
 
                     <td class="weaponPadding"
                         th:text="${weapon.getBurst()}"></td>
-                    <td class="weaponPadding" th:if="${showSavingRollInstantOfAmmo}"
+                    <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
                         th:text="${printUtils.getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null)}"></td>
 
-                    <td th:if="${!showSavingRollInstantOfAmmo}"
+                    <td th:if="${!showSavingRollInsteadOfAmmo}"
                         th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
-                    <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInstantOfAmmo)}"
+                    <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
                         style="white-space: normal; font-size: 4pt"></td>
                 </tr>
                 </tbody>

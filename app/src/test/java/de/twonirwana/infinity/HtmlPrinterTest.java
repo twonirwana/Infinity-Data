@@ -31,12 +31,12 @@ public class HtmlPrinterTest {
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
         for (boolean useInch : new boolean[]{true, false}) {
-            for (boolean showSavingRollInstantOfAmmo : new boolean[]{true, false}) {
+            for (boolean showSavingRollInsteadOfAmmo : new boolean[]{true, false}) {
                 for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                     for (boolean showImage : new boolean[]{true, false}) {
                         for (boolean showHackingProgram : new boolean[]{true, false}) {
                             for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                                testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, showSavingRollInstantOfAmmo, template));
+                                testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, showSavingRollInsteadOfAmmo, template));
                             }
                         }
                     }
@@ -134,9 +134,9 @@ public class HtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInstantOfAmmo, HtmlPrinter.Template template) {
+    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInsteadOfAmmo, HtmlPrinter.Template template) {
         fileName = "testFile_" + System.currentTimeMillis();
-        underTest.writeCards(List.of(unitOption), List.of(hackingProgram), martialArtLevels, bootyRolls, metaChemistryRolls, fileName, "", sectorial, "", "", "", "", useInch, showSavingRollInstantOfAmmo, weaponOption, showImage, showHackingProgram, template);
+        underTest.writeCards(List.of(unitOption), List.of(hackingProgram), martialArtLevels, bootyRolls, metaChemistryRolls, fileName, "", sectorial, "", "", "", "", useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingProgram, template);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }
