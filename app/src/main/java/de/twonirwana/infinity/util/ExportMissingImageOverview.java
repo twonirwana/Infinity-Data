@@ -87,6 +87,7 @@ public class ExportMissingImageOverview {
                         p.getWeapons().stream()
                                 .filter(w -> w.getSkill() == Weapon.Skill.BS)
                                 .filter(w -> Set.of(Weapon.Type.WEAPON, Weapon.Type.TURRET).contains(w.getType()))
+                                .filter(w -> !w.getName().equals("Suppressive Fire Mode Weapon"))
                                 .collect(Collectors.groupingBy(Weapon::getId)).values().stream()
                                 .map(List::getFirst)
                                 .map(Weapon::getName).collect(Collectors.joining(", ")),

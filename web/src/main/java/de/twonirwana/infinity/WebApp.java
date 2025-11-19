@@ -49,7 +49,6 @@ public class WebApp {
     private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
     private final static Path INVALID_ARMY_CODE_FILE = Path.of("invalid_army_code.csv"); //not in out because it should not be archived
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
-    private final static String CARD_IMAGE_ARCHIVE_FOLDER = CARD_ARCHIVE_FOLDER + IMAGE_FOLDER;
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
 
@@ -220,7 +219,7 @@ public class WebApp {
             final boolean showEquipmentWeapons = getCheckboxValue(ctx, "showEquipmentWeapons");
             final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
             final boolean distinct = getCheckboxValue(ctx, "distinctUnits");
-            final boolean showSavingRollInstantOfAmmo = getCheckboxValue(ctx, "showSavingRollInstantOfAmmo");
+            final boolean showSavingRollInsteadOfAmmo = getCheckboxValue(ctx, "showSavingRollInsteadOfAmmo");
 
             Set<Weapon.Type> weaponTypes = getShowWeaponType(showSkillWeapon, showEquipmentWeapons);
 
@@ -236,7 +235,7 @@ public class WebApp {
 
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInstantOfAmmo);
+            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInsteadOfAmmo);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
                 registry.counter("infinity.generate.existing").increment();
@@ -295,7 +294,7 @@ public class WebApp {
                         fileName,
                         armyCode,
                         useInch,
-                        showSavingRollInstantOfAmmo,
+                        showSavingRollInsteadOfAmmo,
                         weaponTypes,
                         !removeImages,
                         true,
@@ -305,7 +304,7 @@ public class WebApp {
                         "sectorial", al.getSectorial().getSlug(),
                         "style", styleOptional.get().name(),
                         "unit", unit,
-                        "savingRoll", String.valueOf(showSavingRollInstantOfAmmo),
+                        "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
                         "removeImages", String.valueOf(removeImages),
                         "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
                         "showSkillWeapon", String.valueOf(showSkillWeapon),
@@ -333,7 +332,7 @@ public class WebApp {
                                       boolean distinctUnit,
                                       Set<Weapon.Type> weaponTypes,
                                       boolean removeImage,
-                                      boolean showSavingRollInstantOfAmmo) {
+                                      boolean showSavingRollInsteadOfAmmo) {
         return "%s-%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
                 startupTime,
                 template,
@@ -341,7 +340,7 @@ public class WebApp {
                 distinctUnit ? "distinct" : "all",
                 weaponTypes.stream().map(Enum::name).sorted().collect(Collectors.joining("-")),
                 removeImage ? "noImage" : "showImage",
-                showSavingRollInstantOfAmmo ? "savingRoll" : "psAndAmmo");
+                showSavingRollInsteadOfAmmo ? "savingRoll" : "psAndAmmo");
 
     }
 

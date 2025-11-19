@@ -85,14 +85,14 @@ public class ManualHtmlPrinterTest {
         }
         List<Arguments> testData = new ArrayList<>();
         for (boolean useInch : new boolean[]{true, false}) {
-            for (boolean showSavingRollInstantOfAmmo : new boolean[]{true, false}) {
+            for (boolean showSavingRollInsteadOfAmmo : new boolean[]{true, false}) {
                 for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                     for (boolean showImage : new boolean[]{true, false}) {
                         for (boolean showHackingPrograms : new boolean[]{true, false}) {
                             for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
                                 testData.addAll(
                                         armyCodeAndUnits.stream()
-                                                .map(a -> Arguments.of(a.get(0), a.get(1), useInch, showSavingRollInstantOfAmmo, weaponOption, showImage, showHackingPrograms, template))
+                                                .map(a -> Arguments.of(a.get(0), a.get(1), useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, template))
                                                 .toList()
                                 );
                             }
@@ -106,7 +106,7 @@ public class ManualHtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInstantOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, HtmlPrinter.Template template) throws IOException {
+    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInsteadOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
         assertThat(db.validateArmyCodeUnits(armyCode)).isEmpty();
@@ -128,7 +128,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInstantOfAmmo, weaponOption, showImage, showHackingPrograms, template);
+        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();
