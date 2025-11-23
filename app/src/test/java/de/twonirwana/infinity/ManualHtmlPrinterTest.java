@@ -37,6 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 // - Zondnautica 1091
 // Seed Soldiers, Scarface, Posthumans,
 // code with many weapons: gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D
+// all hacking programs: glsKc2hhc3Zhc3RpaQEggSwBAQEABACFEwEBAACC5QEBAACB9gEIAACB9gEIAA%3D%3D
+// booty and meta chemistry: gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D
 public class ManualHtmlPrinterTest {
     final static List<Set<Weapon.Type>> WEAPON_TYPE_OPTIONS = List.of(Set.of(),
             Set.of(Weapon.Type.WEAPON),
@@ -104,8 +106,20 @@ public class ManualHtmlPrinterTest {
         return testData.stream();
     }
 
+    private static Stream<Arguments> generateTestDataOnlyOnce() {
+        List<CSVRecord> armyCodeAndUnits;
+        try {
+            armyCodeAndUnits = dataFromCsvFile("/armyCodes.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return armyCodeAndUnits.stream()
+                .map(a -> Arguments.of(a.get(0), a.get(1), true, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, true, HtmlPrinter.Template.c6onA4_image));
+
+    }
+
     @ParameterizedTest
-    @MethodSource("generateTestData")
+    @MethodSource("generateTestDataOnlyOnce")
     void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInsteadOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
@@ -138,7 +152,7 @@ public class ManualHtmlPrinterTest {
         assertThat(armyCodeInFile).containsExactly(armyCode);
 
         List<String> ids = findAllRegex(resultFileContent, combinedIdPattern);
-        //System.out.println(armyCode + ";" + Joiner.on(", ").join(ids));
+        //  System.out.println(armyCode + ";" + Joiner.on(", ").join(ids));
 
         assertThat(ids).containsExactly(expectedUnitIds.split(", "));
 

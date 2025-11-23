@@ -421,6 +421,7 @@ public class HtmlPrinter {
     public enum Template {
         a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7),
         a4_image("ColorAndOptionalImageCard", 297, 210, 10),
+        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9),
         letter_image("ColorAndOptionalImageCard", 279, 216, 10),
         card_bw("CardBW", 0, 0, 0);
         final String fileName;

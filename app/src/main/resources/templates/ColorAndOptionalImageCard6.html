@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <title th:text="${listName}">list name</title>
+    <meta name="armyCode" th:content="${armyCode}">
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: [[${pageSize}]];
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        html, body {
+            width: [[${cardWidthInMm}]];
+            height: [[${cardHeightInMm}]];
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", Arial, Helvetica, sans-serif;
+            font-size: 22pt
+        }
+
+        h2 {
+            color: [[${headerColor}]];
+        }
+
+        .card {
+            box-sizing: border-box;
+            width: [[${cardWidthInMm}]];
+            height: [[${cardHeightInMm}]];
+            display: grid;
+            gap: 1mm;
+            border: 5px solid [[${primaryColor}]];
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attribut th, .attribut td {
+            padding: 1px 2px;
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .weapon th, .weapon td {
+            border: 2px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .weaponPadding {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+
+        .hacking th, .hacking td {
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .chem th, .chem td {
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .booty th, .booty td {
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: [[${secondaryColor}]];
+            color: white;
+            font-weight: bold;
+        }
+
+        tr {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .rangePlus6 {
+            flex: 1;
+            background-color: yellowgreen;
+        }
+
+        .rangePlus3 {
+            flex: 1;
+            background-color: darkseagreen;
+        }
+
+        .range0 {
+            flex: 1;
+            background-color: deepskyblue;
+        }
+
+        .rangeMinus3 {
+            flex: 1;
+            background-color: orange;
+        }
+
+        .rangeMinus6 {
+            flex: 1;
+            background-color: orangered;
+        }
+
+        .typAndCategory {
+            padding-right: 2px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            height: 100%;
+            justify-content: space-evenly;
+        }
+
+        .unit-header {
+            display: flex;
+        }
+
+        .unit-header-logo {
+            height: 85px;
+            width: 85px;
+        }
+
+        .unit-header-title {
+            flex-grow: 1;
+            margin: 0;
+            font-size: 1.5em;
+            padding: 10px;
+            align-content: center;
+        }
+
+        .unit-header-icon-group {
+            display: flex;
+            gap: 2px;
+        }
+
+        .unit-header-icon {
+            height: 85px;
+            width: 85px;
+        }
+
+    </style>
+</head>
+<body>
+<div th:each="unitPrintCard : ${unitPrintCards}">
+    <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
+        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
+            <div class="unit-header" th:style="|background-color: ${primaryColor}|">
+
+                <img th:src="@{image/{imageName}(imageName=${unitPrintCard.profile.logo})}"
+                     alt="Logo" class="unit-header-logo">
+
+                <h2 class="unit-header-title">
+                    <span th:text="${unitPrintCard.unitName}">Trooper Profile Name</span>
+                </h2>
+
+                <div class="unit-header-icon-group">
+                    <th:block th:each="imageName : ${unitPrintCard.iconFileNames}">
+                        <img th:src="@{image/{fileName}(fileName=${imageName})}"
+                             alt="Unit icon" class="unit-header-icon">
+                    </th:block>
+                </div>
+            </div>
+            <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
+                <div style="display: flex; height: 100%;">
+                    <div th:style="${unitPrintCard.isShowImage()} ? 'width: 60%; margin-left: auto;' : 'width: 100%'">
+                        <div style="display: flex; flex-direction: column; height: 100%;">
+                            <div style="display: flex;">
+                                <div class="typAndCategory">
+                                    <div th:text="${unitPrintCard.getProfile().getType()}"></div>
+                                    <div th:text="${unitPrintCard.getShortCategory()}"></div>
+                                </div>
+                                <table class="attribut">
+                                    <thead>
+                                    <tr>
+                                        <th>MOV</th>
+                                        <th>CC</th>
+                                        <th>BS</th>
+                                        <th>PH</th>
+                                        <th>WIP</th>
+                                        <th>ARM</th>
+                                        <th>BTS</th>
+                                        <th th:text="${unitPrintCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds
+                                        </th>
+                                        <th>S</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td th:text="${unitPrintCard.getMovement()}">0-0</td>
+                                        <td th:text="${unitPrintCard.getProfile().closeCombat}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().ballisticSkill}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().physique}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().willpower}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().armor}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().bioTechnologicalShield}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().wounds}">0</td>
+                                        <td th:text="${unitPrintCard.getProfile().silhouette}">0</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
+                                <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
+                                    <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
+                                </div>
+                                <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
+                                    <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills()}"></span>
+                                </div>
+                                <div th:if="${unitPrintCard.showNotes()}"
+                                     style="background-color: rgba(255, 255, 255, 0.8); padding: 2px">
+                                    <b>Notes:</b> <span th:text="${unitPrintCard.getNotes()}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${unitPrintCard.getProfile().getWeapons() != null and not #lists.isEmpty(unitPrintCard.getProfile().getWeapons())}">
+                <table class="weapon">
+                    <thead>
+                    <tr>
+                        <th>Weapon Name</th>
+                        <th th:text="${printUtils.get20cmRangeName(unitPrintCard.isUseInch())}">20</th>
+                        <th th:text="${printUtils.get40cmRangeName(unitPrintCard.isUseInch())}">40</th>
+                        <th th:text="${printUtils.get60cmRangeName(unitPrintCard.isUseInch())}">60</th>
+                        <th th:text="${printUtils.get80cmRangeName(unitPrintCard.isUseInch())}">80</th>
+                        <th th:text="${printUtils.get100cmRangeName(unitPrintCard.isUseInch())}">100</th>
+                        <th th:text="${printUtils.get120cmRangeName(unitPrintCard.isUseInch())}">120</th>
+                        <th th:text="${printUtils.get240cmRangeName(unitPrintCard.isUseInch())}">240cm</th>
+                        <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
+                        <th class="weaponPadding">B</th>
+                        <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                        <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
+                        <th>Traits</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="weapon : ${unitPrintCard.getWeapons()}">
+                        <td style="white-space: pre"
+                            th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
+                        <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
+                            <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
+                        </th:block>
+
+                        <th:block th:if="${printUtils.isCC(weapon)}">
+                            <td colspan="7" th:text="${unitPrintCard.getMartialArtsBonus()}">CC</td>
+                        </th:block>
+
+                        <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo20cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo40cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo60cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo80cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo100cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo120cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
+                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo240cmRangeModi())}"
+                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
+                        </th:block>
+
+                        <td th:if="${!showSavingRollInsteadOfAmmo}"
+                            th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
+
+                        <td class="weaponPadding"
+                            th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
+                        <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
+                            th:text="${printUtils.getWeaponSavingRollWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
+
+                        <td th:if="${!showSavingRollInsteadOfAmmo}"
+                            th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+
+                        <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
+                            style="white-space: normal; font-size: 14pt"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Hacking Programs 1</h2>
+        </div>
+        <table class="hacking">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Device</th>
+                <th>Attack/Opp.<br>Mod</th>
+                <th>B</th>
+                <th>PS</th>
+                <th>Target</th>
+                <th>Skill Type</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="program : ${programs}">
+                <td th:text="${program.getHackingProgram().getName()}"></td>
+                <td th:text="${program.getDeviceNames()}"></td>
+                <td th:text="${program.getModifier()}"></td>
+                <td th:text="${program.getHackingProgram().getBurst()}"></td>
+                <td th:text="${program.getHackingProgram().getPs()}"></td>
+                <td th:text="${program.getTargets()}"></td>
+                <td th:text="${program.getSkillType()}"></td>
+                <td style="width: 30%" th:text="${program.getHackingProgram().getDescription()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Hacking Programs 2</h2>
+        </div>
+        <table class="hacking">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Device</th>
+                <th>Attack/Opp.<br>Mod</th>
+                <th>B</th>
+                <th>PS</th>
+                <th>Target</th>
+                <th>Skill Type</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="program : ${programs2}">
+                <td th:text="${program.getHackingProgram().getName()}"></td>
+                <td th:text="${program.getDeviceNames()}"></td>
+                <td th:text="${program.getModifier()}"></td>
+                <td th:text="${program.getHackingProgram().getBurst()}"></td>
+                <td th:text="${program.getHackingProgram().getPs()}"></td>
+                <td th:text="${program.getTargets()}"></td>
+                <td th:text="${program.getSkillType()}"></td>
+                <td style="width: 30%" th:text="${program.getHackingProgram().getDescription()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card" th:if="${metaChemistry != null and not #lists.isEmpty(metaChemistry)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Meta Chemistry</h2>
+        </div>
+        <table class="chem">
+            <thead>
+            <tr>
+                <th>Roll</th>
+                <th>Bonus</th>
+                <th>Roll</th>
+                <th>Bonus</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="chem : ${metaChemistry}">
+                <td th:text="${chem.getRoll1()}"></td>
+                <td th:text="${chem.getBonus1()}"></td>
+                <td th:text="${chem.getRoll2()}"></td>
+                <td th:text="${chem.getBonus2()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card" th:if="${bootyRolls != null and not #lists.isEmpty(bootyRolls)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Booty</h2>
+        </div>
+        <table class="booty">
+            <thead>
+            <tr>
+                <th>Roll</th>
+                <th>Bonus</th>
+                <th>Roll</th>
+                <th>Bonus</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="booty : ${bootyRolls}">
+                <td th:text="${booty.getRoll1()}"></td>
+                <td th:text="${booty.getBonus1()}"></td>
+                <td th:text="${booty.getRoll2()}"></td>
+                <td th:text="${booty.getBonus2()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card" th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
+    <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+
+        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+            <h2>Booty Weapons</h2>
+        </div>
+        <div th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
+            <table class="weapon">
+                <thead>
+                <tr>
+                    <th>Weapon Name</th>
+                    <th th:text="${printUtils.get20cmRangeName(useInch)}">20</th>
+                    <th th:text="${printUtils.get40cmRangeName(useInch)}">40</th>
+                    <th th:text="${printUtils.get60cmRangeName(useInch)}">60</th>
+                    <th th:text="${printUtils.get80cmRangeName(useInch)}">80</th>
+                    <th th:text="${printUtils.get100cmRangeName(useInch)}">100</th>
+                    <th th:text="${printUtils.get120cmRangeName(useInch)}">120</th>
+                    <th th:text="${printUtils.get240cmRangeName(useInch)}">240cm</th>
+                    <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
+                    <th class="weaponPadding">B</th>
+                    <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                    <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
+                    <th>Traits</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="weapon : ${bootyWeapons}">
+                    <td style="white-space: pre"
+                        th:text="${printUtils.prettyWeaponName(weapon, useInch)}"></td>
+                    <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
+                        <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
+                    </th:block>
+
+                    <th:block th:if="${printUtils.isCC(weapon)}">
+                        <td colspan="7">CC</td>
+                    </th:block>
+
+                    <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
+                        <td th:text="${weapon.getUpTo20cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
+                        <td th:text="${weapon.getUpTo40cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
+                        <td th:text="${weapon.getUpTo60cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
+                        <td th:text="${weapon.getUpTo80cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
+                        <td th:text="${weapon.getUpTo100cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
+                        <td th:text="${weapon.getUpTo120cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
+                        <td th:text="${weapon.getUpTo240cmRangeModi()}"
+                            th:class="${printUtils.getRangeClass( weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
+                    </th:block>
+
+                    <td th:if="${!showSavingRollInsteadOfAmmo}"
+                        th:text="${weapon.getProbabilityOfSurvival()}"></td>
+
+                    <td class="weaponPadding"
+                        th:text="${weapon.getBurst()}"></td>
+                    <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
+                        th:text="${printUtils.getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null)}"></td>
+
+                    <td th:if="${!showSavingRollInsteadOfAmmo}"
+                        th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+
+                    <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
+                        style="white-space: normal; font-size: 14pt"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
