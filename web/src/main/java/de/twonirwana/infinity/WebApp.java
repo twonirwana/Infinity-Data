@@ -43,7 +43,6 @@ import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
 @Slf4j
 public class WebApp {
     private final static String CARD_FOLDER = HtmlPrinter.HTML_OUTPUT_PATH + HtmlPrinter.CARD_FOLDER;
-    private final static String CARD_ARCHIVE_FOLDER = "archive/html/card";
     private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
     private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
     private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
@@ -95,7 +94,7 @@ public class WebApp {
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
             //customUnitImages have priority and overwrite CB Images
-            moveFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER, true);
+            copyFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER);
         }
 
         Javalin webApp = Javalin.create(config -> {
@@ -237,7 +236,7 @@ public class WebApp {
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
             String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInsteadOfAmmo);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
-                log.info("army code already exists: {} {} -> {}", armyCode, unit, fileName);
+                log.info("army code already exists: {} -> {}", armyCode, fileName);
                 registry.counter("infinity.generate.existing").increment();
                 ctx.redirect(contextPath + "view/" + fileName);
                 return;
@@ -400,7 +399,7 @@ public class WebApp {
         }
     }
 
-    private static void moveFiles(String source, String target, boolean onlyCopy) {
+    private static void copyFiles(String source, String target) {
         Path sourceDir = Paths.get(source);
         Path targetDir = Paths.get(target);
         int count = 0;
@@ -413,16 +412,12 @@ public class WebApp {
                 for (Path file : stream) {
                     if (!file.toFile().isDirectory()) {
                         Path targetPath = targetDir.resolve(file.getFileName());
-                        if (onlyCopy) {
-                            Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        } else {
-                            Files.move(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        }
+                        Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
                         count++;
                     }
                 }
             }
-            log.info("{} {} files from {} to {}", onlyCopy ? "copied" : "moved", count, sourceDir, targetDir);
+            log.info("copied {} files from {} to {}", count, sourceDir, targetDir);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
