@@ -38,7 +38,7 @@ public class PrintUtils {
             return "Suppressive Fire";
         }
         String out;
-        if (weapon.getMode() != null) {
+        if (weapon.getMode() != null && !weapon.getName().contains("Turret")) { //turret has the turret kind in mode and extra
             out = "%s [%s]".formatted(weapon.getName(), weapon.getMode()
                     .replace("Anti-Material", "DA")
                     .replace("Anti-materiel", "DA")

@@ -1,6 +1,7 @@
 package de.twonirwana.infinity.db;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.model.*;
 import de.twonirwana.infinity.model.image.ImgOption;
@@ -376,24 +377,24 @@ public class UnitMapper {
                 .toList();
         //turret logic, id 226 contains all kinds of turrets and it needs to be filtered over the mode
         if (pi.getId() == 226) {
-            Set<String> turretOptions = weapons.stream().map(Weapon::getMode).collect(Collectors.toSet());
-            Optional<String> mode = extras.stream()
+            Map<String, String> extra2WeaponModeNameMapping = ImmutableMap.<String, String>builder()
+                    .putAll(weapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
+                    .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle")
+                    .put("Combi R.", "Combi Rifle")
+                    .put("AP Marksman Rifle", "Marksman Rifle")
+                    .put("Thunderbolt (AP)", "Thunderbolt")
+                    .build();
+            Optional<ExtraValue> turretTypeExtra = extras.stream()
                     .filter(e -> e.getType() == ExtraValue.Type.Text)
-                    .map(ExtraValue::getText)
-                    .map(t -> {
-                        if ("Ad. Launcher Rifle".equals(t)) {
-                            return "Adhesive Launcher Rifle";
-                        } else if ("Combi R.".equals(t)) {
-                            return "Combi Rifle";
-                        }
-                        return t;
-                    })
-                    .filter(turretOptions::contains)
+                    .filter(e -> extra2WeaponModeNameMapping.containsKey(e.getText()))
                     .findFirst();
-            if (mode.isPresent()) {
+            if (turretTypeExtra.isPresent()) {
                 weapons = weapons.stream()
-                        .filter(w -> Objects.equals(w.getMode(), mode.get()))
+                        .filter(w -> Objects.equals(w.getMode(), extra2WeaponModeNameMapping.get(turretTypeExtra.get().getText())))
                         .toList();
+                if (weapons.isEmpty()) {
+                    log.error("Can't map turret with extras: {} in {}-{}", extras, unit.getSlug(), unit.getId());
+                }
             } else {
                 log.warn("Can't map turret with extras: {} in {}, using default", extras, unit.getSlug());
                 //use only base version
