@@ -40,7 +40,7 @@
             height: [[${cardHeightInMm}]];
             display: grid;
             gap: 1mm;
-            border: 5px solid [[${primaryColor}]];
+            border: 5px solid [[${boarderColor}]];
             overflow: hidden;
         }
 
@@ -83,7 +83,7 @@
 
         th {
             background-color: [[${secondaryColor}]];
-            color: white;
+            color: [[${tableHeaderFontColor}]];
             font-weight: bold;
         }
 
@@ -120,6 +120,36 @@
             background-color: orangered;
         }
 
+        .bwRangePlus6 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        .bwRangePlus3 {
+            flex: 1;
+            background-color: white;
+            border: black solid 1px;
+        }
+
+        .bwRange0 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        .bwRangeMinus3 {
+            flex: 1;
+            background-color: white;
+            border: black solid 1px;
+        }
+
+        .bwRangeMinus6 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
         .typAndCategory {
             padding-right: 2px;
             text-align: center;
@@ -133,11 +163,13 @@
 
         .unit-header {
             display: flex;
+            border: 2px solid [[${boarderColor}]];
         }
 
         .unit-header-logo {
             height: 85px;
             width: 85px;
+            align-self: center;
         }
 
         .unit-header-title {
@@ -156,6 +188,7 @@
         .unit-header-icon {
             height: 85px;
             width: 85px;
+            align-self: center;
         }
 
         .twoColumns {
@@ -171,6 +204,13 @@
             margin-bottom: 10px;
             display: inline-block;
             width: 100%;
+        }
+
+        .cardHeader {
+            padding-left: 3%;
+            height: fit-content;
+            background-color: [[${primaryColor}]];
+            border: 2px solid [[${boarderColor}]];
         }
 
     </style>
@@ -321,7 +361,7 @@
 </div>
 <div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
-        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <div class="cardHeader">
             <h2>Hacking Programs 1</h2>
         </div>
         <table class="hacking">
@@ -355,7 +395,7 @@
 <div class="card" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
-        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <div class="cardHeader">
             <h2>Hacking Programs 2</h2>
         </div>
         <table class="hacking">
@@ -389,7 +429,7 @@
 <div class="card" th:if="${metaChemistry != null and not #lists.isEmpty(metaChemistry)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
-        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <div class="cardHeader">
             <h2>Meta Chemistry</h2>
         </div>
         <table class="chem">
@@ -415,7 +455,7 @@
 <div class="card" th:if="${bootyRolls != null and not #lists.isEmpty(bootyRolls)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
-        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <div class="cardHeader">
             <h2>Booty</h2>
         </div>
         <table class="booty">
@@ -441,7 +481,7 @@
 <div class="card" th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
-        <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <div class="cardHeader">
             <h2>Booty Weapons</h2>
         </div>
         <div th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
@@ -512,7 +552,7 @@
     </div>
 </div>
 <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
-    <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+    <div class="cardHeader">
         <h2 th:text="${armyListTitel}">List Overview</h2>
     </div>
     <div class="twoColumns">
@@ -530,7 +570,7 @@
     </div>
 </div>
 <div class="card" th:if="${fireteams != null and not #lists.isEmpty(fireteams)}">
-    <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+    <div class="cardHeader">
         <h2>Fireteam</h2>
     </div>
     <div th:text="${allowedFireteams}" style="margin-left: 10px; font-weight: bold;">allowed fireteams</div>

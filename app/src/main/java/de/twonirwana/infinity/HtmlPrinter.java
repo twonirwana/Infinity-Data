@@ -72,6 +72,14 @@ public class HtmlPrinter {
             "+3", "rangePlus3",
             "-6", "rangeMinus6",
             "+6", "rangePlus6");
+    private static final Map<String, String> BW_RANGE_CLASS_MAP = Map.of(
+            "0", "bwRange0",
+            "0*", "bwRange0", //x-visor modified
+            "-3", "bwRangeMinus3",
+            "-3*", "bwRangeMinus3", //x-visor modified
+            "+3", "bwRangePlus3",
+            "-6", "bwRangeMinus6",
+            "+6", "bwRangePlus6");
     private static final List<String> ICON_FILE_NAMES = List.of(
             "cube.svg",
             "cube-2.svg",
@@ -109,6 +117,7 @@ public class HtmlPrinter {
                                      String armyCode,
                                      boolean useInch,
                                      boolean showSavingRollInsteadOfAmmo,
+                                     boolean reduceColor,
                                      Set<Weapon.Type> showWeaponOfType,
                                      boolean showImage,
                                      boolean showHackingPrograms,
@@ -129,6 +138,7 @@ public class HtmlPrinter {
                 CARD_FOLDER,
                 useInch,
                 showSavingRollInsteadOfAmmo,
+                reduceColor,
                 showWeaponOfType,
                 showImage,
                 showHackingPrograms,
@@ -139,7 +149,7 @@ public class HtmlPrinter {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, false, template));
+                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, false, false, template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -223,6 +233,7 @@ public class HtmlPrinter {
                             String outputFolder,
                             boolean useInch,
                             boolean showSavingRollInsteadOfAmmo,
+                            boolean reduceColor,
                             Template template) {
         String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
         writeCards(List.of(unitOption),
@@ -241,6 +252,7 @@ public class HtmlPrinter {
                 outputFolder,
                 useInch,
                 showSavingRollInsteadOfAmmo,
+                reduceColor,
                 Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
                 true,
                 false,
@@ -263,6 +275,7 @@ public class HtmlPrinter {
                            String outputFolder,
                            boolean useInch,
                            boolean showSavingRollInsteadOfAmmo,
+                           boolean reduceColor,
                            Set<Weapon.Type> showWeaponOfType,
                            boolean showImage,
                            boolean showHackingPrograms,
@@ -286,9 +299,28 @@ public class HtmlPrinter {
             copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath); //customUnitImage have priority and overwrite CB images
         }
 
-        String primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
-        String secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
-        String headerColor = HEADER_TEXT_COLOR.getOrDefault(sectorial.getParentId() - 1, "white");
+        final String primaryColor;
+        final String secondaryColor;
+        final String headerColor;
+        final String boarderColor;
+        final Map<String, String> rangeClassMap;
+        final String tableHeaderFontColor;
+        if (reduceColor) {
+            primaryColor = "white";
+            secondaryColor = "white";
+            headerColor = "black";
+            rangeClassMap = BW_RANGE_CLASS_MAP;
+            tableHeaderFontColor = "black";
+            boarderColor = "black";
+        } else {
+            primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
+            secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
+            headerColor = HEADER_TEXT_COLOR.getOrDefault(sectorial.getParentId() - 1, "white");
+            rangeClassMap = RANGE_CLASS_MAP;
+            tableHeaderFontColor = "white";
+            boarderColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
+        }
+
 
         List<UnitPrintCard> unitPrintCards = unitOptions.stream()
                 .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels).stream())
@@ -346,11 +378,13 @@ public class HtmlPrinter {
 
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
-        context.setVariable("rangeModifierClassMap", RANGE_CLASS_MAP);
+        context.setVariable("rangeModifierClassMap", rangeClassMap);
         context.setVariable("listName", fileName);
         context.setVariable("armyCode", armyCode);
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
+        context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
+        context.setVariable("boarderColor", boarderColor);
         context.setVariable("headerColor", headerColor);
         context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
         context.setVariable("printUtils", new PrintUtils());
