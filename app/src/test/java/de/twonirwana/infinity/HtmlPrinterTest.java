@@ -1,5 +1,8 @@
 package de.twonirwana.infinity;
 
+import de.twonirwana.infinity.fireteam.FireteamChart;
+import de.twonirwana.infinity.fireteam.FireteamChartMember;
+import de.twonirwana.infinity.fireteam.FireteamChartTeam;
 import de.twonirwana.infinity.unit.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -27,6 +31,8 @@ public class HtmlPrinterTest {
     List<MartialArtLevel> martialArtLevels;
     List<MetaChemistryRoll> metaChemistryRolls;
     List<BootyRoll> bootyRolls;
+    ArmyList armyList;
+    FireteamChart fireteamChart;
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
@@ -130,13 +136,42 @@ public class HtmlPrinterTest {
 
         unitOption = new UnitOption(sectorial, 1, 2, 3, "isc", "iscAbbr", "unitName", "optionName", "slug", "unitOptionName",
                 trooper, List.of(), 20, "0.5", "note", false);
+
+        armyList = new ArmyList(sectorial, "sectorialName", "armyName", 300, Map.of(1, List.of(unitOption)));
+
+        fireteamChart = new FireteamChart(1, 2, 256, List.of(
+                new FireteamChartTeam("FT1", List.of("DUO", "CORE"), List.of(
+                        new FireteamChartMember(1, 5, "unit1", "(type)", false),
+                        new FireteamChartMember(1, 5, "unit2", "(type)", false),
+                        new FireteamChartMember(1, 5, "unit3", "", true)
+                ))
+        ));
     }
 
     @ParameterizedTest
     @MethodSource("generateTestData")
     void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInsteadOfAmmo, HtmlPrinter.Template template) {
         fileName = "testFile_" + System.currentTimeMillis();
-        underTest.writeCards(List.of(unitOption), List.of(hackingProgram), martialArtLevels, bootyRolls, metaChemistryRolls, fileName, "", sectorial, "", "", "", "", useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingProgram, template);
+        underTest.writeCards(List.of(unitOption),
+                List.of(hackingProgram),
+                martialArtLevels,
+                bootyRolls,
+                metaChemistryRolls,
+                fireteamChart,
+                armyList,
+                fileName,
+                "",
+                sectorial,
+                "",
+                "",
+                "",
+                "",
+                useInch,
+                showSavingRollInsteadOfAmmo,
+                weaponOption,
+                showImage,
+                showHackingProgram,
+                template);
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

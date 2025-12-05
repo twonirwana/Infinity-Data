@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class FireteamChartSpec {
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-    private String CORE;
+    private int CORE;
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-    private String HARIS;
+    private int HARIS;
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-    private String DUO;
+    private int DUO;
 }

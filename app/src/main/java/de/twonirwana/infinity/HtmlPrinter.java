@@ -1,6 +1,7 @@
 package de.twonirwana.infinity;
 
 import com.google.common.collect.ImmutableMap;
+import de.twonirwana.infinity.fireteam.FireteamChart;
 import de.twonirwana.infinity.unit.api.*;
 import de.twonirwana.infinity.util.ImageUtils;
 import lombok.AllArgsConstructor;
@@ -95,18 +96,14 @@ public class HtmlPrinter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
-    /*todo:
-     * Mark profiles cards that belong to the same trooper, like transformations
-     * Mark trooper cards that belong to the same unit, like peripherals
-     * Max Image width
-     * Second page for units with more then 6 weapons?
-     */
 
     public void printCardForArmyCode(List<UnitOption> unitOptions,
                                      List<HackingProgram> allHackingPrograms,
                                      List<MartialArtLevel> allMartialArtLevels,
                                      List<BootyRoll> allBootyRolls,
                                      List<MetaChemistryRoll> allMetaChemistryRolls,
+                                     ArmyList armyList,
+                                     FireteamChart fireteamChart,
                                      Sectorial sectorial,
                                      String fileName,
                                      String armyCode,
@@ -121,6 +118,8 @@ public class HtmlPrinter {
                 allMartialArtLevels,
                 allBootyRolls,
                 allMetaChemistryRolls,
+                fireteamChart,
+                armyList,
                 fileName,
                 armyCode,
                 sectorial,
@@ -231,6 +230,8 @@ public class HtmlPrinter {
                 allMartialArtLevels,
                 List.of(),
                 List.of(),
+                null,
+                null,
                 fileName,
                 "-",
                 unitOption.getSectorial(),
@@ -251,6 +252,8 @@ public class HtmlPrinter {
                            List<MartialArtLevel> allMartialArtLevels,
                            List<BootyRoll> allBootyRolls,
                            List<MetaChemistryRoll> allMetaChemistryRolls,
+                           FireteamChart fireteamChart,
+                           ArmyList armyList,
                            String fileName,
                            String armyCode,
                            Sectorial sectorial,
@@ -310,6 +313,36 @@ public class HtmlPrinter {
 
         boolean hasBooty = hasAnySkill(unitOptions, "Booty");
         boolean hasMetaChemistry = hasAnySkill(unitOptions, "MetaChemistry");
+        final Map<String, List<UnitCost>> armyListUnits;
+        final String armyListTitel;
+        if (armyList != null) {
+            armyListUnits = armyList.getCombatGroups().entrySet().stream()
+                    .collect(Collectors.toMap(e -> "Group: " + e.getKey(), e -> e.getValue().stream()
+                            .map(UnitCost::fromUnitOption)
+                            .toList()
+                    ));
+            String armyName = Optional.ofNullable(armyList.getArmyName())
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .orElse(sectorial.getName());
+            armyListTitel = "Army List: %s - %dpts".formatted(armyName, armyList.getMaxPoints());
+        } else {
+            armyListUnits = Map.of();
+            armyListTitel = "";
+        }
+
+        final List<PrintFireteam> fireteams;
+        final String allowedFireteams;
+        if (fireteamChart != null) {
+            fireteams = fireteamChart.getTeams().stream()
+                    .map(PrintFireteam::fromFireteamChartTeam)
+                    .toList();
+            String duoCount = fireteamChart.getDuoCount() == 256 ? "Unlimited" : String.valueOf(fireteamChart.getDuoCount());
+            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, fireteamChart.getHarisCount(), fireteamChart.getCoreCount());
+        } else {
+            fireteams = null;
+            allowedFireteams = null;
+        }
 
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
@@ -330,6 +363,10 @@ public class HtmlPrinter {
         context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
         context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
         context.setVariable("useInch", useInch);
+        context.setVariable("armyList", armyListUnits);
+        context.setVariable("armyListTitel", armyListTitel);
+        context.setVariable("fireteams", fireteams);
+        context.setVariable("allowedFireteams", allowedFireteams);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {

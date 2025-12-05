@@ -12,6 +12,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import de.twonirwana.infinity.*;
+import de.twonirwana.infinity.fireteam.FireteamChart;
+import de.twonirwana.infinity.fireteam.FireteamChartTeam;
+import de.twonirwana.infinity.fireteam.FireteamChartMember;
 import de.twonirwana.infinity.model.Equipment;
 import de.twonirwana.infinity.model.Faction;
 import de.twonirwana.infinity.model.Metadata;
@@ -59,6 +62,8 @@ public class DataLoader {
     private static final String ARCHIVE_FOLDER = "archive";
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     @Getter
+    private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
+    @Getter
     private final Map<Integer, Sectorial> sectorialIdMap;
 
     @Getter
@@ -72,10 +77,6 @@ public class DataLoader {
 
     @Getter
     private final List<BootyRoll> bootyRolls;
-
-    public DataLoader() throws IOException, URISyntaxException {
-        this(false);
-    }
 
     public DataLoader(boolean forceUpdate) throws IOException, URISyntaxException {
 
@@ -144,6 +145,25 @@ public class DataLoader {
         bootyRolls = mapBootyRolls(metadata);
 
         metaChemistry = mapChemistryRolls(metadata);
+
+        sectorialFireteamCharts = mapFireteamChat(sectorialListMap);
+    }
+
+    private static Map<Sectorial, FireteamChart> mapFireteamChat(Map<Sectorial, SectorialList> sectorialListMap) {
+        return sectorialListMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> {
+                            de.twonirwana.infinity.model.fireteamChart.FireteamChart fireteamChart = e.getValue().getFireteamChart();
+                            int duaCount = fireteamChart.getSpec().getDUO();
+                            int harisCount = fireteamChart.getSpec().getHARIS();
+                            int coreCount = fireteamChart.getSpec().getCORE();
+                            return new FireteamChart(coreCount, harisCount, duaCount, fireteamChart.getTeams().stream()
+                                    .map(f -> new FireteamChartTeam(f.getName(), f.getType(), f.getUnits().stream()
+                                            .map(t -> new FireteamChartMember(t.getMin(), t.getMax(), t.getName(), t.getComment(), t.isRequired()))
+                                            .toList()
+                                    ))
+                                    .toList());
+                        }
+                ));
     }
 
     private static List<MartialArtLevel> mapMartialArt(Metadata metadata) {

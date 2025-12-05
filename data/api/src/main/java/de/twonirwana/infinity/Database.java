@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import de.twonirwana.infinity.fireteam.FireteamChart;
 import de.twonirwana.infinity.unit.api.UnitOption;
 
 import java.util.List;
@@ -35,4 +36,6 @@ public interface Database {
     List<BootyRoll> getAllBootyRolls();
 
     List<MetaChemistryRoll> getAllMetaChemistryRolls();
+
+    FireteamChart getFireteamChart(Sectorial sectorial);
 }

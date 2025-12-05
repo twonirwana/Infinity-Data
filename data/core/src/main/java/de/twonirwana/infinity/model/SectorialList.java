@@ -6,7 +6,6 @@ import de.twonirwana.infinity.model.unit.Unit;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Optional;
 
 @Data
 public class SectorialList {
@@ -21,13 +20,9 @@ public class SectorialList {
     private Integer reinforcements;
     private FactionFilters filters;
     private List<Resume> resume;
-    private List<Fireteam> fireteams; // TODO:: Is this ever used?
+    private List<Object> fireteams; //never used and empty
     private List<Relation> relations; // TODO:: Is this ever used?
     private Specops specops;
     private FireteamChart fireteamChart;
-
-    public Optional<Unit> getUnit(int id) {
-        return units.stream().filter(x -> x.getId() == id).findFirst();
-    }
 
 }
