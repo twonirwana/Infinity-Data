@@ -27,6 +27,6 @@ public class ExportArmyCode {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        new HtmlPrinter().printCardForArmyCode(armyListOptions, List.of(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, false, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, false, HtmlPrinter.Template.a7_image);
+        new HtmlPrinter().printCardForArmyCode(armyListOptions, List.of(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, false, false, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, false, HtmlPrinter.Template.a7_image);
     }
 }

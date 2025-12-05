@@ -91,12 +91,14 @@ public class ManualHtmlPrinterTest {
                 for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                     for (boolean showImage : new boolean[]{true, false}) {
                         for (boolean showHackingPrograms : new boolean[]{true, false}) {
-                            for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                                testData.addAll(
-                                        armyCodeAndUnits.stream()
-                                                .map(a -> Arguments.of(a.get(0), a.get(1), useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, template))
-                                                .toList()
-                                );
+                            for (boolean reduceColor : new boolean[]{true, false}) {
+                                for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                                    testData.addAll(
+                                            armyCodeAndUnits.stream()
+                                                    .map(a -> Arguments.of(a.get(0), a.get(1), useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, reduceColor, template))
+                                                    .toList()
+                                    );
+                                }
                             }
                         }
                     }
@@ -114,13 +116,13 @@ public class ManualHtmlPrinterTest {
             throw new RuntimeException(e);
         }
         return armyCodeAndUnits.stream()
-                .map(a -> Arguments.of(a.get(0), a.get(1), true, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, true, HtmlPrinter.Template.c6onA4_image));
+                .map(a -> Arguments.of(a.get(0), a.get(1), true, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, true, true, HtmlPrinter.Template.a7_image));
 
     }
 
     @ParameterizedTest
     @MethodSource("generateTestDataOnlyOnce")
-    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInsteadOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, HtmlPrinter.Template template) throws IOException {
+    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInsteadOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, boolean reduceColor, HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
         assertThat(db.validateArmyCodeUnits(armyCode)).isEmpty();
@@ -142,7 +144,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, template);
+        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, reduceColor, weaponOption, showImage, showHackingPrograms, template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

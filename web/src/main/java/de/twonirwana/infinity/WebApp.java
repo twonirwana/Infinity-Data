@@ -219,6 +219,7 @@ public class WebApp {
             final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
             final boolean distinct = getCheckboxValue(ctx, "distinctUnits");
             final boolean showSavingRollInsteadOfAmmo = getCheckboxValue(ctx, "showSavingRollInsteadOfAmmo");
+            final boolean reduceColor = getCheckboxValue(ctx, "reduceColor");
 
             Set<Weapon.Type> weaponTypes = getShowWeaponType(showSkillWeapon, showEquipmentWeapons);
 
@@ -234,7 +235,7 @@ public class WebApp {
 
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInsteadOfAmmo);
+            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} -> {}", armyCode, fileName);
                 registry.counter("infinity.generate.existing").increment();
@@ -296,6 +297,7 @@ public class WebApp {
                         armyCode,
                         useInch,
                         showSavingRollInsteadOfAmmo,
+                        reduceColor,
                         weaponTypes,
                         !removeImages,
                         true,
@@ -306,6 +308,7 @@ public class WebApp {
                         "style", styleOptional.get().name(),
                         "unit", unit,
                         "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
+                        "reduceColor", String.valueOf(reduceColor),
                         "removeImages", String.valueOf(removeImages),
                         "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
                         "showSkillWeapon", String.valueOf(showSkillWeapon),
@@ -333,15 +336,18 @@ public class WebApp {
                                       boolean distinctUnit,
                                       Set<Weapon.Type> weaponTypes,
                                       boolean removeImage,
-                                      boolean showSavingRollInsteadOfAmmo) {
-        return "%s-%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
+                                      boolean showSavingRollInsteadOfAmmo,
+                                      boolean reduceColor) {
+        return "%s-%s-%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
                 startupTime,
                 template,
                 unit,
                 distinctUnit ? "distinct" : "all",
                 weaponTypes.stream().map(Enum::name).sorted().collect(Collectors.joining("-")),
                 removeImage ? "noImage" : "showImage",
-                showSavingRollInsteadOfAmmo ? "savingRoll" : "psAndAmmo");
+                showSavingRollInsteadOfAmmo ? "savingRoll" : "psAndAmmo",
+                reduceColor ? "reduceColor" : "color"
+        );
 
     }
 
