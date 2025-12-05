@@ -142,7 +142,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, template);
+        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

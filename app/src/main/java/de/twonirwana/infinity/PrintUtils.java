@@ -6,6 +6,7 @@ import de.twonirwana.infinity.unit.api.Skill;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.Weapon;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -389,6 +390,10 @@ public class PrintUtils {
             }
         }
         return rangeModi;
+    }
+
+    public static String getDate() {
+        return "Cards created on: " + LocalDate.now();
     }
 
     public String getRangeTemplate(Weapon weapon) {

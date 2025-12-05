@@ -2,6 +2,7 @@ package de.twonirwana.infinity;
 
 import de.twonirwana.infinity.armylist.ArmyCodeLoader;
 import de.twonirwana.infinity.db.DataLoader;
+import de.twonirwana.infinity.fireteam.FireteamChart;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,5 +97,10 @@ public class DatabaseImp implements Database {
     @Override
     public List<MetaChemistryRoll> getAllMetaChemistryRolls() {
         return loader.getMetaChemistry();
+    }
+
+    @Override
+    public FireteamChart getFireteamChart(Sectorial sectorial) {
+        return loader.getSectorialFireteamCharts().get(sectorial);
     }
 }

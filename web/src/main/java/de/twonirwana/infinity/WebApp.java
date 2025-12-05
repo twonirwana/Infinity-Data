@@ -289,6 +289,8 @@ public class WebApp {
                         database.getAllMartialArtLevels(),
                         database.getAllBootyRolls(),
                         database.getAllMetaChemistryRolls(),
+                        al,
+                        database.getFireteamChart(al.getSectorial()),
                         al.getSectorial(),
                         fileName,
                         armyCode,

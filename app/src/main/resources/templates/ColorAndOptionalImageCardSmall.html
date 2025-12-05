@@ -158,6 +158,21 @@
             width: 30px;
         }
 
+        .twoColumns {
+            column-count: 2;
+            column-gap: 1px;
+            margin-right: 10px;
+        }
+
+        .twoColumns > div {
+            break-inside: avoid;
+            page-break-inside: avoid;
+
+            margin-bottom: 3px;
+            display: inline-block;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -493,6 +508,42 @@
                 </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+<div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
+    <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <h2 th:text="${armyListTitel}">List Overview</h2>
+    </div>
+    <div class="twoColumns">
+        <div th:each="combatGroup : ${armyList}">
+            <h3 style="margin-left: 5px;" th:text="${combatGroup.key}">combat group</h3>
+            <div th:each="combatGroupMember : ${combatGroup.value}"
+                 style="display: flex; margin-right: 5px; margin-left: 5px;">
+                <div style="flex-grow: 1" th:text="${combatGroupMember.unitName()}"></div>
+                <div th:text="${combatGroupMember.cost()}"></div>
+            </div>
+        </div>
+    </div>
+    <div style="align-content: end; text-align: right; margin-right: 5px" th:text="${printUtils.getDate()}">creation
+        date
+    </div>
+</div>
+<div class="card" th:if="${fireteams != null and not #lists.isEmpty(fireteams)}">
+    <div th:style="'padding-left: 3%; height:fit-content; background-color:' + ${primaryColor}">
+        <h2>Fireteam</h2>
+    </div>
+    <div th:text="${allowedFireteams}" style="margin-left: 5px; font-weight: bold;">allowed fireteams</div>
+    <div class="twoColumns">
+        <div th:each="team : ${fireteams}">
+            <div style="margin-left: 5px; margin-bottom: 2px; font-weight: bold;" th:text="${team.getNameAndType()}">
+                team name and type
+            </div>
+            <div th:each="unit : ${team.getMembers()}"
+                 style="display: flex; margin-right: 5px; margin-left: 5px;">
+                <div style="flex-grow: 1" th:text="${unit.getMemberCount()}"></div>
+                <div th:text="${unit.getName()}"></div>
+            </div>
         </div>
     </div>
 </div>
