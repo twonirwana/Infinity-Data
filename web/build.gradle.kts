@@ -10,7 +10,7 @@ dependencies {
     implementation("io.javalin:javalin:6.7.0")
     implementation("io.javalin:javalin-rendering:6.7.0")
     implementation("io.javalin:javalin-micrometer:6.7.0")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.16.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.16.1")
     implementation("org.thymeleaf:thymeleaf:3.1.3.RELEASE")
 
     implementation(project(":data"))
