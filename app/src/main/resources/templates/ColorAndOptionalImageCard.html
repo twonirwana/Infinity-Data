@@ -163,7 +163,7 @@
 
         .unit-header {
             display: flex;
-            border: 2px solid [[${boarderColor}]];
+            border-bottom: 2px solid [[${boarderColor}]];
         }
 
         .unit-header-logo {
@@ -172,7 +172,7 @@
             align-self: center;
         }
 
-        .unit-header-title {
+        .card-header-title {
             flex-grow: 1;
             margin: 0;
             font-size: 1.5em;
@@ -208,9 +208,10 @@
 
         .cardHeader {
             padding-left: 3%;
-            height: fit-content;
+            height: 85px;
             background-color: [[${primaryColor}]];
-            border: 2px solid [[${boarderColor}]];
+            border-bottom: 2px solid [[${boarderColor}]];
+            align-content: center;
         }
 
     </style>
@@ -224,7 +225,7 @@
                 <img th:src="@{image/{imageName}(imageName=${unitPrintCard.profile.logo})}"
                      alt="Logo" class="unit-header-logo">
 
-                <h2 class="unit-header-title">
+                <h2 class="card-header-title">
                     <span th:text="${unitPrintCard.unitName}">Trooper Profile Name</span>
                 </h2>
 
@@ -362,7 +363,7 @@
 <div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
         <div class="cardHeader">
-            <h2>Hacking Programs 1</h2>
+            <h2 class="card-header-title">Hacking Programs 1</h2>
         </div>
         <table class="hacking">
             <thead>
@@ -396,7 +397,7 @@
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
         <div class="cardHeader">
-            <h2>Hacking Programs 2</h2>
+            <h2 class="card-header-title">Hacking Programs 2</h2>
         </div>
         <table class="hacking">
             <thead>
@@ -430,7 +431,7 @@
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
         <div class="cardHeader">
-            <h2>Meta Chemistry</h2>
+            <h2 class="card-header-title">Meta Chemistry</h2>
         </div>
         <table class="chem">
             <thead>
@@ -456,7 +457,7 @@
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
         <div class="cardHeader">
-            <h2>Booty</h2>
+            <h2 class="card-header-title">Booty</h2>
         </div>
         <table class="booty">
             <thead>
@@ -482,7 +483,7 @@
     <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
 
         <div class="cardHeader">
-            <h2>Booty Weapons</h2>
+            <h2 class="card-header-title">Booty Weapons</h2>
         </div>
         <div th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
             <table class="weapon">
@@ -553,7 +554,7 @@
 </div>
 <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
     <div class="cardHeader">
-        <h2 th:text="${armyListTitel}">List Overview</h2>
+        <h2 class="card-header-title" th:text="${armyListTitel}">List Overview</h2>
     </div>
     <div class="twoColumns">
         <div th:each="combatGroup : ${armyList}">
@@ -571,7 +572,7 @@
 </div>
 <div class="card" th:if="${fireteams != null and not #lists.isEmpty(fireteams)}">
     <div class="cardHeader">
-        <h2>Fireteam</h2>
+        <h2 class="card-header-title">Fireteam</h2>
     </div>
     <div th:text="${allowedFireteams}" style="margin-left: 10px; font-weight: bold;">allowed fireteams</div>
     <div class="twoColumns">

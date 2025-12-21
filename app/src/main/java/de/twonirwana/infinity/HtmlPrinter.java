@@ -494,6 +494,7 @@ public class HtmlPrinter {
         a4_image("ColorAndOptionalImageCard", 297, 210, 10),
         c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9),
         letter_image("ColorAndOptionalImageCard", 279, 216, 10),
+        a4_overview("OverviewList", 210, 297, Integer.MAX_VALUE),
         card_bw("CardBW", 0, 0, 0);
         final String fileName;
         final int widthInMm;
