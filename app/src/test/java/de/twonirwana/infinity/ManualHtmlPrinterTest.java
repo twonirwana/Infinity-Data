@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // Seed Soldiers, Scarface, Posthumans,
 // code with many weapons: gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D
 // all hacking programs: glsKc2hhc3Zhc3RpaQEggSwBAQEABACFEwEBAACC5QEBAACB9gEIAACB9gEIAA%3D%3D
-// booty and meta chemistry: gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D
+    // booty and meta chemistry: gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D
 public class ManualHtmlPrinterTest {
     final static List<Set<Weapon.Type>> WEAPON_TYPE_OPTIONS = List.of(Set.of(),
             Set.of(Weapon.Type.WEAPON),

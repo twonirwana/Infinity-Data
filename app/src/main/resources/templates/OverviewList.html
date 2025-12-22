@@ -554,7 +554,7 @@
                             th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
 
                         <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
-                            style="white-space: normal; font-size: 8pt"></td>
+                            style="white-space: normal; font-size: 4pt"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -563,7 +563,7 @@
     </div>
     <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
         <div class="cardHeader">
-            <h2 class="card-header-title" th:text="${armyListTitel}">List Overview</h2>
+            <h2 class="card-header-title" th:text="${armyListTitel}">List Overview</h2>x
         </div>
         <div class="twoColumns">
             <div th:each="combatGroup : ${armyList}">
