@@ -232,6 +232,28 @@
             align-content: center;
         }
 
+        .flex-grow {
+            flex-grow: 1;
+        }
+
+        /* Fireteam Fragment specific styles */
+        .ft-allowed {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .ft-team-name {
+            margin-left: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .ft-member {
+            display: flex;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -575,29 +597,14 @@
                 </div>
             </div>
         </div>
-        <div style="align-content: end; text-align: right; margin-right: 5px" th:text="'Cards created on: ' + ${currentDate}">creation
+        <div style="align-content: end; text-align: right; margin-right: 5px"
+             th:text="'Cards created on: ' + ${currentDate}">creation
             date
         </div>
     </div>
-    <div class="card" th:if="${fireteams != null and not #lists.isEmpty(fireteams)}">
-        <div class="cardHeader">
-            <h2 class="card-header-title">Fireteam</h2>
-        </div>
-        <div th:text="${allowedFireteams}" style="margin-left: 10px; font-weight: bold;">allowed fireteams</div>
-        <div class="twoColumns">
-            <div th:each="team : ${fireteams}">
-                <div style="margin-left: 10px; margin-bottom: 5px; font-weight: bold;"
-                     th:text="${team.getNameAndType()}">
-                    team name and type
-                </div>
-                <div th:each="unit : ${team.getMembers()}"
-                     style="display: flex; margin-right: 20px; margin-left: 20px;">
-                    <div style="flex-grow: 1" th:text="${unit.getMemberCount()}"></div>
-                    <div th:text="${unit.getName()}"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <th:block
+            th:replace="~{fragments/FireTeam :: fireteamFragment(${fireteams}, ${allowedFireteams})}">
+    </th:block>
 </div>
 </body>
 </html>
