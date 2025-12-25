@@ -1,0 +1,586 @@
+{
+  "units": [
+    {
+      "id": 161,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "0158A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/yaozao-0158A.webp",
+              "name": "Yaozao",
+              "weapon": "PARA CCW",
+              "products": [
+                {
+                  "reference": "281708-1138",
+                  "name": "JSA Support Pack",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1
+              ]
+            },
+            {
+              "id": "0158A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/yu-jing/yaozao-0158A.webp",
+              "name": "YÁOZĂO",
+              "products": [
+                {
+                  "reference": "281349-1141",
+                  "name": "Yu Jing Support Pack",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1
+              ]
+            },
+            {
+              "id": "0158B",
+              "url": "https://assets.corvusbelli.net.s3.amazonaws.com/infinity-universe/miniatures/jsa/yaozao-0158B.webp",
+              "name": "Yaozao",
+              "weapon": "PARA CCW",
+              "products": [
+                {
+                  "reference": "281708-1138",
+                  "name": "JSA Support Pack",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1
+              ]
+            },
+            {
+              "id": "1158B",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/yu-jing/yaozao-0158B.webp",
+              "name": "YÁOZĂO",
+              "products": [
+                {
+                  "reference": "281349-1141",
+                  "name": "Yu Jing Support Pack",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 158,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "0498A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/tokusetsu-0498A.webp",
+              "name": "Tokusetsu",
+              "skill": "Engineer",
+              "weapon": "Combi Rifle",
+              "products": [
+                {
+                  "reference": "281708-1138",
+                  "name": "JSA Support Pack",
+                  "link": ""
+                }
+              ],
+              "options": [
+                2,
+                3
+              ]
+            },
+            {
+              "id": "0498B",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/tokusetsu-0498B.webp",
+              "name": "Tokusetsu",
+              "skill": "Doctor",
+              "weapon": "Combi Rifle",
+              "products": [
+                {
+                  "reference": "281708-1138",
+                  "name": "JSA Support Pack",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1569,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1095A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/mercs/triphammer-heavy-shotgun-flammenspeer-panzerfaust-1095A.webp",
+              "name": "Triphammer",
+              "weapon": "Heavy Shotgun, Flammenspeer, Panzerfaust",
+              "products": [
+                {
+                  "reference": "280778-1095",
+                  "name": "Triphammers, Repurposed Industrial TAGs",
+                  "link": "https://store.corvusbelli.com/en/infinity/wargame/miniatures/triphammers-repurposed-industrial-tags"
+                }
+              ],
+              "options": [
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1817,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1101A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/senku-1101A.webp",
+              "name": "Senku",
+              "weapon": "Combi Rifle",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                7,
+                6,
+                8,
+                4,
+                1
+              ]
+            },
+            {
+              "id": "1101B",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/senku-1101B.webp",
+              "name": "Senku",
+              "weapon": "Combi Rifle",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                6,
+                8,
+                7,
+                4,
+                1
+              ]
+            },
+            {
+              "id": "1101C",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/senku-1101C.webp",
+              "name": "Senku",
+              "weapon": "Combi Rifle",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                6,
+                8,
+                7,
+                4,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 167,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1101D",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/raiden-1101D.webp",
+              "name": "Senku",
+              "weapon": "Missile Launcher",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                3
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1821,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1101E",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/jizamurai-1101E.webp",
+              "name": "Jizamurai",
+              "weapon": "Light Shotgun, DA CCW",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                1,
+                4
+              ]
+            },
+            {
+              "id": "1122A-1",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/jizamurai-1122A.webp",
+              "name": "Jizamurai",
+              "weapon": "Light Shotgun",
+              "products": [
+                {
+                  "reference": "281704-1122",
+                  "name": "Shindenbutai Expansion Pack Alpha",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1,
+                4,
+                2
+              ]
+            },
+            {
+              "id": "1122B-1",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/jizamurai-1122B.webp",
+              "name": "Jizamurai",
+              "weapon": "Submachine Gun",
+              "products": [
+                {
+                  "reference": "281704-1122",
+                  "name": "Shindenbutai Expansion Pack Alpha",
+                  "link": ""
+                }
+              ],
+              "options": [
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1823,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1101F",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/hatamoto-1101F.webp",
+              "name": "Hatamoto",
+              "weapon": "Red Fury, Monofilament CCW",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                5,
+                2
+              ]
+            },
+            {
+              "id": "1134C",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/hatamoto-1134C.webp",
+              "name": "Hatamoto",
+              "weapon": "Plasma Carbine",
+              "products": [
+                {
+                  "reference": "281707-1134",
+                  "name": "Shindenbutai Expansion Pack Gamma",
+                  "link": ""
+                }
+              ],
+              "options": [
+                4
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1826,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1101H",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/nokizaru-1101H.webp",
+              "name": "Nokizaru",
+              "weapon": "MULTI Marksman Rifle",
+              "products": [
+                {
+                  "reference": "OPSAND",
+                  "name": "Battle Pack Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/operation-sandtrap"
+                }
+              ],
+              "options": [
+                1
+              ]
+            },
+            {
+              "id": "1134B",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/nokizaru-1134B.webp",
+              "name": "Nokizaru Ninja",
+              "weapon": "Submachine Gun, Shock Mines",
+              "products": [
+                {
+                  "reference": "281707-1134",
+                  "name": "Shindenbutai Expansion Pack Gamma",
+                  "link": ""
+                }
+              ],
+              "options": [
+                2,
+                3
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1820,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1114A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/teishin-hacker-1114A.webp",
+              "name": "Teishin",
+              "skill": "Hacker",
+              "weapon": "Boarding Shotgun",
+              "products": [
+                {
+                  "reference": "280056-1114",
+                  "name": "Beyond Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/beyond-operation-sandtrap"
+                }
+              ],
+              "options": [
+                3,
+                2,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1825,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1114B",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/kurayami-hacker-1114B.webp",
+              "name": "Kurayami",
+              "skill": "Hacker ",
+              "weapon": "Light Shotgun",
+              "products": [
+                {
+                  "reference": "280056-1114",
+                  "name": "Beyond Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/beyond-operation-sandtrap"
+                }
+              ],
+              "options": [
+                2
+              ]
+            },
+            {
+              "id": "1134A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/kurayami-1134A.webp",
+              "name": "Kurayami Ninja",
+              "weapon": "Submachine Gun",
+              "products": [
+                {
+                  "reference": "281707-1134",
+                  "name": "Shindenbutai Expansion Pack Gamma",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1,
+                3
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1822,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1114C",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/shizoku-fto-ap-hmg-1114C.webp",
+              "name": "Shizoku FTO",
+              "weapon": "AP HMG",
+              "products": [
+                {
+                  "reference": "280056-1114",
+                  "name": "Beyond Operation Sandtrap",
+                  "link": "https://store.corvusbelli.com/es/infinity/wargame/miniatures/beyond-operation-sandtrap"
+                }
+              ],
+              "options": [
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1818,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1122C",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/mestuke-1122C.webp",
+              "name": "Metsuke",
+              "weapon": "Flash Pulse",
+              "products": [
+                {
+                  "reference": "281704-1122",
+                  "name": "Shindenbutai Expansion Pack Alpha",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1,
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1827,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1126A",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/kyojin-1126A.webp",
+              "name": "Kyojin Killer",
+              "weapon": "Heavy Flamethrower, Flammenspeer",
+              "products": [
+                {
+                  "reference": "281705-1126",
+                  "name": "Shindenbutai Expansion Pack Beta",
+                  "link": ""
+                }
+              ],
+              "options": [
+                2
+              ]
+            },
+            {
+              "id": "1126B",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/kyojin-1126B.webp",
+              "name": "Kyojin Killer",
+              "weapon": "DA CCW",
+              "products": [
+                {
+                  "reference": "281705-1126",
+                  "name": "Shindenbutai Expansion Pack Beta",
+                  "link": ""
+                }
+              ],
+              "options": [
+                1,
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1824,
+      "profileGroups": [
+        {
+          "id": 1,
+          "imgOptions": [
+            {
+              "id": "1126C",
+              "url": "https://assets.corvusbelli.net/infinity-universe/miniatures/jsa/yamabushi-1126C.webp",
+              "name": "Yamabushi",
+              "skill": "Paramedic",
+              "weapon": "Chain Rifle,Tactical Bow",
+              "products": [
+                {
+                  "reference": "281705-1126",
+                  "name": "Shindenbutai Expansion Pack Beta",
+                  "link": ""
+                }
+              ],
+              "options": [
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

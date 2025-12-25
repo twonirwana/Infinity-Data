@@ -4,6 +4,7 @@ import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.HashUtil;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,25 @@ public class ExportArmyCode {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        new HtmlPrinter().printCardForArmyCode(armyListOptions, List.of(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, false, false, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, false, HtmlPrinter.Template.a7_image);
+        new HtmlPrinter(LocalDateTime::now)
+                .printCardForArmyCode(armyListOptions,
+                        List.of(),
+                        db.getAllMartialArtLevels(),
+                        db.getAllBootyRolls(),
+                        db.getAllMetaChemistryRolls(),
+                        al,
+                        db.getFireteamChart(al.getSectorial()), al.getSectorial(),
+                        db.getUnitImageFolder(),
+                        db.getCustomUnitImageFolder(),
+                        db.getUnitLogosFolder(),
+                        fileName,
+                        armyCode,
+                        useInch,
+                        false,
+                        false,
+                        Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET),
+                        true,
+                        false,
+                        HtmlPrinter.Template.a7_image);
     }
 }

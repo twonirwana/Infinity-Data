@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // Seed Soldiers, Scarface, Posthumans,
 // code with many weapons: gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D
 // all hacking programs: glsKc2hhc3Zhc3RpaQEggSwBAQEABACFEwEBAACC5QEBAACB9gEIAACB9gEIAA%3D%3D
-    // booty and meta chemistry: gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D
+// booty and meta chemistry: gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D
 public class ManualHtmlPrinterTest {
     final static List<Set<Weapon.Type>> WEAPON_TYPE_OPTIONS = List.of(Set.of(),
             Set.of(Weapon.Type.WEAPON),
@@ -46,7 +47,7 @@ public class ManualHtmlPrinterTest {
     static Pattern combinedIdPattern = Pattern.compile("combinedId:(\\d+-\\d+-\\d+-\\d+-\\d+)\"");
     static Pattern armyCodePattern = Pattern.compile("<meta name=\"armyCode\" content=\"(.+)\">");
     static Database db;
-    HtmlPrinter underTest = new HtmlPrinter();
+    HtmlPrinter underTest = new HtmlPrinter(() -> LocalDate.of(2025, 12, 23).atStartOfDay());
     String fileName;
 
     @BeforeAll
@@ -144,7 +145,26 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, reduceColor, weaponOption, showImage, showHackingPrograms, template);
+        underTest.printCardForArmyCode(armyListOptions,
+                db.getAllHackingPrograms(),
+                db.getAllMartialArtLevels(),
+                db.getAllBootyRolls(),
+                db.getAllMetaChemistryRolls(),
+                al,
+                db.getFireteamChart(al.getSectorial()),
+                al.getSectorial(),
+                db.getUnitImageFolder(),
+                db.getCustomUnitImageFolder(),
+                db.getUnitLogosFolder(),
+                fileName,
+                armyCode,
+                useInch,
+                showSavingRollInsteadOfAmmo,
+                reduceColor,
+                weaponOption,
+                showImage,
+                showHackingPrograms,
+                template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

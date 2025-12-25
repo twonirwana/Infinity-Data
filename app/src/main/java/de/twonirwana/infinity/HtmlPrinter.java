@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.fireteam.FireteamChart;
 import de.twonirwana.infinity.unit.api.*;
@@ -17,12 +18,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static de.twonirwana.infinity.Database.*;
 
 @Slf4j
 public class HtmlPrinter {
@@ -92,8 +92,10 @@ public class HtmlPrinter {
             "tactical.svg"
     );
     private final TemplateEngine templateEngine;
+    private final Supplier<LocalDateTime> currentTimeSupplier;
 
-    public HtmlPrinter() {
+    public HtmlPrinter(Supplier<LocalDateTime> currentTimeSupplier) {
+        this.currentTimeSupplier = currentTimeSupplier;
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
         resolver.setPrefix("templates/");
         resolver.setSuffix(".html");
@@ -113,6 +115,9 @@ public class HtmlPrinter {
                                      ArmyList armyList,
                                      FireteamChart fireteamChart,
                                      Sectorial sectorial,
+                                     String unitImagePath,
+                                     String customUnitImagePath,
+                                     String logoImagePath,
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
@@ -132,9 +137,9 @@ public class HtmlPrinter {
                 fileName,
                 armyCode,
                 sectorial,
-                UNIT_IMAGE_FOLDER,
-                CUSTOM_UNIT_IMAGE_FOLDER,
-                UNIT_LOGOS_FOLDER,
+                unitImagePath,
+                customUnitImagePath,
+                logoImagePath,
                 CARD_FOLDER,
                 useInch,
                 showSavingRollInsteadOfAmmo,
@@ -149,7 +154,16 @@ public class HtmlPrinter {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, false, false, template));
+                .forEach(u -> writeToFile(u,
+                        db.getAllMartialArtLevels(),
+                        db.getUnitImageFolder(),
+                        db.getCustomUnitImageFolder(),
+                        db.getUnitLogosFolder(),
+                        "all/" + u.getSectorial().getSlug(),
+                        useInch,
+                        false,
+                        false,
+                        template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -401,6 +415,7 @@ public class HtmlPrinter {
         context.setVariable("armyListTitel", armyListTitel);
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
+        context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {

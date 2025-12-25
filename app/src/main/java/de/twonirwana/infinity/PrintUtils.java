@@ -392,10 +392,6 @@ public class PrintUtils {
         return rangeModi;
     }
 
-    public static String getDate() {
-        return "Cards created on: " + LocalDate.now();
-    }
-
     public String getRangeTemplate(Weapon weapon) {
         if (weapon.getRangeCombinedModifiers().isEmpty()) {
             return weapon.getProperties().stream().map(PrintUtils::getTeardropType)

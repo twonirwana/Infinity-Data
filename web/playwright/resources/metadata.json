@@ -1,0 +1,6078 @@
+{
+  "factions": [
+    {
+      "id": 1102,
+      "parent": 1101,
+      "name": "Shindenbutai",
+      "slug": "shindenbutai",
+      "discontinued": false,
+      "logo": "https://assets.corvusbelli.net/army/img/logo/factions/shindenbutai.svg"
+    }
+  ],
+  "ammunitions": [
+    {
+      "id": 1,
+      "name": "Adhesive"
+    },
+    {
+      "id": 2,
+      "name": "N",
+      "wiki": "https://infinitythewiki.com/Normal_(N)_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 3,
+      "name": "AP",
+      "wiki": "https://infinitythewiki.com/Armour_Piercing_(AP)_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 4,
+      "name": "N/AP/Exp"
+    },
+    {
+      "id": 5,
+      "name": "N+E/M"
+    },
+    {
+      "id": 6,
+      "name": "Exp",
+      "wiki": "https://infinitythewiki.com/Explosive_(EXP)_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 7,
+      "name": "Monofilament"
+    },
+    {
+      "id": 8,
+      "name": "Shock",
+      "wiki": "https://infinitythewiki.com/Shock_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 9,
+      "name": "DA",
+      "wiki": "https://infinitythewiki.com/Double_Action_(DA)_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 10,
+      "name": "AP+DA",
+      "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 11,
+      "name": "Viral"
+    },
+    {
+      "id": 12,
+      "name": "E/M2"
+    },
+    {
+      "id": 13,
+      "name": "AP+Exp",
+      "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 14,
+      "name": "E/M",
+      "wiki": "https://infinitythewiki.com/Electromagnetic_(E/M)_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 15,
+      "name": "N/AP"
+    },
+    {
+      "id": 16,
+      "name": "N/T2"
+    },
+    {
+      "id": 17,
+      "name": "AP/DA"
+    },
+    {
+      "id": 18,
+      "name": "T2",
+      "wiki": "https://infinitythewiki.com/T2_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 19,
+      "name": "N+EM"
+    },
+    {
+      "id": 20,
+      "name": "N/AP/DA"
+    },
+    {
+      "id": 21,
+      "name": "Smoke",
+      "wiki": "https://infinitythewiki.com/Smoke_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 22,
+      "name": "Eclipse",
+      "wiki": "https://infinitythewiki.com/Eclipse_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 23,
+      "name": "Flash"
+    },
+    {
+      "id": 24,
+      "name": "Fire"
+    },
+    {
+      "id": 25,
+      "name": "Dep. Repeater"
+    },
+    {
+      "id": 26,
+      "name": "Nanotec"
+    },
+    {
+      "id": 27,
+      "name": "AP/Fire"
+    },
+    {
+      "id": 28,
+      "name": "Swarm"
+    },
+    {
+      "id": 29,
+      "name": "Stun",
+      "wiki": "https://infinitythewiki.com/Stun_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 30,
+      "name": "AP+Shock",
+      "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 31,
+      "name": "K1"
+    },
+    {
+      "id": 32,
+      "name": "Breaker"
+    },
+    {
+      "id": 33,
+      "name": "Nimbus"
+    },
+    {
+      "id": 34,
+      "name": "Plasma"
+    },
+    {
+      "id": 35,
+      "name": "AP/Shock"
+    },
+    {
+      "id": 36,
+      "name": "Pheromonic"
+    },
+    {
+      "id": 37,
+      "name": "PARA",
+      "wiki": "https://infinitythewiki.com/Paralysis_(PARA)_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 38,
+      "name": "DA + Shock",
+      "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+    },
+    {
+      "id": 39,
+      "name": "AP/Shock/DA"
+    },
+    {
+      "id": 40,
+      "name": "AP+T2"
+    }
+  ],
+  "weapons": [
+    {
+      "id": 216,
+      "type": "WEAPON",
+      "name": "Adhesive Launcher Rifle",
+      "ammunition": 37,
+      "burst": "2",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "Non-lethal"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 1,
+      "type": "WEAPON",
+      "name": "Akrylat-Kanone",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (2)",
+        "State: IMM-A",
+        "Non-lethal"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 78,
+      "type": "WEAPON",
+      "name": "AP + DA CC Weapon",
+      "ammunition": 10,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM/2",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel",
+        "CC"
+      ]
+    },
+    {
+      "id": 227,
+      "type": "WEAPON",
+      "name": "AP + EXP CC Weapon",
+      "ammunition": 13,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM/2",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel",
+        "CC"
+      ]
+    },
+    {
+      "id": 172,
+      "type": "WEAPON",
+      "name": "AP + Shock CC Weapon",
+      "ammunition": 30,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "CC"
+      ]
+    },
+    {
+      "id": 224,
+      "type": "WEAPON",
+      "name": "AP + T2 CC Weapon",
+      "ammunition": 40,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel",
+        "CC"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "WEAPON",
+      "name": "AP CC Weapon",
+      "ammunition": 3,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "CC"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "WEAPON",
+      "name": "AP Heavy Machine Gun",
+      "ammunition": 3,
+      "burst": "4",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 100,
+      "type": "WEAPON",
+      "name": "AP Heavy Pistol",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 85,
+      "type": "WEAPON",
+      "name": "AP Marksman Rifle",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 199,
+      "type": "WEAPON",
+      "name": "AP Mine",
+      "ammunition": 3,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Concealed",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "[*]"
+      ]
+    },
+    {
+      "id": 32,
+      "type": "WEAPON",
+      "name": "AP Rifle",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 35,
+      "type": "WEAPON",
+      "name": "AP Sniper Rifle",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 157,
+      "type": "WEAPON",
+      "name": "AP Spitfire",
+      "ammunition": 3,
+      "burst": "4",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 214,
+      "type": "WEAPON",
+      "name": "AP Submachine Gun",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "max": {
+          "max": 80,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "burst": "-",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ]
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "Adhesive Launcher Rifle",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 37,
+      "burst": "2",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "AP Rifle",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "Combi Rifle",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "E/Mitter",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 14,
+      "burst": "2",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "Marksman Rifle",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "Mk12",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "PARA CC Weapon",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ]
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "Rifle",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 226,
+      "type": "WEAPON",
+      "name": "Armed Turret",
+      "mode": "Thunderbolt",
+      "wiki": "https://infinitythewiki.com/Armed_Turret?version\u003dn4",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (1)",
+        "Perimeter",
+        "Deployable",
+        "Non-Reloadable"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 70,
+      "type": "WEAPON",
+      "name": "Assault Pistol",
+      "ammunition": 2,
+      "burst": "4",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "WEAPON",
+      "name": "Blitzen",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "6",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Disposable (2)",
+        "Non-lethal",
+        "[**]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 212,
+      "type": "WEAPON",
+      "name": "Boarding Pistol",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Direct Template (Small Teardrop)"
+      ]
+    },
+    {
+      "id": 212,
+      "type": "WEAPON",
+      "name": "Boarding Pistol",
+      "mode": "Hit Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "max": {
+          "max": 60,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": "WEAPON",
+      "name": "Boarding Shotgun",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+6"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 103,
+      "type": "WEAPON",
+      "name": "Breaker Combi Rifle",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 98,
+      "type": "WEAPON",
+      "name": "Breaker Pistol",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "8",
+      "saving": "BTS/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 109,
+      "type": "WEAPON",
+      "name": "Breaker Rifle",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "WEAPON",
+      "name": "CC Weapon",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "CC"
+      ]
+    },
+    {
+      "id": 18,
+      "type": "WEAPON",
+      "name": "Chain Rifle",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Direct Template (Large Teardrop)"
+      ]
+    },
+    {
+      "id": 80,
+      "type": "WEAPON",
+      "name": "Chain-colt",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Direct Template (Small Teardrop)"
+      ]
+    },
+    {
+      "id": 147,
+      "type": "WEAPON",
+      "name": "Chest Mine",
+      "mode": "BS Mode",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Disposable (2)",
+        "Direct Template (Small Teardrop)",
+        "Double Shot",
+        "[*]"
+      ]
+    },
+    {
+      "id": 147,
+      "type": "WEAPON",
+      "name": "Chest Mine",
+      "mode": "CC Mode",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "CC Attack (+3)",
+        "Disposable (2)",
+        "[*]"
+      ]
+    },
+    {
+      "id": 33,
+      "type": "WEAPON",
+      "name": "Combi Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "WEAPON",
+      "name": "Contender",
+      "ammunition": 18,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "WEAPON",
+      "name": "Crazykoala",
+      "wiki": "https://infinitythewiki.com/CrazyKoala?version\u003dn4",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "5",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d1",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (2)",
+        "Boost",
+        "Perimeter",
+        "Deployable",
+        "[*]"
+      ]
+    },
+    {
+      "id": 174,
+      "type": "WEAPON",
+      "name": "Cybermine",
+      "wiki": "https://infinitythewiki.com/Cybermines?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "5",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d0",
+      "saving": "BTS",
+      "savingNum": "2",
+      "properties": [
+        "Comms. Attack",
+        "Intuitive Attack",
+        "Concealed",
+        "Disposable (3)",
+        "Non-lethal",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "State: Stunned / Immbolized-B",
+        "[*]"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "WEAPON",
+      "name": "D-Charges",
+      "mode": "CC Mode",
+      "wiki": "https://infinitythewiki.com/D-Charges?version\u003dn4",
+      "ammunition": 13,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel",
+        "CC",
+        "Disposable (3)",
+        "Improvised",
+        "[*]"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "WEAPON",
+      "name": "D-Charges",
+      "mode": "Demolition Mode",
+      "wiki": "https://infinitythewiki.com/D-Charges?version\u003dn4",
+      "ammunition": 13,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel",
+        "Disposable (3)",
+        "[*]"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "WEAPON",
+      "name": "DA CC Weapon",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel",
+        "CC"
+      ]
+    },
+    {
+      "id": 243,
+      "type": "EQUIPMENT",
+      "name": "Dazer",
+      "wiki": "https://infinitythewiki.com/Dazer?version\u003dn4",
+      "ammunition": 0,
+      "burst": "-",
+      "damage": "-",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d0",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "Disposable (3)",
+        "Deployable",
+        "Zone of Control"
+      ]
+    },
+    {
+      "id": 238,
+      "type": "EQUIPMENT",
+      "name": "Deactivator",
+      "wiki": "https://infinitythewiki.com/Deactivator?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "BS Weapon (WIP)",
+        "[***]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 111,
+      "type": "EQUIPMENT",
+      "name": "Deployable Repeater",
+      "wiki": "https://infinitythewiki.com/Deployable_Repeater?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d1",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "Disposable (3)",
+        "Deployable"
+      ]
+    },
+    {
+      "id": 208,
+      "type": "WEAPON",
+      "name": "Disco Baller",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": [
+        "Speculative Attack",
+        "Disposable (2)",
+        "Double Shot",
+        "Targetless",
+        "[*]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 208,
+      "type": "WEAPON",
+      "name": "Disco Baller",
+      "mode": "Disco Ball",
+      "ammunition": 0,
+      "burst": "-",
+      "damage": "-",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d1",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": []
+    },
+    {
+      "id": 131,
+      "type": "SKILL",
+      "name": "Discover",
+      "wiki": "https://infinitythewiki.com/Discover?version\u003dn4",
+      "ammunition": 0,
+      "burst": "-",
+      "damage": "-",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "[***]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 80,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 96,
+      "type": "WEAPON",
+      "name": "Drop Bears",
+      "mode": "BS Mode",
+      "wiki": "https://infinitythewiki.com/Mines#Drop_Bears?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "1",
+      "properties": [
+        "BS Weapon (PH)",
+        "Throwing Weapon",
+        "Speculative Attack",
+        "Disposable (3)",
+        "Targetless",
+        "[*]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 96,
+      "type": "WEAPON",
+      "name": "Drop Bears",
+      "mode": "Deployable Mode",
+      "wiki": "https://infinitythewiki.com/Mines#Drop_Bears?version\u003dn4",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "7",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d0",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "[*]"
+      ]
+    },
+    {
+      "id": 213,
+      "type": "WEAPON",
+      "name": "E/M Carbine",
+      "ammunition": 14,
+      "burst": "2",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Non-lethal",
+        "[**]"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "WEAPON",
+      "name": "E/M CC Weapon",
+      "ammunition": 5,
+      "burst": "1",
+      "damage": "8",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "CC",
+        "[**]"
+      ]
+    },
+    {
+      "id": 201,
+      "type": "WEAPON",
+      "name": "E/M Grenade Launcher",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Speculative Attack",
+        "Non-lethal",
+        "Impact Template (Circular)",
+        "[**]"
+      ],
+      "distance": {
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 47,
+      "type": "WEAPON",
+      "name": "E/M Grenades",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Speculative Attack",
+        "BS Weapon (PH)",
+        "Impact Template (Circular)",
+        "Non-lethal",
+        "[**]"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 197,
+      "type": "WEAPON",
+      "name": "E/M Mine",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Intuitive Attack",
+        "Concealed",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Non-lethal",
+        "Deployable",
+        "[**]"
+      ]
+    },
+    {
+      "id": 23,
+      "type": "WEAPON",
+      "name": "E/Marat",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Intuitive Attack",
+        "Non-lethal",
+        "Direct Template (Large Teardrop)",
+        "[**]"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "WEAPON",
+      "name": "E/Mitter",
+      "ammunition": 14,
+      "burst": "2",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Non-lethal",
+        "[**]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 76,
+      "type": "WEAPON",
+      "name": "Eclipse Grenade Launcher",
+      "ammunition": 22,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "1",
+      "properties": [
+        "Speculative Attack",
+        "Non-lethal",
+        "Impact Template (Circular)",
+        "Reflective",
+        "Targetless",
+        "[**]"
+      ],
+      "distance": {
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 46,
+      "type": "WEAPON",
+      "name": "Eclipse Grenades",
+      "ammunition": 22,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": [
+        "Speculative Attack",
+        "BS Weapon (PH)",
+        "Impact Template (Circular)",
+        "Non-lethal",
+        "Reflective",
+        "Targetless",
+        "[**]"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 20,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "WEAPON",
+      "name": "EXP CC Weapon",
+      "ammunition": 6,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel",
+        "CC"
+      ]
+    },
+    {
+      "id": 240,
+      "type": "EQUIPMENT",
+      "name": "FastPanda",
+      "wiki": "https://infinitythewiki.com/FastPanda?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d1",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "Disposable (1)",
+        "Indiscriminate",
+        "Perimeter",
+        "Deployable",
+        "Zone of Control",
+        "[***]"
+      ]
+    },
+    {
+      "id": 30,
+      "type": "WEAPON",
+      "name": "Feuerbach",
+      "mode": "Burst Mode",
+      "ammunition": 10,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 30,
+      "type": "WEAPON",
+      "name": "Feuerbach",
+      "mode": "Explosive Mode",
+      "ammunition": 6,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 82,
+      "type": "WEAPON",
+      "name": "Flammenspeer",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage",
+        "Disposable (2)",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 82,
+      "type": "WEAPON",
+      "name": "Flammenspeer",
+      "mode": "Hit Mode",
+      "ammunition": 3,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage",
+        "Disposable (2)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 72,
+      "type": "WEAPON",
+      "name": "Flash Pulse",
+      "ammunition": 29,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "BS Weapon (WIP)",
+        "State: Stunned",
+        "Non-lethal"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 59,
+      "type": "SKILL",
+      "name": "Forward Observer",
+      "wiki": "https://infinitythewiki.com/Forward_Observer?version\u003dn4",
+      "ammunition": 0,
+      "burst": "2",
+      "damage": "-",
+      "saving": "",
+      "savingNum": "1",
+      "properties": [
+        "BS Weapon (WIP)",
+        "Non-lethal",
+        "State: Targeted",
+        "[***]"
+      ],
+      "distance": {
+        "max": {
+          "max": 240,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 237,
+      "type": "EQUIPMENT",
+      "name": "GizmoKit",
+      "wiki": "https://infinitythewiki.com/GizmoKit?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "Non-lethal",
+        "[***]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 194,
+      "type": "WEAPON",
+      "name": "Grenade Launcher",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Speculative Attack",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 44,
+      "type": "WEAPON",
+      "name": "Grenades",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Speculative Attack",
+        "BS Weapon (PH)",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 57,
+      "type": "WEAPON",
+      "name": "Heavy Flamethrower",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Direct Template (Large Teardrop)",
+        "Continous Damage"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "WEAPON",
+      "name": "Heavy Machine Gun",
+      "ammunition": 2,
+      "burst": "4",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 107,
+      "type": "WEAPON",
+      "name": "Heavy Pistol",
+      "ammunition": 8,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 188,
+      "type": "WEAPON",
+      "name": "Heavy Riotstopper",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "State: IMM-A",
+        "Non-lethal",
+        "Direct Template (Large Teardrop)"
+      ]
+    },
+    {
+      "id": 89,
+      "type": "WEAPON",
+      "name": "Heavy Rocket Launcher",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 89,
+      "type": "WEAPON",
+      "name": "Heavy Rocket Launcher",
+      "mode": "Hit Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 29,
+      "type": "WEAPON",
+      "name": "Heavy Shotgun",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+6"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "WEAPON",
+      "name": "Hyper-Rapid Magnetic Cannon",
+      "mode": "Anti-Materiel Mode",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "WEAPON",
+      "name": "Hyper-Rapid Magnetic Cannon",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "5",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "WEAPON",
+      "name": "Hyper-Rapid Magnetic Cannon",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "5",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 87,
+      "type": "WEAPON",
+      "name": "Jammer",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "BS Weapon (WIP)",
+        "Comms. Attack",
+        "Intuitive Attack",
+        "Disposable (2)",
+        "State: Isolated",
+        "Non-lethal",
+        "No LoF",
+        "Zone of Control"
+      ]
+    },
+    {
+      "id": 95,
+      "type": "WEAPON",
+      "name": "K1 Combi Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 181,
+      "type": "WEAPON",
+      "name": "K1 Marksman Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 110,
+      "type": "WEAPON",
+      "name": "K1 Sniper Rifle",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 49,
+      "type": "WEAPON",
+      "name": "Katyusha MRL",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel",
+        "Speculative Attack",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 221,
+      "type": "WEAPON",
+      "name": "Kobra Pistol",
+      "mode": "BS Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "[*]"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 221,
+      "type": "WEAPON",
+      "name": "Kobra Pistol",
+      "mode": "CC Mode",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "CC",
+        "[*]"
+      ]
+    },
+    {
+      "id": 56,
+      "type": "WEAPON",
+      "name": "Light Flamethrower",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Direct Template (Small Teardrop)",
+        "Continous Damage"
+      ]
+    },
+    {
+      "id": 187,
+      "type": "WEAPON",
+      "name": "Light Riotstopper",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "State: IMM-A",
+        "Non-lethal",
+        "Direct Template (Small Teardrop)"
+      ]
+    },
+    {
+      "id": 88,
+      "type": "WEAPON",
+      "name": "Light Rocket Launcher",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 88,
+      "type": "WEAPON",
+      "name": "Light Rocket Launcher",
+      "mode": "Hit Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "WEAPON",
+      "name": "Light Shotgun",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+6"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 150,
+      "type": "WEAPON",
+      "name": "Madtraps",
+      "wiki": "https://infinitythewiki.com/Perimeter_Weapons#Perimeter_Weapons_and_the_Boost_Trait?version\u003dn4",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d1",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "Disposable (2)",
+        "Boost",
+        "Non-lethal",
+        "Perimeter",
+        "Deployable",
+        "[*]"
+      ]
+    },
+    {
+      "id": 84,
+      "type": "WEAPON",
+      "name": "Marksman Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 106,
+      "type": "EQUIPMENT",
+      "name": "MediKit",
+      "wiki": "https://infinitythewiki.com/MediKit?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "",
+      "savingNum": "-",
+      "properties": [
+        "Non-lethal",
+        "[***]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 176,
+      "type": "WEAPON",
+      "name": "Mine Dispenser",
+      "wiki": "https://infinitythewiki.com/Mines#Mine_Dispenser?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "1",
+      "properties": [
+        "Double Shot",
+        "Speculative Attack",
+        "Disposable (2)",
+        "Targetless",
+        "[*]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 58,
+      "type": "WEAPON",
+      "name": "Missile Launcher",
+      "mode": "Blast Mode",
+      "ammunition": 6,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 100,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 58,
+      "type": "WEAPON",
+      "name": "Missile Launcher",
+      "mode": "Hit Mode",
+      "ammunition": 13,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 100,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 64,
+      "type": "WEAPON",
+      "name": "Mk12",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "WEAPON",
+      "name": "Monofilament CC Weapon",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "CC",
+        "State: Dead"
+      ]
+    },
+    {
+      "id": 62,
+      "type": "WEAPON",
+      "name": "Monofilament Mine",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Concealed",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "State: Dead",
+        "[*]"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "WEAPON",
+      "name": "MULTI Heavy Machine Gun",
+      "mode": "Anti-materiel Mode",
+      "ammunition": 6,
+      "burst": "1",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "WEAPON",
+      "name": "MULTI Heavy Machine Gun",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "4",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "WEAPON",
+      "name": "MULTI Heavy Machine Gun",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "4",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 169,
+      "type": "WEAPON",
+      "name": "MULTI Marksman Rifle",
+      "mode": "Anti-Material Mode",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 169,
+      "type": "WEAPON",
+      "name": "MULTI Marksman Rifle",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 169,
+      "type": "WEAPON",
+      "name": "MULTI Marksman Rifle",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 189,
+      "type": "WEAPON",
+      "name": "MULTI Pistol",
+      "mode": "Anti-Material Mode",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 189,
+      "type": "WEAPON",
+      "name": "MULTI Pistol",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 189,
+      "type": "WEAPON",
+      "name": "MULTI Pistol",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 210,
+      "type": "WEAPON",
+      "name": "MULTI Red Fury",
+      "mode": "Antimaterial Mode",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 210,
+      "type": "WEAPON",
+      "name": "MULTI Red Fury",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "4",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 210,
+      "type": "WEAPON",
+      "name": "MULTI Red Fury",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "4",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 41,
+      "type": "WEAPON",
+      "name": "MULTI Rifle",
+      "mode": "Anti-Materiel Mode",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 41,
+      "type": "WEAPON",
+      "name": "MULTI Rifle",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 41,
+      "type": "WEAPON",
+      "name": "MULTI Rifle",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": "WEAPON",
+      "name": "MULTI Sniper Rifle",
+      "mode": "Anti-Materiel Mode",
+      "ammunition": 9,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": "WEAPON",
+      "name": "MULTI Sniper Rifle",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": "WEAPON",
+      "name": "MULTI Sniper Rifle",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 65,
+      "type": "WEAPON",
+      "name": "Nanopulser",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Direct Template (Small Teardrop)"
+      ]
+    },
+    {
+      "id": 67,
+      "type": "WEAPON",
+      "name": "Ohotnik",
+      "ammunition": 18,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "xlong": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 80,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 68,
+      "type": "WEAPON",
+      "name": "Panzerfaust",
+      "ammunition": 13,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel",
+        "Disposable (2)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 71,
+      "type": "WEAPON",
+      "name": "PARA CC Weapon",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "CC",
+        "Non-lethal",
+        "State: IMM-A"
+      ]
+    },
+    {
+      "id": 220,
+      "type": "WEAPON",
+      "name": "PARA Mine",
+      "ammunition": 37,
+      "burst": "1",
+      "damage": "-",
+      "saving": "PH-6",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Concealed",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Non-lethal",
+        "Deployable",
+        "[**]"
+      ]
+    },
+    {
+      "id": 69,
+      "type": "WEAPON",
+      "name": "Pistol",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "9",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 154,
+      "type": "WEAPON",
+      "name": "Pitcher",
+      "wiki": "https://infinitythewiki.com/Pitcher?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": [
+        "Speculative Attack",
+        "Disposable (2)",
+        "Indiscriminate",
+        "Non-lethal",
+        "Targetless",
+        "[*]"
+      ],
+      "distance": {
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "short": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 111,
+      "type": "WEAPON",
+      "name": "Plasma Carbine",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "7",
+      "saving": "ARM and BTS",
+      "savingNum": "1 and 1",
+      "properties": [
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 111,
+      "type": "WEAPON",
+      "name": "Plasma Carbine",
+      "mode": "Hit Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM and BTS",
+      "savingNum": "1 and 1",
+      "properties": [],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 40,
+      "type": "WEAPON",
+      "name": "Plasma Rifle",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM and BTS",
+      "savingNum": "1 and 1",
+      "properties": [
+        "Suppressive Fire",
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 40,
+      "type": "WEAPON",
+      "name": "Plasma Rifle",
+      "mode": "Hit Mode",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "6",
+      "saving": "ARM and BTS",
+      "savingNum": "1 and 1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 113,
+      "type": "WEAPON",
+      "name": "Plasma Sniper Rifle",
+      "mode": "Blast Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM and BTS",
+      "savingNum": "1 and 1",
+      "properties": [
+        "Impact Template (Circular)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 113,
+      "type": "WEAPON",
+      "name": "Plasma Sniper Rifle",
+      "mode": "Hit Mode",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM and BTS",
+      "savingNum": "1 and 1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "WEAPON",
+      "name": "Portable Autocannon",
+      "ammunition": 13,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "3",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 203,
+      "type": "WEAPON",
+      "name": "PT: Endgame",
+      "ammunition": 3,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "1",
+      "properties": [
+        "Technical Weapon",
+        "Comms. Attack",
+        "Disposable (2)",
+        "Target (VITA)",
+        "No LoF",
+        "Zone of Control"
+      ]
+    },
+    {
+      "id": 204,
+      "type": "WEAPON",
+      "name": "PT: Eraser",
+      "ammunition": 9,
+      "burst": "2",
+      "damage": "6",
+      "saving": "BTS",
+      "savingNum": "2",
+      "properties": [
+        "Technical Weapon",
+        "Comms. Attack",
+        "Target (VITA)",
+        "State: Isolated",
+        "Non-lethal",
+        "No LoF",
+        "Zone of Control"
+      ]
+    },
+    {
+      "id": 205,
+      "type": "WEAPON",
+      "name": "PT: Mirrorball",
+      "ammunition": 22,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": [
+        "Technical Weapon",
+        "Comms. Attack",
+        "Impact Template (Circular)",
+        "Non-lethal",
+        "Reflective",
+        "No LoF",
+        "Targetless",
+        "Zone of Control"
+      ]
+    },
+    {
+      "id": 145,
+      "type": "WEAPON",
+      "name": "Pulzar",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Direct Template (Large Teardrop)"
+      ]
+    },
+    {
+      "id": 152,
+      "type": "WEAPON",
+      "name": "Red Fury",
+      "ammunition": 8,
+      "burst": "4",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 31,
+      "type": "WEAPON",
+      "name": "Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 73,
+      "type": "WEAPON",
+      "name": "Sepsitor",
+      "wiki": "https://infinitythewiki.com/Sepsitor?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "4",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Disposable (2)",
+        "State: Sepsitorized",
+        "Direct Template (Large Teardrop)",
+        "[*]"
+      ]
+    },
+    {
+      "id": 114,
+      "type": "WEAPON",
+      "name": "Sepsitor Plus",
+      "wiki": "https://infinitythewiki.com/Sepsitor?version\u003dn4",
+      "ammunition": 0,
+      "burst": "1",
+      "damage": "3",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "State: Sepsitorized",
+        "Direct Template (Large Teardrop)"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "WEAPON",
+      "name": "Shock CC Weapon",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "CC"
+      ]
+    },
+    {
+      "id": 155,
+      "type": "WEAPON",
+      "name": "Shock Marksman Rifle",
+      "ammunition": 8,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 196,
+      "type": "WEAPON",
+      "name": "Shock Mine",
+      "ammunition": 8,
+      "burst": "1",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Concealed",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "[*]"
+      ]
+    },
+    {
+      "id": 211,
+      "type": "WEAPON",
+      "name": "Silenced Pistol",
+      "ammunition": 30,
+      "burst": "2",
+      "damage": "8",
+      "saving": "BTS/2",
+      "savingNum": "1",
+      "properties": [
+        "Silent (-6)"
+      ],
+      "distance": {
+        "max": {
+          "max": 60,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 195,
+      "type": "WEAPON",
+      "name": "Smoke Grenade Launcher",
+      "ammunition": 21,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": [
+        "Speculative Attack",
+        "Non-lethal",
+        "Impact Template (Circular)",
+        "Targetless",
+        "[**]"
+      ],
+      "distance": {
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 45,
+      "type": "WEAPON",
+      "name": "Smoke Grenades",
+      "ammunition": 21,
+      "burst": "1",
+      "damage": "-",
+      "saving": "-",
+      "savingNum": "-",
+      "properties": [
+        "Speculative Attack",
+        "BS Weapon (PH)",
+        "Impact Template (Circular)",
+        "Non-lethal",
+        "Targetless",
+        "[**]"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 20,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 34,
+      "type": "WEAPON",
+      "name": "Sniper Rifle",
+      "ammunition": 8,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 74,
+      "type": "WEAPON",
+      "name": "Spitfire",
+      "ammunition": 2,
+      "burst": "4",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 217,
+      "type": "WEAPON",
+      "name": "Spitfire MULTI",
+      "mode": "Anti-Material Mode",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 217,
+      "type": "WEAPON",
+      "name": "Spitfire MULTI",
+      "mode": "AP Mode",
+      "ammunition": 3,
+      "burst": "4",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 217,
+      "type": "WEAPON",
+      "name": "Spitfire MULTI",
+      "mode": "Shock Mode",
+      "ammunition": 8,
+      "burst": "4",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 92,
+      "type": "WEAPON",
+      "name": "Stun Pistol",
+      "ammunition": 29,
+      "burst": "2",
+      "damage": "8",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "State: Stunned",
+        "Non-lethal"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 77,
+      "type": "WEAPON",
+      "name": "Submachine Gun",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "max": {
+          "max": 80,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 127,
+      "type": "WEAPON",
+      "name": "Suppressive Fire Mode Weapon",
+      "ammunition": "0",
+      "burst": "3",
+      "damage": "*",
+      "saving": "*",
+      "savingNum": "*",
+      "properties": [
+        "[***]"
+      ],
+      "distance": {
+        "med": {
+          "max": 60,
+          "mod": "-3"
+        },
+        "short": {
+          "max": 40,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 27,
+      "type": "WEAPON",
+      "name": "T2 Boarding Shotgun",
+      "ammunition": 18,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 153,
+      "type": "WEAPON",
+      "name": "T2 CC Weapon",
+      "ammunition": 18,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel",
+        "CC"
+      ]
+    },
+    {
+      "id": 180,
+      "type": "WEAPON",
+      "name": "T2 Marksman Rifle",
+      "ammunition": 18,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 42,
+      "type": "WEAPON",
+      "name": "T2 Rifle",
+      "ammunition": 18,
+      "burst": "3",
+      "damage": "7",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 38,
+      "type": "WEAPON",
+      "name": "T2 Sniper Rifle",
+      "ammunition": 18,
+      "burst": "2",
+      "damage": "5",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [
+        "Anti-materiel"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 193,
+      "type": "WEAPON",
+      "name": "Tactical Bow",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel",
+        "Silent (-6)"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 207,
+      "type": "WEAPON",
+      "name": "Thunderbolt",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "1",
+      "properties": [],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "0"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 80,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 177,
+      "type": "WEAPON",
+      "name": "Trench-Hammer",
+      "mode": "BS Mode",
+      "wiki": "https://infinitythewiki.com/Mixed_Weapons?version\u003dn4",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel",
+        "BS Weapon (PH)",
+        "Disposable (3)",
+        "[*]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 177,
+      "type": "WEAPON",
+      "name": "Trench-Hammer",
+      "mode": "CC Mode",
+      "wiki": "https://infinitythewiki.com/Mixed_Weapons?version\u003dn4",
+      "ammunition": 9,
+      "burst": "1",
+      "damage": "6",
+      "saving": "ARM",
+      "savingNum": "2",
+      "properties": [
+        "Anti-materiel",
+        "CC",
+        "Disposable (3)",
+        "[*]"
+      ]
+    },
+    {
+      "id": 75,
+      "type": "WEAPON",
+      "name": "Uragan MRL",
+      "mode": "Blast Mode",
+      "ammunition": 30,
+      "burst": "3",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Speculative Attack",
+        "Impact Template (Circular)",
+        "Burst: Single Target"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 75,
+      "type": "WEAPON",
+      "name": "Uragan MRL",
+      "mode": "Hit Mode",
+      "ammunition": 30,
+      "burst": "3",
+      "damage": "5",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Burst: Single Target"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "0"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "WEAPON",
+      "name": "Viral CC Weapon",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "CC",
+        "Bioweapon (DA+SHOCK)"
+      ]
+    },
+    {
+      "id": 83,
+      "type": "WEAPON",
+      "name": "Viral Combi Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Bioweapon (DA+SHOCK)",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "med": {
+          "max": 80,
+          "mod": "-3"
+        },
+        "long": {
+          "max": 120,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 206,
+      "type": "WEAPON",
+      "name": "Viral Marksman Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Bioweapon (DA+SHOCK)",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 60,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 100,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 63,
+      "type": "WEAPON",
+      "name": "Viral Mine",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Intuitive Attack",
+        "Bioweapon (DA+SHOCK)",
+        "Concealed",
+        "Disposable (3)",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "[*]"
+      ]
+    },
+    {
+      "id": 156,
+      "type": "WEAPON",
+      "name": "Viral Pistol",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "8",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Bioweapon (DA+SHOCK)"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 43,
+      "type": "WEAPON",
+      "name": "Viral Rifle",
+      "ammunition": 2,
+      "burst": "3",
+      "damage": "7",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Bioweapon (DA+SHOCK)",
+        "Suppressive Fire"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "0"
+        },
+        "max": {
+          "max": 120,
+          "mod": "-6"
+        },
+        "med": {
+          "max": 40,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 80,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 39,
+      "type": "WEAPON",
+      "name": "VIRAL Sniper Rifle",
+      "ammunition": 2,
+      "burst": "2",
+      "damage": "5",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Bioweapon (DA+SHOCK)"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "-3"
+        },
+        "max": {
+          "max": 240,
+          "mod": "-3"
+        },
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "long": {
+          "max": 120,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 179,
+      "type": "WEAPON",
+      "name": "Viral Tactical Bow",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "BTS",
+      "savingNum": "1",
+      "properties": [
+        "Bioweapon (DA+SHOCK)",
+        "Silent (-6)"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-6"
+        }
+      }
+    },
+    {
+      "id": 149,
+      "type": "WEAPON",
+      "name": "Vorpal CC Weapon",
+      "mode": "BS Mode",
+      "wiki": "https://infinitythewiki.com/Mixed_Weapons?version\u003dn4",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "BS Weapon (PH)",
+        "State: Dead",
+        "[*]"
+      ],
+      "distance": {
+        "short": {
+          "max": 20,
+          "mod": "+3"
+        }
+      }
+    },
+    {
+      "id": 149,
+      "type": "WEAPON",
+      "name": "Vorpal CC Weapon",
+      "mode": "CC Mode",
+      "wiki": "https://infinitythewiki.com/Mixed_Weapons?version\u003dn4",
+      "ammunition": 2,
+      "burst": "1",
+      "damage": "8",
+      "saving": "ARM\u003d0",
+      "savingNum": "1",
+      "properties": [
+        "CC",
+        "State: Dead",
+        "[*]"
+      ]
+    },
+    {
+      "id": 81,
+      "type": "WEAPON",
+      "name": "Vulkan Shotgun",
+      "ammunition": 3,
+      "burst": "2",
+      "damage": "6",
+      "saving": "ARM/2",
+      "savingNum": "1",
+      "properties": [
+        "Continous Damage"
+      ],
+      "distance": {
+        "med": {
+          "max": 40,
+          "mod": "0"
+        },
+        "short": {
+          "max": 20,
+          "mod": "+6"
+        },
+        "long": {
+          "max": 60,
+          "mod": "-3"
+        }
+      }
+    },
+    {
+      "id": 182,
+      "type": "WEAPON",
+      "name": "WildParrot",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "7",
+      "profile": "ARM\u003d0, BTS\u003d0, STR\u003d1, S\u003d1",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Intuitive Attack",
+        "Disposable (1)",
+        "Direct Template (Small Teardrop)",
+        "Deployable",
+        "Perimeter",
+        "[*]"
+      ]
+    },
+    {
+      "id": 175,
+      "type": "WEAPON",
+      "name": "Zapper",
+      "ammunition": 14,
+      "burst": "1",
+      "damage": "7",
+      "saving": "BTS/2",
+      "savingNum": "2",
+      "properties": [
+        "Intuitive Attack",
+        "Non-lethal",
+        "Direct Template (Small Teardrop)",
+        "[**]"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": 19,
+      "name": "Martial Arts L1",
+      "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+    },
+    {
+      "id": 20,
+      "name": "Martial Arts L2",
+      "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+    },
+    {
+      "id": 21,
+      "name": "Martial Arts L3",
+      "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+    },
+    {
+      "id": 22,
+      "name": "Martial Arts L4",
+      "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+    },
+    {
+      "id": 23,
+      "name": "Martial Arts L5",
+      "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+    },
+    {
+      "id": 24,
+      "name": "Berserk",
+      "wiki": "https://infinitythewiki.com/Berserk?version\u003dn4"
+    },
+    {
+      "id": 25,
+      "name": "Booty",
+      "wiki": "https://infinitythewiki.com/Booty?version\u003dn4"
+    },
+    {
+      "id": 26,
+      "name": "Chain of Command",
+      "wiki": "https://infinitythewiki.com/Chain_of_Command?version\u003dn4"
+    },
+    {
+      "id": 28,
+      "name": "Mimetism",
+      "wiki": "https://infinitythewiki.com/Mimetism?version\u003dn4"
+    },
+    {
+      "id": 29,
+      "name": "Camouflage",
+      "wiki": "https://infinitythewiki.com/Camouflage?version\u003dn4"
+    },
+    {
+      "id": 33,
+      "name": "Parachutist",
+      "wiki": "https://infinitythewiki.com/Parachutist?version\u003dn4"
+    },
+    {
+      "id": 35,
+      "name": "Combat Jump",
+      "wiki": "https://infinitythewiki.com/Combat_Jump?version\u003dn4"
+    },
+    {
+      "id": 38,
+      "name": "Explode",
+      "wiki": "https://infinitythewiki.com/Explode?version\u003dn4"
+    },
+    {
+      "id": 39,
+      "name": "Natural Born Warrior",
+      "wiki": "https://infinitythewiki.com/Natural_Born_Warrior?version\u003dn4"
+    },
+    {
+      "id": 40,
+      "name": "Dodge",
+      "wiki": "https://infinitythewiki.com/Dodge?version\u003dn4"
+    },
+    {
+      "id": 46,
+      "name": "Inferior Infiltration",
+      "wiki": "https://infinitythewiki.com/Infiltrate?version\u003dn4"
+    },
+    {
+      "id": 47,
+      "name": "Infiltration",
+      "wiki": "https://infinitythewiki.com/Infiltrate?version\u003dn4"
+    },
+    {
+      "id": 48,
+      "name": "Superior Infiltration",
+      "wiki": "https://infinitythewiki.com/Infiltrate?version\u003dn4"
+    },
+    {
+      "id": 49,
+      "name": "Engineer",
+      "wiki": "https://infinitythewiki.com/Engineer?version\u003dn4"
+    },
+    {
+      "id": 52,
+      "name": "Inspiring Leadership",
+      "wiki": "https://infinitythewiki.com/Inspiring_Leadership?version\u003dn4"
+    },
+    {
+      "id": 53,
+      "name": "Doctor",
+      "wiki": "https://infinitythewiki.com/Doctor?version\u003dn4"
+    },
+    {
+      "id": 55,
+      "name": "MetaChemistry",
+      "wiki": "https://infinitythewiki.com/MetaChemistry?version\u003dn4"
+    },
+    {
+      "id": 56,
+      "name": "Minelayer",
+      "wiki": "https://infinitythewiki.com/Minelayer?version\u003dn4"
+    },
+    {
+      "id": 58,
+      "name": "Terrain",
+      "wiki": "https://infinitythewiki.com/Terrain?version\u003dn4"
+    },
+    {
+      "id": 59,
+      "name": "Forward Observer",
+      "wiki": "https://infinitythewiki.com/Forward_Observer?version\u003dn4"
+    },
+    {
+      "id": 60,
+      "name": "Pilot",
+      "wiki": "https://infinitythewiki.com/Pilot?version\u003dn4"
+    },
+    {
+      "id": 61,
+      "name": "Total Reaction",
+      "wiki": "https://infinitythewiki.com/Total_Reaction?version\u003dn4"
+    },
+    {
+      "id": 62,
+      "name": "Regeneration",
+      "wiki": "https://infinitythewiki.com/Regeneration?version\u003dn4"
+    },
+    {
+      "id": 64,
+      "name": "Paramedic",
+      "wiki": "https://infinitythewiki.com/Paramedic?version\u003dn4"
+    },
+    {
+      "id": 65,
+      "name": "Sensor",
+      "wiki": "https://infinitythewiki.com/Sensor?version\u003dn4"
+    },
+    {
+      "id": 66,
+      "name": "Seed-Embryo",
+      "wiki": "https://infinitythewiki.com/Seed-Embryo?version\u003dn4"
+    },
+    {
+      "id": 67,
+      "name": "Sixth Sense",
+      "wiki": "https://infinitythewiki.com/Sixth_Sense?version\u003dn4"
+    },
+    {
+      "id": 69,
+      "name": "Strategos L1",
+      "wiki": "https://infinitythewiki.com/Strategos?version\u003dn4"
+    },
+    {
+      "id": 70,
+      "name": "Strategos L2",
+      "wiki": "https://infinitythewiki.com/Strategos?version\u003dn4"
+    },
+    {
+      "id": 71,
+      "name": "Strategos L3",
+      "wiki": "https://infinitythewiki.com/Strategos?version\u003dn4"
+    },
+    {
+      "id": 72,
+      "name": "Protheion",
+      "wiki": "https://infinitythewiki.com/Protheion?version\u003dn4"
+    },
+    {
+      "id": 73,
+      "name": "Morpho-scan",
+      "wiki": "https://infinitythewiki.com/Morpho-Scan?version\u003dn4"
+    },
+    {
+      "id": 74,
+      "name": "Super-Jump",
+      "wiki": "https://infinitythewiki.com/Super-Jump?version\u003dn4"
+    },
+    {
+      "id": 82,
+      "name": "Climbing Plus",
+      "wiki": "https://infinitythewiki.com/Climbing_Plus?version\u003dn4"
+    },
+    {
+      "id": 83,
+      "name": "Religious Troop",
+      "wiki": "https://infinitythewiki.com/Religious_Troop?version\u003dn4"
+    },
+    {
+      "id": 84,
+      "name": "Courage",
+      "wiki": "https://infinitythewiki.com/Courage?version\u003dn4"
+    },
+    {
+      "id": 85,
+      "name": "Dogged",
+      "wiki": "https://infinitythewiki.com/Dogged?version\u003dn4"
+    },
+    {
+      "id": 86,
+      "name": "No Wound Incapacitation",
+      "wiki": "https://infinitythewiki.com/No_Wound_Incapacitation?version\u003dn4"
+    },
+    {
+      "id": 88,
+      "name": "Veteran",
+      "wiki": "https://infinitythewiki.com/Veteran?version\u003dn4"
+    },
+    {
+      "id": 89,
+      "name": "Sapper",
+      "wiki": "https://infinitythewiki.com/Sapper?version\u003dn4"
+    },
+    {
+      "id": 109,
+      "name": "Neurocinetics",
+      "wiki": "https://infinitythewiki.com/Neurocinetics?version\u003dn4"
+    },
+    {
+      "id": 119,
+      "name": "Lieutenant",
+      "wiki": "https://infinitythewiki.com/Lieutenant?version\u003dn4"
+    },
+    {
+      "id": 120,
+      "name": "Fireteam: Core",
+      "wiki": "https://infinitythewiki.com/Types_of_Fireteam#FIRETEAM:_CORE?version\u003dn4"
+    },
+    {
+      "id": 121,
+      "name": "Fireteam: Haris",
+      "wiki": "https://infinitythewiki.com/Fireteam:_Haris?version\u003dn4"
+    },
+    {
+      "id": 122,
+      "name": "Number 2",
+      "wiki": "https://infinitythewiki.com/Number_2?version\u003dn4"
+    },
+    {
+      "id": 125,
+      "name": "Fireteam: Enomotarchos",
+      "wiki": "https://infinitythewiki.com/Fireteam:_Enomotarchos?version\u003dn4"
+    },
+    {
+      "id": 127,
+      "name": "Journalist L1"
+    },
+    {
+      "id": 129,
+      "name": "Fireteam: Triad",
+      "wiki": "https://infinitythewiki.com/Fireteam:_Triad?version\u003dn4"
+    },
+    {
+      "id": 131,
+      "name": "Discover",
+      "wiki": "https://infinitythewiki.com/Discover?version\u003dn4"
+    },
+    {
+      "id": 132,
+      "name": "Civvie"
+    },
+    {
+      "id": 138,
+      "name": "Bioimmunity",
+      "wiki": "https://infinitythewiki.com/Bioimmunity?version\u003dn4"
+    },
+    {
+      "id": 156,
+      "name": "Marksmanship",
+      "wiki": "https://infinitythewiki.com/Marksmanship?version\u003dn4"
+    },
+    {
+      "id": 161,
+      "name": "Forward Deployment",
+      "wiki": "https://infinitythewiki.com/Forward_Deployment?version\u003dn4"
+    },
+    {
+      "id": 162,
+      "name": "Immunity",
+      "wiki": "https://infinitythewiki.com/Immunity?version\u003dn4"
+    },
+    {
+      "id": 164,
+      "name": "Stealth",
+      "wiki": "https://infinitythewiki.com/Stealth?version\u003dn4"
+    },
+    {
+      "id": 181,
+      "name": "Fireteam: Duo",
+      "wiki": "https://infinitythewiki.com/Fireteam:_Duo?version\u003dn4"
+    },
+    {
+      "id": 189,
+      "name": "Specialist Operative",
+      "wiki": "https://infinitythewiki.com/Specialist_Operative?version\u003dn4"
+    },
+    {
+      "id": 191,
+      "name": "Surprise Attack",
+      "wiki": "https://infinitythewiki.com/Surprise_Attack?version\u003dn4"
+    },
+    {
+      "id": 201,
+      "name": "BS Attack",
+      "wiki": "https://infinitythewiki.com/BS_Attack?version\u003dn4"
+    },
+    {
+      "id": 204,
+      "name": "Infinity Spec-Ops"
+    },
+    {
+      "id": 207,
+      "name": "Counterintelligence",
+      "wiki": "https://infinitythewiki.com/Counterintelligence?version\u003dn4"
+    },
+    {
+      "id": 211,
+      "name": "NCO",
+      "wiki": "https://infinitythewiki.com/NCO?version\u003dn4"
+    },
+    {
+      "id": 213,
+      "name": "Tactical Awareness",
+      "wiki": "https://infinitythewiki.com/Tactical_Awareness?version\u003dn4"
+    },
+    {
+      "id": 215,
+      "name": "Decoy",
+      "wiki": "https://infinitythewiki.com/Decoy?version\u003dn4"
+    },
+    {
+      "id": 219,
+      "name": "Tri-Core",
+      "wiki": "https://infinitythewiki.com/Tri-Core?version\u003dn4"
+    },
+    {
+      "id": 220,
+      "name": "Vulnerability",
+      "wiki": "https://infinitythewiki.com/Vulnerability?version\u003dn4"
+    },
+    {
+      "id": 235,
+      "name": "Remote Presence",
+      "wiki": "https://infinitythewiki.com/Remote_Presence?version\u003dn4"
+    },
+    {
+      "id": 237,
+      "name": "Shasvastii",
+      "wiki": "https://infinitythewiki.com/Shasvastii?version\u003dn4"
+    },
+    {
+      "id": 238,
+      "name": "Hidden Deployment",
+      "wiki": "https://infinitythewiki.com/Hidden_Deployment?version\u003dn4"
+    },
+    {
+      "id": 240,
+      "name": "CC Attack",
+      "wiki": "https://infinitythewiki.com/CC_Attack?version\u003dn4"
+    },
+    {
+      "id": 241,
+      "name": "Triangulated Fire",
+      "wiki": "https://infinitythewiki.com/Triangulated_Fire?version\u003dn4"
+    },
+    {
+      "id": 242,
+      "name": "Triangulated Fire",
+      "wiki": "https://infinitythewiki.com/Triangulated_Fire?version\u003dn4"
+    },
+    {
+      "id": 243,
+      "name": "Peripheral",
+      "wiki": "https://infinitythewiki.com/Peripheral?version\u003dn4"
+    },
+    {
+      "id": 246,
+      "name": "Transmutation",
+      "wiki": "https://infinitythewiki.com/Transmutation?version\u003dn4"
+    },
+    {
+      "id": 247,
+      "name": "Guard",
+      "wiki": "https://infinitythewiki.com/Guard?version\u003dn4"
+    },
+    {
+      "id": 248,
+      "name": "Mnemonica",
+      "wiki": "https://infinitythewiki.com/Mnemonica?version\u003dn4"
+    },
+    {
+      "id": 249,
+      "name": "Impersonation",
+      "wiki": "https://infinitythewiki.com/Impersonation?version\u003dn4"
+    },
+    {
+      "id": 250,
+      "name": "Frenzy",
+      "wiki": "https://infinitythewiki.com/Frenzy?version\u003dn4"
+    },
+    {
+      "id": 251,
+      "name": "Strategic Deployment",
+      "wiki": "https://infinitythewiki.com/Strategic_Deployment?version\u003dn4"
+    },
+    {
+      "id": 252,
+      "name": "G: Jumper",
+      "wiki": "https://infinitythewiki.com/G:_Jumper?version\u003dn4"
+    },
+    {
+      "id": 253,
+      "name": "Special Fireteam: Triad",
+      "wiki": "https://infinitythewiki.com/Fireteam:_Triad?version\u003dn4"
+    },
+    {
+      "id": 254,
+      "name": "Gizmokit"
+    },
+    {
+      "id": 255,
+      "name": "RemDriver",
+      "wiki": "https://infinitythewiki.com/Remdriver?version\u003dn4"
+    },
+    {
+      "id": 256,
+      "name": "Impetuous",
+      "wiki": "https://infinitythewiki.com/Impetuous?version\u003dn4"
+    },
+    {
+      "id": 257,
+      "name": "Journalist L2"
+    },
+    {
+      "id": 258,
+      "name": "Regular"
+    },
+    {
+      "id": 261,
+      "name": "FT Master",
+      "wiki": "https://infinitythewiki.com/FT_Master?version\u003dn4"
+    },
+    {
+      "id": 262,
+      "name": "Combat Instinct",
+      "wiki": "https://infinitythewiki.com/Combat_Instinct?version\u003dn4"
+    },
+    {
+      "id": 263,
+      "name": "Jump",
+      "wiki": "https://infinitythewiki.com/Jump?version\u003dn4"
+    },
+    {
+      "id": 264,
+      "name": "No Cover",
+      "wiki": "https://infinitythewiki.com/No_Cover?version\u003dn4"
+    },
+    {
+      "id": 265,
+      "name": "Aerial",
+      "wiki": "https://infinitythewiki.com/Aerial?version\u003dn4"
+    },
+    {
+      "id": 266,
+      "name": "Bangbomb",
+      "wiki": "https://infinitythewiki.com/Bangbomb?version\u003dn4"
+    },
+    {
+      "id": 267,
+      "name": "Warhorse",
+      "wiki": "https://infinitythewiki.com/Warhorse?version\u003dn4"
+    },
+    {
+      "id": 268,
+      "name": "Limited Cover",
+      "wiki": "https://infinitythewiki.com/Limited_Cover?version\u003dn4"
+    },
+    {
+      "id": 269,
+      "name": "Auxiliar"
+    },
+    {
+      "id": 270,
+      "name": "TAGCom",
+      "wiki": "https://infinitythewiki.com/TAGCom?version\u003dn4"
+    },
+    {
+      "id": 271,
+      "name": "Climb",
+      "wiki": "https://infinitythewiki.com/Climb?version\u003dn4"
+    },
+    {
+      "id": 272,
+      "name": "Journalist"
+    },
+    {
+      "id": 273,
+      "name": "MediKit"
+    },
+    {
+      "id": 274,
+      "name": "CC\u003d21"
+    },
+    {
+      "id": 275,
+      "name": "Tech-recovery"
+    },
+    {
+      "id": 276,
+      "name": "Technorganic"
+    },
+    {
+      "id": 277,
+      "name": "Cyberplug"
+    },
+    {
+      "id": 278,
+      "name": "BS\u003d12"
+    },
+    {
+      "id": 279,
+      "name": "BS\u003d11"
+    },
+    {
+      "id": 1000,
+      "name": "Hacker",
+      "wiki": "https://infinitythewiki.com/Hacker?version\u003dn4"
+    }
+  ],
+  "equips": [
+    {
+      "id": 24,
+      "name": "Holomask",
+      "wiki": "https://infinitythewiki.com/HoloMask?version\u003dn4"
+    },
+    {
+      "id": 63,
+      "name": "Repeater",
+      "wiki": "https://infinitythewiki.com/Repeater?version\u003dn4"
+    },
+    {
+      "id": 91,
+      "name": "Baggage",
+      "wiki": "https://infinitythewiki.com/Baggage?version\u003dn4"
+    },
+    {
+      "id": 100,
+      "name": "Hacking Device",
+      "wiki": "https://infinitythewiki.com/Hacking_Device?version\u003dn4"
+    },
+    {
+      "id": 101,
+      "name": "Hacking Device Plus",
+      "wiki": "https://infinitythewiki.com/Hacking_Device#Hacking_Device_Plus?version\u003dn4"
+    },
+    {
+      "id": 102,
+      "name": "ECM",
+      "wiki": "https://infinitythewiki.com/ECM?version\u003dn4"
+    },
+    {
+      "id": 104,
+      "name": "Holoprojector",
+      "wiki": "https://infinitythewiki.com/Holoprojector?version\u003dn4"
+    },
+    {
+      "id": 106,
+      "name": "MediKit",
+      "wiki": "https://infinitythewiki.com/MediKit?version\u003dn4"
+    },
+    {
+      "id": 107,
+      "name": "Motorcycle",
+      "wiki": "https://infinitythewiki.com/Motorcycle?version\u003dn4"
+    },
+    {
+      "id": 108,
+      "name": "Nanoscreen",
+      "wiki": "https://infinitythewiki.com/Nanoscreen?version\u003dn4"
+    },
+    {
+      "id": 111,
+      "name": "Deployable Repeater",
+      "wiki": "https://infinitythewiki.com/Deployable_Repeater?version\u003dn4"
+    },
+    {
+      "id": 113,
+      "name": "360º Visor",
+      "wiki": "https://infinitythewiki.com/360º_Visor?version\u003dn4"
+    },
+    {
+      "id": 114,
+      "name": "Multispectral Visor L1",
+      "wiki": "https://infinitythewiki.com/Multispectral_Visor?version\u003dn4"
+    },
+    {
+      "id": 115,
+      "name": "Multispectral Visor L2",
+      "wiki": "https://infinitythewiki.com/Multispectral_Visor?version\u003dn4"
+    },
+    {
+      "id": 116,
+      "name": "Multispectral Visor L3",
+      "wiki": "https://infinitythewiki.com/Multispectral_Visor?version\u003dn4"
+    },
+    {
+      "id": 117,
+      "name": "X Visor",
+      "wiki": "https://infinitythewiki.com/X-Visor?version\u003dn4"
+    },
+    {
+      "id": 137,
+      "name": "Escape System",
+      "wiki": "https://infinitythewiki.com/Escape_System?version\u003dn4"
+    },
+    {
+      "id": 145,
+      "name": "Killer Hacking Device",
+      "wiki": "https://infinitythewiki.com/Hacking_Device#Killer_Hacking_Device?version\u003dn4"
+    },
+    {
+      "id": 169,
+      "name": "TinBot: Firewall",
+      "wiki": "https://infinitythewiki.com/TinBot?version\u003dn4"
+    },
+    {
+      "id": 182,
+      "name": "EVO Hacking Device",
+      "wiki": "https://infinitythewiki.com/Hacking_Device#EVO_Hacking_Device?version\u003dn4"
+    },
+    {
+      "id": 183,
+      "name": "Albedo",
+      "wiki": "https://infinitythewiki.com/Albedo?version\u003dn4"
+    },
+    {
+      "id": 184,
+      "name": "Biometric Visor",
+      "wiki": "https://infinitythewiki.com/Biometric_Visor?version\u003dn4"
+    },
+    {
+      "id": 188,
+      "name": "TinBot: Neourocinetics",
+      "wiki": "https://infinitythewiki.com/TinBot?version\u003dn4"
+    },
+    {
+      "id": 193,
+      "name": "TinBot (Albedo)",
+      "wiki": "https://infinitythewiki.com/TinBot?version\u003dn4"
+    },
+    {
+      "id": 205,
+      "name": "AI Motorcycle",
+      "wiki": "https://infinitythewiki.com/AI_Motorcycle?version\u003dn4"
+    },
+    {
+      "id": 233,
+      "name": "Advanced ECM",
+      "wiki": "https://infinitythewiki.com/ECM?version\u003dn4"
+    },
+    {
+      "id": 235,
+      "name": "TinBot",
+      "wiki": "https://infinitythewiki.com/TinBot?version\u003dn4"
+    },
+    {
+      "id": 237,
+      "name": "GizmoKit",
+      "wiki": "https://infinitythewiki.com/GizmoKit?version\u003dn4"
+    },
+    {
+      "id": 238,
+      "name": "Deactivator",
+      "wiki": "https://infinitythewiki.com/Deactivator?version\u003dn4"
+    },
+    {
+      "id": 239,
+      "name": "ECM: Guided",
+      "wiki": "https://infinitythewiki.com/ECM?version\u003dn4"
+    },
+    {
+      "id": 240,
+      "name": "FastPanda",
+      "wiki": "https://infinitythewiki.com/FastPanda?version\u003dn4"
+    },
+    {
+      "id": 241,
+      "name": "ECM: Hacker",
+      "wiki": "https://infinitythewiki.com/ECM?version\u003dn4"
+    },
+    {
+      "id": 242,
+      "name": "SymbioMate",
+      "wiki": "https://infinitythewiki.com/SymbioMate?version\u003dn4"
+    },
+    {
+      "id": 243,
+      "name": "Dazer",
+      "wiki": "https://infinitythewiki.com/Dazer?version\u003dn4"
+    },
+    {
+      "id": 244,
+      "name": "TinBot: Discover",
+      "wiki": "https://infinitythewiki.com/TinBot?version\u003dn4"
+    },
+    {
+      "id": 245,
+      "name": "Deployable Cover"
+    },
+    {
+      "id": 246,
+      "name": "Bangbomb",
+      "wiki": "https://infinitythewiki.com/Bangbomb?version\u003dn4"
+    },
+    {
+      "id": 247,
+      "name": "TinBot: ECM Guided"
+    }
+  ],
+  "hack": [
+    {
+      "opponent": "-",
+      "special": "Target gains Marksmanship.",
+      "skillType": [
+        "entire order"
+      ],
+      "extra": 18,
+      "damage": "-",
+      "devices": [
+        182
+      ],
+      "target": [
+        "REM"
+      ],
+      "attack": "-",
+      "name": "Assisted Fire",
+      "burst": "-"
+    },
+    {
+      "opponent": "0",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "special": "DA Ammo.  State: IMM-B.  Non-Lethal.",
+      "extra": 13,
+      "damage": "7",
+      "devices": [
+        100,
+        101
+      ],
+      "target": [
+        "TAG",
+        "HI",
+        "REM",
+        "Hacker",
+        "VH"
+      ],
+      "attack": "0",
+      "name": "Carbonite",
+      "burst": "2"
+    },
+    {
+      "opponent": "-",
+      "special": "+3/-3 PH MOD to all Troopers performing Combat Jump. ",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "extra": 16,
+      "damage": "-",
+      "devices": [
+        182
+      ],
+      "target": [],
+      "attack": "-",
+      "name": "Controlled Jump",
+      "burst": "-"
+    },
+    {
+      "opponent": "-",
+      "special": "Replace the Hacker with an Impersonation 2 Marker.",
+      "skillType": [
+        "entire order"
+      ],
+      "extra": 289,
+      "damage": "-",
+      "devices": [
+        145,
+        101
+      ],
+      "target": [],
+      "attack": "-",
+      "name": "Cybermask",
+      "burst": "-"
+    },
+    {
+      "opponent": "-",
+      "special": "Target gains B2 in ARO.",
+      "skillType": [
+        "entire order"
+      ],
+      "extra": 19,
+      "damage": "-",
+      "devices": [
+        182
+      ],
+      "target": [
+        "REM"
+      ],
+      "attack": "-",
+      "name": "Enhanced Reaction",
+      "burst": "-"
+    },
+    {
+      "opponent": "-",
+      "skillType": [
+        "entire order"
+      ],
+      "special": "Targets gain the Firewall MODs.",
+      "extra": 17,
+      "damage": "-",
+      "devices": [
+        182
+      ],
+      "target": [
+        "TAG",
+        "HI",
+        "REM",
+        "VH"
+      ],
+      "attack": "-",
+      "name": "Fairy Dust",
+      "burst": "-"
+    },
+    {
+      "opponent": "0",
+      "special": "AP Ammo, Non-Lethal,  State: ISOLATED.",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "extra": 21,
+      "damage": "4",
+      "devices": [
+        100,
+        101
+      ],
+      "target": [
+        "TAG",
+        "HI",
+        "REM",
+        "Hacker",
+        "VH"
+      ],
+      "attack": "0",
+      "name": "Oblivion",
+      "burst": "2"
+    },
+    {
+      "opponent": "0",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "special": "AP Ammo, State: TARGETED, Non-Lethal.",
+      "extra": 14,
+      "damage": "5",
+      "devices": [
+        100,
+        101
+      ],
+      "attack": "0",
+      "name": "Spotlight",
+      "burst": "2",
+      "target": []
+    },
+    {
+      "opponent": "0",
+      "special": "DA Ammo, Non-Lethal,  State: POS/NORMAL.",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "extra": 15,
+      "damage": "4",
+      "devices": [
+        100,
+        101
+      ],
+      "target": [
+        "TAG"
+      ],
+      "attack": "0",
+      "name": "Total Control",
+      "burst": "1"
+    },
+    {
+      "opponent": "0",
+      "special": "Target suffers 1 Wound for each failed SR.",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "extra": 12,
+      "damage": "6",
+      "devices": [
+        145
+      ],
+      "target": [
+        "Hacker"
+      ],
+      "attack": "+3",
+      "name": "Trinity",
+      "burst": "3"
+    },
+    {
+      "opponent": "-",
+      "special": "NFB, Reflective: Circular Template",
+      "skillType": [
+        "short"
+      ],
+      "extra": 20,
+      "damage": "-",
+      "devices": [
+        101
+      ],
+      "target": [],
+      "attack": "-",
+      "name": "White Noise",
+      "burst": "1"
+    },
+    {
+      "opponent": "-3",
+      "special": "Nullifies Comms Attack. B2 in ARO, Non-Lethal.",
+      "skillType": [
+        "short",
+        "aro"
+      ],
+      "extra": 287,
+      "damage": "-",
+      "target": [],
+      "attack": "0",
+      "name": "Zero Pain",
+      "burst": "2"
+    }
+  ],
+  "martialArts": [
+    {
+      "opponent": "-3",
+      "damage": "-",
+      "attack": "0",
+      "name": "1",
+      "burst": "0"
+    },
+    {
+      "opponent": "-3",
+      "damage": "-",
+      "attack": "+3",
+      "name": "2",
+      "burst": "0"
+    },
+    {
+      "opponent": "-3",
+      "damage": "-",
+      "attack": "+3",
+      "name": "3",
+      "burst": "+1SD"
+    },
+    {
+      "opponent": "-3",
+      "damage": "-",
+      "attack": "+3",
+      "name": "4",
+      "burst": "+1B"
+    },
+    {
+      "opponent": "-3",
+      "damage": "-",
+      "attack": "+3",
+      "name": "5",
+      "burst": "+1B, +1SD"
+    }
+  ],
+  "metachemistry": [
+    {
+      "name": "1-3",
+      "id": 1,
+      "value": "+3 PH"
+    },
+    {
+      "name": "4-5",
+      "id": 4,
+      "value": "Super-Jump"
+    },
+    {
+      "name": "6-7",
+      "id": 6,
+      "value": "Regeneration"
+    },
+    {
+      "name": "8-10",
+      "id": 8,
+      "value": "Climbing Plus"
+    },
+    {
+      "name": "11-12",
+      "id": 11,
+      "value": "MOV: 8-4"
+    },
+    {
+      "name": "13-14",
+      "id": 13,
+      "value": "+6 BTS"
+    },
+    {
+      "name": "15",
+      "id": 15,
+      "value": "No Wound Incapacitation"
+    },
+    {
+      "name": "16",
+      "id": 16,
+      "value": "+1 ARM + Immunity (ARM)"
+    },
+    {
+      "name": "17",
+      "id": 17,
+      "value": "Dogged + Immunity (Enhanced)"
+    },
+    {
+      "name": "18",
+      "id": 18,
+      "value": "MOV: 6-4 + Super-Jump"
+    },
+    {
+      "name": "19",
+      "id": 19,
+      "value": "MOV: 8-4 + Climbing Plus"
+    },
+    {
+      "name": "20",
+      "id": 20,
+      "value": "+3 PH + Regeneration"
+    }
+  ],
+  "booty": [
+    {
+      "name": "1-2",
+      "id": 1,
+      "value": "+1 ARM"
+    },
+    {
+      "name": "3-4",
+      "id": 3,
+      "value": "Light Flamethrower"
+    },
+    {
+      "name": "5-6",
+      "id": 5,
+      "value": "Grenades"
+    },
+    {
+      "name": "7-8",
+      "id": 7,
+      "value": "DA CC Weapon"
+    },
+    {
+      "name": "9",
+      "id": 9,
+      "value": "Multispectral Visor L1"
+    },
+    {
+      "name": "10",
+      "id": 10,
+      "value": "EXP CC Weapon"
+    },
+    {
+      "name": "11",
+      "id": 11,
+      "value": "Adhesive Launcher Rifle"
+    },
+    {
+      "name": "12",
+      "id": 12,
+      "value": "TAG: Immunity (AP) / Other Troop Types: + 2 ARM"
+    },
+    {
+      "name": "13",
+      "id": 13,
+      "value": "Panzerfaust"
+    },
+    {
+      "name": "14",
+      "id": 14,
+      "value": "Monofilament CC Weapon"
+    },
+    {
+      "name": "15",
+      "id": 15,
+      "value": "MOV 8-4"
+    },
+    {
+      "name": "16",
+      "id": 16,
+      "value": "TAG: BS Attack (Shock) / Other Troop Types: MULTI Rifle"
+    },
+    {
+      "name": "17",
+      "id": 17,
+      "value": "MULTI Sniper Rifle"
+    },
+    {
+      "name": "18",
+      "id": 18,
+      "value": "TAG: Immunity (ARM) / Other Troop Types: +4 ARM"
+    },
+    {
+      "name": "19",
+      "id": 19,
+      "value": "Mimetism (-6)"
+    },
+    {
+      "name": "20",
+      "id": 20,
+      "value": "TAG: BS Attack (+1B) / Other Troop Types: HMG"
+    }
+  ]
+}

@@ -16,15 +16,34 @@ public class DatabaseImp implements Database {
     private DataLoader loader;
 
     public DatabaseImp() {
-        this(false);
+        this(false, null);
     }
 
-    public DatabaseImp(boolean forceUpdate) {
+    public DatabaseImp(String resourcesFolder) {
+        this(false, resourcesFolder);
+    }
+
+    public DatabaseImp(boolean forceUpdate, String resourceFolder) {
         try {
-            loader = new DataLoader(forceUpdate);
+            loader = new DataLoader(forceUpdate, resourceFolder);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String getUnitImageFolder(){
+        return loader.getUnitImageFolder();
+    }
+
+    @Override
+    public String getCustomUnitImageFolder(){
+        return loader.getCustomUnitImageFolder();
+    }
+
+    @Override
+    public String getUnitLogosFolder(){
+        return loader.getUnitLogosFolder();
     }
 
     @Override
@@ -56,7 +75,7 @@ public class DatabaseImp implements Database {
     public void updateData() {
         try {
             log.info("Start updating data");
-            DataLoader newDataLoader = new DataLoader(true);
+            DataLoader newDataLoader = new DataLoader(true, null);
             log.info("Finish updating data");
             loader = newDataLoader;
         } catch (IOException | URISyntaxException e) {

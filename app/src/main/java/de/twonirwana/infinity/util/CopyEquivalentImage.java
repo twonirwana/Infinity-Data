@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
-import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
-
 public class CopyEquivalentImage {
 
 
@@ -31,7 +28,7 @@ public class CopyEquivalentImage {
 
         Set<String> uniqueSet = new HashSet<>();
         Map<String, String> universalId2ExistingImage = allProfiles.stream()
-                .map(t -> new UniversalIdImage(combinedIdWithoutSectorial(t), getImage(t)))
+                .map(t -> new UniversalIdImage(combinedIdWithoutSectorial(t), getImage(t, db.getUnitImageFolder(), db.getCustomUnitImageFolder())))
                 .filter(i -> i.image() != null)
                 .filter(i -> {
                     if (uniqueSet.contains(i.uId())) {
@@ -53,7 +50,7 @@ public class CopyEquivalentImage {
 
         allProfiles.forEach(t -> {
             String alternativeImage = universalId2ExistingImage.get(combinedIdWithoutSectorial(t));
-            if (alternativeImage != null && getImage(t) == null) {
+            if (alternativeImage != null && getImage(t, db.getUnitImageFolder(), db.getCustomUnitImageFolder()) == null) {
                 try {
                     Files.copy(Path.of(alternativeImage), Path.of(out + t.getCombinedProfileId() + ".png"), StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
@@ -64,13 +61,13 @@ public class CopyEquivalentImage {
         });
     }
 
-    private static String getImage(TrooperProfile profile) {
+    private static String getImage(TrooperProfile profile, String unitImageFolder, String customUnitImageFolder) {
         String imageName = profile.getCombinedProfileId() + ".png";
-        if (new File(UNIT_IMAGE_FOLDER + imageName).exists()) {
-            return UNIT_IMAGE_FOLDER + imageName;
+        if (new File(unitImageFolder + imageName).exists()) {
+            return unitImageFolder + imageName;
         }
-        if (new File(CUSTOM_UNIT_IMAGE_FOLDER + imageName).exists()) {
-            return CUSTOM_UNIT_IMAGE_FOLDER + imageName;
+        if (new File(customUnitImageFolder + imageName).exists()) {
+            return customUnitImageFolder + imageName;
         }
         return null;
     }
