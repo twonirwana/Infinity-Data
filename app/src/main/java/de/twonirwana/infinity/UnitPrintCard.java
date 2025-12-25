@@ -19,7 +19,7 @@ public class UnitPrintCard {
     boolean useInch;
     Set<Weapon.Type> showWeaponOfType;
     boolean showImage;
-    MartialArtLevel martialArtLevels;
+    MartialArtLevel martialArtLevel;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
                                                      boolean useInch,
@@ -173,13 +173,6 @@ public class UnitPrintCard {
             return "*";
         }
         return profile.getAvailability() + "";
-    }
-
-    public String getMartialArtsBonus() {
-        if (martialArtLevels == null) {
-            return "CC";
-        }
-        return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevels.getAttackerModi(), martialArtLevels.getOpponentModi());
     }
 
     public String prettyEquipments() {

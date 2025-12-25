@@ -55,17 +55,6 @@
             text-align: center;
         }
 
-        .weapon th, .weapon td {
-            border: 2px solid #ddd;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .weaponPadding {
-            padding-right: 5px;
-            padding-left: 5px;
-        }
-
         .hacking th, .hacking td {
             border: 2px solid #ddd;
             text-align: center;
@@ -93,61 +82,6 @@
 
         tbody tr:nth-child(even) {
             background-color: #f2f2f2;
-        }
-
-        .rangePlus6 {
-            flex: 1;
-            background-color: yellowgreen;
-        }
-
-        .rangePlus3 {
-            flex: 1;
-            background-color: darkseagreen;
-        }
-
-        .range0 {
-            flex: 1;
-            background-color: deepskyblue;
-        }
-
-        .rangeMinus3 {
-            flex: 1;
-            background-color: orange;
-        }
-
-        .rangeMinus6 {
-            flex: 1;
-            background-color: orangered;
-        }
-
-        .bwRangePlus6 {
-            flex: 1;
-            background-color: lightgray;
-            border: black solid 1px;
-        }
-
-        .bwRangePlus3 {
-            flex: 1;
-            background-color: white;
-            border: black solid 1px;
-        }
-
-        .bwRange0 {
-            flex: 1;
-            background-color: lightgray;
-            border: black solid 1px;
-        }
-
-        .bwRangeMinus3 {
-            flex: 1;
-            background-color: white;
-            border: black solid 1px;
-        }
-
-        .bwRangeMinus6 {
-            flex: 1;
-            background-color: lightgray;
-            border: black solid 1px;
         }
 
         .typAndCategory {
@@ -218,7 +152,84 @@
             flex-grow: 1;
         }
 
-        /* Army List Fragment specific styles */
+        /* Weapon Fragment styles*/
+
+        .weapon th, .weapon td {
+            border: 2px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .weaponPadding {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+
+        .weapon-table-name-header {
+            white-space: pre;
+        }
+
+        .weapon .weapon-table-traits {
+            white-space: normal;
+            font-size: 14pt;
+        }
+
+        .rangePlus6 {
+            flex: 1;
+            background-color: yellowgreen;
+        }
+
+        .rangePlus3 {
+            flex: 1;
+            background-color: darkseagreen;
+        }
+
+        .range0 {
+            flex: 1;
+            background-color: deepskyblue;
+        }
+
+        .rangeMinus3 {
+            flex: 1;
+            background-color: orange;
+        }
+
+        .rangeMinus6 {
+            flex: 1;
+            background-color: orangered;
+        }
+
+        .bwRangePlus6 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        .bwRangePlus3 {
+            flex: 1;
+            background-color: white;
+            border: black solid 1px;
+        }
+
+        .bwRange0 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        .bwRangeMinus3 {
+            flex: 1;
+            background-color: white;
+            border: black solid 1px;
+        }
+
+        .bwRangeMinus6 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        /* Army List Fragment styles */
         .army-group-title {
             margin-left: 10px;
         }
@@ -235,7 +246,7 @@
             margin-right: 5px;
         }
 
-        /* Fireteam Fragment specific styles */
+        /* Fireteam Fragment styles */
         .ft-allowed {
             margin-left: 10px;
             font-weight: bold;
@@ -331,71 +342,9 @@
                     </div>
                 </div>
             </div>
-            <div th:if="${unitPrintCard.getProfile().getWeapons() != null and not #lists.isEmpty(unitPrintCard.getProfile().getWeapons())}">
-                <table class="weapon">
-                    <thead>
-                    <tr>
-                        <th>Weapon Name</th>
-                        <th th:text="${printUtils.get20cmRangeName(unitPrintCard.isUseInch())}">20</th>
-                        <th th:text="${printUtils.get40cmRangeName(unitPrintCard.isUseInch())}">40</th>
-                        <th th:text="${printUtils.get60cmRangeName(unitPrintCard.isUseInch())}">60</th>
-                        <th th:text="${printUtils.get80cmRangeName(unitPrintCard.isUseInch())}">80</th>
-                        <th th:text="${printUtils.get100cmRangeName(unitPrintCard.isUseInch())}">100</th>
-                        <th th:text="${printUtils.get120cmRangeName(unitPrintCard.isUseInch())}">120</th>
-                        <th th:text="${printUtils.get240cmRangeName(unitPrintCard.isUseInch())}">240cm</th>
-                        <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
-                        <th class="weaponPadding">B</th>
-                        <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
-                        <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
-                        <th>Traits</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="weapon : ${unitPrintCard.getWeapons()}">
-                        <td style="white-space: pre"
-                            th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
-                        <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
-                            <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
-                        </th:block>
-
-                        <th:block th:if="${printUtils.isCC(weapon)}">
-                            <td colspan="7" th:text="${unitPrintCard.getMartialArtsBonus()}">CC</td>
-                        </th:block>
-
-                        <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo20cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo40cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo60cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo80cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo100cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo120cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
-                            <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard.getProfile(), weapon.getUpTo240cmRangeModi())}"
-                                th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard.getProfile(), weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
-                        </th:block>
-
-                        <td th:if="${!showSavingRollInsteadOfAmmo}"
-                            th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
-
-                        <td class="weaponPadding"
-                            th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
-                        <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
-                            th:text="${printUtils.getWeaponSavingRollWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
-
-                        <td th:if="${!showSavingRollInsteadOfAmmo}"
-                            th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-
-                        <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
-                            style="white-space: normal; font-size: 14pt"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <th:block
+                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getProfile().getWeapons()}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${unitPrintCard.getProfile()}, ${useInch}, ${unitPrintCard.getMartialArtLevel()})}">
+            </th:block>
         </div>
     </div>
 </div>
@@ -524,71 +473,9 @@
         <div class="cardHeader">
             <h2 class="card-header-title">Booty Weapons</h2>
         </div>
-        <div th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
-            <table class="weapon">
-                <thead>
-                <tr>
-                    <th>Weapon Name</th>
-                    <th th:text="${printUtils.get20cmRangeName(useInch)}">20</th>
-                    <th th:text="${printUtils.get40cmRangeName(useInch)}">40</th>
-                    <th th:text="${printUtils.get60cmRangeName(useInch)}">60</th>
-                    <th th:text="${printUtils.get80cmRangeName(useInch)}">80</th>
-                    <th th:text="${printUtils.get100cmRangeName(useInch)}">100</th>
-                    <th th:text="${printUtils.get120cmRangeName(useInch)}">120</th>
-                    <th th:text="${printUtils.get240cmRangeName(useInch)}">240cm</th>
-                    <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
-                    <th class="weaponPadding">B</th>
-                    <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
-                    <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
-                    <th>Traits</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="weapon : ${bootyWeapons}">
-                    <td style="white-space: pre"
-                        th:text="${printUtils.prettyWeaponName(weapon, useInch)}"></td>
-                    <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
-                        <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
-                    </th:block>
-
-                    <th:block th:if="${printUtils.isCC(weapon)}">
-                        <td colspan="7">CC</td>
-                    </th:block>
-
-                    <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
-                        <td th:text="${weapon.getUpTo20cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo40cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo60cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo80cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo100cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo120cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
-                        <td th:text="${weapon.getUpTo240cmRangeModi()}"
-                            th:class="${printUtils.getRangeClass( weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
-                    </th:block>
-
-                    <td th:if="${!showSavingRollInsteadOfAmmo}"
-                        th:text="${weapon.getProbabilityOfSurvival()}"></td>
-
-                    <td class="weaponPadding"
-                        th:text="${weapon.getBurst()}"></td>
-                    <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
-                        th:text="${printUtils.getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null)}"></td>
-
-                    <td th:if="${!showSavingRollInsteadOfAmmo}"
-                        th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
-
-                    <td th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"
-                        style="white-space: normal; font-size: 14pt"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <th:block
+                th:replace="~{fragments/WeaponTable :: weaponTableFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, null, ${useInch}, null)}">
+        </th:block>
     </div>
 </div>
 <th:block

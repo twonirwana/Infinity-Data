@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="weaponTableFragment(weapons, showSavingRollInsteadOfAmmo, printUtils, unitProfile, useInch, martialArtsLevel)">
+    <div th:if="${weapons != null and not #lists.isEmpty(weapons)}">
+        <table class="weapon">
+            <thead>
+            <tr>
+                <th>Weapon Name</th>
+                <th th:text="${printUtils.get20cmRangeName(useInch)}">20</th>
+                <th th:text="${printUtils.get40cmRangeName(useInch)}">40</th>
+                <th th:text="${printUtils.get60cmRangeName(useInch)}">60</th>
+                <th th:text="${printUtils.get80cmRangeName(useInch)}">80</th>
+                <th th:text="${printUtils.get100cmRangeName(useInch)}">100</th>
+                <th th:text="${printUtils.get120cmRangeName(useInch)}">120</th>
+                <th th:text="${printUtils.get240cmRangeName(useInch)}">240cm</th>
+                <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
+                <th class="weaponPadding">B</th>
+                <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
+                <th>Traits</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="weapon : ${weapons}">
+                <td class="weapon-table-name-header"
+                    th:text="${printUtils.prettyWeaponName(weapon, useInch)}"></td>
+                <th:block th:if="${printUtils.getRangeTemplate(weapon) != null}">
+                    <td colspan="7" th:text="${printUtils.getRangeTemplate(weapon)}"></td>
+                </th:block>
+
+                <th:block th:if="${printUtils.isCC(weapon)}">
+                    <td colspan="7" th:text="${printUtils.getCcRangeText(martialArtsLevel)}">CC</td>
+                </th:block>
+
+                <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo20cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo40cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo60cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo80cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo100cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo120cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo240cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
+                </th:block>
+
+                <td th:if="${!showSavingRollInsteadOfAmmo}"
+                    th:text="${printUtils.getWeaponPsWithExtra(unitProfile, weapon)}"></td>
+
+                <td class="weaponPadding"
+                    th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
+                <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
+                    th:text="${printUtils.getWeaponSavingRollWithExtra(unitProfile, weapon)}"></td>
+
+                <td th:if="${!showSavingRollInsteadOfAmmo}"
+                    th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+
+                <td class="weapon-table-traits"
+                    th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"></td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

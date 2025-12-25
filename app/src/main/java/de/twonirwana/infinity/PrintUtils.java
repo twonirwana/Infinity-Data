@@ -6,7 +6,6 @@ import de.twonirwana.infinity.unit.api.Skill;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.Weapon;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -89,6 +88,9 @@ public class PrintUtils {
         if (weapon.getBurst() == null) {
             return "";
         }
+        if (unitPrintCard == null) {
+            return weapon.getBurst();
+        }
         String weaponSkill = getWeaponSkill(weapon);
         List<ExtraValue> weaponAndSkillExtra = Stream.concat(
                 weapon.getExtras().stream(),
@@ -118,9 +120,9 @@ public class PrintUtils {
 
         String maBurstBonus = "";
         if (weapon.getSkill() == Weapon.Skill.CC
-                && unitPrintCard.getMartialArtLevels() != null
-                && !"0".equals(unitPrintCard.getMartialArtLevels().getBurst())) {
-            maBurstBonus = unitPrintCard.getMartialArtLevels().getBurst()
+                && unitPrintCard.getMartialArtLevel() != null
+                && !"0".equals(unitPrintCard.getMartialArtLevel().getBurst())) {
+            maBurstBonus = unitPrintCard.getMartialArtLevel().getBurst()
                     .replace("B, ", "")
                     .replace("B", "");
         }
@@ -130,6 +132,9 @@ public class PrintUtils {
 
     public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
         if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*") || weapon.getProbabilityOfSurvival().equals("-")) {
+            return weapon.getProbabilityOfSurvival();
+        }
+        if (trooperProfile == null) {
             return weapon.getProbabilityOfSurvival();
         }
         String weaponSkill = getWeaponSkill(weapon);
@@ -166,6 +171,9 @@ public class PrintUtils {
     }
 
     public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        if (trooperProfile == null) {
+            getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null);
+        }
         String modifiedPs = getWeaponPsWithExtra(trooperProfile, weapon);
         if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*")) {
             return weapon.getProbabilityOfSurvival();
@@ -177,6 +185,13 @@ public class PrintUtils {
         }
 
         return getSavingRoll(weapon, modifiedPs, trooperProfile);
+    }
+
+    public static String getCcRangeText(MartialArtLevel martialArtLevel) {
+        if (martialArtLevel == null) {
+            return "CC";
+        }
+        return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevel.getAttackerModi(), martialArtLevel.getOpponentModi());
     }
 
     public static String getSavingRoll(Weapon weapon, String ps, TrooperProfile trooperProfile) {
@@ -331,6 +346,9 @@ public class PrintUtils {
         if (range == null) {
             return null;
         }
+        if (profile == null) {
+            return getRangeClass(range, rangeClassMap);
+        }
         String updatedRange = applyXVisorToRangeModi(profile, range);
         return rangeClassMap.getOrDefault(updatedRange, "");
     }
@@ -381,6 +399,9 @@ public class PrintUtils {
     public static String applyXVisorToRangeModi(TrooperProfile profile, String rangeModi) {
         if (rangeModi == null) {
             return null;
+        }
+        if (profile == null) {
+            return rangeModi;
         }
         if (profile.getEquipment().stream().anyMatch(s -> XVISOR_NAME.equals(s.getName()))) {
             if (rangeModi.equals(MINUS_3_MODI)) {
