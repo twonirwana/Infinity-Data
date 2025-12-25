@@ -13,6 +13,13 @@
 /archive/
 /logs/
 /web/build/
+/web/out/
+/web/resources/
+/web/archive/
+/web/logs/
+/web/army_code-hash.csv
+/web/invalid_army_code.csv
+/web/missing_unit_army_code.csv
 /army_code-hash.csv
 /invalid_army_code.csv
 /missing_unit_army_code.csv
