@@ -218,6 +218,23 @@
             flex-grow: 1;
         }
 
+        /* Army List Fragment specific styles */
+        .army-group-title {
+            margin-left: 5px;
+        }
+
+        .army-list-row {
+            display: flex;
+            margin-right: 5px;
+            margin-left: 5px;
+        }
+
+        .army-list-footer {
+            align-content: end;
+            text-align: right;
+            margin-right: 5px;
+        }
+
         /* Fireteam Fragment specific styles */
         .ft-allowed {
             margin-left: 5px;
@@ -574,24 +591,9 @@
         </div>
     </div>
 </div>
-<div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
-    <div class="cardHeader">
-        <h2 class="card-header-title" th:text="${armyListTitel}">List Overview</h2>
-    </div>
-    <div class="twoColumns">
-        <div th:each="combatGroup : ${armyList}">
-            <h3 style="margin-left: 5px;" th:text="${combatGroup.key}">combat group</h3>
-            <div th:each="combatGroupMember : ${combatGroup.value}"
-                 style="display: flex; margin-right: 5px; margin-left: 5px;">
-                <div style="flex-grow: 1" th:text="${combatGroupMember.unitName()}"></div>
-                <div th:text="${combatGroupMember.cost()}"></div>
-            </div>
-        </div>
-    </div>
-    <div style="align-content: end; text-align: right; margin-right: 5px" th:text="'Cards created on: ' + ${currentDate}">creation
-        date
-    </div>
-</div>
+<th:block
+        th:replace="~{fragments/ArmyList :: armyListFragment(${armyListTitel}, ${armyList}, ${currentDate})}">
+</th:block>
 <th:block
         th:replace="~{fragments/FireTeam :: fireteamFragment(${fireteams}, ${allowedFireteams})}">
 </th:block>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="armyListFragment(armyListTitel, armyList, creationDate)">
+    <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
+
+        <div class="cardHeader">
+            <h2 class="card-header-title" th:text="${armyListTitel}">List Overview</h2>
+        </div>
+
+        <div class="twoColumns">
+            <div th:each="combatGroup : ${armyList}">
+                <h3 class="army-group-title" th:text="${combatGroup.key}">
+                    combat group
+                </h3>
+
+                <div class="army-list-row" th:each="combatGroupMember : ${combatGroup.value}">
+                    <div class="flex-grow" th:text="${combatGroupMember.unitName()}"></div>
+                    <div th:text="${combatGroupMember.cost()}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="army-list-footer" th:text="'Cards created on: ' + ${creationDate}">
+            Cards created on: YYYY-MM-DD
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
