@@ -65,21 +65,21 @@ public class HtmlPrinter {
             700, "black"
     );
     private static final Map<String, String> RANGE_CLASS_MAP = Map.of(
-            "0", "range0",
-            "0*", "range0", //x-visor modified
-            "-3", "rangeMinus3",
-            "-3*", "rangeMinus3", //x-visor modified
-            "+3", "rangePlus3",
-            "-6", "rangeMinus6",
-            "+6", "rangePlus6");
+            "0", "range-0",
+            "0*", "range-0", //x-visor modified
+            "-3", "range-minus-3",
+            "-3*", "range-minus-3", //x-visor modified
+            "+3", "range-plus-3",
+            "-6", "range-minus-6",
+            "+6", "range-plus-6");
     private static final Map<String, String> BW_RANGE_CLASS_MAP = Map.of(
-            "0", "bwRange0",
-            "0*", "bwRange0", //x-visor modified
-            "-3", "bwRangeMinus3",
-            "-3*", "bwRangeMinus3", //x-visor modified
-            "+3", "bwRangePlus3",
-            "-6", "bwRangeMinus6",
-            "+6", "bwRangePlus6");
+            "0", "bw-range-0",
+            "0*", "bw-range-0", //x-visor modified
+            "-3", "bw-range-minus-3",
+            "-3*", "bw-range-minus-3", //x-visor modified
+            "+3", "bw-range-plus-3",
+            "-6", "bw-range-minus-6",
+            "+6", "bw-range-plus-6");
     private static final List<String> ICON_FILE_NAMES = List.of(
             "cube.svg",
             "cube-2.svg",

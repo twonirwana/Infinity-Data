@@ -4,8 +4,8 @@
 
 <div th:fragment="bootyWeaponFragment(bootyWeapons, showSavingRollInsteadOfAmmo, printUtils, useInch)">
     <div class="card" th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
-        <div class="cardContent">
-            <div class="cardHeader">
+        <div class="card-content">
+            <div class="card-header">
                 <h2 class="card-header-title">Booty Weapons</h2>
             </div>
             <th:block

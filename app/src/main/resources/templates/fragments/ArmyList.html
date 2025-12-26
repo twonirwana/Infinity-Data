@@ -5,11 +5,11 @@
 <div th:fragment="armyListFragment(armyListTitel, armyList, creationDate)">
     <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
 
-        <div class="cardHeader">
+        <div class="card-header">
             <h2 class="card-header-title" th:text="${armyListTitel}">List Overview</h2>
         </div>
 
-        <div class="twoColumns">
+        <div class="two-columns">
             <div th:each="combatGroup : ${armyList}">
                 <h3 class="army-group-title" th:text="${combatGroup.key}">
                     combat group

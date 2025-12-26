@@ -2,15 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div class="maxHeight" th:fragment="equipmentsAndSkills(unitPrintCard)">
-    <div class="equipmentsAndSkillsSection">
-        <div class="textBackground">
+<div class="max-meight" th:fragment="equipmentsAndSkills(unitPrintCard)">
+    <div class="equipments-and-skills-column">
+        <div class="text-background">
             <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
         </div>
-        <div class="textBackground">
+        <div class="text-background">
             <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills()}"></span>
         </div>
-        <div class="textBackground" th:if="${unitPrintCard.showNotes()}">
+        <div class="text-background" th:if="${unitPrintCard.showNotes()}">
             <b>Notes:</b> <span th:text="${unitPrintCard.getNotes()}"></span>
         </div>
     </div>

@@ -44,6 +44,13 @@
             overflow: hidden;
         }
 
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-evenly;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -69,7 +76,7 @@
             background-color: #f2f2f2;
         }
 
-        .typAndCategory {
+        .typ-and-category {
             padding-right: 2px;
             text-align: center;
             display: flex;
@@ -111,13 +118,13 @@
             align-self: center;
         }
 
-        .twoColumns {
+        .two-columns {
             column-count: 2;
             column-gap: 1px;
             margin-right: 10px;
         }
 
-        .twoColumns > div {
+        .two-columns > div {
             break-inside: avoid;
             page-break-inside: avoid;
 
@@ -126,7 +133,7 @@
             width: 100%;
         }
 
-        .cardHeader {
+        .card-header {
             padding-left: 3%;
             height: 30px;
             background-color: [[${primaryColor}]];
@@ -134,14 +141,14 @@
             align-content: center;
         }
 
-        .cardContent {
+        .card-content {
             display: flex;
             flex-direction: column;
             height: 100%;
             justify-content: start;
         }
 
-        .attributEquipmentSkillColumn {
+        .attribut-equipment-skill-column {
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -156,20 +163,20 @@
             flex-grow: 1;
         }
 
-        .maxHeight {
+        .max-meight {
             height: 100%;
         }
 
         /* Equipments and Skills Fragment styles*/
 
-        .equipmentsAndSkillsSection {
+        .equipments-and-skills-column {
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
             height: 100%;
         }
 
-        .textBackground {
+        .text-background {
             background-color: rgba(255, 255, 255, 0.8);
             padding: 2px;
         }
@@ -181,7 +188,7 @@
             text-align: center;
         }
 
-        .hackingProgramDescription {
+        .hacking-program-description {
             width: 30%;
         }
 
@@ -207,7 +214,7 @@
             white-space: nowrap;
         }
 
-        .weaponPadding {
+        .weapon-padding {
             padding-right: 2px;
             padding-left: 2px;
         }
@@ -221,56 +228,56 @@
             font-size: 4pt;
         }
 
-        .rangePlus6 {
+        .range-plus-6 {
             flex: 1;
             background-color: yellowgreen;
         }
 
-        .rangePlus3 {
+        .range-plus-3 {
             flex: 1;
             background-color: darkseagreen;
         }
 
-        .range0 {
+        .range-0 {
             flex: 1;
             background-color: deepskyblue;
         }
 
-        .rangeMinus3 {
+        .range-minus-3 {
             flex: 1;
             background-color: orange;
         }
 
-        .rangeMinus6 {
+        .range-minus-6 {
             flex: 1;
             background-color: orangered;
         }
 
-        .bwRangePlus6 {
+        .bw-range-plus-6 {
             flex: 1;
             background-color: lightgray;
             border: black solid 1px;
         }
 
-        .bwRangePlus3 {
+        .bw-range-plus-3 {
             flex: 1;
             background-color: white;
             border: black solid 1px;
         }
 
-        .bwRange0 {
+        .bw-range-0 {
             flex: 1;
             background-color: lightgray;
             border: black solid 1px;
         }
 
-        .bwRangeMinus3 {
+        .bw-range-minus-3 {
             flex: 1;
             background-color: white;
             border: black solid 1px;
         }
 
-        .bwRangeMinus6 {
+        .bw-range-minus-6 {
             flex: 1;
             background-color: lightgray;
             border: black solid 1px;
@@ -316,13 +323,13 @@
 <body>
 <div th:each="unitPrintCard : ${unitPrintCards}">
     <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: space-evenly;">
+        <div class="card-content">
             <th:block
                     th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
             </th:block>
             <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
                 <div th:style="${unitPrintCard.isShowImage()} ? 'width: 70%; margin-left: auto; height: 100%;' : 'width: 100%; height: 100%;'">
-                    <div class="attributEquipmentSkillColumn">
+                    <div class="attribut-equipment-skill-column">
                         <th:block
                                 th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
                         </th:block>

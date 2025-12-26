@@ -16,8 +16,8 @@
                 <th th:text="${printUtils.get120cmRangeName(useInch)}">120</th>
                 <th th:text="${printUtils.get240cmRangeName(useInch)}">240cm</th>
                 <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
-                <th class="weaponPadding">B</th>
-                <th class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                <th class="weapon-padding">B</th>
+                <th class="weapon-padding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
                 <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
                 <th>Traits</th>
             </tr>
@@ -54,9 +54,9 @@
                 <td th:if="${!showSavingRollInsteadOfAmmo}"
                     th:text="${printUtils.getWeaponPsWithExtra(unitProfile, weapon)}"></td>
 
-                <td class="weaponPadding"
+                <td class="weapon-padding"
                     th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
-                <td class="weaponPadding" th:if="${showSavingRollInsteadOfAmmo}"
+                <td class="weapon-padding" th:if="${showSavingRollInsteadOfAmmo}"
                     th:text="${printUtils.getWeaponSavingRollWithExtra(unitProfile, weapon)}"></td>
 
                 <td th:if="${!showSavingRollInsteadOfAmmo}"

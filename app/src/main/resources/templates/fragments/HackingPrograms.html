@@ -4,8 +4,8 @@
 
 <div th:fragment="hackingProgramsFragment(programs, title)">
     <div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
-        <div class="cardContent">
-            <div class="cardHeader">
+        <div class="card-content">
+            <div class="card-header">
                 <h2 class="card-header-title" th:text="${title}">Hacking Programs</h2>
             </div>
             <table class="hacking">
@@ -30,7 +30,7 @@
                     <td th:text="${program.getHackingProgram().getPs()}"></td>
                     <td th:text="${program.getTargets()}"></td>
                     <td th:text="${program.getSkillType()}"></td>
-                    <td class="hackingProgramDescription" th:text="${program.getHackingProgram().getDescription()}"></td>
+                    <td class="hacking-program-description" th:text="${program.getHackingProgram().getDescription()}"></td>
                 </tr>
                 </tbody>
             </table>
