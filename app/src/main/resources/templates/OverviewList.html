@@ -72,21 +72,6 @@
             text-align: center;
         }
 
-        .hacking th, .hacking td {
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .chem th, .chem td {
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .booty th, .booty td {
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
         th {
             background-color: [[${secondaryColor}]];
             color: [[${tableHeaderFontColor}]];
@@ -175,6 +160,31 @@
 
         .flex-grow {
             flex-grow: 1;
+        }
+
+        /* Hacking Programs Fragment styles*/
+
+        .hacking th, .hacking td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .hackingProgramDescription {
+            width: 30%;
+        }
+
+        /* MetaChemistry Fragment styles*/
+
+        .chem th, .chem td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Booty Fragment styles*/
+
+        .booty th, .booty td {
+            border: 1px solid #ddd;
+            text-align: center;
         }
 
         /* Weapon Fragment styles*/
@@ -368,72 +378,12 @@
             </th:block>
         </div>
     </div>
-    <div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
-        <div class="cardContent">
-            <div class="cardHeader">
-                <h2 class="card-header-title">Hacking Programs 1</h2>
-            </div>
-            <table class="hacking">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Device</th>
-                    <th>Attack/Opp.<br>Mod</th>
-                    <th>B</th>
-                    <th>PS</th>
-                    <th>Target</th>
-                    <th>Skill Type</th>
-                    <th>Description</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="program : ${programs}">
-                    <td th:text="${program.getHackingProgram().getName()}"></td>
-                    <td th:text="${program.getDeviceNames()}"></td>
-                    <td th:text="${program.getModifier()}"></td>
-                    <td th:text="${program.getHackingProgram().getBurst()}"></td>
-                    <td th:text="${program.getHackingProgram().getPs()}"></td>
-                    <td th:text="${program.getTargets()}"></td>
-                    <td th:text="${program.getSkillType()}"></td>
-                    <td style="width: 30%" th:text="${program.getHackingProgram().getDescription()}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="card" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
-        <div class="cardContent">
-            <div class="cardHeader">
-                <h2 class="card-header-title">Hacking Programs 2</h2>
-            </div>
-            <table class="hacking">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Device</th>
-                    <th>Attack/Opp.<br>Mod</th>
-                    <th>B</th>
-                    <th>PS</th>
-                    <th>Target</th>
-                    <th>Skill Type</th>
-                    <th>Description</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="program : ${programs2}">
-                    <td th:text="${program.getHackingProgram().getName()}"></td>
-                    <td th:text="${program.getDeviceNames()}"></td>
-                    <td th:text="${program.getModifier()}"></td>
-                    <td th:text="${program.getHackingProgram().getBurst()}"></td>
-                    <td th:text="${program.getHackingProgram().getPs()}"></td>
-                    <td th:text="${program.getTargets()}"></td>
-                    <td th:text="${program.getSkillType()}"></td>
-                    <td style="width: 30%" th:text="${program.getHackingProgram().getDescription()}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <th:block
+            th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs},'Hacking Programs 1')}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
+    </th:block>
     <th:block
             th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">
     </th:block>

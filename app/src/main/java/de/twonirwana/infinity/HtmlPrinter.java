@@ -402,7 +402,7 @@ public class HtmlPrinter {
         context.setVariable("headerColor", headerColor);
         context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
         context.setVariable("printUtils", new PrintUtils());
-        context.setVariable("programs", programsCard1);
+        context.setVariable("programs", programsCard1); //todo rename programs1
         context.setVariable("programs2", programsCard2);
         context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(allMetaChemistryRolls) : List.of());
         context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(allBootyRolls) : List.of());
