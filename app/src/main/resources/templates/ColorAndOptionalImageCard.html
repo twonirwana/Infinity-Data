@@ -141,6 +141,13 @@
             justify-content: start;
         }
 
+        .attributEquipmentSkillColumn {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
         .flex {
             display: flex;
         }
@@ -316,7 +323,7 @@
             <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
                 <div style="display: flex; height: 100%;">
                     <div th:style="${unitPrintCard.isShowImage()} ? 'width: 70%; margin-left: auto;' : 'width: 100%'">
-                        <div style="display: flex; flex-direction: column; height: 100%;">
+                        <div class="attributEquipmentSkillColumn">
                             <th:block
                                     th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
                             </th:block>

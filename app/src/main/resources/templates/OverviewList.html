@@ -159,6 +159,13 @@
             justify-content: start;
         }
 
+        .attributEquipmentSkillColumn {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
         .flex {
             display: flex;
         }
@@ -333,7 +340,7 @@
                 </th:block>
                 <div style="height: 100%;">
                     <div style="display: flex; height: 100%; width: 100%;">
-                        <div style="display: flex; flex-direction: column; height: 100%; width: 100%">
+                        <div class="attributEquipmentSkillColumn">
                             <th:block
                                     th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
                             </th:block>
