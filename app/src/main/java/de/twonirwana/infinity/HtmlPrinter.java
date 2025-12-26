@@ -416,6 +416,7 @@ public class HtmlPrinter {
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
         context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
+        context.setVariable("showImage", template.supportImages);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -505,15 +506,16 @@ public class HtmlPrinter {
 
     @AllArgsConstructor
     public enum Template {
-        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7),
-        a4_image("ColorAndOptionalImageCard", 297, 210, 10),
-        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9),
-        letter_image("ColorAndOptionalImageCard", 279, 216, 10),
-        a4_overview("OverviewList", 210, 297, Integer.MAX_VALUE),
-        card_bw("CardBW", 0, 0, 0);
+        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7, true),
+        a4_image("ColorAndOptionalImageCard", 297, 210, 10, true),
+        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9, true),
+        letter_image("ColorAndOptionalImageCard", 279, 216, 10, true),
+        a4_overview("OverviewList", 210, 297, Integer.MAX_VALUE, false),
+        card_bw("CardBW", 0, 0, 0, false);
         final String fileName;
         final int widthInMm;
         final int heightInMm;
         final int numberOfHackingProgramsPerCard;
+        final boolean supportImages;
     }
 }

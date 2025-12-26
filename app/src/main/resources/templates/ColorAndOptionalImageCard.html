@@ -118,6 +118,28 @@
             align-self: center;
         }
 
+        .unit-image-area {
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: left;
+            height: 100%;
+        }
+
+        .non-unit-image-area {
+            height: 100%;
+        }
+
+        .area-for-image {
+            width: 70%;
+            margin-left: auto;
+            height: 100%;
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+        }
+
         .two-columns {
             column-count: 2;
             column-gap: 1px;
@@ -322,29 +344,9 @@
 </head>
 <body>
 <div th:each="unitPrintCard : ${unitPrintCards}">
-    <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
-        <div class="card-content">
-            <th:block
-                    th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
-            </th:block>
-            <div th:style="${unitPrintCard.isShowImage()} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + '); background-size: auto 100%; background-repeat: no-repeat; background-position: left; height: 100%;' : 'height: 100%;'">
-                <div th:style="${unitPrintCard.isShowImage()} ? 'width: 70%; margin-left: auto; height: 100%;' : 'width: 100%; height: 100%;'">
-                    <div class="attribut-equipment-skill-column">
-                        <th:block
-                                th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
-                        </th:block>
-
-                        <th:block
-                                th:replace="~{fragments/EquipmentsAndSkills :: equipmentsAndSkills(${unitPrintCard})}">
-                        </th:block>
-                    </div>
-                </div>
-            </div>
-            <th:block
-                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getProfile().getWeapons()}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${unitPrintCard.getProfile()}, ${useInch}, ${unitPrintCard.getMartialArtLevel()})}">
-            </th:block>
-        </div>
-    </div>
+    <th:block
+            th:replace="~{fragments/Unit :: unitFragment(${unitPrintCard})}">
+    </th:block>
 </div>
 <th:block
         th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs1},'Hacking Programs 1')}">
