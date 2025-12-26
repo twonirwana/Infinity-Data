@@ -166,6 +166,13 @@
             align-content: center;
         }
 
+        .cardContent {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: start;
+        }
+
         .flex-grow {
             flex-grow: 1;
         }
@@ -362,7 +369,7 @@
         </div>
     </div>
     <div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+        <div class="cardContent">
             <div class="cardHeader">
                 <h2 class="card-header-title">Hacking Programs 1</h2>
             </div>
@@ -395,7 +402,7 @@
         </div>
     </div>
     <div class="card" th:if="${programs2 != null and not #lists.isEmpty(programs2)}">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+        <div class="cardContent">
             <div class="cardHeader">
                 <h2 class="card-header-title">Hacking Programs 2</h2>
             </div>
@@ -428,7 +435,7 @@
         </div>
     </div>
     <div class="card" th:if="${metaChemistry != null and not #lists.isEmpty(metaChemistry)}">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+        <div class="cardContent">
             <div class="cardHeader">
                 <h2 class="card-header-title">Meta Chemistry</h2>
             </div>
@@ -453,7 +460,7 @@
         </div>
     </div>
     <div class="card" th:if="${bootyRolls != null and not #lists.isEmpty(bootyRolls)}">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
+        <div class="cardContent">
             <div class="cardHeader">
                 <h2 class="card-header-title">Booty</h2>
             </div>
@@ -477,16 +484,9 @@
             </table>
         </div>
     </div>
-    <div class="card" th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
-        <div style="display: flex; flex-direction: column; height: 100%; justify-content: start;">
-            <div class="cardHeader">
-                <h2 class="card-header-title">Booty Weapons</h2>
-            </div>
-            <th:block
-                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, null, ${useInch}, null)}">
-            </th:block>
-        </div>
-    </div>
+    <th:block
+            th:replace="~{fragments/BootyWeapon :: bootyWeaponFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${useInch})}">
+    </th:block>
     <th:block
             th:replace="~{fragments/ArmyList :: armyListFragment(${armyListTitel}, ${armyList}, ${currentDate})}">
     </th:block>

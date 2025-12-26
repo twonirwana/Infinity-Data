@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="bootyWeaponFragment(bootyWeapons, showSavingRollInsteadOfAmmo, printUtils, useInch)">
+    <div class="card" th:if="${bootyWeapons != null and not #lists.isEmpty(bootyWeapons)}">
+        <div class="cardContent">
+            <div class="cardHeader">
+                <h2 class="card-header-title">Booty Weapons</h2>
+            </div>
+            <th:block
+                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, null, ${useInch}, null)}">
+            </th:block>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
