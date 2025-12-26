@@ -75,14 +75,14 @@ public class DataLoader {
     public DataLoader(boolean forceUpdate, String resourcesFolder) throws IOException, URISyntaxException {
 
         this.resourcesFolder = resourcesFolder == null ? "resources" : resourcesFolder;
-        logosFolder = resourcesFolder + "/logo";
+        logosFolder = this.resourcesFolder + "/logo";
         unitLogosFolder = logosFolder + "/unit";
         sectorialLogosFolder = logosFolder + "/sectorial";
-        unitImageFolder = resourcesFolder + "/image/unit/";
-        customUnitImageFolder = resourcesFolder + "/image/customUnit/";
-        metaDataFilePath = resourcesFolder + "/" + META_DATA_FILE_NAME;
-        sectorialFolder = resourcesFolder + "/sectorialList/";
-        imageDataFolder = resourcesFolder + "/sectorialImageData/";
+        unitImageFolder = this.resourcesFolder + "/image/unit/";
+        customUnitImageFolder = this.resourcesFolder + "/image/customUnit/";
+        metaDataFilePath = this.resourcesFolder + "/" + META_DATA_FILE_NAME;
+        sectorialFolder = this.resourcesFolder + "/sectorialList/";
+        imageDataFolder = this.resourcesFolder + "/sectorialImageData/";
         imageDataFileFormat = imageDataFolder + "/sectorialImage%d-%s.json";
 
         //needed to set headers to allow download

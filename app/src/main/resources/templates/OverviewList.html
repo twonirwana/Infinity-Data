@@ -158,6 +158,10 @@
             justify-content: start;
         }
 
+        .flex {
+            display: flex;
+        }
+
         .flex-grow {
             flex-grow: 1;
         }
@@ -342,41 +346,9 @@
                 <div style="height: 100%;">
                     <div style="display: flex; height: 100%; width: 100%;">
                         <div style="display: flex; flex-direction: column; height: 100%; width: 100%">
-                            <div style="display: flex;">
-                                <div class="typAndCategory">
-                                    <div th:text="${unitPrintCard.getProfile().getType()}"></div>
-                                    <div th:text="${unitPrintCard.getShortCategory()}"></div>
-                                </div>
-                                <table class="attribut">
-                                    <thead>
-                                    <tr>
-                                        <th>MOV</th>
-                                        <th>CC</th>
-                                        <th>BS</th>
-                                        <th>PH</th>
-                                        <th>WIP</th>
-                                        <th>ARM</th>
-                                        <th>BTS</th>
-                                        <th th:text="${unitPrintCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds
-                                        </th>
-                                        <th>S</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td th:text="${unitPrintCard.getMovement()}">0-0</td>
-                                        <td th:text="${unitPrintCard.getProfile().closeCombat}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().ballisticSkill}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().physique}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().willpower}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().armor}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().bioTechnologicalShield}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().wounds}">0</td>
-                                        <td th:text="${unitPrintCard.getProfile().silhouette}">0</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <th:block
+                                    th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
+                            </th:block>
 
                             <th:block
                                     th:replace="~{fragments/EquipmentsAndSkills :: equipmentsAndSkills(${unitPrintCard})}">
