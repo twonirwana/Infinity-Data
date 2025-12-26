@@ -17,7 +17,7 @@
             <th>WIP</th>
             <th>ARM</th>
             <th>BTS</th>
-            <th th:text="${unitPrintCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds
+            <th th:text="${unitPrintCard.getProfile().isStructure() ? 'STR' : 'VITA'}">Wounds
             </th>
             <th>S</th>
         </tr>
@@ -25,14 +25,14 @@
         <tbody>
         <tr>
             <td th:text="${unitPrintCard.getMovement()}">0-0</td>
-            <td th:text="${unitPrintCard.getProfile().closeCombat}">0</td>
-            <td th:text="${unitPrintCard.getProfile().ballisticSkill}">0</td>
-            <td th:text="${unitPrintCard.getProfile().physique}">0</td>
-            <td th:text="${unitPrintCard.getProfile().willpower}">0</td>
-            <td th:text="${unitPrintCard.getProfile().armor}">0</td>
-            <td th:text="${unitPrintCard.getProfile().bioTechnologicalShield}">0</td>
-            <td th:text="${unitPrintCard.getProfile().wounds}">0</td>
-            <td th:text="${unitPrintCard.getProfile().silhouette}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getCloseCombat()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getBallisticSkill()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getPhysique()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getWillpower()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getArmor()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getBioTechnologicalShield()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getWounds()}">0</td>
+            <td th:text="${unitPrintCard.getProfile().getSilhouette()}">0</td>
         </tr>
         </tbody>
     </table>

@@ -11,11 +11,11 @@
 
         <div class="two-columns">
             <div th:each="combatGroup : ${armyList}">
-                <h3 class="army-group-title" th:text="${combatGroup.key}">
+                <h3 class="army-group-title" th:text="${combatGroup.getKey()}">
                     combat group
                 </h3>
 
-                <div class="army-list-row" th:each="combatGroupMember : ${combatGroup.value}">
+                <div class="army-list-row" th:each="combatGroupMember : ${combatGroup.getValue()}">
                     <div class="flex-grow" th:text="${combatGroupMember.unitName()}"></div>
                     <div th:text="${combatGroupMember.cost()}"></div>
                 </div>

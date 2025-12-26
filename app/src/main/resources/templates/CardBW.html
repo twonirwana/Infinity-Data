@@ -118,6 +118,14 @@
             letter-spacing: 1px;
         }
 
+        .skills {
+            height: 18px;
+        }
+
+        .flex {
+            display: flex;
+        }
+
         .armamento-table {
             width: 100%;
             border-collapse: collapse;
@@ -167,12 +175,12 @@
     <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
         <div class="header">
             <div class="icon">
-                <img th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().logo})}"
+                <img th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().getLogo()})}"
                      alt="unit logo">
             </div>
             <div class="unit-header">
                 <div class="unit-name">
-                    <span th:text="${unitPrintCard.getProfile().name}">Trooper Profile Name</span>
+                    <span th:text="${unitPrintCard.getProfile().getName()}">Trooper Profile Name</span>
                 </div>
                 <div class="cap-box" th:text="'SWC: ' + ${unitPrintCard.getUnitOption().getTotalSpecialWeaponCost()}">
                     SWC
@@ -191,19 +199,19 @@
                 <th>WIP</th>
                 <th>ARM</th>
                 <th>BTS</th>
-                <th th:text="${unitPrintCard.getProfile().structure ? 'STR' : 'VITA'}">Wounds</th>
+                <th th:text="${unitPrintCard.getProfile().isStructure() ? 'STR' : 'VITA'}">Wounds
                 <th>S</th>
             </tr>
             <tr>
                 <td th:text="${unitPrintCard.getMovement()}">0-0</td>
-                <td th:text="${unitPrintCard.getProfile().closeCombat}">0</td>
-                <td th:text="${unitPrintCard.getProfile().ballisticSkill}">0</td>
-                <td th:text="${unitPrintCard.getProfile().physique}">0</td>
-                <td th:text="${unitPrintCard.getProfile().willpower}">0</td>
-                <td th:text="${unitPrintCard.getProfile().armor}">0</td>
-                <td th:text="${unitPrintCard.getProfile().bioTechnologicalShield}">0</td>
-                <td th:text="${unitPrintCard.getProfile().wounds}">0</td>
-                <td th:text="${unitPrintCard.getProfile().silhouette}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getCloseCombat()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getBallisticSkill()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getPhysique()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getWillpower()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getArmor()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getBioTechnologicalShield()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getWounds()}">0</td>
+                <td th:text="${unitPrintCard.getProfile().getSilhouette()}">0</td>
             </tr>
         </table>
 
@@ -211,10 +219,10 @@
             <h3>Equipment | Skills</h3>
             <table class="armamento-table">
                 <tr>
-                    <td style="height:18px;"><span th:text="${unitPrintCard.prettyEquipments}"></span></td>
+                    <td class="skills"><span th:text="${unitPrintCard.prettyEquipments()}"></span></td>
                 </tr>
                 <tr>
-                    <td style="height:18px;"><span th:text="${unitPrintCard.prettySkills}"></span></td>
+                    <td class="skills"><span th:text="${unitPrintCard.prettySkills()}"></span></td>
                 </tr>
             </table>
         </div>
@@ -229,10 +237,10 @@
                     <th>B</th>
                     <th>Ammo</th>
                 </tr>
-                <tr th:each="weapon : ${unitPrintCard.getProfile().weapons}">
+                <tr th:each="weapon : ${unitPrintCard.getProfile().getWeapons()}">
                     <td th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
                     <td>
-                        <div style="display: flex;">
+                        <div class="flex">
                             <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
                                  th:text="${printUtils.getRangeModifier(range, unitPrintCard.isUseInch())}"
                                  th:class="${rangeModifierClassMap.get(range.modifier())}">
@@ -244,7 +252,7 @@
                     </td>
                     <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
                     <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
-                    <td th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+                    <td th:text="${weapon.getAmmunition() != null ? weapon.getAmmunition().getName() : ''}"></td>
                 </tr>
 
             </table>
