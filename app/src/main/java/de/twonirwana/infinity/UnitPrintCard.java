@@ -100,10 +100,6 @@ public class UnitPrintCard {
                 .collect(Collectors.joining(""));
     }
 
-    public boolean showNotes() {
-        return !Strings.isNullOrEmpty(getNotes()) && getProfile().getWeapons().size() < 6;
-    }
-
     private String getSkillNameAndExtra(Skill skill) {
         String extraString = skill.getExtras().isEmpty() ? "" : " (%s)".formatted(skill.getExtras().stream()
                 .map(e -> PrintUtils.prettyExtra(e, useInch))

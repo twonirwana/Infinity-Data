@@ -15,34 +15,34 @@ public class DatabaseImp implements Database {
 
     private DataLoader loader;
 
-    public DatabaseImp() {
-        this(false, null);
-    }
-
-    public DatabaseImp(String resourcesFolder) {
-        this(false, resourcesFolder);
-    }
-
-    public DatabaseImp(boolean forceUpdate, String resourceFolder) {
+    private DatabaseImp(DataLoader.UpdateOption updateOption, String resourceFolder) {
         try {
-            loader = new DataLoader(forceUpdate, resourceFolder);
+            loader = new DataLoader(updateOption, resourceFolder);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public static DatabaseImp createTimedUpdate() {
+        return new DatabaseImp(DataLoader.UpdateOption.TIMED_UPDATE, null);
+    }
+
+    public static DatabaseImp createWithoutUpdate(String resourceFolder) {
+        return new DatabaseImp(DataLoader.UpdateOption.NEVER_UPDATE, resourceFolder);
+    }
+
     @Override
-    public String getUnitImageFolder(){
+    public String getUnitImageFolder() {
         return loader.getUnitImageFolder();
     }
 
     @Override
-    public String getCustomUnitImageFolder(){
+    public String getCustomUnitImageFolder() {
         return loader.getCustomUnitImageFolder();
     }
 
     @Override
-    public String getUnitLogosFolder(){
+    public String getUnitLogosFolder() {
         return loader.getUnitLogosFolder();
     }
 
@@ -75,7 +75,7 @@ public class DatabaseImp implements Database {
     public void updateData() {
         try {
             log.info("Start updating data");
-            DataLoader newDataLoader = new DataLoader(true, null);
+            DataLoader newDataLoader = new DataLoader(DataLoader.UpdateOption.FORCE_UPDATE, null);
             log.info("Finish updating data");
             loader = newDataLoader;
         } catch (IOException | URISyntaxException e) {

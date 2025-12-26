@@ -52,7 +52,7 @@ public class ManualHtmlPrinterTest {
 
     @BeforeAll
     static void setUp() {
-        db = new DatabaseImp();
+        db = DatabaseImp.createTimedUpdate();
     }
 
     static List<String> findAllRegex(String content, Pattern pattern) {

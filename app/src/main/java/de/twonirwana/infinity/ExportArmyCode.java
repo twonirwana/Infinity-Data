@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class ExportArmyCode {
     public static void main(String[] args) {
-        Database db = new DatabaseImp();
+        Database db = DatabaseImp.createTimedUpdate();
 
         String armyCode = args[0];
         final boolean useInch;

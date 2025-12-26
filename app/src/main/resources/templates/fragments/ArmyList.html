@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div th:fragment="armyListFragment(armyListTitel, armyList, creationDate)">
+<div th:fragment="armyListFragment(armyListTitel, armyList, creationDate, armyCode)">
     <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
 
         <div class="card-header">
@@ -11,15 +11,20 @@
 
         <div class="two-columns">
             <div th:each="combatGroup : ${armyList}">
-                <h3 class="army-group-title" th:text="${combatGroup.getKey()}">
+                <div class="army-group-title" th:text="${combatGroup.getKey()}">
                     combat group
-                </h3>
+                </div>
 
                 <div class="army-list-row" th:each="combatGroupMember : ${combatGroup.getValue()}">
                     <div class="flex-grow" th:text="${combatGroupMember.unitName()}"></div>
                     <div th:text="${combatGroupMember.cost()}"></div>
                 </div>
             </div>
+        </div>
+
+        <div class="army-code">
+            <span><b>Army Code:</b> </span>
+            <span th:text="${armyCode}"> code </span>
         </div>
 
         <div class="army-list-footer" th:text="'Cards created on: ' + ${creationDate}">

@@ -34,7 +34,7 @@ public class PlaywrightScreenshotTest {
 
     @BeforeAll
     public static void setupGlobal() {
-        Database database = new DatabaseImp("playwright/resources");
+        Database database = DatabaseImp.createWithoutUpdate("playwright/resources");
         Javalin app = WebApp.createWebApp(database, () -> LocalDate.of(2025, 12, 23).atStartOfDay());
         app.start(0);
 

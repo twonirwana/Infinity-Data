@@ -11,7 +11,7 @@ import java.nio.file.Path;
 public class MapImages {
 
     public static void main(final String[] args) {
-        Database db = new DatabaseImp();
+        Database db = DatabaseImp.createTimedUpdate();
         db.getAllUnitOptions().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(p -> p.getProfiles().stream())

@@ -151,7 +151,6 @@
             page-break-inside: avoid;
 
             margin-bottom: 3px;
-            display: inline-block;
             width: 100%;
         }
 
@@ -308,6 +307,9 @@
         /* Army List Fragment styles */
         .army-group-title {
             margin-left: 5px;
+            margin-bottom: 2px;
+            margin-top: 2px;
+            font-weight: bold;
         }
 
         .army-list-row {
@@ -320,6 +322,12 @@
             align-content: end;
             text-align: right;
             margin-right: 5px;
+        }
+
+        .army-code {
+            margin-left: 5px;
+            margin-right: 5px;
+            word-break: break-all;
         }
 
         /* Fireteam Fragment styles */
@@ -364,7 +372,7 @@
         th:replace="~{fragments/BootyWeapon :: bootyWeaponFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${useInch})}">
 </th:block>
 <th:block
-        th:replace="~{fragments/ArmyList :: armyListFragment(${armyListTitel}, ${armyList}, ${currentDate})}">
+        th:replace="~{fragments/ArmyList :: armyListFragment(${armyListTitel}, ${armyList}, ${currentDate}, ${armyCode})}">
 </th:block>
 <th:block
         th:replace="~{fragments/FireTeam :: fireteamFragment(${fireteams}, ${allowedFireteams})}">

@@ -72,7 +72,7 @@ public class DataLoader {
     private final String imageDataFolder;
     private final String imageDataFileFormat;
 
-    public DataLoader(boolean forceUpdate, String resourcesFolder) throws IOException, URISyntaxException {
+    public DataLoader(UpdateOption updateOption, String resourcesFolder) throws IOException, URISyntaxException {
 
         this.resourcesFolder = resourcesFolder == null ? "resources" : resourcesFolder;
         logosFolder = this.resourcesFolder + "/logo";
@@ -93,11 +93,12 @@ public class DataLoader {
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(metaDataFilePath).toFile().lastModified();
         boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
 
-        boolean update = forceUpdate || fileOutOfDate;
-        if (update) {
+        final boolean updateNow = updateOption == UpdateOption.FORCE_UPDATE ||
+                (fileOutOfDate && updateOption == UpdateOption.TIMED_UPDATE);
+        if (updateNow) {
             log.info("update all files");
         }
-        Metadata metadata = loadMetadata(update);
+        Metadata metadata = loadMetadata(updateNow);
 
         sectorialIdMap = metadata.getFactions().stream()
                 .filter(f -> f.getId() != 901) // NA2 doesn't have a vanilla option
@@ -109,7 +110,7 @@ public class DataLoader {
                         Utils.getFileNameFromUrl(f.getLogo())))
                 .collect(Collectors.toMap(Sectorial::getId, Function.identity()));
         Map<Sectorial, SectorialList> sectorialListMap = sectorialIdMap.values().stream()
-                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f.getId(), f.getSlug(), update)));
+                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f.getId(), f.getSlug(), updateNow)));
 
         Map<Sectorial, SectorialList> reenforcementListMap = sectorialListMap.entrySet().stream()
                 .flatMap(e -> {
@@ -121,15 +122,15 @@ public class DataLoader {
                     }
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, e ->
-                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", update)));
+                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", updateNow)));
 
         //todo ref image
         sectorialIdMap.values()
-                .forEach(s -> downloadImageDataFile(s, update));
+                .forEach(s -> downloadImageDataFile(s, updateNow));
         Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
                 .filter(s -> Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())).toFile().exists())
                 .collect(Collectors.toMap(Function.identity(), s -> deserializeSectorialImage(Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())))));
-        if (update) {
+        if (updateNow) {
             downloadAllUnitImage(sectorialImageMap);
             downloadAllUnitLogos(sectorialListMap.values().stream()
                     .flatMap(u -> u.getUnits().stream())
@@ -419,5 +420,11 @@ public class DataLoader {
                 .filter(u -> !u.isMerc())
                 .toList();
 
+    }
+
+    public enum UpdateOption {
+        FORCE_UPDATE,
+        TIMED_UPDATE,
+        NEVER_UPDATE
     }
 }

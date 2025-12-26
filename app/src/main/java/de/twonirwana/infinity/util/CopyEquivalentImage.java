@@ -19,7 +19,7 @@ public class CopyEquivalentImage {
 
 
     public static void main(String[] args) {
-        Database db = new DatabaseImp();
+        Database db = DatabaseImp.createTimedUpdate();
         List<TrooperProfile> allProfiles = db.getAllUnitOptions().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())

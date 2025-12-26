@@ -54,7 +54,7 @@ public class WebApp {
     public static void main(String[] args) {
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
-        createWebApp(new DatabaseImp(), LocalDateTime::now).start(host, port);
+        createWebApp(DatabaseImp.createTimedUpdate(), LocalDateTime::now).start(host, port);
     }
 
     static Javalin createWebApp(final Database database, Supplier<LocalDateTime> currentTimeSupplier) {

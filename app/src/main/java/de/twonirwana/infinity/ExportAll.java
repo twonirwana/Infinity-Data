@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class ExportAll {
 
     public static void main(String[] args) throws IOException {
-        Database db = new DatabaseImp();
+        Database db = DatabaseImp.createTimedUpdate();
 
         CsvPrinter.printAll(db);
 

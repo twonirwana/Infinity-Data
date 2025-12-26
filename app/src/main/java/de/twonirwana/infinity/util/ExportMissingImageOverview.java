@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public class ExportMissingImageOverview {
 
     public static void main(String[] args) throws IOException {
-        exportIntoCSV(new DatabaseImp());
+        exportIntoCSV(DatabaseImp.createTimedUpdate());
     }
 
     public static void exportIntoCSV(Database db) throws IOException {
