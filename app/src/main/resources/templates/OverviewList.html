@@ -338,17 +338,15 @@
                 <th:block
                         th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
                 </th:block>
-                <div style="height: 100%;">
-                    <div style="display: flex; height: 100%; width: 100%;">
-                        <div class="attributEquipmentSkillColumn">
-                            <th:block
-                                    th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
-                            </th:block>
+                <div style="display: flex; height: 100%; width: 100%;">
+                    <div class="attributEquipmentSkillColumn">
+                        <th:block
+                                th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
+                        </th:block>
 
-                            <th:block
-                                    th:replace="~{fragments/EquipmentsAndSkills :: equipmentsAndSkills(${unitPrintCard})}">
-                            </th:block>
-                        </div>
+                        <th:block
+                                th:replace="~{fragments/EquipmentsAndSkills :: equipmentsAndSkills(${unitPrintCard})}">
+                        </th:block>
                     </div>
                 </div>
             </div>
