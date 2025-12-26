@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="metaChemistryFragment(metaChemistry)">
+    <div class="card" th:if="${metaChemistry != null and not #lists.isEmpty(metaChemistry)}">
+        <div class="cardContent">
+
+            <div class="cardHeader">
+                <h2 class="card-header-title">Meta Chemistry</h2>
+            </div>
+            <table class="chem">
+                <thead>
+                <tr>
+                    <th>Roll</th>
+                    <th>Bonus</th>
+                    <th>Roll</th>
+                    <th>Bonus</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="chem : ${metaChemistry}">
+                    <td th:text="${chem.getRoll1()}"></td>
+                    <td th:text="${chem.getBonus1()}"></td>
+                    <td th:text="${chem.getRoll2()}"></td>
+                    <td th:text="${chem.getBonus2()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
