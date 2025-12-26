@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div class="maxHeight" th:fragment="equipmentsAndSkills(unitPrintCard)">
+    <div class="equipmentsAndSkillsSection">
+        <div class="textBackground">
+            <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
+        </div>
+        <div class="textBackground">
+            <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills()}"></span>
+        </div>
+        <div class="textBackground" th:if="${unitPrintCard.showNotes()}">
+            <b>Notes:</b> <span th:text="${unitPrintCard.getNotes()}"></span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

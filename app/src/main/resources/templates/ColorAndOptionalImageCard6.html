@@ -144,6 +144,24 @@
             flex-grow: 1;
         }
 
+        .maxHeight {
+            height: 100%;
+        }
+
+        /* Equipments and Skills Fragment styles*/
+
+        .equipmentsAndSkillsSection {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            height: 100%;
+        }
+
+        .textBackground {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px;
+        }
+
         /* Hacking Programs Fragment styles*/
 
         .hacking th, .hacking td {
@@ -343,18 +361,9 @@
                                 </table>
                             </div>
 
-                            <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%; ">
-                                <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
-                                    <b>Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
-                                </div>
-                                <div style="background-color: rgba(255, 255, 255, 0.8); padding: 2px;">
-                                    <b>Skills:</b> <span th:text="${unitPrintCard.prettySkills()}"></span>
-                                </div>
-                                <div th:if="${unitPrintCard.showNotes()}"
-                                     style="background-color: rgba(255, 255, 255, 0.8); padding: 2px">
-                                    <b>Notes:</b> <span th:text="${unitPrintCard.getNotes()}"></span>
-                                </div>
-                            </div>
+                            <th:block
+                                    th:replace="~{fragments/EquipmentsAndSkills :: equipmentsAndSkills(${unitPrintCard})}">
+                            </th:block>
                         </div>
                     </div>
                 </div>
