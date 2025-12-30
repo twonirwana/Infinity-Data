@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <title th:text="${listName}">list name</title>
+    <meta name="armyCode" th:content="${armyCode}">
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: [[${pageSize}]];
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .page {
+                width: 208mm; /*minus gap*/
+                margin: 0;
+                border: initial;
+                border-radius: initial;
+                min-height: initial;
+                box-shadow: initial;
+                background: initial;
+                page-break-after: always;
+            }
+
+            @page {
+                size: A4;
+                margin: 2mm;
+            }
+        }
+
+        .page {
+            width: 205mm; /*minus margin and gap*/
+            min-height: 297mm;
+            margin: 2mm;
+            box-sizing: border-box;
+            column-count: 2;
+            column-gap: 1mm;
+        }
+
+        body {
+            font-family: "Inter", Arial, Helvetica, sans-serif;
+            font-size: 6pt
+        }
+
+        h2 {
+            color: [[${headerColor}]];
+        }
+
+        .card {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            margin-bottom: 1mm;
+            border: 1px solid [[${boarderColor}]];
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: space-evenly;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attribut th, .attribut td {
+            padding: 1px 2px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: [[${secondaryColor}]];
+            color: [[${tableHeaderFontColor}]];
+            font-weight: bold;
+        }
+
+        tr {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .typ-and-category {
+            padding-right: 2px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            height: auto;
+            justify-content: space-evenly;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .unit-header {
+            display: flex;
+            border-bottom: 1px solid [[${boarderColor}]];
+            background-color: [[${primaryColor}]];
+        }
+
+        .unit-header-logo {
+            height: 20px;
+            width: 20px;
+            align-self: center;
+        }
+
+        .card-header-title {
+            flex-grow: 1;
+            margin: 0;
+            font-size: 1.5em;
+            padding: 2px;
+            align-content: center;
+        }
+
+        .unit-header-icon-group {
+            display: flex;
+            gap: 2px;
+        }
+
+        .unit-header-icon {
+            height: 20px;
+            width: 20px;
+            align-self: center;
+        }
+
+        .unit-image-area {
+            background-size: auto 100%;
+            background-repeat: no-repeat;
+            background-position: left;
+            height: 100%;
+        }
+
+        .non-unit-image-area {
+            height: 100%;
+        }
+
+        .area-for-image {
+            width: 100%;
+            height: 100%;
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+        }
+
+        .two-columns {
+            column-count: 2;
+            column-gap: 1px;
+            margin-right: 10px;
+        }
+
+        .two-columns > div {
+            break-inside: avoid;
+            page-break-inside: avoid;
+
+            margin-bottom: 3px;
+            width: 100%;
+        }
+
+        .card-header {
+            padding-left: 3%;
+            height: 20px;
+            background-color: [[${primaryColor}]];
+            border-bottom: 1px solid [[${boarderColor}]];
+            align-content: center;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: start;
+        }
+
+        .attribut-equipment-skill-column {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-grow {
+            flex-grow: 1;
+        }
+
+        .max-meight {
+            height: 100%;
+        }
+
+        /* Equipments and Skills Fragment styles*/
+
+        .equipments-and-skills-column {
+            display: flex;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .text-background {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px;
+        }
+
+        /* Hacking Programs Fragment styles*/
+
+        .hacking th, .hacking td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .hacking-program-description {
+            width: 30%;
+        }
+
+        /* MetaChemistry Fragment styles*/
+
+        .chem th, .chem td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Booty Fragment styles*/
+
+        .booty th, .booty td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Weapon Fragment styles*/
+
+        .weapon th, .weapon td {
+            border: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .weapon-padding {
+            padding-right: 2px;
+            padding-left: 2px;
+        }
+
+        .weapon-table-name-header {
+            white-space: pre;
+        }
+
+        .weapon .weapon-table-traits {
+            white-space: normal;
+            font-size: 4pt;
+        }
+
+        .range-plus-6 {
+            flex: 1;
+            background-color: yellowgreen;
+        }
+
+        .range-plus-3 {
+            flex: 1;
+            background-color: darkseagreen;
+        }
+
+        .range-0 {
+            flex: 1;
+            background-color: deepskyblue;
+        }
+
+        .range-minus-3 {
+            flex: 1;
+            background-color: orange;
+        }
+
+        .range-minus-6 {
+            flex: 1;
+            background-color: orangered;
+        }
+
+        .bw-range-plus-6 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        .bw-range-plus-3 {
+            flex: 1;
+            background-color: white;
+            border: black solid 1px;
+        }
+
+        .bw-range-0 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        .bw-range-minus-3 {
+            flex: 1;
+            background-color: white;
+            border: black solid 1px;
+        }
+
+        .bw-range-minus-6 {
+            flex: 1;
+            background-color: lightgray;
+            border: black solid 1px;
+        }
+
+        /* Army List Fragment styles */
+        .army-group-title {
+            margin-left: 10px;
+            margin-bottom: 5px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .army-list-row {
+            display: flex;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+
+        .army-list-footer {
+            align-content: end;
+            text-align: right;
+            margin-right: 5px;
+        }
+
+        .army-code {
+            margin-left: 10px;
+            margin-right: 10px;
+            word-break: break-all;
+        }
+
+        /* Fireteam Fragment styles */
+        .ft-allowed {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .ft-team-name {
+            margin-left: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .ft-member {
+            display: flex;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="page">
+    <div th:each="unitPrintCard : ${unitPrintCards}">
+        <th:block
+                th:replace="~{fragments/Unit :: unitFragment(${unitPrintCard})}">
+        </th:block>
+    </div>
+    <th:block
+            th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs1},'Hacking Programs 1')}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/BootyRollTable :: bootyRollFragment(${bootyRolls})}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/BootyWeapon :: bootyWeaponFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${useInch})}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/ArmyList :: armyListFragment(${armyListTitel}, ${armyList}, ${currentDate}, ${armyCode})}">
+    </th:block>
+    <th:block
+            th:replace="~{fragments/FireTeam :: fireteamFragment(${fireteams}, ${allowedFireteams})}">
+    </th:block>
+</div>
+</body>
+</html>
+

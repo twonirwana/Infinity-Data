@@ -15,13 +15,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
-import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
-
 public class ExportMissingImageOverview {
 
     public static void main(String[] args) throws IOException {
-        exportIntoCSV(new DatabaseImp());
+        exportIntoCSV(DatabaseImp.createTimedUpdate());
     }
 
     public static void exportIntoCSV(Database db) throws IOException {
@@ -44,7 +41,7 @@ public class ExportMissingImageOverview {
                                     if (!u.getSectorial().isDiscontinued() && !u.isReinforcementUnit() && !u.isMerc()) {
                                         activeProfileCount.incrementAndGet();
                                     }
-                                    return imageData(u, t, p, imageExists);
+                                    return imageData(u, t, p, imageExists, db.getUnitImageFolder(), db.getCustomUnitImageFolder());
 
                                 })))
                 .distinct()
@@ -59,20 +56,20 @@ public class ExportMissingImageOverview {
         System.out.printf("Total trooper profiles: %d, active trooper profiles: %d with image: %d%n", trooperProfileCount.get(), activeProfileCount.get(), imageExists.get());
     }
 
-    private static String getImage(TrooperProfile profile) {
+    private static String getImage(TrooperProfile profile, String unitImageFolder, String customUnitImageFolder) {
         String imageName = profile.getCombinedProfileId() + ".png";
         if (!profile.getImageNames().isEmpty()
-                && new File(UNIT_IMAGE_FOLDER + profile.getImageNames().getFirst()).exists()) {
-            return UNIT_IMAGE_FOLDER + imageName;
+                && new File(unitImageFolder + profile.getImageNames().getFirst()).exists()) {
+            return unitImageFolder + imageName;
         }
-        if (new File(CUSTOM_UNIT_IMAGE_FOLDER + imageName).exists()) {
-            return CUSTOM_UNIT_IMAGE_FOLDER + imageName;
+        if (new File(customUnitImageFolder + imageName).exists()) {
+            return customUnitImageFolder + imageName;
         }
         return null;
     }
 
-    private static String imageData(UnitOption u, Trooper t, TrooperProfile p, AtomicLong imageExistsCounter) {
-        boolean imageExists = getImage(p) != null;
+    private static String imageData(UnitOption u, Trooper t, TrooperProfile p, AtomicLong imageExistsCounter, String unitImageFolder, String customUnitImageFolder) {
+        boolean imageExists = getImage(p, unitImageFolder, customUnitImageFolder) != null;
         if (imageExists) {
             imageExistsCounter.incrementAndGet();
         }

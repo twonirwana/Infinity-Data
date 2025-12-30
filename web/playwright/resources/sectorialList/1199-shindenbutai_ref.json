@@ -1,0 +1,3613 @@
+{
+  "version": "7.25288.295",
+  "units": [
+    {
+      "id": 1797,
+      "idArmy": 1797,
+      "canonical": 1199,
+      "isc": "Reinf. Ninjas",
+      "name": "REINF: NINJAS",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Ninjas",
+          "profiles": [
+            {
+              "bts": 0,
+              "cc": 23,
+              "move": [
+                10,
+                10
+              ],
+              "includes": [],
+              "type": 6,
+              "ava": 1,
+              "str": false,
+              "bs": 11,
+              "s": 2,
+              "equip": [],
+              "w": 1,
+              "ph": 12,
+              "name": "REINF: NINJAS",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-ninjas-1-1.svg",
+              "id": 1,
+              "arm": 1,
+              "weapons": [],
+              "chars": [
+                1,
+                3,
+                5
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "extra": [
+                    30
+                  ],
+                  "id": 240,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 21,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    11
+                  ],
+                  "id": 40,
+                  "order": 4
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    7
+                  ],
+                  "id": 28,
+                  "order": 5
+                },
+                {
+                  "q": 1,
+                  "id": 164,
+                  "order": 6
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    33
+                  ],
+                  "id": 58,
+                  "order": 7
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 24,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 100,
+                  "order": 1
+                }
+              ],
+              "name": "NINJA REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 77,
+                  "order": 1
+                },
+                {
+                  "id": 69,
+                  "order": 2
+                },
+                {
+                  "extra": [
+                    303
+                  ],
+                  "id": 6,
+                  "order": 3
+                }
+              ],
+              "chars": [],
+              "swc": "0.5",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 1000,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 22,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 145,
+                  "order": 1
+                }
+              ],
+              "name": "NINJA REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 77,
+                  "order": 1
+                },
+                {
+                  "id": 69,
+                  "order": 2
+                },
+                {
+                  "extra": [
+                    303
+                  ],
+                  "id": 11,
+                  "order": 3
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 1000,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 24,
+              "equip": [],
+              "name": "NINJA REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 3,
+              "weapons": [
+                {
+                  "id": 33,
+                  "order": 1
+                },
+                {
+                  "id": 72,
+                  "order": 2
+                },
+                {
+                  "id": 69,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    303
+                  ],
+                  "id": 11,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 59,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "id": 1
+        }
+      ],
+      "options": [],
+      "slug": "reinf-ninjas",
+      "filters": {
+        "categories": [],
+        "skills": [
+          21,
+          28,
+          40,
+          58,
+          59,
+          84,
+          164,
+          240,
+          1000
+        ],
+        "equip": [
+          100,
+          145
+        ],
+        "chars": [
+          1,
+          3,
+          5
+        ],
+        "types": [
+          6
+        ],
+        "weapons": [
+          6,
+          11,
+          33,
+          69,
+          72,
+          77
+        ],
+        "ammunition": [
+          2,
+          3,
+          9,
+          29
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1799,
+      "idArmy": 1799,
+      "canonical": 1199,
+      "isc": "Reinf. Kaizoku Yuriko Oda",
+      "iscAbbr": "Reinf. Yuriko Oda",
+      "name": "REINF: KAIZOKU YURIKO ODA",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Kaizoku Yuriko Oda",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 15,
+              "move": [
+                10,
+                10
+              ],
+              "includes": [],
+              "type": 1,
+              "ava": 1,
+              "str": false,
+              "bs": 12,
+              "s": 2,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 238,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 237,
+                  "order": 2
+                }
+              ],
+              "w": 1,
+              "ph": 11,
+              "name": "REINF: KAIZOKU YURIKO ODA",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-yuriko-oda-1-1.svg",
+              "id": 1,
+              "arm": 1,
+              "weapons": [],
+              "chars": [
+                2,
+                3,
+                5
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    1
+                  ],
+                  "id": 40,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    11
+                  ],
+                  "id": 40,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "id": 49,
+                  "order": 4
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    6
+                  ],
+                  "id": 28,
+                  "order": 5
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 25,
+              "equip": [],
+              "name": "YURIKO ODA REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 33,
+                  "order": 1
+                },
+                {
+                  "id": 25,
+                  "order": 2
+                },
+                {
+                  "id": 17,
+                  "order": 3
+                },
+                {
+                  "id": 196,
+                  "order": 4
+                },
+                {
+                  "id": 69,
+                  "order": 5
+                },
+                {
+                  "id": 5,
+                  "order": 6
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 23,
+              "equip": [],
+              "name": "YURIKO ODA REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 33,
+                  "order": 1
+                },
+                {
+                  "id": 68,
+                  "order": 2
+                },
+                {
+                  "id": 17,
+                  "order": 3
+                },
+                {
+                  "id": 196,
+                  "order": 4
+                },
+                {
+                  "id": 69,
+                  "order": 5
+                },
+                {
+                  "id": 5,
+                  "order": 6
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 10
+        }
+      ],
+      "options": [],
+      "slug": "reinf-yuriko-oda",
+      "filters": {
+        "categories": [
+          10
+        ],
+        "skills": [
+          28,
+          40,
+          49,
+          84
+        ],
+        "equip": [
+          237,
+          238
+        ],
+        "chars": [
+          2,
+          3,
+          5
+        ],
+        "types": [
+          1
+        ],
+        "weapons": [
+          5,
+          17,
+          25,
+          33,
+          68,
+          69,
+          196
+        ],
+        "ammunition": [
+          2,
+          8,
+          13,
+          14
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1796,
+      "idArmy": 1796,
+      "canonical": 1199,
+      "isc": "Reinf. Daiyōkai Dengekitai",
+      "name": "REINF: DAIYŌKAI Dengekitai",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Daiyōkai Dengekitai",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 21,
+              "move": [
+                10,
+                10
+              ],
+              "includes": [],
+              "type": 3,
+              "ava": 1,
+              "str": false,
+              "bs": 13,
+              "s": 5,
+              "equip": [],
+              "w": 2,
+              "ph": 14,
+              "name": "REINF: DAIYŌKAI Dengekitai",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-daiy-kai-dengekitai-1-1.svg",
+              "id": 1,
+              "arm": 5,
+              "weapons": [],
+              "chars": [
+                1,
+                3,
+                5,
+                21
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 20,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    305
+                  ],
+                  "id": 201,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "id": 164,
+                  "order": 5
+                },
+                {
+                  "q": 1,
+                  "id": 86,
+                  "order": 6
+                },
+                {
+                  "q": 1,
+                  "id": 211,
+                  "order": 7
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 46,
+              "equip": [],
+              "name": "DAIYŌKAI REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 169,
+                  "order": 1
+                },
+                {
+                  "id": 68,
+                  "order": 2
+                },
+                {
+                  "id": 69,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 78,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 47,
+              "equip": [],
+              "name": "DAIYŌKAI REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 152,
+                  "order": 1
+                },
+                {
+                  "id": 68,
+                  "order": 2
+                },
+                {
+                  "id": 69,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 78,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "1",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 50,
+              "equip": [],
+              "name": "DAIYŌKAI REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 3,
+              "weapons": [
+                {
+                  "id": 2,
+                  "order": 1
+                },
+                {
+                  "id": 68,
+                  "order": 2
+                },
+                {
+                  "id": 69,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 78,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "1",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 6
+        }
+      ],
+      "options": [],
+      "slug": "reinf-daiy-kai-dengekitai",
+      "filters": {
+        "categories": [
+          6
+        ],
+        "skills": [
+          20,
+          84,
+          86,
+          164,
+          201,
+          211
+        ],
+        "equip": [],
+        "chars": [
+          1,
+          3,
+          5,
+          21
+        ],
+        "types": [
+          3
+        ],
+        "weapons": [
+          2,
+          68,
+          69,
+          78,
+          152,
+          169
+        ],
+        "ammunition": [
+          2,
+          3,
+          8,
+          9,
+          10,
+          13
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1798,
+      "idArmy": 1798,
+      "canonical": 1199,
+      "isc": "Reinf. Domaru Takeshi \u0027Neko\u0027 Oyama",
+      "iscAbbr": "Reinf. Domaru Takeshi",
+      "name": "REINF: Domaru TAKESHI \u0027NEKO\u0027 OYAMA",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Domaru Takeshi \u0027Neko\u0027 Oyama",
+          "profiles": [
+            {
+              "bts": 6,
+              "cc": 24,
+              "move": [
+                15,
+                5
+              ],
+              "includes": [],
+              "type": 3,
+              "ava": 1,
+              "str": false,
+              "bs": 12,
+              "s": 2,
+              "equip": [],
+              "w": 2,
+              "ph": 14,
+              "name": "REINF: Domaru TAKESHI \u0027NEKO\u0027 OYAMA",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-domaru-takeshi-1-1.svg",
+              "id": 1,
+              "arm": 3,
+              "weapons": [],
+              "chars": [
+                1,
+                3,
+                21
+              ],
+              "wip": 14,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 250,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 21,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    4
+                  ],
+                  "id": 240,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    30
+                  ],
+                  "id": 240,
+                  "order": 4
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    305
+                  ],
+                  "id": 201,
+                  "order": 5
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    1
+                  ],
+                  "id": 24,
+                  "order": 6
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 7
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    23
+                  ],
+                  "id": 40,
+                  "order": 8
+                },
+                {
+                  "q": 1,
+                  "id": 213,
+                  "order": 10
+                },
+                {
+                  "q": 1,
+                  "id": 164,
+                  "order": 11
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 28,
+              "equip": [],
+              "name": "OYAMA REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                },
+                {
+                  "type": "TACTICAL",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 18,
+                  "order": 1
+                },
+                {
+                  "id": 19,
+                  "order": 2
+                },
+                {
+                  "id": 47,
+                  "order": 3
+                },
+                {
+                  "id": 98,
+                  "order": 4
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 7,
+                  "order": 5
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 11,
+                  "order": 6
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 10
+        }
+      ],
+      "options": [],
+      "slug": "reinf-domaru-takeshi",
+      "filters": {
+        "categories": [
+          10
+        ],
+        "skills": [
+          21,
+          24,
+          40,
+          84,
+          164,
+          201,
+          213,
+          240,
+          250
+        ],
+        "equip": [],
+        "chars": [
+          1,
+          3,
+          21
+        ],
+        "types": [
+          3
+        ],
+        "weapons": [
+          7,
+          11,
+          18,
+          19,
+          47,
+          98
+        ],
+        "ammunition": [
+          2,
+          3,
+          5,
+          9,
+          14,
+          18
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1800,
+      "idArmy": 1800,
+      "canonical": 1199,
+      "isc": "Reinf. Yáoxiè Rui Shi",
+      "name": " REINF: Yáoxiè RUI SHI",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Yáoxiè Rui Shi",
+          "profiles": [
+            {
+              "bts": 6,
+              "cc": 13,
+              "move": [
+                15,
+                10
+              ],
+              "includes": [],
+              "type": 5,
+              "ava": 1,
+              "str": true,
+              "bs": 12,
+              "s": 4,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 63,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 114,
+                  "order": 2
+                }
+              ],
+              "w": 1,
+              "ph": 10,
+              "name": " REINF: Yáoxiè RUI SHI",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-yaoxie-rui-shi-1-1.svg",
+              "id": 1,
+              "arm": 0,
+              "weapons": [],
+              "chars": [
+                3,
+                5,
+                21
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 235,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 2
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 20,
+              "equip": [],
+              "name": "RUI SHI REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 152,
+                  "order": 1
+                },
+                {
+                  "extra": [
+                    6
+                  ],
+                  "id": 71,
+                  "order": 2
+                }
+              ],
+              "chars": [],
+              "swc": "0.5",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 8
+        }
+      ],
+      "options": [],
+      "slug": "reinf-yaoxie-rui-shi",
+      "filters": {
+        "categories": [
+          8
+        ],
+        "skills": [
+          84,
+          235
+        ],
+        "equip": [
+          63,
+          114
+        ],
+        "chars": [
+          3,
+          5,
+          21
+        ],
+        "types": [
+          5
+        ],
+        "weapons": [
+          71,
+          152
+        ],
+        "ammunition": [
+          8,
+          37
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1709,
+      "idArmy": 1709,
+      "canonical": 299,
+      "isc": "Reinf. Yáozăo",
+      "name": "REINF: YÁOZĂO",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Yáozăo",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 11,
+              "move": [
+                15,
+                10
+              ],
+              "includes": [],
+              "type": 5,
+              "ava": 2,
+              "str": true,
+              "bs": 8,
+              "s": 1,
+              "equip": [],
+              "w": 1,
+              "ph": 10,
+              "name": "REINF: YÁOZĂO",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-yaozao-1-1.svg",
+              "id": 1,
+              "arm": 0,
+              "weapons": [],
+              "chars": [
+                21,
+                27
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "extra": [
+                    41
+                  ],
+                  "id": 243,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    6
+                  ],
+                  "id": 28,
+                  "order": 4
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 0,
+              "points": 3,
+              "equip": [],
+              "name": "YÁOZĂO REINF.",
+              "disabled": false,
+              "orders": [],
+              "id": 1,
+              "weapons": [
+                {
+                  "extra": [
+                    6
+                  ],
+                  "id": 71,
+                  "order": 1
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 8
+        }
+      ],
+      "options": [],
+      "slug": "reinf-yaozao",
+      "filters": {
+        "categories": [
+          8
+        ],
+        "skills": [
+          28,
+          84,
+          243
+        ],
+        "equip": [],
+        "chars": [
+          21,
+          27
+        ],
+        "types": [
+          5
+        ],
+        "weapons": [
+          71
+        ],
+        "ammunition": [
+          37
+        ]
+      },
+      "factions": [
+        299,
+        1199
+      ]
+    },
+    {
+      "id": 1792,
+      "idArmy": 1792,
+      "canonical": 1199,
+      "isc": "Reinf. Genbutai",
+      "name": "REINF: GENBUTAI",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Genbutai",
+          "profiles": [
+            {
+              "bts": 6,
+              "cc": 18,
+              "move": [
+                10,
+                10
+              ],
+              "includes": [],
+              "type": 2,
+              "ava": 4,
+              "str": false,
+              "bs": 13,
+              "s": 2,
+              "equip": [],
+              "w": 1,
+              "ph": 11,
+              "name": "REINF: GENBUTAI",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-genbutai-1-1.svg",
+              "id": 1,
+              "arm": 3,
+              "weapons": [],
+              "chars": [
+                1,
+                3,
+                5
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "extra": [
+                    305
+                  ],
+                  "id": 201,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 267,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    249
+                  ],
+                  "id": 162,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    30
+                  ],
+                  "id": 162,
+                  "order": 4
+                },
+                {
+                  "q": 1,
+                  "id": 83,
+                  "order": 5
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 18,
+              "equip": [],
+              "name": "GENBU REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 26,
+                  "order": 1
+                },
+                {
+                  "id": 98,
+                  "order": 2
+                },
+                {
+                  "extra": [
+                    7
+                  ],
+                  "id": 71,
+                  "order": 3
+                },
+                {
+                  "id": 80,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 23,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 237,
+                  "order": 1
+                }
+              ],
+              "name": "GENBU REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 77,
+                  "order": 1
+                },
+                {
+                  "id": 68,
+                  "order": 2
+                },
+                {
+                  "id": 17,
+                  "order": 3
+                },
+                {
+                  "id": 98,
+                  "order": 4
+                },
+                {
+                  "extra": [
+                    7
+                  ],
+                  "id": 71,
+                  "order": 5
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 49,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 26,
+              "equip": [],
+              "name": "GENBU REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 3,
+              "weapons": [
+                {
+                  "id": 41,
+                  "order": 1
+                },
+                {
+                  "id": 57,
+                  "order": 2
+                },
+                {
+                  "id": 17,
+                  "order": 3
+                },
+                {
+                  "id": 98,
+                  "order": 4
+                },
+                {
+                  "extra": [
+                    7
+                  ],
+                  "id": 71,
+                  "order": 5
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 189,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 20,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 106,
+                  "order": 1
+                }
+              ],
+              "name": "GENBU REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 4,
+              "weapons": [
+                {
+                  "id": 26,
+                  "order": 1
+                },
+                {
+                  "id": 98,
+                  "order": 2
+                },
+                {
+                  "extra": [
+                    7
+                  ],
+                  "id": 71,
+                  "order": 3
+                },
+                {
+                  "id": 80,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 64,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 29,
+              "equip": [],
+              "name": "GENBU REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 5,
+              "weapons": [
+                {
+                  "id": 152,
+                  "order": 1
+                },
+                {
+                  "id": 98,
+                  "order": 2
+                },
+                {
+                  "id": 71,
+                  "order": 3
+                }
+              ],
+              "chars": [],
+              "swc": "1",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 211,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 4
+        }
+      ],
+      "options": [],
+      "slug": "reinf-genbutai",
+      "filters": {
+        "categories": [
+          4
+        ],
+        "skills": [
+          49,
+          64,
+          83,
+          162,
+          189,
+          201,
+          211,
+          267
+        ],
+        "equip": [
+          106,
+          237
+        ],
+        "chars": [
+          1,
+          3,
+          5
+        ],
+        "types": [
+          2
+        ],
+        "weapons": [
+          17,
+          26,
+          41,
+          57,
+          68,
+          71,
+          77,
+          80,
+          98,
+          152
+        ],
+        "ammunition": [
+          2,
+          3,
+          8,
+          9,
+          13,
+          37
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1835,
+      "idArmy": 1835,
+      "canonical": 1199,
+      "isc": "Reinf. Atom Aibōt",
+      "name": "REINFORCEMENTS: ATOM Aibōt",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Atom Aibōt",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 13,
+              "move": [
+                15,
+                10
+              ],
+              "includes": [],
+              "type": 5,
+              "ava": 1,
+              "str": true,
+              "bs": 11,
+              "s": 3,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 238,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 63,
+                  "order": 2
+                }
+              ],
+              "w": 1,
+              "ph": 10,
+              "name": "REINFORCEMENTS: ATOM Aibōt",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-atom-aib-t-1-1.svg",
+              "id": 1,
+              "arm": 0,
+              "weapons": [],
+              "chars": [
+                3,
+                5,
+                21
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 242,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "id": 59,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "id": 235,
+                  "order": 4
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 15,
+              "equip": [],
+              "name": "REINF. ATOM AIBŌT",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 33,
+                  "order": 1
+                },
+                {
+                  "id": 72,
+                  "order": 2
+                },
+                {
+                  "extra": [
+                    6
+                  ],
+                  "id": 71,
+                  "order": 3
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 65,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 17,
+              "equip": [],
+              "name": "REINF. ATOM AIBŌT",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "extra": [
+                    303
+                  ],
+                  "id": 33,
+                  "order": 1
+                },
+                {
+                  "extra": [
+                    8
+                  ],
+                  "id": 72,
+                  "order": 2
+                },
+                {
+                  "extra": [
+                    6
+                  ],
+                  "id": 71,
+                  "order": 3
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 8
+        }
+      ],
+      "options": [],
+      "slug": "reinf-atom-aib-t",
+      "filters": {
+        "categories": [
+          8
+        ],
+        "skills": [
+          59,
+          65,
+          84,
+          235,
+          242
+        ],
+        "equip": [
+          63,
+          238
+        ],
+        "chars": [
+          3,
+          5,
+          21
+        ],
+        "types": [
+          5
+        ],
+        "weapons": [
+          33,
+          71,
+          72
+        ],
+        "ammunition": [
+          2,
+          29,
+          37
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1836,
+      "idArmy": 1836,
+      "canonical": 1199,
+      "isc": "Reinf. Garon Aibōt",
+      "name": "REINFORCEMENTS: GARON Aibōt",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Garon Aibōt",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 13,
+              "move": [
+                15,
+                10
+              ],
+              "includes": [],
+              "type": 5,
+              "ava": 1,
+              "str": true,
+              "bs": 11,
+              "s": 3,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 113,
+                  "order": 1
+                }
+              ],
+              "w": 1,
+              "ph": 10,
+              "name": "REINFORCEMENTS: GARON Aibōt",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-garon-aib-t-1-1.svg",
+              "id": 1,
+              "arm": 0,
+              "weapons": [],
+              "chars": [
+                3,
+                5,
+                21
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 235,
+                  "order": 2
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 19,
+              "equip": [],
+              "name": "REINF. GARON AIBŌT",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 2,
+                  "order": 1
+                },
+                {
+                  "extra": [
+                    6
+                  ],
+                  "id": 71,
+                  "order": 2
+                }
+              ],
+              "chars": [],
+              "swc": "1",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 16,
+              "equip": [],
+              "name": "REINF. GARON AIBŌT",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 64,
+                  "order": 1
+                },
+                {
+                  "extra": [
+                    6
+                  ],
+                  "id": 71,
+                  "order": 2
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 8
+        }
+      ],
+      "options": [],
+      "slug": "reinf-garon-aib-t",
+      "filters": {
+        "categories": [
+          8
+        ],
+        "skills": [
+          84,
+          235
+        ],
+        "equip": [
+          113
+        ],
+        "chars": [
+          3,
+          5,
+          21
+        ],
+        "types": [
+          5
+        ],
+        "weapons": [
+          2,
+          64,
+          71
+        ],
+        "ammunition": [
+          2,
+          37
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1795,
+      "idArmy": 1795,
+      "canonical": 1199,
+      "isc": "Reinf. Shikami",
+      "name": "REINF: SHIKAMI",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Shikami",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 23,
+              "move": [
+                15,
+                5
+              ],
+              "includes": [],
+              "type": 3,
+              "ava": 2,
+              "str": false,
+              "bs": 13,
+              "s": 2,
+              "equip": [],
+              "w": 2,
+              "ph": 14,
+              "name": "REINF: SHIKAMI",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-shikami-1-1.svg",
+              "id": 1,
+              "arm": 3,
+              "weapons": [],
+              "chars": [
+                1,
+                3,
+                5,
+                21
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 21,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 84,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    23
+                  ],
+                  "id": 40,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    7
+                  ],
+                  "id": 28,
+                  "order": 5
+                },
+                {
+                  "q": 1,
+                  "id": 189,
+                  "order": 6
+                },
+                {
+                  "q": 1,
+                  "id": 164,
+                  "order": 7
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    372
+                  ],
+                  "id": 74,
+                  "order": 8
+                },
+                {
+                  "q": 1,
+                  "id": 82,
+                  "order": 9
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 39,
+              "equip": [],
+              "name": "SHIKAMI REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 19,
+                  "order": 1
+                },
+                {
+                  "extra": [
+                    8
+                  ],
+                  "id": 72,
+                  "order": 2
+                },
+                {
+                  "id": 70,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 78,
+                  "order": 4
+                },
+                {
+                  "id": 46,
+                  "order": 5
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 41,
+              "equip": [],
+              "name": "SHIKAMI REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 26,
+                  "order": 1
+                },
+                {
+                  "id": 17,
+                  "order": 2
+                },
+                {
+                  "id": 69,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    311
+                  ],
+                  "id": 78,
+                  "order": 4
+                },
+                {
+                  "id": 46,
+                  "order": 5
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 5
+        }
+      ],
+      "options": [],
+      "slug": "reinf-shikami",
+      "filters": {
+        "categories": [
+          5
+        ],
+        "skills": [
+          21,
+          28,
+          40,
+          74,
+          82,
+          84,
+          164,
+          189
+        ],
+        "equip": [],
+        "chars": [
+          1,
+          3,
+          5,
+          21
+        ],
+        "types": [
+          3
+        ],
+        "weapons": [
+          17,
+          19,
+          26,
+          46,
+          69,
+          70,
+          72,
+          78
+        ],
+        "ammunition": [
+          2,
+          3,
+          10,
+          13,
+          18,
+          22,
+          29
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1793,
+      "idArmy": 1793,
+      "canonical": 1199,
+      "isc": "Reinf. Kyoshō Saibāyunitto",
+      "name": "REINF: KYOSHŌ Saibāyunitto",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Kyoshō Saibāyunitto",
+          "profiles": [
+            {
+              "bts": 6,
+              "cc": 17,
+              "move": [
+                10,
+                10
+              ],
+              "includes": [],
+              "type": 1,
+              "ava": 2,
+              "str": false,
+              "bs": 11,
+              "s": 2,
+              "equip": [],
+              "w": 1,
+              "ph": 10,
+              "name": "REINF: KYOSHŌ Saibāyunitto",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-kyosh-saibayunitto-1-1.svg",
+              "id": 1,
+              "arm": 1,
+              "weapons": [],
+              "chars": [
+                1,
+                3,
+                5
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "extra": [
+                    314
+                  ],
+                  "id": 1000,
+                  "order": 1
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 20,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 100,
+                  "order": 1
+                }
+              ],
+              "name": "KYOSHŌ REINF",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 33,
+                  "order": 1
+                },
+                {
+                  "id": 174,
+                  "order": 2
+                },
+                {
+                  "id": 98,
+                  "order": 1
+                },
+                {
+                  "id": 5,
+                  "order": 3
+                }
+              ],
+              "chars": [],
+              "swc": "0.5",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 20,
+              "equip": [
+                {
+                  "q": 1,
+                  "id": 145,
+                  "order": 1
+                }
+              ],
+              "name": "KYOSHŌ REINF",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "id": 41,
+                  "order": 1
+                },
+                {
+                  "id": 174,
+                  "order": 2
+                },
+                {
+                  "id": 98,
+                  "order": 3
+                },
+                {
+                  "id": 5,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 3
+        }
+      ],
+      "options": [],
+      "slug": "reinf-kyosh-saibayunitto",
+      "filters": {
+        "categories": [
+          3
+        ],
+        "skills": [
+          1000
+        ],
+        "equip": [
+          100,
+          145
+        ],
+        "chars": [
+          1,
+          3,
+          5
+        ],
+        "types": [
+          1
+        ],
+        "weapons": [
+          5,
+          33,
+          41,
+          98,
+          174
+        ],
+        "ammunition": [
+          2,
+          3,
+          8,
+          9
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    },
+    {
+      "id": 1794,
+      "idArmy": 1794,
+      "canonical": 1199,
+      "isc": "Reinf. Sōhei Tsugekitai",
+      "name": "REINF: SŌHEI Tsugekitai",
+      "profileGroups": [
+        {
+          "isc": "Reinf. Sōhei Tsugekitai",
+          "profiles": [
+            {
+              "bts": 3,
+              "cc": 23,
+              "move": [
+                10,
+                10
+              ],
+              "includes": [],
+              "type": 2,
+              "ava": 5,
+              "str": false,
+              "bs": 11,
+              "s": 2,
+              "equip": [],
+              "w": 1,
+              "ph": 13,
+              "name": "REINF: SŌHEI Tsugekitai",
+              "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-s-hei-tsugekitai-1-1.svg",
+              "id": 1,
+              "arm": 3,
+              "weapons": [],
+              "chars": [
+                1,
+                3
+              ],
+              "wip": 13,
+              "skills": [
+                {
+                  "q": 1,
+                  "id": 250,
+                  "order": 1
+                },
+                {
+                  "q": 1,
+                  "id": 21,
+                  "order": 2
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    23
+                  ],
+                  "id": 40,
+                  "order": 3
+                },
+                {
+                  "q": 1,
+                  "extra": [
+                    30
+                  ],
+                  "id": 162,
+                  "order": 4
+                },
+                {
+                  "q": 1,
+                  "id": 164,
+                  "order": 5
+                },
+                {
+                  "q": 1,
+                  "id": 83,
+                  "order": 6
+                }
+              ],
+              "peripheral": []
+            }
+          ],
+          "options": [
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 17,
+              "equip": [],
+              "name": "SŌHEI  REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 1,
+              "weapons": [
+                {
+                  "id": 77,
+                  "order": 1
+                },
+                {
+                  "id": 44,
+                  "order": 2
+                },
+                {
+                  "id": 69,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    302
+                  ],
+                  "id": 172,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            },
+            {
+              "includes": [],
+              "minis": 1,
+              "points": 17,
+              "equip": [],
+              "name": "SŌHEI  REINF.",
+              "disabled": false,
+              "orders": [
+                {
+                  "type": "REGULAR",
+                  "list": 1,
+                  "total": 1
+                }
+              ],
+              "id": 2,
+              "weapons": [
+                {
+                  "extra": [
+                    8
+                  ],
+                  "id": 145,
+                  "order": 1
+                },
+                {
+                  "id": 44,
+                  "order": 2
+                },
+                {
+                  "id": 70,
+                  "order": 3
+                },
+                {
+                  "extra": [
+                    302
+                  ],
+                  "id": 172,
+                  "order": 4
+                }
+              ],
+              "chars": [],
+              "swc": "0",
+              "skills": [],
+              "peripheral": []
+            }
+          ],
+          "id": 1,
+          "category": 4
+        }
+      ],
+      "options": [],
+      "slug": "reinf-s-hei-tsugekitai",
+      "filters": {
+        "categories": [
+          4
+        ],
+        "skills": [
+          21,
+          40,
+          83,
+          162,
+          164,
+          250
+        ],
+        "equip": [],
+        "chars": [
+          1,
+          3
+        ],
+        "types": [
+          2
+        ],
+        "weapons": [
+          44,
+          69,
+          70,
+          77,
+          145,
+          172
+        ],
+        "ammunition": [
+          2,
+          30
+        ]
+      },
+      "factions": [
+        1199
+      ]
+    }
+  ],
+  "filters": {
+    "peripheral": [],
+    "attrs": [
+      {
+        "id": "cc",
+        "name": "Close Combat",
+        "abbr": "CC",
+        "min": 11,
+        "max": 24
+      },
+      {
+        "id": "bs",
+        "name": "Ballistic Skills",
+        "abbr": "BS",
+        "min": 8,
+        "max": 13
+      },
+      {
+        "id": "move",
+        "name": "Movement",
+        "abbr": "MOV",
+        "min": 5,
+        "max": 15
+      },
+      {
+        "id": "ph",
+        "name": "Physique",
+        "abbr": "PH",
+        "min": 10,
+        "max": 14
+      },
+      {
+        "id": "wip",
+        "name": "Willpower",
+        "abbr": "WIP",
+        "min": 13,
+        "max": 14
+      },
+      {
+        "id": "arm",
+        "name": "Armor",
+        "abbr": "ARM",
+        "min": 0,
+        "max": 5
+      },
+      {
+        "id": "bts",
+        "name": "Bio-Technological Shield",
+        "abbr": "BTS",
+        "min": 0,
+        "max": 6
+      },
+      {
+        "id": "s",
+        "name": "Silhouette",
+        "abbr": "S",
+        "min": 1,
+        "max": 5
+      },
+      {
+        "id": "w",
+        "name": "Vitality",
+        "abbr": "VITA",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "id": "ava",
+        "name": "Availability",
+        "abbr": "AVA",
+        "min": 0,
+        "max": 0
+      }
+    ],
+    "points": [
+      {
+        "id": 3,
+        "name": "3"
+      },
+      {
+        "id": 15,
+        "name": "15"
+      },
+      {
+        "id": 16,
+        "name": "16"
+      },
+      {
+        "id": 17,
+        "name": "17"
+      },
+      {
+        "id": 18,
+        "name": "18"
+      },
+      {
+        "id": 19,
+        "name": "19"
+      },
+      {
+        "id": 20,
+        "name": "20"
+      },
+      {
+        "id": 22,
+        "name": "22"
+      },
+      {
+        "id": 23,
+        "name": "23"
+      },
+      {
+        "id": 24,
+        "name": "24"
+      },
+      {
+        "id": 25,
+        "name": "25"
+      },
+      {
+        "id": 26,
+        "name": "26"
+      },
+      {
+        "id": 28,
+        "name": "28"
+      },
+      {
+        "id": 29,
+        "name": "29"
+      },
+      {
+        "id": 39,
+        "name": "39"
+      },
+      {
+        "id": 41,
+        "name": "41"
+      },
+      {
+        "id": 46,
+        "name": "46"
+      },
+      {
+        "id": 47,
+        "name": "47"
+      },
+      {
+        "id": 50,
+        "name": "50"
+      }
+    ],
+    "swc": [
+      {
+        "id": "0",
+        "name": "0"
+      },
+      {
+        "id": "0.5",
+        "name": "0.5"
+      },
+      {
+        "id": "1",
+        "name": "1"
+      }
+    ],
+    "category": [
+      {
+        "id": 3,
+        "name": "Spec. Trained  Troops"
+      },
+      {
+        "id": 4,
+        "name": "Veteran Troops"
+      },
+      {
+        "id": 5,
+        "name": "Elite Troops"
+      },
+      {
+        "id": 6,
+        "name": "Headquarters Troops"
+      },
+      {
+        "id": 8,
+        "name": "Support Troops"
+      },
+      {
+        "id": 10,
+        "name": "Character"
+      }
+    ],
+    "ammunition": [
+      {
+        "id": 3,
+        "name": "AP",
+        "wiki": "https://infinitythewiki.com/Armour_Piercing_(AP)_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 10,
+        "name": "AP+DA",
+        "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 13,
+        "name": "AP+Exp",
+        "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 30,
+        "name": "AP+Shock",
+        "wiki": "https://infinitythewiki.com/Combined_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 9,
+        "name": "DA",
+        "wiki": "https://infinitythewiki.com/Double_Action_(DA)_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 14,
+        "name": "E/M",
+        "wiki": "https://infinitythewiki.com/Electromagnetic_(E/M)_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 22,
+        "name": "Eclipse",
+        "wiki": "https://infinitythewiki.com/Eclipse_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 2,
+        "name": "N",
+        "wiki": "https://infinitythewiki.com/Normal_(N)_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 5,
+        "name": "N+E/M"
+      },
+      {
+        "id": 37,
+        "name": "PARA",
+        "wiki": "https://infinitythewiki.com/Paralysis_(PARA)_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 8,
+        "name": "Shock",
+        "wiki": "https://infinitythewiki.com/Shock_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 29,
+        "name": "Stun",
+        "wiki": "https://infinitythewiki.com/Stun_Ammunition?version\u003dn4"
+      },
+      {
+        "id": 18,
+        "name": "T2",
+        "wiki": "https://infinitythewiki.com/T2_Ammunition?version\u003dn4"
+      }
+    ],
+    "chars": [
+      {
+        "id": 1,
+        "name": "Cube",
+        "wiki": "https://infinitythewiki.com/Cube?version\u003dn4"
+      },
+      {
+        "id": 21,
+        "name": "Hackable",
+        "wiki": "https://infinitythewiki.com/Unit_Profile?version\u003dn4#Trooper_Characteristics"
+      },
+      {
+        "id": 2,
+        "name": "No Cube"
+      },
+      {
+        "id": 5,
+        "name": "Not Impetuous"
+      },
+      {
+        "id": 27,
+        "name": "Peripheral",
+        "wiki": "https://infinitythewiki.com/Peripheral?version\u003dn4"
+      },
+      {
+        "id": 3,
+        "name": "Regular",
+        "wiki": "https://infinitythewiki.com/Orders_and_the_Order_Pool?version\u003dn4"
+      }
+    ],
+    "type": [
+      {
+        "id": 1,
+        "name": "LI"
+      },
+      {
+        "id": 2,
+        "name": "MI"
+      },
+      {
+        "id": 3,
+        "name": "HI"
+      },
+      {
+        "id": 5,
+        "name": "REM"
+      },
+      {
+        "id": 6,
+        "name": "SK"
+      }
+    ],
+    "equip": [
+      {
+        "id": 113,
+        "name": "360º Visor",
+        "type": "PERSON",
+        "wiki": "https://infinitythewiki.com/360º_Visor?version\u003dn4"
+      },
+      {
+        "id": 238,
+        "name": "Deactivator",
+        "type": "PERSON",
+        "wiki": "https://infinitythewiki.com/Deactivator?version\u003dn4"
+      },
+      {
+        "id": 237,
+        "name": "GizmoKit",
+        "type": "WEAPON",
+        "wiki": "https://infinitythewiki.com/GizmoKit?version\u003dn4"
+      },
+      {
+        "id": 100,
+        "name": "Hacking Device",
+        "type": "PERSON",
+        "wiki": "https://infinitythewiki.com/Hacking_Device?version\u003dn4"
+      },
+      {
+        "id": 145,
+        "name": "Killer Hacking Device",
+        "type": "PERSON",
+        "wiki": "https://infinitythewiki.com/Hacking_Device?version\u003dn4#Killer_Hacking_Device"
+      },
+      {
+        "id": 106,
+        "name": "MediKit",
+        "type": "WEAPON",
+        "wiki": "https://infinitythewiki.com/MediKit?version\u003dn4"
+      },
+      {
+        "id": 114,
+        "name": "Multispectral Visor L1",
+        "type": "PERSON",
+        "wiki": "https://infinitythewiki.com/Multispectral_Visor?version\u003dn4"
+      },
+      {
+        "id": 63,
+        "name": "Repeater",
+        "type": "PERSON",
+        "wiki": "https://infinitythewiki.com/Repeater?version\u003dn4"
+      }
+    ],
+    "skills": [
+      {
+        "id": 20,
+        "name": "Martial Arts L2",
+        "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+      },
+      {
+        "id": 21,
+        "name": "Martial Arts L3",
+        "wiki": "https://infinitythewiki.com/Martial_Arts?version\u003dn4"
+      },
+      {
+        "id": 24,
+        "name": "Berserk",
+        "wiki": "https://infinitythewiki.com/Berserk?version\u003dn4"
+      },
+      {
+        "id": 28,
+        "name": "Mimetism",
+        "wiki": "https://infinitythewiki.com/Mimetism?version\u003dn4"
+      },
+      {
+        "id": 40,
+        "name": "Dodge",
+        "wiki": "https://infinitythewiki.com/Dodge?version\u003dn4"
+      },
+      {
+        "id": 49,
+        "name": "Engineer",
+        "wiki": "https://infinitythewiki.com/Engineer?version\u003dn4"
+      },
+      {
+        "id": 58,
+        "name": "Terrain",
+        "wiki": "https://infinitythewiki.com/Terrain?version\u003dn4"
+      },
+      {
+        "id": 59,
+        "name": "Forward Observer",
+        "wiki": "https://infinitythewiki.com/Forward_Observer?version\u003dn4"
+      },
+      {
+        "id": 64,
+        "name": "Paramedic",
+        "wiki": "https://infinitythewiki.com/Paramedic?version\u003dn4"
+      },
+      {
+        "id": 65,
+        "name": "Sensor",
+        "wiki": "https://infinitythewiki.com/Sensor?version\u003dn4"
+      },
+      {
+        "id": 74,
+        "name": "Super-Jump",
+        "wiki": "https://infinitythewiki.com/Super-Jump?version\u003dn4"
+      },
+      {
+        "id": 82,
+        "name": "Climbing Plus",
+        "wiki": "https://infinitythewiki.com/Climbing_Plus?version\u003dn4"
+      },
+      {
+        "id": 83,
+        "name": "Religious Troop",
+        "wiki": "https://infinitythewiki.com/Religious_Troop?version\u003dn4"
+      },
+      {
+        "id": 84,
+        "name": "Courage",
+        "wiki": "https://infinitythewiki.com/Courage?version\u003dn4"
+      },
+      {
+        "id": 86,
+        "name": "No Wound Incapacitation",
+        "wiki": "https://infinitythewiki.com/No_Wound_Incapacitation?version\u003dn4"
+      },
+      {
+        "id": 162,
+        "name": "Immunity",
+        "wiki": "https://infinitythewiki.com/Immunity?version\u003dn4"
+      },
+      {
+        "id": 164,
+        "name": "Stealth",
+        "wiki": "https://infinitythewiki.com/Stealth?version\u003dn4"
+      },
+      {
+        "id": 189,
+        "name": "Specialist Operative",
+        "wiki": "https://infinitythewiki.com/Specialist_Operative?version\u003dn4"
+      },
+      {
+        "id": 201,
+        "name": "BS Attack",
+        "wiki": "https://infinitythewiki.com/BS_Attack?version\u003dn4"
+      },
+      {
+        "id": 204,
+        "name": "Infinity Spec-Ops",
+        "specops": true
+      },
+      {
+        "id": 211,
+        "name": "NCO",
+        "wiki": "https://infinitythewiki.com/NCO?version\u003dn4"
+      },
+      {
+        "id": 213,
+        "name": "Tactical Awareness",
+        "wiki": "https://infinitythewiki.com/Tactical_Awareness?version\u003dn4"
+      },
+      {
+        "id": 235,
+        "name": "Remote Presence",
+        "wiki": "https://infinitythewiki.com/Remote_Presence?version\u003dn4"
+      },
+      {
+        "id": 240,
+        "name": "CC Attack",
+        "wiki": "https://infinitythewiki.com/CC_Attack?version\u003dn4"
+      },
+      {
+        "id": 242,
+        "name": "Triangulated Fire",
+        "wiki": "https://infinitythewiki.com/Triangulated_Fire?version\u003dn4"
+      },
+      {
+        "id": 243,
+        "name": "Peripheral",
+        "wiki": "https://infinitythewiki.com/Peripheral?version\u003dn4"
+      },
+      {
+        "id": 250,
+        "name": "Frenzy",
+        "wiki": "https://infinitythewiki.com/Frenzy?version\u003dn4"
+      },
+      {
+        "id": 267,
+        "name": "Warhorse",
+        "wiki": "https://infinitythewiki.com/Warhorse?version\u003dn4"
+      },
+      {
+        "id": 1000,
+        "name": "Hacker",
+        "wiki": "https://infinitythewiki.com/Hacker?version\u003dn4"
+      }
+    ],
+    "weapons": [
+      {
+        "id": 78,
+        "name": "AP + DA CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 172,
+        "name": "AP + Shock CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 6,
+        "name": "AP CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 70,
+        "name": "Assault Pistol",
+        "type": "CC"
+      },
+      {
+        "id": 26,
+        "name": "Boarding Shotgun",
+        "type": "BS"
+      },
+      {
+        "id": 98,
+        "name": "Breaker Pistol",
+        "type": "CC"
+      },
+      {
+        "id": 5,
+        "name": "CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 18,
+        "name": "Chain Rifle",
+        "type": "BS"
+      },
+      {
+        "id": 80,
+        "name": "Chain-colt",
+        "type": "BS"
+      },
+      {
+        "id": 33,
+        "name": "Combi Rifle",
+        "type": "BS"
+      },
+      {
+        "id": 19,
+        "name": "Contender",
+        "type": "BS"
+      },
+      {
+        "id": 174,
+        "name": "Cybermine",
+        "type": "BS",
+        "wiki": "https://infinitythewiki.com/Cybermines?version\u003dn4"
+      },
+      {
+        "id": 17,
+        "name": "D-Charges",
+        "type": "BS",
+        "wiki": "https://infinitythewiki.com/D-Charges?version\u003dn4"
+      },
+      {
+        "id": 11,
+        "name": "DA CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 7,
+        "name": "E/M CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 47,
+        "name": "E/M Grenades",
+        "type": "BS"
+      },
+      {
+        "id": 25,
+        "name": "E/Mitter",
+        "type": "BS"
+      },
+      {
+        "id": 46,
+        "name": "Eclipse Grenades",
+        "type": "BS"
+      },
+      {
+        "id": 72,
+        "name": "Flash Pulse",
+        "type": "BS"
+      },
+      {
+        "id": 44,
+        "name": "Grenades",
+        "type": "BS"
+      },
+      {
+        "id": 57,
+        "name": "Heavy Flamethrower",
+        "type": "BS"
+      },
+      {
+        "id": 2,
+        "name": "Heavy Machine Gun",
+        "type": "BS"
+      },
+      {
+        "id": 64,
+        "name": "Mk12",
+        "type": "BS"
+      },
+      {
+        "id": 169,
+        "name": "MULTI Marksman Rifle",
+        "type": "BS"
+      },
+      {
+        "id": 41,
+        "name": "MULTI Rifle",
+        "type": "BS"
+      },
+      {
+        "id": 68,
+        "name": "Panzerfaust",
+        "type": "BS"
+      },
+      {
+        "id": 71,
+        "name": "PARA CC Weapon",
+        "type": "CC"
+      },
+      {
+        "id": 69,
+        "name": "Pistol",
+        "type": "CC"
+      },
+      {
+        "id": 145,
+        "name": "Pulzar",
+        "type": "BS"
+      },
+      {
+        "id": 152,
+        "name": "Red Fury",
+        "type": "BS"
+      },
+      {
+        "id": 196,
+        "name": "Shock Mine",
+        "type": "BS"
+      },
+      {
+        "id": 77,
+        "name": "Submachine Gun",
+        "type": "BS"
+      }
+    ],
+    "extras": [
+      {
+        "id": 6,
+        "name": "-3",
+        "type": "TEXT"
+      },
+      {
+        "id": 7,
+        "name": "-6",
+        "type": "TEXT"
+      },
+      {
+        "id": 4,
+        "name": "+1 Dam",
+        "type": "TEXT"
+      },
+      {
+        "id": 8,
+        "name": "+1B",
+        "type": "TEXT"
+      },
+      {
+        "id": 11,
+        "name": "+2.5",
+        "type": "DISTANCE"
+      },
+      {
+        "id": 1,
+        "name": "+3",
+        "type": "TEXT"
+      },
+      {
+        "id": 23,
+        "name": "+5",
+        "type": "DISTANCE"
+      },
+      {
+        "id": 372,
+        "name": "7.5",
+        "type": "DISTANCE"
+      },
+      {
+        "id": 249,
+        "name": "AP",
+        "type": "TEXT"
+      },
+      {
+        "id": 311,
+        "name": "PS\u003d4",
+        "type": "TEXT"
+      },
+      {
+        "id": 302,
+        "name": "PS\u003d5",
+        "type": "TEXT"
+      },
+      {
+        "id": 303,
+        "name": "PS\u003d6",
+        "type": "TEXT"
+      },
+      {
+        "id": 41,
+        "name": "Servant",
+        "type": "TEXT"
+      },
+      {
+        "id": 30,
+        "name": "Shock",
+        "type": "TEXT"
+      },
+      {
+        "id": 305,
+        "name": "SR-1",
+        "type": "TEXT"
+      },
+      {
+        "id": 33,
+        "name": "Total",
+        "type": "TEXT"
+      },
+      {
+        "id": 314,
+        "name": "UPGRADE: Total Control (SR-2)",
+        "type": "TEXT"
+      }
+    ]
+  },
+  "resume": [
+    {
+      "id": 1797,
+      "isc": "Reinf. Ninjas",
+      "idArmy": 1797,
+      "name": "REINF: NINJAS",
+      "slug": "reinf-ninjas",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-ninjas-1-1.svg",
+      "type": 6
+    },
+    {
+      "id": 1799,
+      "isc": "Reinf. Yuriko Oda",
+      "idArmy": 1799,
+      "name": "REINF: KAIZOKU YURIKO ODA",
+      "slug": "reinf-yuriko-oda",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-yuriko-oda-1-1.svg",
+      "type": 1,
+      "category": 10
+    },
+    {
+      "id": 1796,
+      "isc": "Reinf. Daiyōkai Dengekitai",
+      "idArmy": 1796,
+      "name": "REINF: DAIYŌKAI Dengekitai",
+      "slug": "reinf-daiy-kai-dengekitai",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-daiy-kai-dengekitai-1-1.svg",
+      "type": 3,
+      "category": 6
+    },
+    {
+      "id": 1798,
+      "isc": "Reinf. Domaru Takeshi",
+      "idArmy": 1798,
+      "name": "REINF: Domaru TAKESHI \u0027NEKO\u0027 OYAMA",
+      "slug": "reinf-domaru-takeshi",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-domaru-takeshi-1-1.svg",
+      "type": 3,
+      "category": 10
+    },
+    {
+      "id": 1800,
+      "isc": "Reinf. Yáoxiè Rui Shi",
+      "idArmy": 1800,
+      "name": " REINF: Yáoxiè RUI SHI",
+      "slug": "reinf-yaoxie-rui-shi",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-yaoxie-rui-shi-1-1.svg",
+      "type": 5,
+      "category": 8
+    },
+    {
+      "id": 1709,
+      "isc": "Reinf. Yáozăo",
+      "idArmy": 1709,
+      "name": "REINF: YÁOZĂO",
+      "slug": "reinf-yaozao",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-yaozao-1-1.svg",
+      "type": 5,
+      "category": 8
+    },
+    {
+      "id": 1792,
+      "isc": "Reinf. Genbutai",
+      "idArmy": 1792,
+      "name": "REINF: GENBUTAI",
+      "slug": "reinf-genbutai",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-genbutai-1-1.svg",
+      "type": 2,
+      "category": 4
+    },
+    {
+      "id": 1835,
+      "isc": "Reinf. Atom Aibōt",
+      "idArmy": 1835,
+      "name": "REINFORCEMENTS: ATOM Aibōt",
+      "slug": "reinf-atom-aib-t",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-atom-aib-t-1-1.svg",
+      "type": 5,
+      "category": 8
+    },
+    {
+      "id": 1836,
+      "isc": "Reinf. Garon Aibōt",
+      "idArmy": 1836,
+      "name": "REINFORCEMENTS: GARON Aibōt",
+      "slug": "reinf-garon-aib-t",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-garon-aib-t-1-1.svg",
+      "type": 5,
+      "category": 8
+    },
+    {
+      "id": 1795,
+      "isc": "Reinf. Shikami",
+      "idArmy": 1795,
+      "name": "REINF: SHIKAMI",
+      "slug": "reinf-shikami",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-shikami-1-1.svg",
+      "type": 3,
+      "category": 5
+    },
+    {
+      "id": 1793,
+      "isc": "Reinf. Kyoshō Saibāyunitto",
+      "idArmy": 1793,
+      "name": "REINF: KYOSHŌ Saibāyunitto",
+      "slug": "reinf-kyosh-saibayunitto",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-kyosh-saibayunitto-1-1.svg",
+      "type": 1,
+      "category": 3
+    },
+    {
+      "id": 1794,
+      "isc": "Reinf. Sōhei Tsugekitai",
+      "idArmy": 1794,
+      "name": "REINF: SŌHEI Tsugekitai",
+      "slug": "reinf-s-hei-tsugekitai",
+      "logo": "https://assets.corvusbelli.net/army/img/logo/units/reinf-s-hei-tsugekitai-1-1.svg",
+      "type": 2,
+      "category": 4
+    }
+  ],
+  "fireteams": [],
+  "relations": [],
+  "specops": {
+    "units": []
+  },
+  "fireteamChart": {
+    "spec": {
+      "CORE": 1,
+      "HARIS": 1,
+      "DUO": 1
+    },
+    "desc": "",
+    "teams": [
+      {
+        "name": "Genbutai Reinforcement Fireteams",
+        "obs": "",
+        "type": [
+          "DUO",
+          "HARIS",
+          "CORE"
+        ],
+        "units": [
+          {
+            "min": 1,
+            "max": 4,
+            "name": "GENBU REINF.",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-genbutai"
+          },
+          {
+            "min": 0,
+            "max": 1,
+            "name": "KYOSHŌ REINF",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-kyosh-saibayunitto"
+          }
+        ]
+      },
+      {
+        "name": "Shōhei Reinforcement Fireteams",
+        "obs": "",
+        "type": [
+          "DUO",
+          "HARIS",
+          "CORE"
+        ],
+        "units": [
+          {
+            "min": 1,
+            "max": 5,
+            "name": "SŌHEI  REINF.",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-s-hei-tsugekitai"
+          },
+          {
+            "min": 0,
+            "max": 1,
+            "name": "DAIYŌKAI REINF.",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-daiy-kai-dengekitai"
+          },
+          {
+            "min": 0,
+            "max": 1,
+            "name": "SHIKAMI REINF.",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-shikami"
+          },
+          {
+            "min": 0,
+            "max": 1,
+            "name": "OYAMA REINF.",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-domaru-takeshi"
+          }
+        ]
+      },
+      {
+        "name": " Reinforcement Wildcards",
+        "obs": "",
+        "type": [],
+        "units": [
+          {
+            "min": 0,
+            "max": 1,
+            "name": "REINF. ATOM AIBŌT",
+            "comment": "",
+            "required": false,
+            "slug": "reinf-atom-aib-t"
+          },
+          {
+            "min": 0,
+            "max": 1,
+            "name": "YURIKO ODA REINF.",
+            "comment": "(GENBU)",
+            "required": false,
+            "slug": "reinf-yuriko-oda"
+          }
+        ]
+      }
+    ]
+  }
+}

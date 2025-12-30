@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="unitFragment(unitPrintCard)">
+    <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
+        <div class="card-content">
+            <th:block
+                    th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
+            </th:block>
+            <div th:class="${unitPrintCard.isShowImage() && showImage} ? 'unit-image-area' : 'non-unit-image-area'"
+                 th:style="${unitPrintCard.isShowImage() && showImage} ? 'background-image: url(' + ${unitPrintCard.getUnitImageName()} + ');' : ''">
+                <div th:class="${unitPrintCard.isShowImage() && showImage} ? 'area-for-image' : 'no-image'">
+                    <div class="attribut-equipment-skill-column">
+                        <th:block
+                                th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">
+                        </th:block>
+
+                        <th:block
+                                th:replace="~{fragments/EquipmentsAndSkills :: equipmentsAndSkills(${unitPrintCard})}">
+                        </th:block>
+                    </div>
+                </div>
+            </div>
+            <th:block
+                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getProfile().getWeapons()}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${unitPrintCard.getProfile()}, ${useInch}, ${unitPrintCard.getMartialArtLevel()})}">
+            </th:block>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -20,7 +20,7 @@ public class ManualConsistencyTest {
 
     @BeforeAll
     static void setUp() {
-        db = new DatabaseImp();
+        db = DatabaseImp.createTimedUpdate();
     }
 
     @Test

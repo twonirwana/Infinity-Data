@@ -26,8 +26,13 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("com.microsoft.playwright:playwright:1.57.0")
+    testImplementation("com.github.romankh3:image-comparison:4.4.0")
+    testImplementation("org.assertj:assertj-core:3.27.6")
+
 }
 
 tasks.test {
     useJUnitPlatform()
+    maxHeapSize = "2g"
 }

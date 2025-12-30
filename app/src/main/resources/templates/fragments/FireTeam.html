@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="fireteamFragment(fireteams, allowedFireteams)">
+    <div class="card" th:if="${fireteams != null and not #lists.isEmpty(fireteams)}">
+
+        <div class="card-header">
+            <h2 class="card-header-title">Fireteam</h2>
+        </div>
+
+        <div class="ft-allowed" th:text="${allowedFireteams}">
+            allowed fireteams
+        </div>
+
+        <div class="two-columns">
+            <div th:each="team : ${fireteams}">
+                <div class="ft-team-name" th:text="${team.getNameAndType()}">
+                    team name and type
+                </div>
+
+                <div class="ft-member" th:each="unit : ${team.getMembers()}">
+                    <div class="flex-grow" th:text="${unit.getMemberCount()}"></div>
+                    <div th:text="${unit.getName()}"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

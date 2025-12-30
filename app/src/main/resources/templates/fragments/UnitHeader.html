@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div class="unit-header" th:fragment="unitHeaderFragment(unitPrintCard)">
+
+    <img th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().getLogo()})}"
+         alt="Logo" class="unit-header-logo">
+
+    <h2 class="card-header-title">
+        <span th:text="${unitPrintCard.getUnitName()}">Trooper Profile Name</span>
+    </h2>
+
+    <div class="unit-header-icon-group">
+        <th:block th:each="imageName : ${unitPrintCard.getIconFileNames()}">
+            <img th:src="@{image/{fileName}(fileName=${imageName})}"
+                 alt="Unit icon" class="unit-header-icon">
+        </th:block>
+    </div>
+</div>
+
+</body>
+</html>

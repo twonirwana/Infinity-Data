@@ -13,8 +13,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import de.twonirwana.infinity.*;
 import de.twonirwana.infinity.fireteam.FireteamChart;
-import de.twonirwana.infinity.fireteam.FireteamChartTeam;
 import de.twonirwana.infinity.fireteam.FireteamChartMember;
+import de.twonirwana.infinity.fireteam.FireteamChartTeam;
 import de.twonirwana.infinity.model.Equipment;
 import de.twonirwana.infinity.model.Faction;
 import de.twonirwana.infinity.model.Metadata;
@@ -43,8 +43,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.twonirwana.infinity.Database.*;
-
 
 @Getter
 @Slf4j
@@ -53,46 +51,54 @@ public class DataLoader {
     private static final String META_DATA_URL = "https://api.corvusbelli.com/army/infinity/en/metadata";
     private static final String UNIT_IMAGE_URL = "https://api.corvusbelli.com/army/units/en/%d/miniatures";
     private static final String META_DATA_FILE_NAME = "metadata.json";
-    private static final String META_DATA_FILE_PATH = RECOURCES_FOLDER + "/" + META_DATA_FILE_NAME;
-    private static final String SECTORIAL_FOLDER = RECOURCES_FOLDER + "/sectorialList/";
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
-    private static final String IMAGE_DATA_FOLDER = RECOURCES_FOLDER + "/sectorialImageData/";
-    private static final String IMAGE_DATA_FILE_FORMAT = IMAGE_DATA_FOLDER + "/sectorialImage%d-%s.json";
-
     private static final String ARCHIVE_FOLDER = "archive";
+
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
-    @Getter
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
-    @Getter
     private final Map<Integer, Sectorial> sectorialIdMap;
-
-    @Getter
     private final List<HackingProgram> allHackingPrograms;
-
-    @Getter
     private final List<MartialArtLevel> allMartialArtLevels;
-
-    @Getter
     private final List<MetaChemistryRoll> metaChemistry;
-
-    @Getter
     private final List<BootyRoll> bootyRolls;
+    private final String logosFolder;
+    private final String resourcesFolder;
+    private final String unitLogosFolder;
+    private final String sectorialLogosFolder;
+    private final String unitImageFolder;
+    private final String customUnitImageFolder;
+    private final String metaDataFilePath;
+    private final String sectorialFolder;
+    private final String imageDataFolder;
+    private final String imageDataFileFormat;
 
-    public DataLoader(boolean forceUpdate) throws IOException, URISyntaxException {
+    public DataLoader(UpdateOption updateOption, String resourcesFolder) throws IOException, URISyntaxException {
+
+        this.resourcesFolder = resourcesFolder == null ? "resources" : resourcesFolder;
+        logosFolder = this.resourcesFolder + "/logo";
+        unitLogosFolder = logosFolder + "/unit";
+        sectorialLogosFolder = logosFolder + "/sectorial";
+        unitImageFolder = this.resourcesFolder + "/image/unit/";
+        customUnitImageFolder = this.resourcesFolder + "/image/customUnit/";
+        metaDataFilePath = this.resourcesFolder + "/" + META_DATA_FILE_NAME;
+        sectorialFolder = this.resourcesFolder + "/sectorialList/";
+        imageDataFolder = this.resourcesFolder + "/sectorialImageData/";
+        imageDataFileFormat = imageDataFolder + "/sectorialImage%d-%s.json";
 
         //needed to set headers to allow download
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
-        createFolderIfNotExists(CUSTOM_UNIT_IMAGE_FOLDER);
+        createFolderIfNotExists(customUnitImageFolder);
 
-        long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(META_DATA_FILE_PATH).toFile().lastModified();
+        long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(metaDataFilePath).toFile().lastModified();
         boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
 
-        boolean update = forceUpdate || fileOutOfDate;
-        if (update) {
+        final boolean updateNow = updateOption == UpdateOption.FORCE_UPDATE ||
+                (fileOutOfDate && updateOption == UpdateOption.TIMED_UPDATE);
+        if (updateNow) {
             log.info("update all files");
         }
-        Metadata metadata = loadMetadata(update);
+        Metadata metadata = loadMetadata(updateNow);
 
         sectorialIdMap = metadata.getFactions().stream()
                 .filter(f -> f.getId() != 901) // NA2 doesn't have a vanilla option
@@ -104,7 +110,7 @@ public class DataLoader {
                         Utils.getFileNameFromUrl(f.getLogo())))
                 .collect(Collectors.toMap(Sectorial::getId, Function.identity()));
         Map<Sectorial, SectorialList> sectorialListMap = sectorialIdMap.values().stream()
-                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f.getId(), f.getSlug(), update)));
+                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f.getId(), f.getSlug(), updateNow)));
 
         Map<Sectorial, SectorialList> reenforcementListMap = sectorialListMap.entrySet().stream()
                 .flatMap(e -> {
@@ -116,15 +122,15 @@ public class DataLoader {
                     }
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, e ->
-                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", update)));
+                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", updateNow)));
 
         //todo ref image
         sectorialIdMap.values()
-                .forEach(s -> downloadImageDataFile(s, update));
+                .forEach(s -> downloadImageDataFile(s, updateNow));
         Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
-                .filter(s -> Paths.get(IMAGE_DATA_FILE_FORMAT.formatted(s.getId(), s.getSlug())).toFile().exists())
-                .collect(Collectors.toMap(Function.identity(), s -> deserializeSectorialImage(Paths.get(IMAGE_DATA_FILE_FORMAT.formatted(s.getId(), s.getSlug())))));
-        if (update) {
+                .filter(s -> Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())).toFile().exists())
+                .collect(Collectors.toMap(Function.identity(), s -> deserializeSectorialImage(Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())))));
+        if (updateNow) {
             downloadAllUnitImage(sectorialImageMap);
             downloadAllUnitLogos(sectorialListMap.values().stream()
                     .flatMap(u -> u.getUnits().stream())
@@ -222,19 +228,6 @@ public class DataLoader {
                 .toList();
     }
 
-    private static void downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {
-        createFolderIfNotExists(IMAGE_DATA_FOLDER);
-        Path path = Paths.get(IMAGE_DATA_FILE_FORMAT.formatted(sectorial.getId(), sectorial.getSlug()));
-        if (!path.toFile().exists() || forceUpdate) {
-            try {
-                BufferedInputStream in = getStreamForURL(UNIT_IMAGE_URL.formatted(sectorial.getId()));
-                savePrettyJson(in, path);
-            } catch (IOException | URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     private static void downloadFileInFolder(String urlString, String folderPath) {
         try {
             createFolderIfNotExists(folderPath);
@@ -260,21 +253,6 @@ public class DataLoader {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static SectorialList loadSectorial(int id, String name, boolean forceUpdate) {
-        createFolderIfNotExists(SECTORIAL_FOLDER);
-        Path path = Paths.get(SECTORIAL_FOLDER, SECTORIAL_FILE_FORMAT.formatted(id, name));
-        if (!path.toFile().exists() || forceUpdate) {
-            try {
-                BufferedInputStream in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
-                savePrettyJson(in, path);
-            } catch (IOException | URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return deserializeSectorialList(path);
     }
 
     //gson has the better pretty print format
@@ -332,9 +310,45 @@ public class DataLoader {
         }
     }
 
-    private static Metadata loadMetadata(boolean forceUpdate) throws IOException, URISyntaxException {
-        createFolderIfNotExists(RECOURCES_FOLDER);
-        Path path = Paths.get(META_DATA_FILE_PATH);
+    private static BufferedInputStream getStreamForURL(String urlString) throws IOException, URISyntaxException {
+        URL url = new URI(urlString).toURL();
+        URLConnection urlConnection = url.openConnection();
+        urlConnection.setRequestProperty("Origin", "https://infinitytheuniverse.com");
+        urlConnection.setRequestProperty("Referer", "https://infinitytheuniverse.com/");
+        return new BufferedInputStream(urlConnection.getInputStream());
+    }
+
+    private void downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {
+        createFolderIfNotExists(imageDataFolder);
+        Path path = Paths.get(imageDataFileFormat.formatted(sectorial.getId(), sectorial.getSlug()));
+        if (!path.toFile().exists() || forceUpdate) {
+            try {
+                BufferedInputStream in = getStreamForURL(UNIT_IMAGE_URL.formatted(sectorial.getId()));
+                savePrettyJson(in, path);
+            } catch (IOException | URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private SectorialList loadSectorial(int id, String name, boolean forceUpdate) {
+        createFolderIfNotExists(sectorialFolder);
+        Path path = Paths.get(sectorialFolder, SECTORIAL_FILE_FORMAT.formatted(id, name));
+        if (!path.toFile().exists() || forceUpdate) {
+            try {
+                BufferedInputStream in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
+                savePrettyJson(in, path);
+            } catch (IOException | URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return deserializeSectorialList(path);
+    }
+
+    private Metadata loadMetadata(boolean forceUpdate) throws IOException, URISyntaxException {
+        createFolderIfNotExists(resourcesFolder);
+        Path path = Paths.get(metaDataFilePath);
         if (!path.toFile().exists() || forceUpdate) {
             BufferedInputStream metaDataInput = getStreamForURL(META_DATA_URL);
             savePrettyJson(metaDataInput, path);
@@ -344,55 +358,47 @@ public class DataLoader {
         return om.readValue(path.toFile(), Metadata.class);
     }
 
-    private static BufferedInputStream getStreamForURL(String urlString) throws IOException, URISyntaxException {
-        URL url = new URI(urlString).toURL();
-        URLConnection urlConnection = url.openConnection();
-        urlConnection.setRequestProperty("Origin", "https://infinitytheuniverse.com");
-        urlConnection.setRequestProperty("Referer", "https://infinitytheuniverse.com/");
-        return new BufferedInputStream(urlConnection.getInputStream());
-    }
-
-    private static void copyNewVersionIntoArchive(Map<Sectorial, SectorialList> sectorialListMap) {
+    private void copyNewVersionIntoArchive(Map<Sectorial, SectorialList> sectorialListMap) {
         try {
 
-            ByteSource byteSource = com.google.common.io.Files.asByteSource(new File(META_DATA_FILE_PATH));
+            ByteSource byteSource = com.google.common.io.Files.asByteSource(new File(metaDataFilePath));
             HashCode hc = byteSource.hash(Hashing.murmur3_32_fixed());
             String checksum = hc.toString();
             String metaDataArchivePath = ARCHIVE_FOLDER + "/" + checksum;
             createFolderIfNotExists(metaDataArchivePath);
-            Files.copy(Path.of(META_DATA_FILE_PATH), Path.of(metaDataArchivePath + "/" + META_DATA_FILE_NAME), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(Path.of(metaDataFilePath), Path.of(metaDataArchivePath + "/" + META_DATA_FILE_NAME), StandardCopyOption.REPLACE_EXISTING);
 
             for (Map.Entry<Sectorial, SectorialList> sectorial : sectorialListMap.entrySet()) {
                 Sectorial se = sectorial.getKey();
                 String fileName = SECTORIAL_FILE_FORMAT.formatted(se.getId(), se.getSlug());
                 String versionArchivePath = ARCHIVE_FOLDER + "/" + sectorial.getValue().getVersion();
                 createFolderIfNotExists(versionArchivePath);
-                Files.copy(Path.of(SECTORIAL_FOLDER, fileName), Path.of(versionArchivePath, fileName), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(Path.of(sectorialFolder, fileName), Path.of(versionArchivePath, fileName), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void downloadAllSectorialLogos(Set<String> logoUrls) {
-        createFolderIfNotExists(SECTORIAL_LOGOS_FOLDER);
-        logoUrls.forEach(logo -> downloadFileInFolder(logo, SECTORIAL_LOGOS_FOLDER));
+    private void downloadAllSectorialLogos(Set<String> logoUrls) {
+        createFolderIfNotExists(sectorialLogosFolder);
+        logoUrls.forEach(logo -> downloadFileInFolder(logo, sectorialLogosFolder));
     }
 
-    private static void downloadAllUnitImage(Map<Sectorial, SectorialImage> sectorialImageMap) {
-        createFolderIfNotExists(UNIT_IMAGE_FOLDER);
+    private void downloadAllUnitImage(Map<Sectorial, SectorialImage> sectorialImageMap) {
+        createFolderIfNotExists(unitImageFolder);
         sectorialImageMap.values().stream()
                 .flatMap(i -> i.getUnits().stream())
                 .flatMap(u -> u.getProfileGroups().stream())
                 .flatMap(g -> g.getImgOptions().stream())
                 .map(ImgOption::getUrl)
                 .distinct()
-                .forEach(url -> downloadFileInFolder(url, UNIT_IMAGE_FOLDER));
+                .forEach(url -> downloadFileInFolder(url, unitImageFolder));
     }
 
-    private static void downloadAllUnitLogos(Set<String> logoUrls) {
-        createFolderIfNotExists(UNIT_LOGOS_FOLDER);
-        logoUrls.forEach(logo -> downloadFileInFolder(logo, UNIT_LOGOS_FOLDER));
+    private void downloadAllUnitLogos(Set<String> logoUrls) {
+        createFolderIfNotExists(unitLogosFolder);
+        logoUrls.forEach(logo -> downloadFileInFolder(logo, unitLogosFolder));
     }
 
     public List<UnitOption> getAllUnitsForSectorial(Sectorial sectorial) {
@@ -414,5 +420,11 @@ public class DataLoader {
                 .filter(u -> !u.isMerc())
                 .toList();
 
+    }
+
+    public enum UpdateOption {
+        FORCE_UPDATE,
+        TIMED_UPDATE,
+        NEVER_UPDATE
     }
 }

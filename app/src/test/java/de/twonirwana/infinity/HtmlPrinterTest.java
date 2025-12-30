@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class HtmlPrinterTest {
 
     @BeforeEach
     void setup() {
-        underTest = new HtmlPrinter();
+        underTest = new HtmlPrinter(() -> LocalDate.of(2025, 12, 23).atStartOfDay());
         sectorial = new Sectorial(1, 1, "name", "slug", false, "logo.png");
 
         List<Skill> skills = List.of(

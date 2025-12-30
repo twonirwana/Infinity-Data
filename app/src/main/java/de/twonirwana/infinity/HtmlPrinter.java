@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.fireteam.FireteamChart;
 import de.twonirwana.infinity.unit.api.*;
@@ -17,12 +18,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static de.twonirwana.infinity.Database.*;
 
 @Slf4j
 public class HtmlPrinter {
@@ -65,21 +65,21 @@ public class HtmlPrinter {
             700, "black"
     );
     private static final Map<String, String> RANGE_CLASS_MAP = Map.of(
-            "0", "range0",
-            "0*", "range0", //x-visor modified
-            "-3", "rangeMinus3",
-            "-3*", "rangeMinus3", //x-visor modified
-            "+3", "rangePlus3",
-            "-6", "rangeMinus6",
-            "+6", "rangePlus6");
+            "0", "range-0",
+            "0*", "range-0", //x-visor modified
+            "-3", "range-minus-3",
+            "-3*", "range-minus-3", //x-visor modified
+            "+3", "range-plus-3",
+            "-6", "range-minus-6",
+            "+6", "range-plus-6");
     private static final Map<String, String> BW_RANGE_CLASS_MAP = Map.of(
-            "0", "bwRange0",
-            "0*", "bwRange0", //x-visor modified
-            "-3", "bwRangeMinus3",
-            "-3*", "bwRangeMinus3", //x-visor modified
-            "+3", "bwRangePlus3",
-            "-6", "bwRangeMinus6",
-            "+6", "bwRangePlus6");
+            "0", "bw-range-0",
+            "0*", "bw-range-0", //x-visor modified
+            "-3", "bw-range-minus-3",
+            "-3*", "bw-range-minus-3", //x-visor modified
+            "+3", "bw-range-plus-3",
+            "-6", "bw-range-minus-6",
+            "+6", "bw-range-plus-6");
     private static final List<String> ICON_FILE_NAMES = List.of(
             "cube.svg",
             "cube-2.svg",
@@ -92,8 +92,10 @@ public class HtmlPrinter {
             "tactical.svg"
     );
     private final TemplateEngine templateEngine;
+    private final Supplier<LocalDateTime> currentTimeSupplier;
 
-    public HtmlPrinter() {
+    public HtmlPrinter(Supplier<LocalDateTime> currentTimeSupplier) {
+        this.currentTimeSupplier = currentTimeSupplier;
         ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
         resolver.setPrefix("templates/");
         resolver.setSuffix(".html");
@@ -113,6 +115,9 @@ public class HtmlPrinter {
                                      ArmyList armyList,
                                      FireteamChart fireteamChart,
                                      Sectorial sectorial,
+                                     String unitImagePath,
+                                     String customUnitImagePath,
+                                     String logoImagePath,
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
@@ -132,9 +137,9 @@ public class HtmlPrinter {
                 fileName,
                 armyCode,
                 sectorial,
-                UNIT_IMAGE_FOLDER,
-                CUSTOM_UNIT_IMAGE_FOLDER,
-                UNIT_LOGOS_FOLDER,
+                unitImagePath,
+                customUnitImagePath,
+                logoImagePath,
                 CARD_FOLDER,
                 useInch,
                 showSavingRollInsteadOfAmmo,
@@ -149,7 +154,16 @@ public class HtmlPrinter {
         db.getAllSectorials().stream()
                 .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u, db.getAllMartialArtLevels(), UNIT_IMAGE_FOLDER, CUSTOM_UNIT_IMAGE_FOLDER, UNIT_LOGOS_FOLDER, "all/" + u.getSectorial().getSlug(), useInch, false, false, template));
+                .forEach(u -> writeToFile(u,
+                        db.getAllMartialArtLevels(),
+                        db.getUnitImageFolder(),
+                        db.getCustomUnitImageFolder(),
+                        db.getUnitLogosFolder(),
+                        "all/" + u.getSectorial().getSlug(),
+                        useInch,
+                        false,
+                        false,
+                        template));
     }
 
     private void copyFile(String fileName, String sourcePath, String outPath) {
@@ -388,7 +402,7 @@ public class HtmlPrinter {
         context.setVariable("headerColor", headerColor);
         context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
         context.setVariable("printUtils", new PrintUtils());
-        context.setVariable("programs", programsCard1);
+        context.setVariable("programs1", programsCard1);
         context.setVariable("programs2", programsCard2);
         context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(allMetaChemistryRolls) : List.of());
         context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(allBootyRolls) : List.of());
@@ -401,6 +415,8 @@ public class HtmlPrinter {
         context.setVariable("armyListTitel", armyListTitel);
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
+        context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
+        context.setVariable("showImage", template.supportImages);
 
         String savePath = "%s/%s.html".formatted(outputPath, fileName);
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -490,14 +506,16 @@ public class HtmlPrinter {
 
     @AllArgsConstructor
     public enum Template {
-        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7),
-        a4_image("ColorAndOptionalImageCard", 297, 210, 10),
-        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9),
-        letter_image("ColorAndOptionalImageCard", 279, 216, 10),
-        card_bw("CardBW", 0, 0, 0);
+        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7, true),
+        a4_image("ColorAndOptionalImageCard", 297, 210, 10, true),
+        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9, true),
+        letter_image("ColorAndOptionalImageCard", 279, 216, 10, true),
+        a4_overview("OverviewList", 210, 297, Integer.MAX_VALUE, false),
+        card_bw("CardBW", 0, 0, 0, false);
         final String fileName;
         final int widthInMm;
         final int heightInMm;
         final int numberOfHackingProgramsPerCard;
+        final boolean supportImages;
     }
 }

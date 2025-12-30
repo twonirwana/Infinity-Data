@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,12 +47,12 @@ public class ManualHtmlPrinterTest {
     static Pattern combinedIdPattern = Pattern.compile("combinedId:(\\d+-\\d+-\\d+-\\d+-\\d+)\"");
     static Pattern armyCodePattern = Pattern.compile("<meta name=\"armyCode\" content=\"(.+)\">");
     static Database db;
-    HtmlPrinter underTest = new HtmlPrinter();
+    HtmlPrinter underTest = new HtmlPrinter(() -> LocalDate.of(2025, 12, 23).atStartOfDay());
     String fileName;
 
     @BeforeAll
     static void setUp() {
-        db = new DatabaseImp();
+        db = DatabaseImp.createTimedUpdate();
     }
 
     static List<String> findAllRegex(String content, Pattern pattern) {
@@ -144,7 +145,26 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions, db.getAllHackingPrograms(), db.getAllMartialArtLevels(), db.getAllBootyRolls(), db.getAllMetaChemistryRolls(), al, db.getFireteamChart(al.getSectorial()), al.getSectorial(), fileName, armyCode, useInch, showSavingRollInsteadOfAmmo, reduceColor, weaponOption, showImage, showHackingPrograms, template);
+        underTest.printCardForArmyCode(armyListOptions,
+                db.getAllHackingPrograms(),
+                db.getAllMartialArtLevels(),
+                db.getAllBootyRolls(),
+                db.getAllMetaChemistryRolls(),
+                al,
+                db.getFireteamChart(al.getSectorial()),
+                al.getSectorial(),
+                db.getUnitImageFolder(),
+                db.getCustomUnitImageFolder(),
+                db.getUnitLogosFolder(),
+                fileName,
+                armyCode,
+                useInch,
+                showSavingRollInsteadOfAmmo,
+                reduceColor,
+                weaponOption,
+                showImage,
+                showHackingPrograms,
+                template);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

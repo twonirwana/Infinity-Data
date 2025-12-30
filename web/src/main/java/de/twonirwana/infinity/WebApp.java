@@ -2,6 +2,7 @@ package de.twonirwana.infinity;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.google.common.base.Supplier;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.HashUtil;
@@ -30,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,8 +39,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static de.twonirwana.infinity.Database.CUSTOM_UNIT_IMAGE_FOLDER;
-import static de.twonirwana.infinity.Database.UNIT_IMAGE_FOLDER;
 
 @Slf4j
 public class WebApp {
@@ -52,13 +52,16 @@ public class WebApp {
     private final static String CM_UNIT_KEY = "cm";
 
     public static void main(String[] args) {
-        final long startupTime = System.currentTimeMillis();
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
+        createWebApp(DatabaseImp.createTimedUpdate(), LocalDateTime::now).start(host, port);
+    }
+
+    static Javalin createWebApp(final Database database, Supplier<LocalDateTime> currentTimeSupplier) {
+        final long startupTime = System.currentTimeMillis();
         String contextPath = Config.get("server.contextPath", "/");
 
-        Database database = new DatabaseImp();
-        HtmlPrinter htmlPrinter = new HtmlPrinter();
+        HtmlPrinter htmlPrinter = new HtmlPrinter(currentTimeSupplier);
         createFolderIfNotExists(CARD_FOLDER);
         createFolderIfNotExists(CARD_IMAGE_FOLDER);
 
@@ -89,25 +92,24 @@ public class WebApp {
                     .parallel()
                     .forEach(p -> p.getImageNames().forEach(image -> {
                         counter.incrementAndGet();
-                        ImageUtils.autoCrop(UNIT_IMAGE_FOLDER + image,
+                        ImageUtils.autoCrop(database.getUnitImageFolder() + image,
                                 CARD_IMAGE_FOLDER + p.getCombinedProfileId() + ".png");
                     }));
             log.info("Pre crop {} images found in database.", counter.get());
             //customUnitImages have priority and overwrite CB Images
-            copyFiles(CUSTOM_UNIT_IMAGE_FOLDER, CARD_IMAGE_FOLDER);
+            copyFiles(database.getCustomUnitImageFolder(), CARD_IMAGE_FOLDER);
         }
 
         Javalin webApp = Javalin.create(config -> {
-                    config.staticFiles.add(staticFileConfig -> {
-                        staticFileConfig.hostedPath = "/view/image";
-                        staticFileConfig.directory = CARD_IMAGE_FOLDER;
-                        staticFileConfig.location = Location.EXTERNAL;
-                    });
-                    config.fileRenderer(new JavalinThymeleaf());
-                    config.router.contextPath = contextPath;
-                    config.registerPlugin(micrometerPlugin);
-                })
-                .start(host, port);
+            config.staticFiles.add(staticFileConfig -> {
+                staticFileConfig.hostedPath = "/view/image";
+                staticFileConfig.directory = CARD_IMAGE_FOLDER;
+                staticFileConfig.location = Location.EXTERNAL;
+            });
+            config.fileRenderer(new JavalinThymeleaf());
+            config.router.contextPath = contextPath;
+            config.registerPlugin(micrometerPlugin);
+        });
 
         webApp.get("/favicon.ico", ctx -> {
             ctx.contentType("image/x-icon");
@@ -128,6 +130,8 @@ public class WebApp {
         helpPage(webApp, registry);
 
         prometheusPage(registry, webApp);
+
+        return webApp;
     }
 
     private static void prometheusPage(PrometheusMeterRegistry registry, Javalin webApp) {
@@ -293,6 +297,9 @@ public class WebApp {
                         al,
                         database.getFireteamChart(al.getSectorial()),
                         al.getSectorial(),
+                        database.getUnitImageFolder(),
+                        database.getCustomUnitImageFolder(),
+                        database.getUnitLogosFolder(),
                         fileName,
                         armyCode,
                         useInch,
