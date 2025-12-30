@@ -88,9 +88,7 @@ public class PlaywrightScreenshotTest {
         page.getByLabel("Your army code:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBkAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABwCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgKIBAgAAhyMBAgA%3D");
 
 
-        Page newPage = page.waitForPopup(() -> {
-            page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click();
-        });
+        Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());
 
         newPage.waitForLoadState();
         byte[] actualImageBytes = newPage.screenshot(new Page.ScreenshotOptions()
@@ -123,7 +121,7 @@ public class PlaywrightScreenshotTest {
         context.close();
     }
 
-    private static enum BrowserTyp {
+    private enum BrowserTyp {
         CHROMIUM,
         FIREFOX,
         WEBKIT
