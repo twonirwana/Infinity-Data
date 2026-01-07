@@ -23,7 +23,7 @@ dependencies {
     implementation("io.avaje:avaje-config:5.0")
     implementation("io.avaje:avaje-applog-slf4j:1.0")
 
-    testImplementation(platform("org.junit:junit-bom:6.0.1"))
+    testImplementation(platform("org.junit:junit-bom:6.0.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("com.microsoft.playwright:playwright:1.57.0")
