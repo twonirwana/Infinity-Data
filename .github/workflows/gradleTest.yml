@@ -17,10 +17,10 @@ jobs:
       image: mcr.microsoft.com/playwright/java:v1.41.0-jammy
 
     steps:
-      - name: Install Git
+      - name: Install Git & playwright deps
         run: |
           apt-get update
-          apt-get install -y git  
+          apt-get install -y git  libgtk-4-1 libavif13
 
       - name: Checkout Code
         uses: actions/checkout@v4
