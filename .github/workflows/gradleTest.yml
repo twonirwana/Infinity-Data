@@ -25,6 +25,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Git Safe Directory
+        run: git config --global --add safe.directory '*' # Allow container to access git dir owned by runner
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
