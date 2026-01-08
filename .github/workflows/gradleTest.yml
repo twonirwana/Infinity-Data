@@ -16,6 +16,9 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
 
+    env:
+      HOME: /root
+
     steps:
       - name: Install Git
         run: |
@@ -50,4 +53,3 @@ jobs:
           name: test-report
           path: |
             **/build/reports/tests/
-            
