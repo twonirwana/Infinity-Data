@@ -14,13 +14,13 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright/java:v1.41.0-jammy
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
 
     steps:
-      - name: Install Git & playwright deps
+      - name: Install Git
         run: |
           apt-get update
-          apt-get install -y git  libgtk-4-1 libavif13
+          apt-get install -y git
 
       - name: Checkout Code
         uses: actions/checkout@v4
