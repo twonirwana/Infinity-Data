@@ -98,7 +98,7 @@ public class PlaywrightScreenshotTest {
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {
-            ImageIO.write(actual, "png", new File("playwright/" + fileName + "_expected.png"));
+            ImageIO.write(actual, "png", new File("playwright/result/" + fileName + "_expected.png"));
             Assertions.fail();
         }
 
@@ -109,8 +109,8 @@ public class PlaywrightScreenshotTest {
 
 
         if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-            ImageIO.write(result.getResult(), "png", new File("playwright/" + fileName + "_diff_" + System.currentTimeMillis() + ".png"));
-            ImageIO.write(actual, "png", new File("playwright/" + fileName + "_actual_" + System.currentTimeMillis() + ".png"));
+            ImageIO.write(result.getResult(), "png", new File("playwright/result/" + fileName + "_diff_" + System.currentTimeMillis() + ".png"));
+            ImageIO.write(actual, "png", new File("playwright/result/" + fileName + "_actual_" + System.currentTimeMillis() + ".png"));
         }
 
         Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
