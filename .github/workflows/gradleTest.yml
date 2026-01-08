@@ -11,7 +11,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -53,3 +52,4 @@ jobs:
           name: test-report
           path: |
             **/build/reports/tests/
+            /web/playwright/result/
