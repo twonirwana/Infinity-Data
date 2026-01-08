@@ -19,6 +19,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -27,6 +29,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 
 public class PlaywrightScreenshotTest {
 
+    static final String RESULT_FOLDER = "playwright/result/";
     static Playwright playwright;
     static Browser chromium;
     static Browser firefox;
@@ -50,6 +53,16 @@ public class PlaywrightScreenshotTest {
         chromium = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
         firefox = playwright.firefox().launch(new BrowserType.LaunchOptions().setHeadless(true));
         webkit = playwright.webkit().launch(new BrowserType.LaunchOptions().setHeadless(true));
+
+        Path RESULT_PATH = Path.of(RESULT_FOLDER);
+        try {
+            if (Files.notExists(RESULT_PATH)) {
+                Files.createDirectories(RESULT_PATH);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @AfterAll
@@ -98,7 +111,7 @@ public class PlaywrightScreenshotTest {
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {
-            ImageIO.write(actual, "png", new File("playwright/result/" + fileName + "_expected.png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
             Assertions.fail();
         }
 
@@ -109,8 +122,8 @@ public class PlaywrightScreenshotTest {
 
 
         if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-            ImageIO.write(result.getResult(), "png", new File("playwright/result/" + fileName + "_diff_" + System.currentTimeMillis() + ".png"));
-            ImageIO.write(actual, "png", new File("playwright/result/" + fileName + "_actual_" + System.currentTimeMillis() + ".png"));
+            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + System.currentTimeMillis() + ".png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_actual_" + System.currentTimeMillis() + ".png"));
         }
 
         Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
