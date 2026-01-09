@@ -30,6 +30,7 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 public class PlaywrightScreenshotTest {
 
     static final String RESULT_FOLDER = "playwright/result/";
+    static final long TEST_ID = System.currentTimeMillis();
     static Playwright playwright;
     static Browser chromium;
     static Browser firefox;
@@ -122,8 +123,8 @@ public class PlaywrightScreenshotTest {
 
 
         if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + System.currentTimeMillis() + ".png"));
-            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_actual_" + System.currentTimeMillis() + ".png"));
+            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_actual_" + TEST_ID + ".png"));
         }
 
         Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
