@@ -25,9 +25,21 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@Testcontainers
 public class PlaywrightScreenshotTest {
+
+    @Container
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.57.0-noble")
+            .withExposedPorts(3000)
+            .withCommand("/bin/bash", "-c", "npx -y playwright run-server --port 3000 --host 0.0.0.0")
+            .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
 
     static final String RESULT_FOLDER = "playwright/result/";
     static final long TEST_ID = System.currentTimeMillis();
@@ -46,14 +58,12 @@ public class PlaywrightScreenshotTest {
         Javalin app = WebApp.createWebApp(database, () -> LocalDate.of(2025, 12, 23).atStartOfDay());
         app.start(0);
 
-        int port = app.port();
-        baseUrl = "http://localhost:" + port;
-        System.out.println("Test server running at: " + baseUrl);
+        String wsEndpoint = "ws://" + playwrightContainer.getHost() + ":" + playwrightContainer.getMappedPort(3000) + "/";
 
         playwright = Playwright.create();
-        chromium = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
-        firefox = playwright.firefox().launch(new BrowserType.LaunchOptions().setHeadless(true));
-        webkit = playwright.webkit().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        chromium = playwright.chromium().connect(wsEndpoint);
+        firefox = playwright.firefox().connect(wsEndpoint);
+        webkit = playwright.webkit().connect(wsEndpoint);
 
         Path RESULT_PATH = Path.of(RESULT_FOLDER);
         try {
