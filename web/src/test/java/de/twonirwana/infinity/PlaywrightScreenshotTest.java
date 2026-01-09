@@ -3,7 +3,10 @@ package de.twonirwana.infinity;
 import com.github.romankh3.image.comparison.ImageComparison;
 import com.github.romankh3.image.comparison.model.ImageComparisonResult;
 import com.github.romankh3.image.comparison.model.ImageComparisonState;
-import com.microsoft.playwright.*;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import io.javalin.Javalin;
 import org.assertj.core.api.Assertions;
@@ -13,6 +16,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -25,24 +32,23 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+/**
+ * Using Army Code: hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABQCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QA%3D
+ */
 @Testcontainers
 public class PlaywrightScreenshotTest {
 
-    @Container
-    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.57.0-noble")
-            .withExposedPorts(3000)
-            .withCommand("/bin/bash", "-c", "npx -y playwright run-server --port 3000 --host 0.0.0.0")
-            .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
-
     static final String RESULT_FOLDER = "playwright/result/";
     static final long TEST_ID = System.currentTimeMillis();
+    static final int CONTAINER_PORT = 3000;
+    @Container
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.57.0-noble")
+            .withExposedPorts(CONTAINER_PORT)
+            .withExtraHost("host.docker.internal", "host-gateway")
+            .withCommand("/bin/bash", "-c", "npx -y playwright run-server --port 3000 --host 0.0.0.0")
+            .waitingFor(Wait.forListeningPort());
     static Playwright playwright;
     static Browser chromium;
     static Browser firefox;
@@ -50,15 +56,15 @@ public class PlaywrightScreenshotTest {
     static String baseUrl;
     BrowserContext context;
     Page page;
-//hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABQCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QA%3D
 
     @BeforeAll
     public static void setupGlobal() {
         Database database = DatabaseImp.createWithoutUpdate("playwright/resources");
         Javalin app = WebApp.createWebApp(database, () -> LocalDate.of(2025, 12, 23).atStartOfDay());
         app.start(0);
+        baseUrl = "http://host.docker.internal:" + app.port() + "/";
 
-        String wsEndpoint = "ws://" + playwrightContainer.getHost() + ":" + playwrightContainer.getMappedPort(3000) + "/";
+        String wsEndpoint = "ws://" + playwrightContainer.getHost() + ":" + playwrightContainer.getMappedPort(CONTAINER_PORT) + "/";
 
         playwright = Playwright.create();
         chromium = playwright.chromium().connect(wsEndpoint);
@@ -105,7 +111,7 @@ public class PlaywrightScreenshotTest {
         context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1920, 1080));
         page = context.newPage();
-        page.navigate(baseUrl + "/");
+        page.navigate(baseUrl);
         page.waitForLoadState();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Select Card Style:").selectOption(template.name());
