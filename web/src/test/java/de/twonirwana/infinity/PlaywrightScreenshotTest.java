@@ -42,12 +42,8 @@ public class PlaywrightScreenshotTest {
 
     static final String RESULT_FOLDER = "playwright/result/";
     static final long TEST_ID = System.currentTimeMillis();
-    static final int CONTAINER_PORT = 3000;
     @Container
     static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.57.0-noble")
-            .withExposedPorts(CONTAINER_PORT)
-            .withExtraHost("host.docker.internal", "host-gateway")
-            .withCommand("/bin/bash", "-c", "npx -y playwright run-server --port 3000 --host 0.0.0.0")
             .waitingFor(Wait.forListeningPort());
     static Playwright playwright;
     static Browser chromium;
@@ -61,15 +57,13 @@ public class PlaywrightScreenshotTest {
     public static void setupGlobal() {
         Database database = DatabaseImp.createWithoutUpdate("playwright/resources");
         Javalin app = WebApp.createWebApp(database, () -> LocalDate.of(2025, 12, 23).atStartOfDay());
-        app.start(0);
-        baseUrl = "http://host.docker.internal:" + app.port() + "/";
-
-        String wsEndpoint = "ws://" + playwrightContainer.getHost() + ":" + playwrightContainer.getMappedPort(CONTAINER_PORT) + "/";
+        app.start("localhost", 0);
+        baseUrl = "http://localhost:" + app.port() + "/";
 
         playwright = Playwright.create();
-        chromium = playwright.chromium().connect(wsEndpoint);
-        firefox = playwright.firefox().connect(wsEndpoint);
-        webkit = playwright.webkit().connect(wsEndpoint);
+        chromium = playwright.chromium().launch();
+        firefox = playwright.firefox().launch();
+        webkit = playwright.webkit().launch();
 
         Path RESULT_PATH = Path.of(RESULT_FOLDER);
         try {
