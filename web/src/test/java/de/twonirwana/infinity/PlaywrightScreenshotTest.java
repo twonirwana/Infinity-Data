@@ -3,7 +3,10 @@ package de.twonirwana.infinity;
 import com.github.romankh3.image.comparison.ImageComparison;
 import com.github.romankh3.image.comparison.model.ImageComparisonResult;
 import com.github.romankh3.image.comparison.model.ImageComparisonState;
-import com.microsoft.playwright.*;
+import com.microsoft.playwright.Browser;
+import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.Page;
+import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import io.javalin.Javalin;
 import org.assertj.core.api.Assertions;
@@ -13,20 +16,39 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+/**
+ * Using Army Code: hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABQCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QA%3D
+ */
+@Testcontainers
 public class PlaywrightScreenshotTest {
 
+    static final String RESULT_FOLDER = "playwright/result/";
+    static final long TEST_ID = System.currentTimeMillis();
+    static final int PLAYWRIGHT_PORT = 3000;
+    @Container
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.57.0-noble")
+            .withExposedPorts(PLAYWRIGHT_PORT)
+            .withAccessToHost(true)
+            .withCommand("/bin/bash", "-c", "npx -y playwright run-server --port 3000 --host 0.0.0.0")
+            .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
     static Playwright playwright;
     static Browser chromium;
     static Browser firefox;
@@ -34,22 +56,31 @@ public class PlaywrightScreenshotTest {
     static String baseUrl;
     BrowserContext context;
     Page page;
-//hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABQCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QA%3D
 
     @BeforeAll
     public static void setupGlobal() {
         Database database = DatabaseImp.createWithoutUpdate("playwright/resources");
         Javalin app = WebApp.createWebApp(database, () -> LocalDate.of(2025, 12, 23).atStartOfDay());
         app.start(0);
+        org.testcontainers.Testcontainers.exposeHostPorts(app.port());
+        baseUrl = "http://host.testcontainers.internal:" + app.port() + "/";
 
-        int port = app.port();
-        baseUrl = "http://localhost:" + port;
-        System.out.println("Test server running at: " + baseUrl);
+        String wsEndpoint = "ws://" + playwrightContainer.getHost() + ":" + playwrightContainer.getMappedPort(PLAYWRIGHT_PORT) + "/";
 
         playwright = Playwright.create();
-        chromium = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
-        firefox = playwright.firefox().launch(new BrowserType.LaunchOptions().setHeadless(true));
-        webkit = playwright.webkit().launch(new BrowserType.LaunchOptions().setHeadless(true));
+        chromium = playwright.chromium().connect(wsEndpoint);
+        firefox = playwright.firefox().connect(wsEndpoint);
+        webkit = playwright.webkit().connect(wsEndpoint);
+
+        Path RESULT_PATH = Path.of(RESULT_FOLDER);
+        try {
+            if (Files.notExists(RESULT_PATH)) {
+                Files.createDirectories(RESULT_PATH);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @AfterAll
@@ -81,7 +112,7 @@ public class PlaywrightScreenshotTest {
         context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1920, 1080));
         page = context.newPage();
-        page.navigate(baseUrl + "/");
+        page.navigate(baseUrl);
         page.waitForLoadState();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Select Card Style:").selectOption(template.name());
@@ -98,7 +129,7 @@ public class PlaywrightScreenshotTest {
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {
-            ImageIO.write(actual, "png", new File("playwright/" + fileName + "_expected.png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
             Assertions.fail();
         }
 
@@ -109,8 +140,8 @@ public class PlaywrightScreenshotTest {
 
 
         if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-            ImageIO.write(result.getResult(), "png", new File("playwright/" + fileName + "_diff_" + System.currentTimeMillis() + ".png"));
-            ImageIO.write(actual, "png", new File("playwright/" + fileName + "_actual_" + System.currentTimeMillis() + ".png"));
+            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_actual_" + TEST_ID + ".png"));
         }
 
         Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
