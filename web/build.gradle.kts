@@ -29,7 +29,7 @@ dependencies {
     testImplementation("com.microsoft.playwright:playwright:1.57.0")
     testImplementation("com.github.romankh3:image-comparison:4.4.0")
     testImplementation("org.assertj:assertj-core:3.27.6")
-    testImplementation("org.testcontainers:testcontainers:2.0.2")
+    testImplementation("org.testcontainers:testcontainers:2.0.3")
     testImplementation("org.testcontainers:junit-jupiter:1.21.4")
 
 }
