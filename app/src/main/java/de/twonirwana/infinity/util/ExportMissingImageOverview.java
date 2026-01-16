@@ -33,6 +33,7 @@ public class ExportMissingImageOverview {
         AtomicLong activeProfileCount = new AtomicLong();
         Files.writeString(imageFile.toPath(), "File Name\\ID\\Sectorial\\Cost\\SWC\\Name\\Image exists\\BS Weapons\\CC Weapons\\Equipment\\Reinforcement\n");
         db.getAllSectorials().stream()
+                .filter(s -> !s.isDiscontinued())
                 .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
                 .flatMap(u -> u.getAllTrooper().stream()
                         .flatMap(t -> t.getProfiles().stream()
