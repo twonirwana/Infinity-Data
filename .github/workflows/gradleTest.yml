@@ -25,7 +25,7 @@ jobs:
           apt-get install -y git
 
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Git Safe Directory
         run: git config --global --add safe.directory '*' # Allow container to access git dir owned by runner
