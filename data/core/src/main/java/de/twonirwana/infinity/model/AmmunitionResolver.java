@@ -2,7 +2,7 @@ package de.twonirwana.infinity.model;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
+import tools.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
 
 import java.util.HashMap;
 import java.util.Map;

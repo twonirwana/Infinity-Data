@@ -1,15 +1,14 @@
 package de.twonirwana.infinity.model.specops;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-import java.io.IOException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class SpecopsNestedItemDeserializer extends StdDeserializer<SpecopsNestedItem> {
     public SpecopsNestedItemDeserializer() {
-        this(null);
+        this(SpecopsNestedItem.class);
     }
 
     public SpecopsNestedItemDeserializer(Class<?> vc) {
@@ -18,18 +17,14 @@ public class SpecopsNestedItemDeserializer extends StdDeserializer<SpecopsNested
 
 
     @Override
-    public SpecopsNestedItem deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-        int id = 0;
-        try {
+    public SpecopsNestedItem deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        JsonNode node = jsonParser.readValueAsTree();
+        final int id;
 
-            if (node.has("id")) {
-                id = (Integer) (node.get("id")).numberValue();
-            } else {
-                id = (Integer) (node.numberValue());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (node.has("id")) {
+            id = (Integer) (node.get("id")).numberValue();
+        } else {
+            id = (Integer) (node.numberValue());
         }
         return new SpecopsNestedItem(id);
     }

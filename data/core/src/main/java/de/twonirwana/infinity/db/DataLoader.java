@@ -2,8 +2,6 @@ package de.twonirwana.infinity.db;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;
@@ -28,6 +26,9 @@ import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 import java.io.*;
 import java.net.URI;
@@ -53,7 +54,9 @@ public class DataLoader {
     private static final String META_DATA_FILE_NAME = "metadata.json";
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
     private static final String ARCHIVE_FOLDER = "archive";
-
+    private final static ObjectMapper objectMapper = JsonMapper.builder()
+            .changeDefaultNullHandling(_ -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+            .build();
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
     private final Map<Integer, Sectorial> sectorialIdMap;
@@ -286,28 +289,21 @@ public class DataLoader {
     }
 
     private static SectorialImage deserializeSectorialImage(Path path) {
-        ObjectMapper om = new ObjectMapper();
-        //sometimes sb provides nulls
-        om.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
-        try {
-            return om.readValue(path.toFile(), SectorialImage.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return objectMapper.readValue(path.toFile(), SectorialImage.class);
+
     }
 
     private static SectorialList deserializeSectorialList(Path path) {
-        ObjectMapper om = new ObjectMapper();
-        //sometimes cb provides nulls
-        om.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
+
         SimpleModule sm = new SimpleModule();
         sm.addDeserializer(SpecopsNestedItem.class, new SpecopsNestedItemDeserializer());
-        om.registerModule(sm);
-        try {
-            return om.readValue(path.toFile(), SectorialList.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        JsonMapper om = JsonMapper.builder()
+                .changeDefaultNullHandling(_ -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                .addModule(sm)
+                .build();
+
+        return om.readValue(path.toFile(), SectorialList.class);
     }
 
     private static BufferedInputStream getStreamForURL(String urlString) throws IOException, URISyntaxException {
@@ -353,9 +349,8 @@ public class DataLoader {
             BufferedInputStream metaDataInput = getStreamForURL(META_DATA_URL);
             savePrettyJson(metaDataInput, path);
         }
-        ObjectMapper om = new ObjectMapper();
-        om.setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
-        return om.readValue(path.toFile(), Metadata.class);
+
+        return objectMapper.readValue(path.toFile(), Metadata.class);
     }
 
     private void copyNewVersionIntoArchive(Map<Sectorial, SectorialList> sectorialListMap) {

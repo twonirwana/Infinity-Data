@@ -122,7 +122,7 @@ public class ManualHtmlPrinterTest {
     }
 
     @ParameterizedTest
-    @MethodSource("generateTestDataOnlyOnce")
+    @MethodSource("generateTestData")
     void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInsteadOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, boolean reduceColor, HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
