@@ -44,10 +44,10 @@ public class PlaywrightScreenshotTest {
     static final long TEST_ID = System.currentTimeMillis();
     static final int PLAYWRIGHT_PORT = 3000;
     @Container
-    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.57.0-noble")
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.58.0-noble")
             .withExposedPorts(PLAYWRIGHT_PORT)
             .withAccessToHost(true)
-            .withCommand("/bin/bash", "-c", "npx -y playwright@1.57.0 run-server --port 3000 --host 0.0.0.0")
+            .withCommand("/bin/bash", "-c", "npx -y playwright@1.58.0 run-server --port 3000 --host 0.0.0.0")
             .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
     static Playwright playwright;
     static Browser chromium;
