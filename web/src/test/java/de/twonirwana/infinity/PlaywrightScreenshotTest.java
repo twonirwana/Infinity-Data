@@ -141,7 +141,7 @@ public class PlaywrightScreenshotTest {
 
         if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
             ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
-            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected_" + TEST_ID + ".png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_actual_" + TEST_ID + ".png"));
         }
 
         Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
