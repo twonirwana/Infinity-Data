@@ -55,7 +55,7 @@ public class DataLoader {
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
     private static final String ARCHIVE_FOLDER = "archive";
     private final static ObjectMapper objectMapper = JsonMapper.builder()
-            .changeDefaultNullHandling(_ -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+            .changeDefaultNullHandling(ignore -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
             .build();
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
@@ -299,7 +299,7 @@ public class DataLoader {
         sm.addDeserializer(SpecopsNestedItem.class, new SpecopsNestedItemDeserializer());
 
         JsonMapper om = JsonMapper.builder()
-                .changeDefaultNullHandling(_ -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                .changeDefaultNullHandling(ignore -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
                 .addModule(sm)
                 .build();
 
