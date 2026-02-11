@@ -40,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +58,8 @@ public class DataLoader {
     private final static ObjectMapper objectMapper = JsonMapper.builder()
             .changeDefaultNullHandling(ignore -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
             .build();
+    //each database update should not throw the same warnings
+    private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
     private final Map<Integer, Sectorial> sectorialIdMap;
@@ -120,7 +123,11 @@ public class DataLoader {
                     if (e.getValue().getReinforcements() != null) {
                         return Stream.of(e);
                     } else {
-                        log.info("reinforcements not found in %d - %s".formatted(e.getKey().getId(), e.getKey().getSlug()));
+                        String message = "reinforcements not found in %d - %s".formatted(e.getKey().getId(), e.getKey().getSlug());
+                        if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                            UNIQUE_LOG_MESSAGES.add(message);
+                            log.warn(message);
+                        }
                         return Stream.empty();
                     }
                 })
@@ -243,7 +250,11 @@ public class DataLoader {
                 Files.copy(in, path);
             }
         } catch (IOException | URISyntaxException e) {
-            log.error(urlString + " -> " + e.getMessage());
+            String message = urlString + " -> " + e.getMessage();
+            if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                UNIQUE_LOG_MESSAGES.add(message);
+                log.error(message);
+            }
         }
     }
 

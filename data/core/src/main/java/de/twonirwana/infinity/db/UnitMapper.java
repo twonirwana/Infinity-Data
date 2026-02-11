@@ -14,6 +14,7 @@ import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,6 +51,8 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class UnitMapper {
+    //each database update should not throw the same warnings
+    private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
 
     public static Map<Sectorial, List<UnitOption>> getUnits(Map<Sectorial, SectorialList> sectorialListMap,
                                                             Map<Sectorial, SectorialList> reenforcementListMap,
@@ -393,10 +396,18 @@ public class UnitMapper {
                         .filter(w -> Objects.equals(w.getMode(), extra2WeaponModeNameMapping.get(turretTypeExtra.get().getText())))
                         .toList();
                 if (weapons.isEmpty()) {
-                    log.error("Can't map turret with extras: {} in {}-{}", extras, unit.getSlug(), unit.getId());
+                    String message = "Can't map turret with extras: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
+                    if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                        UNIQUE_LOG_MESSAGES.add(message);
+                        log.error(message);
+                    }
                 }
             } else {
-                log.warn("Can't map turret with extras: {} in {}, using default", extras, unit.getSlug());
+                String message = "Can't map turret with extras: %s in %s, using default".formatted(extras, unit.getSlug());
+                if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                    UNIQUE_LOG_MESSAGES.add(message);
+                    log.warn(message);
+                }
                 //use only base version
                 weapons = weapons.stream()
                         .filter(w -> Strings.isNullOrEmpty(w.getMode()))
@@ -417,7 +428,11 @@ public class UnitMapper {
                     .toList();
         }
         if (type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON) {
-            log.warn("No weapons found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
+            String message = "No weapons found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
+            if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                UNIQUE_LOG_MESSAGES.add(message);
+                log.warn(message);
+            }
         }
         return List.of();
     }
@@ -508,7 +523,11 @@ public class UnitMapper {
                     if (skillFilter.get(pi.getId()) != null) {
                         return Stream.of(skillFilter.get(pi.getId())).map(skill -> mapSkill(skill, pi.getQ(), extras));
                     }
-                    log.error("No skills found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
+                    String message = "No skills found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
+                    if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                        UNIQUE_LOG_MESSAGES.add(message);
+                        log.error(message);
+                    }
                     return Stream.empty();
                 })
                 .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Skill::getName))
@@ -549,7 +568,11 @@ public class UnitMapper {
                     if (equibFilter.get(pi.getId()) != null) {
                         return Stream.of(equibFilter.get(pi.getId())).map(equip -> mapEquipment(equip, pi.getQ(), extras));
                     }
-                    log.error("No equipment found for id {} for unit {} in {}", pi.getId(), unit.getName(), factionName);
+                    String message = "No equipment found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
+                    if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                        UNIQUE_LOG_MESSAGES.add(message);
+                        log.error(message);
+                    }
                     return Stream.empty();
                 })
                 .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Equipment::getName))

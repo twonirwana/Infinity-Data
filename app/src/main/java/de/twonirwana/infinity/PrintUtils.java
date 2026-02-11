@@ -40,9 +40,9 @@ public class PrintUtils {
         String out;
         if (weapon.getMode() != null && !weapon.getName().contains("Turret")) { //turret has the turret kind in mode and extra
             out = "%s [%s]".formatted(weapon.getName(), weapon.getMode()
-                    .replace("Anti-Material", "DA")
-                    .replace("Anti-materiel", "DA")
-                    .replace("Anti-Materiel", "DA")
+                    .replace("Anti-Material",  weapon.getAmmunition().getName())
+                    .replace("Anti-materiel",  weapon.getAmmunition().getName())
+                    .replace("Anti-Materiel",  weapon.getAmmunition().getName())
                     .replace(" Mode", ""));
         } else {
             out = weapon.getName();

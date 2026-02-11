@@ -14,6 +14,7 @@ import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.rendering.template.JavalinThymeleaf;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
@@ -33,6 +34,7 @@ import java.nio.file.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,8 +52,9 @@ public class WebApp {
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
+    private final static Set<String> ARMY_CODES = new ConcurrentSkipListSet<>();
 
-    public static void main(String[] args) {
+    static void main() {
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
         createWebApp(DatabaseImp.createTimedUpdate(), LocalDateTime::now).start(host, port);
@@ -279,6 +282,10 @@ public class WebApp {
                 }
 
                 ArmyList al = database.getArmyListForArmyCode(armyCode);
+                if (!ARMY_CODES.contains(armyCode)) {
+                    ARMY_CODES.add(armyCode);
+                    registry.counter("infinity.unique.army.code", Tags.of("sectorial", al.getSectorial().getSlug())).increment();
+                }
                 List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
                         .sorted()
                         .flatMap(k -> al.getCombatGroups().get(k).stream())
