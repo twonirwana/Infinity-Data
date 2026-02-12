@@ -42,9 +42,11 @@ public class HtmlPrinterTest {
                 for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                     for (boolean showImage : new boolean[]{true, false}) {
                         for (boolean showHackingProgram : new boolean[]{true, false}) {
-                            for (boolean reduceColor : new boolean[]{true, false}) {
-                                for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                                    testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, showSavingRollInsteadOfAmmo, reduceColor, template));
+                            for (boolean removeDuplicate : new boolean[]{true, false}) {
+                                for (boolean reduceColor : new boolean[]{true, false}) {
+                                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                                        testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, showSavingRollInsteadOfAmmo, removeDuplicate, reduceColor, template));
+                                    }
                                 }
                             }
                         }
@@ -153,7 +155,7 @@ public class HtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInsteadOfAmmo, boolean reduceColor, HtmlPrinter.Template template) {
+    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInsteadOfAmmo, boolean removeDuplicate, boolean reduceColor, HtmlPrinter.Template template) {
         fileName = "testFile_" + System.currentTimeMillis();
         underTest.writeCards(List.of(unitOption),
                 List.of(hackingProgram),
@@ -171,6 +173,7 @@ public class HtmlPrinterTest {
                 "",
                 useInch,
                 showSavingRollInsteadOfAmmo,
+                removeDuplicate,
                 reduceColor,
                 weaponOption,
                 showImage,

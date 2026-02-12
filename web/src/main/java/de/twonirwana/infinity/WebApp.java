@@ -224,7 +224,7 @@ public class WebApp {
             final boolean removeImages = getCheckboxValue(ctx, "removeImages");
             final boolean showEquipmentWeapons = getCheckboxValue(ctx, "showEquipmentWeapons");
             final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
-            final boolean distinct = getCheckboxValue(ctx, "distinctUnits");
+            final boolean removeDuplicates = getCheckboxValue(ctx, "distinctUnits");
             final boolean showSavingRollInsteadOfAmmo = getCheckboxValue(ctx, "showSavingRollInsteadOfAmmo");
             final boolean reduceColor = getCheckboxValue(ctx, "reduceColor");
 
@@ -242,7 +242,7 @@ public class WebApp {
 
             armyCode = armyCode.trim();
             String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, distinct, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
+            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
             if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
                 log.info("army code already exists: {} -> {}", armyCode, fileName);
                 registry.counter("infinity.generate.existing").increment();
@@ -290,11 +290,6 @@ public class WebApp {
                         .sorted()
                         .flatMap(k -> al.getCombatGroups().get(k).stream())
                         .toList();
-                if (distinct) {
-                    armyListOptions = armyListOptions.stream()
-                            .distinct()
-                            .toList();
-                }
 
                 htmlPrinter.printCardForArmyCode(armyListOptions,
                         database.getAllHackingPrograms(),
@@ -311,6 +306,7 @@ public class WebApp {
                         armyCode,
                         useInch,
                         showSavingRollInsteadOfAmmo,
+                        removeDuplicates,
                         reduceColor,
                         weaponTypes,
                         !removeImages,
@@ -326,7 +322,7 @@ public class WebApp {
                         "removeImages", String.valueOf(removeImages),
                         "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
                         "showSkillWeapon", String.valueOf(showSkillWeapon),
-                        "distinct", String.valueOf(distinct)
+                        "distinct", String.valueOf(removeDuplicates)
                 ).increment();
 
                 Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);

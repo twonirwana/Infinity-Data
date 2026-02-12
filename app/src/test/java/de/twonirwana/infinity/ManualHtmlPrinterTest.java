@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,10 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -44,6 +43,7 @@ public class ManualHtmlPrinterTest {
     final static List<Set<Weapon.Type>> WEAPON_TYPE_OPTIONS = List.of(Set.of(),
             Set.of(Weapon.Type.WEAPON),
             Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET));
+    private static final Logger log = LoggerFactory.getLogger(ManualHtmlPrinterTest.class);
     static Pattern combinedIdPattern = Pattern.compile("combinedId:(\\d+-\\d+-\\d+-\\d+-\\d+)\"");
     static Pattern armyCodePattern = Pattern.compile("<meta name=\"armyCode\" content=\"(.+)\">");
     static Database db;
@@ -92,13 +92,15 @@ public class ManualHtmlPrinterTest {
                 for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
                     for (boolean showImage : new boolean[]{true, false}) {
                         for (boolean showHackingPrograms : new boolean[]{true, false}) {
-                            for (boolean reduceColor : new boolean[]{true, false}) {
-                                for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                                    testData.addAll(
-                                            armyCodeAndUnits.stream()
-                                                    .map(a -> Arguments.of(a.get(0), a.get(1), useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, reduceColor, template))
-                                                    .toList()
-                                    );
+                            for (boolean removeDuplicate : new boolean[]{true, false}) {
+                                for (boolean reduceColor : new boolean[]{true, false}) {
+                                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                                        testData.addAll(
+                                                armyCodeAndUnits.stream()
+                                                        .map(a -> Arguments.of(a.get(0), a.get(1), useInch, showSavingRollInsteadOfAmmo, weaponOption, showImage, showHackingPrograms, removeDuplicate, reduceColor, template))
+                                                        .toList()
+                                        );
+                                    }
                                 }
                             }
                         }
@@ -106,6 +108,8 @@ public class ManualHtmlPrinterTest {
                 }
             }
         }
+        Collections.shuffle(testData);
+        log.info("Test data size: {}", testData.size());
         return testData.stream();
     }
 
@@ -123,7 +127,16 @@ public class ManualHtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(String armyCode, String expectedUnitIds, boolean useInch, boolean showSavingRollInsteadOfAmmo, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingPrograms, boolean reduceColor, HtmlPrinter.Template template) throws IOException {
+    void testHtml(String armyCode,
+                  String expectedUnitIds,
+                  boolean useInch,
+                  boolean showSavingRollInsteadOfAmmo,
+                  Set<Weapon.Type> weaponOption,
+                  boolean showImage,
+                  boolean showHackingPrograms,
+                  boolean removeDuplicate,
+                  boolean reduceColor,
+                  HtmlPrinter.Template template) throws IOException {
         fileName = HashUtil.hash128Bit(armyCode);
 
         assertThat(db.validateArmyCodeUnits(armyCode)).isEmpty();
@@ -160,6 +173,7 @@ public class ManualHtmlPrinterTest {
                 armyCode,
                 useInch,
                 showSavingRollInsteadOfAmmo,
+                removeDuplicate,
                 reduceColor,
                 weaponOption,
                 showImage,
@@ -176,7 +190,11 @@ public class ManualHtmlPrinterTest {
         List<String> ids = findAllRegex(resultFileContent, combinedIdPattern);
         //  System.out.println(armyCode + ";" + Joiner.on(", ").join(ids));
 
-        assertThat(ids).containsExactly(expectedUnitIds.split(", "));
+        if (removeDuplicate) {
+            assertThat(ids).containsExactlyInAnyOrderElementsOf(new HashSet<>(Arrays.asList(expectedUnitIds.split(", "))));
+        } else {
+            assertThat(ids).containsExactly(expectedUnitIds.split(", "));
+        }
 
     }
 

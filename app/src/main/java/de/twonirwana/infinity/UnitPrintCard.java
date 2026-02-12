@@ -20,12 +20,14 @@ public class UnitPrintCard {
     Set<Weapon.Type> showWeaponOfType;
     boolean showImage;
     MartialArtLevel martialArtLevel;
+    Integer combatGroup;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
                                                      boolean useInch,
                                                      Set<Weapon.Type> showWeaponOfType,
                                                      boolean showImage,
-                                                     List<MartialArtLevel> allMartialArtLevels) {
+                                                     List<MartialArtLevel> allMartialArtLevels,
+                                                     Integer combatGroup) {
         Map<String, MartialArtLevel> martialArtLevelMap = allMartialArtLevels.stream()
                 .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
         return unitOption.getAllTrooper().stream()
@@ -35,7 +37,7 @@ public class UnitPrintCard {
                         useInch,
                         showWeaponOfType,
                         showImage,
-                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null))))
+                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup)))
                 .toList();
     }
 

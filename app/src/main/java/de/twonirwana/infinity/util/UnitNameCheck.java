@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public class UnitNameCheck {
-    public static void main(final String[] args) {
+    static void main() {
 
         /*
         new DatabaseImp().getAllUnitOptions().stream()
@@ -27,7 +27,7 @@ public class UnitNameCheck {
 
 
         DatabaseImp.createTimedUpdate().getAllUnitOptions().stream()
-                .flatMap(u -> UnitPrintCard.fromUnitOption(u, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL), true, List.of()).stream())
+                .flatMap(u -> UnitPrintCard.fromUnitOption(u, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL), true, List.of(), null).stream())
                 .map(c -> {
                     String oldName = c.getProfile().getName();
                     String newName = c.getUnitName();
