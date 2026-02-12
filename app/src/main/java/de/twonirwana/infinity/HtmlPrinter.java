@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -122,6 +123,7 @@ public class HtmlPrinter {
                                      String armyCode,
                                      boolean useInch,
                                      boolean showSavingRollInsteadOfAmmo,
+                                     boolean removeDuplicates,
                                      boolean reduceColor,
                                      Set<Weapon.Type> showWeaponOfType,
                                      boolean showImage,
@@ -143,6 +145,7 @@ public class HtmlPrinter {
                 CARD_FOLDER,
                 useInch,
                 showSavingRollInsteadOfAmmo,
+                removeDuplicates,
                 reduceColor,
                 showWeaponOfType,
                 showImage,
@@ -266,6 +269,7 @@ public class HtmlPrinter {
                 outputFolder,
                 useInch,
                 showSavingRollInsteadOfAmmo,
+                false,
                 reduceColor,
                 Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
                 true,
@@ -289,6 +293,7 @@ public class HtmlPrinter {
                            String outputFolder,
                            boolean useInch,
                            boolean showSavingRollInsteadOfAmmo,
+                           boolean removeDuplicates,
                            boolean reduceColor,
                            Set<Weapon.Type> showWeaponOfType,
                            boolean showImage,
@@ -335,10 +340,26 @@ public class HtmlPrinter {
             boarderColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
         }
 
-
-        List<UnitPrintCard> unitPrintCards = unitOptions.stream()
-                .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels).stream())
-                .toList();
+        final List<UnitPrintCard> unitPrintCards;
+        if (removeDuplicates) {
+            Set<String> ids = new ConcurrentSkipListSet<>();
+            unitPrintCards = unitOptions.stream()
+                    .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels, null).stream())
+                    .filter(u -> {
+                        if (ids.contains(u.getCombinedProfileId())) {
+                            return false;
+                        } else {
+                            ids.add(u.getCombinedProfileId());
+                            return true;
+                        }
+                    })
+                    .toList();
+        } else {
+            unitPrintCards = armyList.getCombatGroups().entrySet().stream()
+                    .flatMap(e -> e.getValue().stream()
+                            .flatMap(uo -> UnitPrintCard.fromUnitOption(uo, useInch, showWeaponOfType, showImage, allMartialArtLevels, e.getKey()).stream())
+                    ).toList();
+        }
 
         List<PrintHackingProgram> usedHackingPrograms = showHackingPrograms ? getUsedHackingPrograms(unitOptions, allHackingPrograms) : List.of();
 

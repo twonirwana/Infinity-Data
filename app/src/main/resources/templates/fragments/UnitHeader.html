@@ -16,6 +16,7 @@
             <img th:src="@{image/{fileName}(fileName=${imageName})}"
                  alt="Unit icon" class="unit-header-icon">
         </th:block>
+        <div class="unit-group-number" th:if="${unitPrintCard.getCombatGroup() != null}" th:text="${unitPrintCard.getCombatGroup()}"></div>
     </div>
 </div>
 

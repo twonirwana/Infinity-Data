@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ExportArmyCode {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         Database db = DatabaseImp.createTimedUpdate();
 
         String armyCode = args[0];
@@ -42,6 +42,7 @@ public class ExportArmyCode {
                         fileName,
                         armyCode,
                         useInch,
+                        false,
                         false,
                         false,
                         Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET),
