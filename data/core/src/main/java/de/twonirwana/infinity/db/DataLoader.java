@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import com.google.common.io.ByteSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -30,7 +29,10 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -39,6 +41,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
@@ -60,6 +64,7 @@ public class DataLoader {
             .build();
     //each database update should not throw the same warnings
     private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
+    private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
     private final Map<Integer, Sectorial> sectorialIdMap;
@@ -150,7 +155,6 @@ public class DataLoader {
                     .collect(Collectors.toSet())
             );
             downloadAllSectorialLogos(metadata.getFactions().stream().map(Faction::getLogo).collect(Collectors.toSet()));
-            copyNewVersionIntoArchive(sectorialListMap);
         }
         sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, reenforcementListMap, metadata, sectorialImageMap);
 
@@ -269,10 +273,18 @@ public class DataLoader {
         }
     }
 
+    private static String getBaseName(String pathString) {
+        Path path = Paths.get(pathString);
+        String fileName = path.getFileName().toString();
+
+        int dotIndex = fileName.lastIndexOf('.');
+        return (dotIndex == -1) ? fileName : fileName.substring(0, dotIndex);
+    }
+
     //gson has the better pretty print format
-    private static void savePrettyJson(BufferedInputStream inputStream, Path filePath) throws IOException {
+    private static void savePrettyJson(BufferedInputStream inputStream, Path targetFilePath) throws IOException {
         JsonElement jsonElement;
-        String fileName = filePath.getFileName().toString();
+        String baseFileName = getBaseName(targetFilePath.getFileName().toString());
         try (InputStreamReader reader = new InputStreamReader(inputStream)) {
             JsonReader jsonReader = new JsonReader(reader);
             jsonElement = com.google.gson.JsonParser.parseReader(jsonReader);
@@ -280,28 +292,40 @@ public class DataLoader {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        Path tempFile = Files.createTempFile(fileName, ".json");
+        Path tempFile = Files.createTempFile(baseFileName, ".json");
         HashCode existingFileHash = null;
-        if (filePath.toFile().exists()) {
-            existingFileHash = com.google.common.io.Files.asByteSource(filePath.toFile()).hash(Hashing.murmur3_32_fixed());
+        if (targetFilePath.toFile().exists()) {
+            existingFileHash = com.google.common.io.Files.asByteSource(targetFilePath.toFile()).hash(Hashing.murmur3_128());
         }
 
         try (Writer writer = Files.newBufferedWriter(tempFile)) {
             gson.toJson(jsonElement, writer);
         }
 
-        HashCode newFileHash = com.google.common.io.Files.asByteSource(tempFile.toFile()).hash(Hashing.murmur3_32_fixed());
+        HashCode newFileHash = com.google.common.io.Files.asByteSource(tempFile.toFile()).hash(Hashing.murmur3_128());
         if (!newFileHash.equals(existingFileHash)) {
-            log.info("{} was updated", fileName);
-        }
 
-        Files.copy(tempFile, filePath, StandardCopyOption.REPLACE_EXISTING);
+            if (targetFilePath.toFile().exists()) {
+                log.info("{} was updated", baseFileName);
+                String newJson = new String(Files.readAllBytes(tempFile));
+                String existingFile = new String(Files.readAllBytes(targetFilePath));
+                List<JsonDiff.Diff> diffs = JsonDiff.getDiffs(existingFile, newJson, List.of("resume", "filters"));
+                diffs.forEach(diff -> log.info("%s.%s".formatted(baseFileName, diff.toString())));
+            } else {
+                log.info("{} was created", baseFileName);
+            }
+
+        }
+        if (targetFilePath.toFile().exists()) {
+            String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
+            Files.copy(targetFilePath, Path.of("%s/%s_%s.json".formatted(ARCHIVE_FOLDER, timestamp, baseFileName)), StandardCopyOption.REPLACE_EXISTING);
+        }
+        Files.copy(tempFile, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
         tempFile.toFile().delete();
     }
 
     private static SectorialImage deserializeSectorialImage(Path path) {
         return objectMapper.readValue(path.toFile(), SectorialImage.class);
-
     }
 
     private static SectorialList deserializeSectorialList(Path path) {
@@ -362,28 +386,6 @@ public class DataLoader {
         }
 
         return objectMapper.readValue(path.toFile(), Metadata.class);
-    }
-
-    private void copyNewVersionIntoArchive(Map<Sectorial, SectorialList> sectorialListMap) {
-        try {
-
-            ByteSource byteSource = com.google.common.io.Files.asByteSource(new File(metaDataFilePath));
-            HashCode hc = byteSource.hash(Hashing.murmur3_32_fixed());
-            String checksum = hc.toString();
-            String metaDataArchivePath = ARCHIVE_FOLDER + "/" + checksum;
-            createFolderIfNotExists(metaDataArchivePath);
-            Files.copy(Path.of(metaDataFilePath), Path.of(metaDataArchivePath + "/" + META_DATA_FILE_NAME), StandardCopyOption.REPLACE_EXISTING);
-
-            for (Map.Entry<Sectorial, SectorialList> sectorial : sectorialListMap.entrySet()) {
-                Sectorial se = sectorial.getKey();
-                String fileName = SECTORIAL_FILE_FORMAT.formatted(se.getId(), se.getSlug());
-                String versionArchivePath = ARCHIVE_FOLDER + "/" + sectorial.getValue().getVersion();
-                createFolderIfNotExists(versionArchivePath);
-                Files.copy(Path.of(sectorialFolder, fileName), Path.of(versionArchivePath, fileName), StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void downloadAllSectorialLogos(Set<String> logoUrls) {

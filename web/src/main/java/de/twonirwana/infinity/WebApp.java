@@ -255,7 +255,7 @@ public class WebApp {
                 boolean canDecode = database.canDecodeArmyCode(armyCode);
                 if (!canDecode) {
                     registry.counter("infinity.invalid.army.code").increment();
-                    log.warn("Can't read army code: {}", armyCode);
+                    log.info("Can't read army code: {}", armyCode);
                     Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
                     Map<String, Object> model = Map.of(
                             "title", "Invalid Army Code Format",
