@@ -165,9 +165,6 @@ public class JsonDiff {
         different_value
     }
 
-    private record UniqueKey(String key, int counter) {
-    }
-
     public record Diff(List<String> path, String valueLeft, String valueRight, DiffType diffType) {
         @Override
         public @NonNull String toString() {
