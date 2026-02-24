@@ -9,6 +9,7 @@ import de.twonirwana.infinity.util.HashUtil;
 import de.twonirwana.infinity.util.ImageUtils;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
+import io.javalin.config.JavalinConfig;
 import io.javalin.http.Context;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
@@ -103,41 +104,33 @@ public class WebApp {
             copyFiles(database.getCustomUnitImageFolder(), CARD_IMAGE_FOLDER);
         }
 
-        Javalin webApp = Javalin.create(config -> {
+        return Javalin.create(config -> {
             config.staticFiles.add(staticFileConfig -> {
-                staticFileConfig.hostedPath = "/view/image";
-                staticFileConfig.directory = CARD_IMAGE_FOLDER;
-                staticFileConfig.location = Location.EXTERNAL;
-            });
+                        staticFileConfig.hostedPath = "/view/image";
+                        staticFileConfig.directory = CARD_IMAGE_FOLDER;
+                        staticFileConfig.location = Location.EXTERNAL;
+                    }
+            );
             config.fileRenderer(new JavalinThymeleaf());
             config.router.contextPath = contextPath;
             config.registerPlugin(micrometerPlugin);
+            config.routes.get("/favicon.ico", ctx -> {
+                ctx.contentType("image/x-icon");
+                ctx.result(WebApp.class.getResourceAsStream("/favicon.ico"));
+            });
+            startPage(config, registry);
+            //page that generates cards for the given parameter
+            generateCardPage(config, startupTime, registry, contextPath, database, htmlPrinter);
+            //page for a generated card set
+            viewCardPage(config, registry);
+            //page for imprint
+            imprintPage(config, registry);
+            helpPage(config, registry);
+            prometheusPage(config, registry);
         });
-
-        webApp.get("/favicon.ico", ctx -> {
-            ctx.contentType("image/x-icon");
-            ctx.result(WebApp.class.getResourceAsStream("/favicon.ico"));
-        });
-
-        startPage(webApp, registry);
-
-        //page that generates cards for the given parameter
-        generateCardPage(webApp, startupTime, registry, contextPath, database, htmlPrinter);
-
-        //page for a generated card set
-        viewCardPage(webApp, registry);
-
-        //page for imprint
-        imprintPage(webApp, registry);
-
-        helpPage(webApp, registry);
-
-        prometheusPage(registry, webApp);
-
-        return webApp;
     }
 
-    private static void prometheusPage(PrometheusMeterRegistry registry, Javalin webApp) {
+    private static void prometheusPage(JavalinConfig config, PrometheusMeterRegistry registry) {
         if (Config.getBool("server.prometheus", false)) {
             new LogbackMetrics().bindTo(registry);
             new ClassLoaderMetrics().bindTo(registry);
@@ -149,19 +142,19 @@ public class WebApp {
             new DiskSpaceMetrics(new File(System.getProperty("user.dir"))).bindTo(registry);
 
             String contentType = "text/plain; version=0.0.4;charset=utf-8";
-            webApp.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
+            config.routes.get("/prometheus", ctx -> ctx.contentType(contentType).result(registry.scrape()));
         }
     }
 
-    private static void helpPage(Javalin webApp, PrometheusMeterRegistry registry) {
-        webApp.get("/help", ctx -> {
+    private static void helpPage(JavalinConfig config, PrometheusMeterRegistry registry) {
+        config.routes.get("/help", ctx -> {
             registry.counter("infinity.help").increment();
             ctx.render("templates/help.html");
         });
     }
 
-    private static void imprintPage(Javalin webApp, PrometheusMeterRegistry registry) {
-        webApp.get("/imprint", ctx -> {
+    private static void imprintPage(JavalinConfig config, PrometheusMeterRegistry registry) {
+        config.routes.get("/imprint", ctx -> {
             registry.counter("infinity.imprint").increment();
 
             Map<String, Object> model = Map.of(
@@ -173,8 +166,8 @@ public class WebApp {
         });
     }
 
-    private static void viewCardPage(Javalin webApp, PrometheusMeterRegistry registry) {
-        webApp.get("/view/{armyCodeHash}", ctx -> {
+    private static void viewCardPage(JavalinConfig config, PrometheusMeterRegistry registry) {
+        config.routes.get("/view/{armyCodeHash}", ctx -> {
             String armyCodeHash = ctx.pathParam("armyCodeHash");
             Path OUTPUT_DIR = Path.of(CARD_FOLDER);
             Path filePath = OUTPUT_DIR.resolve(armyCodeHash + ".html");
@@ -195,13 +188,13 @@ public class WebApp {
         });
     }
 
-    private static void generateCardPage(Javalin webApp,
+    private static void generateCardPage(JavalinConfig config,
                                          final long startupTime,
                                          PrometheusMeterRegistry registry,
                                          String contextPath,
                                          Database database,
                                          HtmlPrinter htmlPrinter) {
-        webApp.get("/generate", ctx -> {
+        config.routes.get("/generate", ctx -> {
             registry.counter("infinity.generate.called").increment();
             String armyCode = ctx.queryParam("armyCode");
             if (Strings.isNullOrEmpty(armyCode)) {
@@ -379,8 +372,8 @@ public class WebApp {
         return "true".equals(value);
     }
 
-    private static void startPage(Javalin webApp, PrometheusMeterRegistry registry) {
-        webApp.get("/", ctx -> {
+    private static void startPage(JavalinConfig config, PrometheusMeterRegistry registry) {
+        config.routes.get("/", ctx -> {
             registry.counter("infinity.base.called").increment();
             Map<String, Object> model = Map.of(
                     "contributors", List.of(Config.get("website.contributors", "").split(",")),
