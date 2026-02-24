@@ -191,7 +191,7 @@ public class ArmyCodeLoader {
                 String decoded = URLDecoder.decode(armyCode, StandardCharsets.UTF_8);
                 return Base64.getDecoder().decode(decoded);
             } catch (Throwable t) {
-                log.warn("Failed to decode army code: {} -> {}", armyCode, t.getMessage());
+                log.debug("Failed to decode army code: {} -> {}", armyCode, t.getMessage());
             }
         }
         return null;
