@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
 
 public class ReplicateImageToOtherSections {
 
-    static void main(String[] args) throws IOException {
+    static void main() throws IOException {
         Database db = DatabaseImp.createTimedUpdate();
         List<TrooperProfile> allProfiles = db.getAllUnitOptions().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .toList();
 
-        String out = "out/alternativeImage/";
+        String out = "C:\\Users\\twoni\\Documents\\infinity\\card_generator\\2026-4_all\\";
         if (!java.nio.file.Files.exists(Path.of(out))) {
             try {
                 java.nio.file.Files.createDirectories(Path.of(out));
