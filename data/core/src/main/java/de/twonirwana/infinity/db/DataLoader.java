@@ -102,7 +102,7 @@ public class DataLoader {
         createFolderIfNotExists(customUnitImageFolder);
 
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(metaDataFilePath).toFile().lastModified();
-        boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
+        boolean fileOutOfDate = metaDataLastModifiedAge > 1; //update if file are older then 24h
 
         final boolean updateNow = updateOption == UpdateOption.FORCE_UPDATE ||
                 (fileOutOfDate && updateOption == UpdateOption.TIMED_UPDATE);
@@ -112,6 +112,7 @@ public class DataLoader {
         Metadata metadata = loadMetadata(updateNow);
 
         sectorialIdMap = metadata.getFactions().stream()
+                .sorted(Comparator.comparingInt(Faction::getId))
                 .filter(f -> f.getId() != 901) // NA2 doesn't have a vanilla option
                 .map(f -> new Sectorial(f.getId(),
                         f.getParent(),
@@ -309,7 +310,7 @@ public class DataLoader {
                 log.info("{} was updated", baseFileName);
                 String newJson = new String(Files.readAllBytes(tempFile));
                 String existingFile = new String(Files.readAllBytes(targetFilePath));
-                List<JsonDiff.Diff> diffs = JsonDiff.getDiffs(existingFile, newJson, List.of("resume", "filters"));
+                List<JsonDiff.Diff> diffs = JsonDiff.getDiffs(existingFile, newJson, List.of("resume", "filters", "peripheral"));
                 diffs.forEach(diff -> log.info("%s.%s".formatted(baseFileName, diff.toString())));
             } else {
                 log.info("{} was created", baseFileName);
@@ -318,7 +319,7 @@ public class DataLoader {
         }
         if (targetFilePath.toFile().exists()) {
             String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-            Files.copy(targetFilePath, Path.of("%s/%s_%s.json".formatted(ARCHIVE_FOLDER, timestamp, baseFileName)), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(targetFilePath, Path.of("%s/%s_%s.json".formatted(ARCHIVE_FOLDER, baseFileName, timestamp)), StandardCopyOption.REPLACE_EXISTING);
         }
         Files.copy(tempFile, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
         tempFile.toFile().delete();

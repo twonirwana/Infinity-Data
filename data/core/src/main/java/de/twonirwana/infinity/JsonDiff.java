@@ -7,6 +7,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.JsonNodeType;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,9 +28,15 @@ public class JsonDiff {
         }
     }
 
-    private static void recursiveDiffs(JsonNode left, JsonNode right, List<String> path, List<Diff> diffs, List<String> filterPaths, List<String> idKeys) {
+    private static void recursiveDiffs(JsonNode left,
+                                       JsonNode right,
+                                       List<String> path,
+                                       List<Diff> diffs,
+                                       List<String> filterPaths,
+                                       List<Function<JsonNode, String>> idFunctions) {
         List<JsonNodeType> nodeTypes = Stream.concat(Optional.ofNullable(left).stream(), Optional.ofNullable(right).stream())
                 .map(JsonNode::getNodeType)
+                .filter(n -> n != JsonNodeType.NULL)
                 .distinct()
                 .toList();
         if (nodeTypes.size() != 1) {
@@ -48,39 +55,44 @@ public class JsonDiff {
             Map<String, JsonNode> rightProperties = Optional.ofNullable(right)
                     .map(n -> n.properties().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
                     .orElse(Map.of());
-            compareMaps(leftProperties, rightProperties, path, diffs, filterPaths, idKeys);
+            compareMaps(leftProperties, rightProperties, path, diffs, filterPaths, idFunctions);
         } else if (nodeType == JsonNodeType.ARRAY) {
             List<JsonNode> leftValues = Optional.ofNullable(left).map(n -> n.values().stream().toList()).orElse(List.of());
             List<JsonNode> rightValues = Optional.ofNullable(right).map(n -> n.values().stream().toList()).orElse(List.of());
-            boolean hasKey = compareListsWithPossibleIdKeys(leftValues, rightValues, path, diffs, filterPaths, idKeys);
+            boolean hasKey = compareListsWithPossibleIdFunctions(leftValues, rightValues, path, diffs, filterPaths, idFunctions);
             if (!hasKey) {
-                compareMaps(toOrderIdMap(leftValues), toOrderIdMap(rightValues), path, diffs, filterPaths, idKeys);
+                compareMaps(toOrderIdMap(leftValues), toOrderIdMap(rightValues), path, diffs, filterPaths, idFunctions);
             }
         }
     }
 
-    private static boolean compareListsWithPossibleIdKeys(List<JsonNode> leftValues, List<JsonNode> rightValues, List<String> path, List<Diff> diffs, List<String> filterPaths, List<String> idKeys) {
-        for (String key : idKeys) {
+    private static boolean compareListsWithPossibleIdFunctions(List<JsonNode> leftValues,
+                                                               List<JsonNode> rightValues,
+                                                               List<String> path,
+                                                               List<Diff> diffs,
+                                                               List<String> filterPaths,
+                                                               List<Function<JsonNode, String>> idFunctions) {
+        for (Function<JsonNode, String> key : idFunctions) {
             if (hasUniqueIds(leftValues, key) && hasUniqueIds(rightValues, key)) {
-                compareListsWithIdKey(leftValues, rightValues, path, diffs, filterPaths, idKeys, key);
+                compareListsWithIdFunction(leftValues, rightValues, path, diffs, filterPaths, idFunctions, key);
                 return true;
             }
         }
         return false;
     }
 
-    private static void compareListsWithIdKey(List<JsonNode> leftValues,
-                                              List<JsonNode> rightValues,
-                                              List<String> path,
-                                              List<Diff> diffs,
-                                              List<String> filterPaths,
-                                              List<String> idKeys,
-                                              String currentIdKey) {
+    private static void compareListsWithIdFunction(List<JsonNode> leftValues,
+                                                   List<JsonNode> rightValues,
+                                                   List<String> path,
+                                                   List<Diff> diffs,
+                                                   List<String> filterPaths,
+                                                   List<Function<JsonNode, String>> idFunctions,
+                                                   Function<JsonNode, String> currentIdExtractor) {
         Map<String, JsonNode> leftIdMap = leftValues.stream()
-                .collect(Collectors.toMap(n -> n.get(currentIdKey).asString(), n -> n));
+                .collect(Collectors.toMap(currentIdExtractor, n -> n));
         Map<String, JsonNode> rightIdMap = rightValues.stream()
-                .collect(Collectors.toMap(n -> n.get(currentIdKey).asString(), n -> n));
-        compareMaps(leftIdMap, rightIdMap, path, diffs, filterPaths, idKeys);
+                .collect(Collectors.toMap(currentIdExtractor, n -> n));
+        compareMaps(leftIdMap, rightIdMap, path, diffs, filterPaths, idFunctions);
     }
 
     private static Map<String, JsonNode> toOrderIdMap(List<JsonNode> nodes) {
@@ -97,20 +109,19 @@ public class JsonDiff {
         } else {
             int counter = 0;
             for (JsonNode node : nodes) {
-                orderIdMap.put(counter + "", node);
+                orderIdMap.put("#" + counter, node); //add # so
                 counter++;
             }
         }
         return orderIdMap;
     }
 
-    private static boolean hasUniqueIds(List<JsonNode> elements, String idKey) {
+    private static boolean hasUniqueIds(List<JsonNode> elements, Function<JsonNode, String> idFunction) {
         if (elements == null || elements.isEmpty()) {
             return true;
         }
         List<String> ids = elements.stream()
-                .map(n -> n.get(idKey))
-                .map(n -> Optional.ofNullable(n).map(JsonNode::asString).orElse(""))
+                .map(idFunction)
                 .toList();
         return ids.stream().noneMatch(String::isEmpty) && ids.size() == ids.stream().distinct().count();
     }
@@ -119,7 +130,7 @@ public class JsonDiff {
         return str != null && str.matches("-?\\d+(\\.\\d+)?");
     }
 
-    private static void compareMaps(Map<String, JsonNode> left, Map<String, JsonNode> right, List<String> path, List<Diff> diffs, List<String> filterPaths, List<String> idKeys) {
+    private static void compareMaps(Map<String, JsonNode> left, Map<String, JsonNode> right, List<String> path, List<Diff> diffs, List<String> filterPaths, List<Function<JsonNode, String>> idFunctions) {
         List<String> bothKeys = Stream.concat(left.keySet().stream(), right.keySet().stream())
                 .filter(k -> !filterPaths.contains(k))
                 .distinct()
@@ -140,7 +151,7 @@ public class JsonDiff {
         for (String key : bothKeys) {
             List<String> newPath = new ArrayList<>(path);
             newPath.add(key);
-            recursiveDiffs(left.get(key), right.get(key), newPath, diffs, filterPaths, idKeys);
+            recursiveDiffs(left.get(key), right.get(key), newPath, diffs, filterPaths, idFunctions);
         }
     }
 
@@ -150,13 +161,28 @@ public class JsonDiff {
             JsonNode json2Node = OBJECT_MAPPER.readTree(right);
 
             List<Diff> diffs = new ArrayList<>();
-            recursiveDiffs(json1Node, json2Node, List.of(), diffs, filterPaths, List.of("id", "order"));
+            recursiveDiffs(json1Node, json2Node, List.of(), diffs, filterPaths, List.of(
+                    jsonNode -> {
+                        if (jsonNode.get("mode") != null && jsonNode.get("id") != null) {
+                            return "id_" + jsonNode.get("id").asString() + "_" + jsonNode.get("mode").asString(); //the mode must be added to get unique weapon ids
+                        } else if (jsonNode.get("id") != null) {
+                            return "id_" + jsonNode.get("id").asString();
+                        } else {
+                            return "";
+                        }
+                    }, jsonNode -> Optional.ofNullable(jsonNode.get("order"))
+                            .map(JsonNode::asString)
+                            .map(s -> "o_" + s)
+                            .orElse("")
+
+            ));
             return diffs;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return List.of();
         }
     }
+
 
     public enum DiffType {
         missing_left,

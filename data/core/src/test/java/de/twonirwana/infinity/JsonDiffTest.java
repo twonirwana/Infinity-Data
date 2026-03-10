@@ -25,29 +25,29 @@ class JsonDiffTest {
 
                 Arguments.of("""
                         {"name": "A1"}""", """
-                        {"name": "A1", "value": [{"id": 1, "p1": "a" }]}""", List.of("value.1.id: ''->'1'", "value.1.p1: ''->'a'")),
+                        {"name": "A1", "value": [{"id": 1, "p1": "a" }]}""", List.of("value.id_1.id: ''->'1'", "value.id_1.p1: ''->'a'")),
                 Arguments.of("""
                         {"name": "A1", "value": [{"id": 1, "p1": "a" }]}""", """
-                        {"name": "A1", "value": [{"id": 1, "p1": "b" }]}""", List.of("value.1.p1: 'a'->'b'")),
+                        {"name": "A1", "value": [{"id": 1, "p1": "b" }]}""", List.of("value.id_1.p1: 'a'->'b'")),
                 Arguments.of("""
                         {"name": "A1", "value": [{"id": 1, "p1": "a" }]}""", """
-                        {"name": "A1", "value": [{"id": 2, "p1": "b" }]}""", List.of("value.1.id: '1'->''",
-                        "value.1.p1: 'a'->''",
-                        "value.2.id: ''->'2'",
-                        "value.2.p1: ''->'b'")),
+                        {"name": "A1", "value": [{"id": 2, "p1": "b" }]}""", List.of("value.id_1.id: '1'->''",
+                        "value.id_1.p1: 'a'->''",
+                        "value.id_2.id: ''->'2'",
+                        "value.id_2.p1: ''->'b'")),
                 Arguments.of("""
                         {"name": "A1", "value": [{"id": 1, "p1": "a" }]}""", """
-                        {"name": "A1"}""", List.of("value.1.id: '1'->''", "value.1.p1: 'a'->''")),
+                        {"name": "A1"}""", List.of("value.id_1.id: '1'->''", "value.id_1.p1: 'a'->''")),
 
                 Arguments.of("""
                         {"name": "A1"}""", """
-                        {"name": "A1", "value": [{"p1": "a" }]}""", List.of("value.0.p1: ''->'a'")),
+                        {"name": "A1", "value": [{"p1": "a" }]}""", List.of("value.#0.p1: ''->'a'")),
                 Arguments.of("""
                         {"name": "A1", "value": [{"p1": "a" }]}""", """
-                        {"name": "A1", "value": [{"p1": "b" }]}""", List.of("value.0.p1: 'a'->'b'")),
+                        {"name": "A1", "value": [{"p1": "b" }]}""", List.of("value.#0.p1: 'a'->'b'")),
                 Arguments.of("""
                         {"name": "A1", "value": [{"p1": "a" }]}""", """
-                        {"name": "A1"}""", List.of("value.0.p1: 'a'->''")),
+                        {"name": "A1"}""", List.of("value.#0.p1: 'a'->''")),
 
                 Arguments.of("""
                         {"name": "A1"}""", """
@@ -61,6 +61,9 @@ class JsonDiffTest {
                 Arguments.of("""
                         {"name": "A1", "value": {"p1": "a" }}""", """
                         {"name": "A1"}""", List.of("value.p1: 'a'->''")),
+                Arguments.of("""
+                        {"name": "A1", "value": {"v1":{"v2": "a" } }}""", """
+                        {"name": "A1", "value": null}""", List.of("value.v1.v2: 'a'->''")),
 
                 Arguments.of("""
                         {"name": "A1", "value": ["a","c"]}""", """
