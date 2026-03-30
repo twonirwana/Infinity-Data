@@ -16,9 +16,9 @@ dependencies {
     implementation("com.google.guava:guava:33.5.0-jre")
     implementation("com.google.code.gson:gson:2.13.2")
 
-    implementation("tools.jackson.core:jackson-core:3.1.0")
+    implementation("tools.jackson.core:jackson-core:3.1.1")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
-    implementation("tools.jackson.core:jackson-databind:3.1.0")
+    implementation("tools.jackson.core:jackson-databind:3.1.1")
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
