@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="hackingProgramsTableFragment(programs, showDeviceColumn, shortTableHeader)">
+    <div th:if="${programs != null and not #lists.isEmpty(programs)}">
+        <table class="hacking">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th th:if="${showDeviceColumn}">Device</th>
+                <th th:text="${shortTableHeader ? 'A/O Mod' : 'Attack/Opp. Mod'}">A/O Mod</th>
+                <th>B</th>
+                <th>PS</th>
+                <th>Skill Type</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="program : ${programs}">
+                <td th:text="${program.getName()}"></td>
+                <td th:if="${showDeviceColumn}" th:text="${program.getDeviceNames()}"></td>
+                <td th:text="${program.getModifier()}"></td>
+                <td th:text="${program.getBurst()}"></td>
+                <td th:text="${program.getPs()}"></td>
+                <td th:text="${program.getSkillType()}"></td>
+                <td class="hacking-program-description" th:text="${program.getDescription()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

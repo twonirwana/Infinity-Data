@@ -3,7 +3,9 @@ package de.twonirwana.infinity;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.fireteam.FireteamChart;
-import de.twonirwana.infinity.unit.api.*;
+import de.twonirwana.infinity.unit.api.TrooperProfile;
+import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.ImageUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class HtmlPrinter {
@@ -344,7 +345,7 @@ public class HtmlPrinter {
         if (removeDuplicates) {
             Set<String> ids = new ConcurrentSkipListSet<>();
             unitPrintCards = unitOptions.stream()
-                    .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels, null).stream())
+                    .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels, allHackingPrograms, null).stream())
                     .filter(u -> {
                         if (ids.contains(u.getCombinedProfileId())) {
                             return false;
@@ -357,16 +358,16 @@ public class HtmlPrinter {
         } else {
             unitPrintCards = armyList.getCombatGroups().entrySet().stream()
                     .flatMap(e -> e.getValue().stream()
-                            .flatMap(uo -> UnitPrintCard.fromUnitOption(uo, useInch, showWeaponOfType, showImage, allMartialArtLevels, e.getKey()).stream())
+                            .flatMap(uo -> UnitPrintCard.fromUnitOption(uo, useInch, showWeaponOfType, showImage, allMartialArtLevels, allHackingPrograms, e.getKey()).stream())
                     ).toList();
         }
 
-        List<PrintHackingProgram> usedHackingPrograms = showHackingPrograms ? getUsedHackingPrograms(unitOptions, allHackingPrograms) : List.of();
+        List<PrintHackingProgram> usedHackingPrograms = showHackingPrograms ? PrintUtils.getUsedHackingPrograms(unitOptions, allHackingPrograms) : List.of();
 
         final List<PrintHackingProgram> programsCard1;
         final List<PrintHackingProgram> programsCard2;
 
-        int maxProgramsOnFirstCard = template.numberOfHackingProgramsPerCard;
+        int maxProgramsOnFirstCard = template.numberOfHackingProgramsOnExtraCard;
         if (usedHackingPrograms.size() > maxProgramsOnFirstCard) {
             programsCard1 = usedHackingPrograms.subList(0, maxProgramsOnFirstCard);
             programsCard2 = usedHackingPrograms.subList(maxProgramsOnFirstCard, usedHackingPrograms.size());
@@ -485,58 +486,19 @@ public class HtmlPrinter {
                 .toList();
     }
 
-    private List<PrintHackingProgram> getUsedHackingPrograms(List<UnitOption> unitOptions, List<HackingProgram> allHackingPrograms) {
-        Set<Integer> hackingDeviceIds = allHackingPrograms.stream()
-                .flatMap(h -> Optional.ofNullable(h.getDeviceIds()).orElse(List.of()).stream())
-                .collect(Collectors.toSet());
-
-        Set<Equipment> unitHackingDevices = unitOptions.stream()
-                .flatMap(u -> u.getAllTrooper().stream())
-                .flatMap(u -> u.getProfiles().stream())
-                .flatMap(u -> u.getEquipment().stream())
-                .filter(h -> hackingDeviceIds.contains(h.getId()))
-                .collect(Collectors.toSet());
-
-        Set<Integer> usedHackingDeviceIds = unitHackingDevices.stream()
-                .map(Equipment::getId)
-                .collect(Collectors.toSet());
-
-        Set<HackingProgram> usedHackingProgramsFromDevices = allHackingPrograms.stream()
-                .filter(h -> h.getDeviceIds().stream().anyMatch(usedHackingDeviceIds::contains))
-                .collect(Collectors.toSet());
-
-
-        Set<String> usedHackingDeviceExtras = unitHackingDevices.stream()
-                .flatMap(e -> e.getExtras().stream())
-                .map(ExtraValue::getText)
-                .collect(Collectors.toSet());
-
-        Set<HackingProgram> hackingProgramInUnitExtras = allHackingPrograms.stream()
-                .filter(h -> usedHackingDeviceExtras.stream()
-                        .anyMatch(e -> e.contains(h.getName()))
-                ).collect(Collectors.toSet());
-
-        return Stream.concat(
-                        usedHackingProgramsFromDevices.stream(),
-                        hackingProgramInUnitExtras.stream()
-                ).distinct()
-                .sorted(Comparator.comparing(HackingProgram::getName))
-                .map(PrintHackingProgram::new)
-                .toList();
-    }
 
     @AllArgsConstructor
     public enum Template {
-        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 7, true),
+        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 8, true),
         a4_image("ColorAndOptionalImageCard", 297, 210, 10, true),
-        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 9, true),
+        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 12, true),
         letter_image("ColorAndOptionalImageCard", 279, 216, 10, true),
-        a4_overview("OverviewList", 210, 297, Integer.MAX_VALUE, false),
+        a4_overview("OverviewList", 210, 297, 0, false),
         card_bw("CardBW", 0, 0, 0, false);
         final String fileName;
         final int widthInMm;
         final int heightInMm;
-        final int numberOfHackingProgramsPerCard;
+        final int numberOfHackingProgramsOnExtraCard; //not shown on all templates
         final boolean supportImages;
     }
 }

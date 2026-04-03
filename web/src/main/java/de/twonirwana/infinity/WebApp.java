@@ -15,6 +15,7 @@ import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.rendering.template.JavalinThymeleaf;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
@@ -58,10 +59,15 @@ public class WebApp {
     static void main() {
         int port = Config.getInt("server.port", 7070);
         String host = Config.get("server.hostName", "localhost");
-        createWebApp(DatabaseImp.createTimedUpdate(), LocalDateTime::now).start(host, port);
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        registry.config().commonTags("application", "infinity-cards-generator");
+        Metrics.addRegistry(registry);
+        createWebApp(DatabaseImp.createTimedUpdate(), LocalDateTime::now, registry).start(host, port);
     }
 
-    static Javalin createWebApp(final Database database, Supplier<LocalDateTime> currentTimeSupplier) {
+    static Javalin createWebApp(final Database database,
+                                Supplier<LocalDateTime> currentTimeSupplier,
+                                PrometheusMeterRegistry registry) {
         final long startupTime = System.currentTimeMillis();
         String contextPath = Config.get("server.contextPath", "/");
 
@@ -73,8 +79,6 @@ public class WebApp {
         crateFileIfNotExists(INVALID_ARMY_CODE_FILE);
         crateFileIfNotExists(MISSING_UNIT_ARMY_CODE_FILE);
 
-        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-        registry.config().commonTags("application", "infinity-cards-generator");
         MicrometerPlugin micrometerPlugin = new MicrometerPlugin(micrometerPluginConfig -> micrometerPluginConfig.registry = registry);
 
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);

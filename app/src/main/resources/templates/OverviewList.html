@@ -237,10 +237,13 @@
         .hacking th, .hacking td {
             border: 1px solid #ddd;
             text-align: center;
+            white-space: nowrap;
         }
 
-        .hacking-program-description {
-            width: 30%;
+        .hacking .hacking-program-description {
+            font-size: 5pt;
+            width: 50%;
+            white-space: normal;
         }
 
         /* MetaChemistry Fragment styles*/
@@ -384,15 +387,9 @@
 <div class="page">
     <div th:each="unitPrintCard : ${unitPrintCards}">
         <th:block
-                th:replace="~{fragments/Unit :: unitFragment(${unitPrintCard})}">
+                th:replace="~{fragments/Unit :: unitFragment(${unitPrintCard}, true)}">
         </th:block>
     </div>
-    <th:block
-            th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs1},'Hacking Programs 1')}">
-    </th:block>
-    <th:block
-            th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
-    </th:block>
     <th:block
             th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">
     </th:block>

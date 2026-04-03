@@ -21,12 +21,14 @@ public class UnitPrintCard {
     boolean showImage;
     MartialArtLevel martialArtLevel;
     Integer combatGroup;
+    List<PrintHackingProgram> hackingPrograms;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
                                                      boolean useInch,
                                                      Set<Weapon.Type> showWeaponOfType,
                                                      boolean showImage,
                                                      List<MartialArtLevel> allMartialArtLevels,
+                                                     List<HackingProgram> allHackingPrograms,
                                                      Integer combatGroup) {
         Map<String, MartialArtLevel> martialArtLevelMap = allMartialArtLevels.stream()
                 .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
@@ -37,7 +39,9 @@ public class UnitPrintCard {
                         useInch,
                         showWeaponOfType,
                         showImage,
-                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup)))
+                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
+                        PrintUtils.getUnitHackingPrograms(p, allHackingPrograms, true)))
+                )
                 .toList();
     }
 
@@ -103,14 +107,14 @@ public class UnitPrintCard {
     }
 
     private String getSkillNameAndExtra(Skill skill) {
-        String extraString = skill.getExtras().isEmpty() ? "" : " (%s)".formatted(skill.getExtras().stream()
+        String extraString = skill.getExtras().isEmpty() ? "" : " [%s]".formatted(skill.getExtras().stream()
                 .map(e -> PrintUtils.prettyExtra(e, useInch))
                 .collect(Collectors.joining(", ")));
         return "%s%s".formatted(skill.getName(), extraString);
     }
 
     private String getEquipmentNameAndExtra(Equipment equipment) {
-        String extraString = equipment.getExtras().isEmpty() ? "" : " (%s)".formatted(equipment.getExtras().stream()
+        String extraString = equipment.getExtras().isEmpty() ? "" : " [%s]".formatted(equipment.getExtras().stream()
                 .map(e -> PrintUtils.prettyExtra(e, useInch))
                 .collect(Collectors.joining(", ")));
         return "%s%s".formatted(equipment.getName(), extraString);
@@ -176,5 +180,6 @@ public class UnitPrintCard {
     public String prettyEquipments() {
         return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
     }
+
 
 }

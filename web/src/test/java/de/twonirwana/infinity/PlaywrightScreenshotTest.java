@@ -9,6 +9,9 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.AriaRole;
 import io.javalin.Javalin;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -60,7 +63,12 @@ public class PlaywrightScreenshotTest {
     @BeforeAll
     public static void setupGlobal() {
         Database database = DatabaseImp.createWithoutUpdate("playwright/resources");
-        Javalin app = WebApp.createWebApp(database, () -> LocalDate.of(2025, 12, 23).atStartOfDay());
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        registry.config().commonTags("application", "infinity-cards-generator");
+        Metrics.addRegistry(registry);
+        Javalin app = WebApp.createWebApp(database,
+                () -> LocalDate.of(2025, 12, 23).atStartOfDay(),
+                registry);
         app.start(0);
         org.testcontainers.Testcontainers.exposeHostPorts(app.port());
         baseUrl = "http://host.testcontainers.internal:" + app.port() + "/";

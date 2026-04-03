@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="hackingProgramsFragment(programs, title)">
+    <div class="card" th:if="${programs != null and not #lists.isEmpty(programs)}">
+        <div class="card-content">
+            <div class="card-header">
+                <h2 class="card-header-title" th:text="${title}">Hacking Programs</h2>
+            </div>
+            <div th:replace="~{fragments/HackingTable :: hackingProgramsTableFragment(${programs}, true, false)}"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

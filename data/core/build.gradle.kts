@@ -15,6 +15,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.44")
     implementation("com.google.guava:guava:33.5.0-jre")
     implementation("com.google.code.gson:gson:2.13.2")
+    implementation("io.micrometer:micrometer-core:1.16.4")
 
     implementation("tools.jackson.core:jackson-core:3.1.1")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")

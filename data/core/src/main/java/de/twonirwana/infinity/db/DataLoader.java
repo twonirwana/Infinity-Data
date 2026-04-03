@@ -23,6 +23,8 @@ import de.twonirwana.infinity.model.specops.SpecopsNestedItemDeserializer;
 import de.twonirwana.infinity.model.unit.Profile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
@@ -49,7 +51,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
 @Getter
 @Slf4j
 public class DataLoader {
@@ -65,6 +66,7 @@ public class DataLoader {
     //each database update should not throw the same warnings
     private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
     private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+    private final static Counter updateCounter = Metrics.globalRegistry.counter("infinity.data.update");
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
     private final Map<Integer, Sectorial> sectorialIdMap;
@@ -102,7 +104,7 @@ public class DataLoader {
         createFolderIfNotExists(customUnitImageFolder);
 
         long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(metaDataFilePath).toFile().lastModified();
-        boolean fileOutOfDate = metaDataLastModifiedAge > 1; //update if file are older then 24h
+        boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
 
         final boolean updateNow = updateOption == UpdateOption.FORCE_UPDATE ||
                 (fileOutOfDate && updateOption == UpdateOption.TIMED_UPDATE);
@@ -311,7 +313,10 @@ public class DataLoader {
                 String newJson = new String(Files.readAllBytes(tempFile));
                 String existingFile = new String(Files.readAllBytes(targetFilePath));
                 List<JsonDiff.Diff> diffs = JsonDiff.getDiffs(existingFile, newJson, List.of("resume", "filters", "peripheral"));
-                diffs.forEach(diff -> log.info("%s.%s".formatted(baseFileName, diff.toString())));
+
+                updateCounter.increment(diffs.size());
+
+                diffs.forEach(diff -> log.info("{}.{}", baseFileName, diff.toString()));
             } else {
                 log.info("{} was created", baseFileName);
             }
