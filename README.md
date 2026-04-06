@@ -2,9 +2,8 @@
 
 A program to convert unit data from Corvus Belli's Army Builder for the Infinity tabletop game.
 
+## Unit Cards
 Currently, the main function is to take an army code and generate nice, printable cards for all the units in the army.
-
-If Corvus Belli provides an image for the unit profile, it is included in the card.
 
 The default implementation creates the cards in the A4 ratio, so 9 cards can be printing on a single A4 page.
 
@@ -17,6 +16,17 @@ look like this:
 ![img.png](img.png)
 
 or as pdf: [JSA-inch.pdf](JSA-inch.pdf)
+
+## Overview
+
+It is also possible to use the army code to print an alternative list overview one or two pages, like these:
+
+<img src="overview-bw.png" alt="bw" width="300"/>
+
+or
+
+<img src="overview-color.png" alt="color" width="300"/>
+
 
 ## Usage
 
