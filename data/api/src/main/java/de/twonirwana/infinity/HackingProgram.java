@@ -9,7 +9,7 @@ public class HackingProgram {
      String opponentModifier;
      String description;
      List<String> skillType;
-     int extra; //what is this?
+     int extra; //id to map that this program is added as extra via the unit equipment
      String ps;
      List<Integer> deviceIds;
      List<String> deviceNames;

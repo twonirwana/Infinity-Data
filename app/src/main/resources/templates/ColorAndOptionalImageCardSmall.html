@@ -224,7 +224,7 @@
         }
 
         .hacking-program-description {
-            width: 30%;
+            width: 40%;
         }
 
         /* MetaChemistry Fragment styles*/
@@ -367,14 +367,14 @@
 <body>
 <div th:each="unitPrintCard : ${unitPrintCards}">
     <th:block
-            th:replace="~{fragments/Unit :: unitFragment(${unitPrintCard})}">
+            th:replace="~{fragments/Unit :: unitFragment(${unitPrintCard}, false)}">
     </th:block>
 </div>
 <th:block
-        th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs1},'Hacking Programs 1')}">
+        th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs1},'Hacking Programs 1')}">
 </th:block>
 <th:block
-        th:replace="~{fragments/HackingPrograms :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
+        th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
 </th:block>
 <th:block
         th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">

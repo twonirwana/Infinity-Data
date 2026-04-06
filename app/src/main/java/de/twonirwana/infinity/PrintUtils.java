@@ -1,10 +1,7 @@
 package de.twonirwana.infinity;
 
 import com.google.common.base.Joiner;
-import de.twonirwana.infinity.unit.api.ExtraValue;
-import de.twonirwana.infinity.unit.api.Skill;
-import de.twonirwana.infinity.unit.api.TrooperProfile;
-import de.twonirwana.infinity.unit.api.Weapon;
+import de.twonirwana.infinity.unit.api.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -16,9 +13,10 @@ public class PrintUtils {
     public static final String CC_ATTACK_SKILL_NAME = "CC Attack";
     public static final String BS_ATTACK_SKILL_NAME = "BS Attack";
     private static final Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
-    private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)B");
-    private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)SD");
-    private static final Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR-(\\d)");
+    private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*B");
+    private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*SD");
+    private static final Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR\\s*-(\\d)");
+    private static final Pattern BRACKET_REGEX = Pattern.compile("\\((.+)\\)");
     private static final String SMALL_SUFFIX = " (Small Teardrop)";
     private static final String LARGE_SUFFIX = " (Large Teardrop)";
     private static final Set<String> REMOVE_WEAPON_TRAITS = Set.of("[***]", "[**]", "[*]");
@@ -40,9 +38,9 @@ public class PrintUtils {
         String out;
         if (weapon.getMode() != null && !weapon.getName().contains("Turret")) { //turret has the turret kind in mode and extra
             out = "%s [%s]".formatted(weapon.getName(), weapon.getMode()
-                    .replace("Anti-Material",  weapon.getAmmunition().getName())
-                    .replace("Anti-materiel",  weapon.getAmmunition().getName())
-                    .replace("Anti-Materiel",  weapon.getAmmunition().getName())
+                    .replace("Anti-Material", weapon.getAmmunition().getName())
+                    .replace("Anti-materiel", weapon.getAmmunition().getName())
+                    .replace("Anti-Materiel", weapon.getAmmunition().getName())
                     .replace(" Mode", ""));
         } else {
             out = weapon.getName();
@@ -288,7 +286,7 @@ public class PrintUtils {
 
     public static String prettyExtra(ExtraValue extraValue, boolean useInch) {
         if (extraValue.getType() == ExtraValue.Type.Text) {
-            return extraValue.getText();
+            return extraValue.getText().replace("UPGRADE: ", "");
         } else if (extraValue.getType() == ExtraValue.Type.Distance) {
             String operator = extraValue.getDistanceCm() > 0 ? "+" : "";
             return "%s%s%s".formatted(operator,
@@ -303,6 +301,17 @@ public class PrintUtils {
             return Optional.empty();
         }
         Matcher matcher = SURVIVAL_RATE_EXTRA_REGEX.matcher(extraValue.getText());
+        if (matcher.find()) {
+            return Optional.of(matcher.group(1));
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> toBracketValue(ExtraValue extraValue) {
+        if (extraValue.getText() == null) {
+            return Optional.empty();
+        }
+        Matcher matcher = BRACKET_REGEX.matcher(extraValue.getText());
         if (matcher.find()) {
             return Optional.of(matcher.group(1));
         }
@@ -411,6 +420,145 @@ public class PrintUtils {
             }
         }
         return rangeModi;
+    }
+
+
+    private static String getHackingPsWithExtra(HackingProgram hackingProgram, Set<ExtraValue> extraValues, List<HackingProgram> allHackingPrograms) {
+        if ("-".equals(hackingProgram.getPs().trim())) { //only hacking program with ps get extra to it
+            return hackingProgram.getPs().trim();
+        }
+
+        Optional<Integer> srExtra = extraValues.stream()
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .map(PrintUtils::toSrExtra)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Integer::parseInt)
+                .findFirst();
+
+        Optional<Integer> psExtra = extraValues.stream()
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .map(PrintUtils::toPsExtra)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Integer::parseInt)
+                .findFirst();
+
+        int ps = psExtra.orElse(Integer.parseInt(hackingProgram.getPs()));
+        if (srExtra.isPresent()) {
+            ps = ps - srExtra.get();
+        }
+
+        if (psExtra.isPresent() || srExtra.isPresent()) {
+            return ps + "*";
+        }
+        return ps + "";
+    }
+
+    private static boolean isExtraApplicable(ExtraValue extraValue, HackingProgram currentHackingProgram, List<HackingProgram> allHackingPrograms) {
+        List<String> allHackingNames = allHackingPrograms.stream().map(HackingProgram::getName).toList();
+        if (allHackingNames.stream().noneMatch(h -> extraValue.getText().contains(h)) && (
+                //must be a value modifier, not something else like a firewall upgrade
+                toPsExtra(extraValue).isPresent() || toBurstExtra(extraValue).isPresent() || toSrExtra(extraValue).isPresent() || toSpecialDieExtra(extraValue).isPresent()
+        )) {
+            //general bonus
+            return true;
+        }
+        return extraValue.getText().contains(currentHackingProgram.getName());
+    }
+
+    public static String getHackingBurstWithExtra(HackingProgram hackingProgram, Set<ExtraValue> extraValues, List<HackingProgram> allHackingPrograms) {
+        if ("-".equals(hackingProgram.getBurst().trim())) { //only hacking program with ps get extra to it
+            return hackingProgram.getBurst().trim();
+        }
+
+        List<String> burstExtra = extraValues.stream()
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .map(PrintUtils::toBurstExtra)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(s -> "+" + s)
+                .toList();
+
+        List<String> sdExtra = extraValues.stream()
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .map(PrintUtils::toSpecialDieExtra)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map("+%sSD"::formatted)
+                .toList();
+
+        return hackingProgram.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra);
+    }
+
+    public static String getHackingProgramNameWithExtras(HackingProgram hackingProgram, Set<ExtraValue> extraValues, List<HackingProgram> allHackingPrograms) {
+
+        List<String> extras = extraValues.stream()
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .filter(e -> toPsExtra(e).isEmpty())
+                .filter(e -> toSrExtra(e).isEmpty())
+                .filter(e -> toBurstExtra(e).isEmpty())
+                .filter(e -> toSpecialDieExtra(e).isEmpty())
+                .flatMap(e -> toBracketValue(e).stream())
+                .sorted()
+                .toList();
+
+        if (!extras.isEmpty()) {
+            return "%s (%s)".formatted(hackingProgram.getName(), String.join(", ", extras));
+        }
+        return hackingProgram.getName();
+    }
+
+    public static List<PrintHackingProgram> getUsedHackingPrograms(List<UnitOption> unitOptions, List<HackingProgram> allHackingPrograms) {
+        return unitOptions.stream()
+                .flatMap(u -> u.getAllTrooper().stream())
+                .flatMap(t -> t.getProfiles().stream())
+                .flatMap(u -> getUnitHackingPrograms(u, allHackingPrograms, false).stream())
+                .distinct()
+                .sorted(Comparator.comparing(PrintHackingProgram::getName))
+                .toList();
+    }
+
+    public static List<PrintHackingProgram> getUnitHackingPrograms(TrooperProfile trooperProfile,
+                                                                   List<HackingProgram> allHackingPrograms,
+                                                                   boolean applyUnitModifier) {
+        Set<Integer> hackingDeviceIds = allHackingPrograms.stream()
+                .flatMap(h -> Optional.ofNullable(h.getDeviceIds()).orElse(List.of()).stream())
+                .collect(Collectors.toSet());
+
+        Set<Equipment> unitHackingDevices = Stream.of(trooperProfile)
+                .flatMap(p -> p.getEquipment().stream())
+                .filter(h -> hackingDeviceIds.contains(h.getId()))
+                .collect(Collectors.toSet());
+
+        Set<Integer> usedHackingDeviceIds = unitHackingDevices.stream()
+                .map(Equipment::getId)
+                .collect(Collectors.toSet());
+
+        Set<HackingProgram> usedHackingProgramsFromDevices = allHackingPrograms.stream()
+                .filter(h -> h.getDeviceIds().stream().anyMatch(usedHackingDeviceIds::contains))
+                .collect(Collectors.toSet());
+
+        Set<ExtraValue> usedHackingDeviceExtras = unitHackingDevices.stream()
+                .flatMap(e -> e.getExtras().stream())
+                .collect(Collectors.toSet());
+
+        Set<HackingProgram> hackingProgramInUnitExtras = allHackingPrograms.stream()
+                .filter(h -> usedHackingDeviceExtras.stream()
+                        .map(ExtraValue::getText)
+                        .anyMatch(e -> e.contains(h.getName()))
+                ).collect(Collectors.toSet());
+
+        return Stream.concat(
+                        usedHackingProgramsFromDevices.stream(),
+                        hackingProgramInUnitExtras.stream()
+                ).distinct()
+                .sorted(Comparator.comparing(HackingProgram::getName))
+                .map(h -> new PrintHackingProgram(h,
+                        applyUnitModifier ? getHackingProgramNameWithExtras(h, usedHackingDeviceExtras, allHackingPrograms) : h.getName(),
+                        applyUnitModifier ? getHackingPsWithExtra(h, usedHackingDeviceExtras, allHackingPrograms) : h.getPs(),
+                        applyUnitModifier ? getHackingBurstWithExtra(h, usedHackingDeviceExtras, allHackingPrograms) : h.getBurst()))
+                .toList();
     }
 
     public String getRangeTemplate(Weapon weapon) {
