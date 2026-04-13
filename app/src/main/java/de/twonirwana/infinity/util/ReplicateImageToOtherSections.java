@@ -21,7 +21,7 @@ public class ReplicateImageToOtherSections {
                 .flatMap(t -> t.getProfiles().stream())
                 .toList();
 
-        String out = "C:\\Users\\twoni\\Documents\\infinity\\card_generator\\2026-4_all\\";
+        String out = "";
         if (!java.nio.file.Files.exists(Path.of(out))) {
             try {
                 java.nio.file.Files.createDirectories(Path.of(out));
