@@ -25,6 +25,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -47,10 +48,10 @@ public class PlaywrightScreenshotTest {
     static final long TEST_ID = System.currentTimeMillis();
     static final int PLAYWRIGHT_PORT = 3000;
     @Container
-    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.58.0-noble")
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.59.0-noble")
             .withExposedPorts(PLAYWRIGHT_PORT)
             .withAccessToHost(true)
-            .withCommand("/bin/bash", "-c", "npx -y playwright@1.58.0 run-server --port 3000 --host 0.0.0.0")
+            .withCommand("/bin/bash", "-c", "npx -y playwright@1.59.0 run-server --port 3000 --host 0.0.0.0")
             .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
     static Playwright playwright;
     static Browser chromium;
@@ -144,6 +145,7 @@ public class PlaywrightScreenshotTest {
         BufferedImage expected = ImageIO.read(expectedFile);
         ImageComparisonResult result = new ImageComparison(expected, actual)
                 .setPixelToleranceLevel(0.1)
+                .setDifferenceRectangleColor(Color.BLUE)
                 .compareImages();
 
 

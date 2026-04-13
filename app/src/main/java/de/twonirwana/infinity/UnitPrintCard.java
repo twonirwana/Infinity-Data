@@ -80,11 +80,30 @@ public class UnitPrintCard {
     }
 
     public String getUnitName() {
+
         if (trooper.getProfiles().size() > 1) {
-            return profile.getName();
+            final String shortUnitName;
+            final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
+            if (baseName.contains(",")) {
+                shortUnitName = baseName.substring(0, baseName.indexOf(",")).trim();
+            } else {
+                shortUnitName = baseName.trim();
+            }
+
+            final String shortProfileName;
+            if (profile.getName().contains(",")) {
+                shortProfileName = profile.getName().substring(0, profile.getName().indexOf(",")).trim();
+            } else {
+                shortProfileName = profile.getName().trim();
+            }
+            if (shortProfileName.contains(shortUnitName)) {
+                return shortProfileName;
+            }
+            return shortUnitName + " - " + shortProfileName;
         }
         return trooper.getOptionName();
     }
+
 
     public String getUnitImageName() {
         return "image/%s.png".formatted(getCombinedProfileId());

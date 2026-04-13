@@ -29,8 +29,8 @@ public class UnitNameCheck {
         DatabaseImp.createTimedUpdate().getAllUnitOptions().stream()
                 .flatMap(u -> UnitPrintCard.fromUnitOption(u, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL), true, List.of(), List.of(), null).stream())
                 .map(c -> {
-                    String oldName = c.getProfile().getName();
-                    String newName = c.getUnitName();
+                    String oldName = c.getUnitName();
+                    String newName = c.getUnitOption().getOptionName();
                     if (!oldName.equals(newName)) {
                         return oldName + " -> " + newName;
                     }
