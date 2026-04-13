@@ -17,9 +17,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("io.micrometer:micrometer-core:1.16.4")
 
-    implementation("tools.jackson.core:jackson-core:3.1.1")
+    implementation("tools.jackson.core:jackson-core:3.1.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
-    implementation("tools.jackson.core:jackson-databind:3.1.1")
+    implementation("tools.jackson.core:jackson-databind:3.1.2")
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
