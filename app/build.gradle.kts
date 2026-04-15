@@ -14,7 +14,7 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.14.1")
     compileOnly("org.projectlombok:lombok:1.18.44")
     annotationProcessor("org.projectlombok:lombok:1.18.44")
-    implementation("com.google.guava:guava:33.5.0-jre")
+    implementation("com.google.guava:guava:33.6.0-jre")
     implementation("org.thymeleaf:thymeleaf:3.1.4.RELEASE")
 
     implementation("com.twelvemonkeys.imageio:imageio-core:3.13.1")
