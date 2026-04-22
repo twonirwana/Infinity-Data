@@ -11,8 +11,8 @@ dependencies {
 
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.32")
-    compileOnly("org.projectlombok:lombok:1.18.44")
-    annotationProcessor("org.projectlombok:lombok:1.18.44")
+    compileOnly("org.projectlombok:lombok:1.18.46")
+    annotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation("com.google.guava:guava:33.6.0-jre")
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("io.micrometer:micrometer-core:1.16.5")
