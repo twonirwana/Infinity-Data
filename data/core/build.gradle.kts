@@ -14,7 +14,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.46")
     annotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation("com.google.guava:guava:33.6.0-jre")
-    implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.google.code.gson:gson:2.14.0")
     implementation("io.micrometer:micrometer-core:1.16.5")
 
     implementation("tools.jackson.core:jackson-core:3.1.2")
