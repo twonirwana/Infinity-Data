@@ -332,6 +332,7 @@ public class HtmlPrinter {
         final String boarderColor;
         final Map<String, String> rangeClassMap;
         final String tableHeaderFontColor;
+        final boolean showSectorialLogo;
         if (reduceColor) {
             primaryColor = "white";
             secondaryColor = "white";
@@ -339,6 +340,7 @@ public class HtmlPrinter {
             rangeClassMap = BW_RANGE_CLASS_MAP;
             tableHeaderFontColor = "black";
             boarderColor = "black";
+            showSectorialLogo = false;
         } else {
             primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
             secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
@@ -346,6 +348,7 @@ public class HtmlPrinter {
             rangeClassMap = RANGE_CLASS_MAP;
             tableHeaderFontColor = "white";
             boarderColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
+            showSectorialLogo = true;
         }
 
         final List<UnitPrintCard> unitPrintCards;
@@ -428,6 +431,7 @@ public class HtmlPrinter {
         context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
         context.setVariable("boarderColor", boarderColor);
+        context.setVariable("showSectorialLogo", showSectorialLogo);
         context.setVariable("headerColor", headerColor);
         context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
         context.setVariable("printUtils", new PrintUtils());

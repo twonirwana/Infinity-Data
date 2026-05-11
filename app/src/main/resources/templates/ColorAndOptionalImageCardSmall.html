@@ -49,9 +49,23 @@
             flex-direction: column;
             height: 100%;
             justify-content: space-evenly;
-            background-size: auto 70%;
-            background-repeat: no-repeat;
-            background-position: right;
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .sectorial-background {
+            position: absolute;
+            z-index: -2;
+
+            right: 0;
+            top: 15%;
+
+            height: 70%;
+            width: auto;
+            max-width: 100%;
+
+            opacity: 0.5;
         }
 
         table {
@@ -227,7 +241,7 @@
             text-align: center;
         }
 
-        .hacking-program-description {
+        .hacking .hacking-program-description {
             width: 40%;
         }
 

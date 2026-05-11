@@ -4,8 +4,12 @@
 
 <div th:fragment="unitFragment(unitPrintCard, showHackingProgram)">
     <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
-        <div class="card-content" th:style="${unitPrintCard.isShowImage() && showImage} ? 'background-image: url(' + ${unitPrintCard.getSectorialImageName()} + ');' : ''">
+        <div class="card-content" >
 
+            <img th:if="${unitPrintCard.isShowImage() && showImage && showSectorialLogo}"
+                 th:src="${unitPrintCard.getSectorialImageName()}"
+                 class="sectorial-background"
+                 alt="" />
             <th:block
                     th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
             </th:block>
