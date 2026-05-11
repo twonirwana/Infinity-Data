@@ -8,7 +8,8 @@
 
             <img th:if="${unitPrintCard.isShowImage() && showImage && showSectorialLogo}"
                  th:src="${unitPrintCard.getSectorialImageName()}"
-                 class="sectorial-background" />
+                 class="sectorial-background"
+                 alt=""/>
             <th:block
                     th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
             </th:block>
@@ -16,7 +17,8 @@
 
                 <img th:if="${unitPrintCard.isShowImage() && showImage}"
                      th:src="${unitPrintCard.getUnitImageName()}"
-                     class="unit-img"/>
+                     class="unit-img"
+                     alt=""/>
 
                 <div th:class="${unitPrintCard.isShowImage() && showImage} ? 'area-for-image' : 'no-image'">
                     <div class="attribut-equipment-skill-column">
