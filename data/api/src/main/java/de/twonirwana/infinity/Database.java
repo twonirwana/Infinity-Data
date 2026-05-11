@@ -38,4 +38,6 @@ public interface Database {
     List<MetaChemistryRoll> getAllMetaChemistryRolls();
 
     FireteamChart getFireteamChart(Sectorial sectorial);
+
+    String getSectorialLogoFolder();
 }

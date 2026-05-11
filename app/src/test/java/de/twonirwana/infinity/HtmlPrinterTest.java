@@ -171,6 +171,7 @@ public class HtmlPrinterTest {
                 "",
                 "",
                 "",
+                "",
                 useInch,
                 showSavingRollInsteadOfAmmo,
                 removeDuplicate,

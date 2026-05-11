@@ -39,6 +39,7 @@ public class ExportArmyCode {
                         db.getUnitImageFolder(),
                         db.getCustomUnitImageFolder(),
                         db.getUnitLogosFolder(),
+                        db.getSectorialLogoFolder(),
                         fileName,
                         armyCode,
                         useInch,

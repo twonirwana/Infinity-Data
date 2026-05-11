@@ -122,4 +122,9 @@ public class DatabaseImp implements Database {
     public FireteamChart getFireteamChart(Sectorial sectorial) {
         return loader.getSectorialFireteamCharts().get(sectorial);
     }
+
+    @Override
+    public String getSectorialLogoFolder() {
+        return loader.getSectorialLogosFolder();
+    }
 }

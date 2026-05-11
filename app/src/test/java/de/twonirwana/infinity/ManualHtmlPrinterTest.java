@@ -169,6 +169,7 @@ public class ManualHtmlPrinterTest {
                 al.getSectorial(),
                 db.getUnitImageFolder(),
                 db.getCustomUnitImageFolder(),
+                db.getSectorialLogoFolder(),
                 db.getUnitLogosFolder(),
                 fileName,
                 armyCode,

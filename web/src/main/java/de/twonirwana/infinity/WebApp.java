@@ -299,6 +299,7 @@ public class WebApp {
                         database.getUnitImageFolder(),
                         database.getCustomUnitImageFolder(),
                         database.getUnitLogosFolder(),
+                        database.getSectorialLogoFolder(),
                         fileName,
                         armyCode,
                         useInch,

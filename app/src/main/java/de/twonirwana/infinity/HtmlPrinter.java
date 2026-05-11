@@ -120,6 +120,7 @@ public class HtmlPrinter {
                                      String unitImagePath,
                                      String customUnitImagePath,
                                      String logoImagePath,
+                                     String secotialLogoImagePath,
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
@@ -143,6 +144,7 @@ public class HtmlPrinter {
                 unitImagePath,
                 customUnitImagePath,
                 logoImagePath,
+                secotialLogoImagePath,
                 CARD_FOLDER,
                 useInch,
                 showSavingRollInsteadOfAmmo,
@@ -163,6 +165,7 @@ public class HtmlPrinter {
                         db.getUnitImageFolder(),
                         db.getCustomUnitImageFolder(),
                         db.getUnitLogosFolder(),
+                        db.getSectorialLogoFolder(),
                         "all/" + u.getSectorial().getSlug(),
                         useInch,
                         false,
@@ -248,6 +251,7 @@ public class HtmlPrinter {
                             String unitImagePath,
                             String customUnitImagePath,
                             String logoImagePath,
+                            String secotialLogoImagePath,
                             String outputFolder,
                             boolean useInch,
                             boolean showSavingRollInsteadOfAmmo,
@@ -267,6 +271,7 @@ public class HtmlPrinter {
                 unitImagePath,
                 customUnitImagePath,
                 logoImagePath,
+                secotialLogoImagePath,
                 outputFolder,
                 useInch,
                 showSavingRollInsteadOfAmmo,
@@ -291,6 +296,7 @@ public class HtmlPrinter {
                            String unitImagePath,
                            String customUnitImagePath,
                            String logoImagePath,
+                           String secotialLogoImagePath,
                            String outputFolder,
                            boolean useInch,
                            boolean showSavingRollInsteadOfAmmo,
@@ -318,6 +324,7 @@ public class HtmlPrinter {
             copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
             copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath); //customUnitImage have priority and overwrite CB images
         }
+        copyFile(sectorial.getLogo(), secotialLogoImagePath, imageOutputPath);
 
         final String primaryColor;
         final String secondaryColor;
@@ -325,6 +332,7 @@ public class HtmlPrinter {
         final String boarderColor;
         final Map<String, String> rangeClassMap;
         final String tableHeaderFontColor;
+        final boolean showSectorialLogo;
         if (reduceColor) {
             primaryColor = "white";
             secondaryColor = "white";
@@ -332,6 +340,7 @@ public class HtmlPrinter {
             rangeClassMap = BW_RANGE_CLASS_MAP;
             tableHeaderFontColor = "black";
             boarderColor = "black";
+            showSectorialLogo = false;
         } else {
             primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
             secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
@@ -339,6 +348,7 @@ public class HtmlPrinter {
             rangeClassMap = RANGE_CLASS_MAP;
             tableHeaderFontColor = "white";
             boarderColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
+            showSectorialLogo = true;
         }
 
         final List<UnitPrintCard> unitPrintCards;
@@ -421,6 +431,7 @@ public class HtmlPrinter {
         context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
         context.setVariable("boarderColor", boarderColor);
+        context.setVariable("showSectorialLogo", showSectorialLogo);
         context.setVariable("headerColor", headerColor);
         context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
         context.setVariable("printUtils", new PrintUtils());
