@@ -120,6 +120,7 @@ public class HtmlPrinter {
                                      String unitImagePath,
                                      String customUnitImagePath,
                                      String logoImagePath,
+                                     String secotialLogoImagePath,
                                      String fileName,
                                      String armyCode,
                                      boolean useInch,
@@ -143,6 +144,7 @@ public class HtmlPrinter {
                 unitImagePath,
                 customUnitImagePath,
                 logoImagePath,
+                secotialLogoImagePath,
                 CARD_FOLDER,
                 useInch,
                 showSavingRollInsteadOfAmmo,
@@ -163,6 +165,7 @@ public class HtmlPrinter {
                         db.getUnitImageFolder(),
                         db.getCustomUnitImageFolder(),
                         db.getUnitLogosFolder(),
+                        db.getSectorialLogoFolder(),
                         "all/" + u.getSectorial().getSlug(),
                         useInch,
                         false,
@@ -248,6 +251,7 @@ public class HtmlPrinter {
                             String unitImagePath,
                             String customUnitImagePath,
                             String logoImagePath,
+                            String secotialLogoImagePath,
                             String outputFolder,
                             boolean useInch,
                             boolean showSavingRollInsteadOfAmmo,
@@ -267,6 +271,7 @@ public class HtmlPrinter {
                 unitImagePath,
                 customUnitImagePath,
                 logoImagePath,
+                secotialLogoImagePath,
                 outputFolder,
                 useInch,
                 showSavingRollInsteadOfAmmo,
@@ -291,6 +296,7 @@ public class HtmlPrinter {
                            String unitImagePath,
                            String customUnitImagePath,
                            String logoImagePath,
+                           String secotialLogoImagePath,
                            String outputFolder,
                            boolean useInch,
                            boolean showSavingRollInsteadOfAmmo,
@@ -318,6 +324,7 @@ public class HtmlPrinter {
             copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
             copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath); //customUnitImage have priority and overwrite CB images
         }
+        copyFile(sectorial.getLogo(), secotialLogoImagePath, imageOutputPath);
 
         final String primaryColor;
         final String secondaryColor;

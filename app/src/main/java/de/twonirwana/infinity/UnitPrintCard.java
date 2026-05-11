@@ -109,6 +109,10 @@ public class UnitPrintCard {
         return "image/%s.png".formatted(getCombinedProfileId());
     }
 
+    public String getSectorialImageName() {
+        return "image/%s".formatted(unitOption.getSectorial().getLogo());
+    }
+
     public String getShortCategory() {
         return Optional.ofNullable(trooper.getCategory())
                 .map(s -> s.replace("Troops", ""))
@@ -127,15 +131,15 @@ public class UnitPrintCard {
 
     private String getSkillNameAndExtra(Skill skill) {
         String extraString = skill.getExtras().isEmpty() ? "" : " [%s]".formatted(skill.getExtras().stream()
-                .map(e -> PrintUtils.prettyExtra(e, useInch))
-                .collect(Collectors.joining(", ")));
+                                                                                  .map(e -> PrintUtils.prettyExtra(e, useInch))
+                                                                                  .collect(Collectors.joining(", ")));
         return "%s%s".formatted(skill.getName(), extraString);
     }
 
     private String getEquipmentNameAndExtra(Equipment equipment) {
         String extraString = equipment.getExtras().isEmpty() ? "" : " [%s]".formatted(equipment.getExtras().stream()
-                .map(e -> PrintUtils.prettyExtra(e, useInch))
-                .collect(Collectors.joining(", ")));
+                                                                                      .map(e -> PrintUtils.prettyExtra(e, useInch))
+                                                                                      .collect(Collectors.joining(", ")));
         return "%s%s".formatted(equipment.getName(), extraString);
     }
 
