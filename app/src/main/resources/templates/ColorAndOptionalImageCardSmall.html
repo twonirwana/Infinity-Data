@@ -150,10 +150,17 @@
         }
 
         .unit-image-area {
-            background-size: auto 100%;
-            background-repeat: no-repeat;
-            background-position: left;
+            position: relative;
             height: 100%;
+        }
+
+        .unit-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: auto;
+            z-index: -1;
         }
 
         .non-unit-image-area {
@@ -161,6 +168,7 @@
         }
 
         .area-for-image {
+            position: relative;
             width: 70%;
             margin-left: auto;
             height: 100%;
