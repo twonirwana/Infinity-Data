@@ -86,7 +86,7 @@ public class PrintUtils {
         if (weapon.getBurst() == null) {
             return "";
         }
-        if (unitPrintCard == null) {
+        if (unitPrintCard == null || !isWeaponOrHasBsProperty(weapon)) {
             return weapon.getBurst();
         }
         String weaponSkill = getWeaponSkill(weapon);
@@ -94,7 +94,6 @@ public class PrintUtils {
                 weapon.getExtras().stream(),
                 unitPrintCard.getProfile().getSkills().stream()
                         .filter(s -> s.getName().equals(weaponSkill))
-                        .filter(s -> isWeaponOrHasBsProperty(weapon)) //only weapon or bs trait get skill extra
                         .flatMap(s -> s.getExtras().stream())
         ).toList();
         final List<String> burstExtra;
@@ -398,6 +397,9 @@ public class PrintUtils {
     }
 
     private static boolean isWeaponOrHasBsProperty(Weapon weapon) {
+        if (weapon.getProperties().contains("Deployable")) {
+            return false;
+        }
         if (weapon.getType() == Weapon.Type.WEAPON) {
             return true;
         }
