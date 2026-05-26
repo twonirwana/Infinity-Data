@@ -51,7 +51,7 @@ public class PlaywrightScreenshotTest {
     static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.59.0-noble")
             .withExposedPorts(PLAYWRIGHT_PORT)
             .withAccessToHost(true)
-            .withCommand("/bin/bash", "-c", "npx -y playwright@1.59.0 run-server --port 3000 --host 0.0.0.0")
+            .withCommand("/bin/bash", "-c", "npx -y playwright@1.60.0 run-server --port 3000 --host 0.0.0.0")
             .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
     static Playwright playwright;
     static Browser chromium;

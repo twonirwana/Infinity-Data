@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -53,6 +55,7 @@ import java.util.stream.Stream;
 public class UnitMapper {
     //each database update should not throw the same warnings
     private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
+    private static final Pattern TURRET_WEAPON_NAME_PATTERN = Pattern.compile("Armed Turret \\((.*)\\)");
 
     public static Map<Sectorial, List<UnitOption>> getUnits(Map<Sectorial, SectorialList> sectorialListMap,
                                                             Map<Sectorial, SectorialList> reenforcementListMap,
@@ -337,22 +340,30 @@ public class UnitMapper {
                 .flatMap(p -> profileItem2Weapons(unit, p, weaponFilter, extraFilter, weaponIdMap, factionName, de.twonirwana.infinity.unit.api.Weapon.Type.EQUIPMENT).stream())
                 .toList();
 
+        List<de.twonirwana.infinity.unit.api.Weapon> turretWeapons = Stream.concat(
+                        profileOption.getWeapons().stream(),
+                        profile.getWeapons().stream())
+                .distinct()
+                .flatMap(p -> profileItem2Weapons(unit, p, weaponFilter, extraFilter, weaponIdMap, factionName, de.twonirwana.infinity.unit.api.Weapon.Type.TURRET).stream())
+                .toList();
+
         List<de.twonirwana.infinity.unit.api.Weapon> allProfileWeapons = new ArrayList<>();
         allProfileWeapons.addAll(weapons);
         allProfileWeapons.addAll(skillWeapons);
         allProfileWeapons.addAll(equipWeapons);
+        allProfileWeapons.addAll(turretWeapons);
 
         //add supressive fire mode if a weapon has this trait
         if (allProfileWeapons.stream().anyMatch(w -> w.getProperties().contains("Suppressive Fire"))) {
             allProfileWeapons.addAll(weaponIdMap.get(127).stream()
-                    .map(w -> mapWeapon(w, null, List.of()))
+                    .map(w -> mapWeapon(w, null, List.of(), de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON.name(), null))
                     .toList());
         }
 
         //add discover
         if (allProfileWeapons.stream().noneMatch(w -> w.getId() == 131)) { //discover can already be given by a skill
             allProfileWeapons.addAll(weaponIdMap.get(131).stream()
-                    .map(w -> mapWeapon(w, null, List.of()))
+                    .map(w -> mapWeapon(w, null, List.of(), de.twonirwana.infinity.unit.api.Weapon.Type.SKILL.name(), null))
                     .toList());
         }
 
@@ -380,54 +391,36 @@ public class UnitMapper {
                 .toList();
         //turret logic, id 226 contains all kinds of turrets and it needs to be filtered over the mode
         if (pi.getId() == 226) {
-            Map<String, String> extra2WeaponModeNameMapping = ImmutableMap.<String, String>builder()
-                    .putAll(weapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
-                    .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle")
-                    .put("Combi R.", "Combi Rifle")
-                    .put("AP Marksman Rifle", "Marksman Rifle")
-                    .put("Thunderbolt (AP)", "Thunderbolt")
-                    .build();
-            Optional<ExtraValue> turretTypeExtra = extras.stream()
-                    .filter(e -> e.getType() == ExtraValue.Type.Text)
-                    .filter(e -> extra2WeaponModeNameMapping.containsKey(e.getText()))
-                    .findFirst();
-            if (turretTypeExtra.isPresent()) {
-                weapons = weapons.stream()
-                        .filter(w -> Objects.equals(w.getMode(), extra2WeaponModeNameMapping.get(turretTypeExtra.get().getText())))
+            if (type == de.twonirwana.infinity.unit.api.Weapon.Type.TURRET) {
+                return mapTurrets(unit, weapons, extras).stream()
+                        .map(weapon -> mapWeapon(weapon, pi.getQ(), extras, de.twonirwana.infinity.unit.api.Weapon.Type.TURRET.name(), null))
+                        .filter(w -> w.getType() == type)
                         .toList();
-                if (weapons.isEmpty()) {
-                    String message = "Can't map turret with extras: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
-                    if (!UNIQUE_LOG_MESSAGES.contains(message)) {
-                        UNIQUE_LOG_MESSAGES.add(message);
-                        log.error(message);
-                    }
-                }
             } else {
-                String message = "Can't map turret with extras: %s in %s, using default".formatted(extras, unit.getSlug());
-                if (!UNIQUE_LOG_MESSAGES.contains(message)) {
-                    UNIQUE_LOG_MESSAGES.add(message);
-                    log.warn(message);
-                }
-                //use only base version
-                weapons = weapons.stream()
-                        .filter(w -> Strings.isNullOrEmpty(w.getMode()))
-                        .toList();
+                return List.of(); //not turrets are returned for other types
             }
         }
-
         if (weapons != null) {
             return weapons.stream()
-                    .map(weapon -> mapWeapon(weapon, pi.getQ(), extras))
+                    .map(weapon -> mapWeapon(weapon, pi.getQ(), extras, weapon.getType(), null))
                     .filter(w -> w.getType() == type)
                     .toList();
         }
-        if (weaponFilter.get(pi.getId()) != null) {
-            return Stream.of(weaponFilter.get(pi.getId()))
-                    .map(weapon -> mapWeapon(weapon, pi.getQ(), extras))
-                    .filter(w -> w.getType() == type)
-                    .toList();
+        //no weapon was found, fall back over filters
+        if (weaponFilter.get(pi.getId()) != null) { //only weapons and turrets in weapon filters
+
+            Weapon extraWeapon = weaponFilter.get(pi.getId());
+            if (extraWeapon.getName().contains("Armed Turret") && type == de.twonirwana.infinity.unit.api.Weapon.Type.TURRET) {
+                Weapon turret = mapFilterTurret2Weapon(extraWeapon, weaponIdMap.values().stream().flatMap(Collection::stream).toList());
+                return List.of(mapWeapon(turret, pi.getQ(), extras, type.name(), extraWeapon.getName()));
+            } else if (!extraWeapon.getName().contains("Armed Turret") && type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON) {
+                return List.of(mapWeapon(extraWeapon, pi.getQ(), extras, type.name(), null));
+            }
+
         }
-        if (type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON) {
+        if (type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON && Optional.ofNullable(weaponFilter.get(pi.getId()))
+                .map(Weapon::getName)
+                .map(s -> !s.contains("Armed Turret")).orElse(true)) {
             String message = "No weapons found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
             if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                 UNIQUE_LOG_MESSAGES.add(message);
@@ -437,18 +430,24 @@ public class UnitMapper {
         return List.of();
     }
 
-    public static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras) {
+    private static Weapon mapFilterTurret2Weapon(Weapon extraTurret, Collection<Weapon> allWeapons) {
+        Matcher matcher = TURRET_WEAPON_NAME_PATTERN.matcher(extraTurret.getName());
+        if (matcher.find()) {
+            String turretWeaponName = matcher.group(1).replace(".", "");
+            return allWeapons.stream()
+                    .filter(w -> w.getName().contains(turretWeaponName))
+                    .findFirst()
+                    .orElse(extraTurret);
+        }
+        return extraTurret;
+    }
+
+    public static de.twonirwana.infinity.unit.api.Weapon mapWeapon(Weapon weapon, Integer quantity, List<ExtraValue> extras, String weaponType, String overwriteName) {
         de.twonirwana.infinity.unit.api.Ammunition ammunition = Optional.ofNullable(weapon.getAmmunition())
                 .map(a -> new de.twonirwana.infinity.unit.api.Ammunition(a.getId(), a.getName(), a.getWiki()))
                 .orElse(null);
-        final de.twonirwana.infinity.unit.api.Weapon.Type type;
-        if (weapon.getType() == null) {
-            type = null;
-        } else if ("BS".equals(weapon.getType())) {
-            type = de.twonirwana.infinity.unit.api.Weapon.Type.TURRET;
-        } else {
-            type = de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weapon.getType());
-        }
+        final de.twonirwana.infinity.unit.api.Weapon.Type type = de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType);
+
         final de.twonirwana.infinity.unit.api.Weapon.Skill weaponSkill;
         if (weapon.getProperties() != null && weapon.getProperties().contains("CC")) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.CC;
@@ -464,7 +463,7 @@ public class UnitMapper {
                 weapon.getId(),
                 weaponSkill,
                 type,
-                weapon.getName(),
+                Optional.ofNullable(overwriteName).orElse(weapon.getName()),
                 weapon.getMode(),
                 weapon.getWiki(),
                 ammunition,
@@ -785,6 +784,43 @@ public class UnitMapper {
             return new ExtraValue(f.getId(), f.getName(), ExtraValue.Type.Text, null);
         }));
         return new SectorialFilter(weaponFilter, skillFilter, equipmentFilter, categoryFilter, characteristicsFilter, typeFilter, peripheralFilter, extraFilter);
+    }
+
+    private static List<Weapon> mapTurrets(Unit unit, List<Weapon> weapons, List<ExtraValue> extras) {
+        Map<String, String> extra2WeaponModeNameMapping = ImmutableMap.<String, String>builder()
+                .putAll(weapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
+                .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle")
+                .put("Combi R.", "Combi Rifle")
+                .put("AP Marksman Rifle", "Marksman Rifle")
+                .put("Thunderbolt (AP)", "Thunderbolt")
+                .build();
+        Optional<ExtraValue> turretTypeExtra = extras.stream()
+                .filter(e -> e.getType() == ExtraValue.Type.Text)
+                .filter(e -> extra2WeaponModeNameMapping.containsKey(e.getText()))
+                .findFirst();
+        if (turretTypeExtra.isPresent()) {
+            List<Weapon> turrets = weapons.stream()
+                    .filter(w -> Objects.equals(w.getMode(), extra2WeaponModeNameMapping.get(turretTypeExtra.get().getText())))
+                    .toList();
+            if (turrets.isEmpty()) {
+                String message = "Can't map turret with extras: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
+                if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                    UNIQUE_LOG_MESSAGES.add(message);
+                    log.error(message);
+                }
+            }
+            return turrets;
+        } else {
+            String message = "Can't map turret with extras: %s in %s, using default".formatted(extras, unit.getSlug());
+            if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                UNIQUE_LOG_MESSAGES.add(message);
+                log.warn(message);
+            }
+            //use only base version
+            return weapons.stream()
+                    .filter(w -> Strings.isNullOrEmpty(w.getMode()))
+                    .toList();
+        }
     }
 
     private record ProfileIncludeGroupAndOption(ProfileInclude include, ProfileGroup group, ProfileOption option) {

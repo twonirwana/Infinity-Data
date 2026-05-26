@@ -33,7 +33,7 @@
                 </div>
             </div>
             <th:block
-                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getProfile().getWeapons()}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${unitPrintCard.getProfile()}, ${useInch}, ${unitPrintCard.getMartialArtLevel()})}">
+                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getWeapons()}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${unitPrintCard.getProfile()}, ${useInch}, ${unitPrintCard.getMartialArtLevel()})}">
             </th:block>
             <div th:if="${showHackingProgram}">
                 <th:block

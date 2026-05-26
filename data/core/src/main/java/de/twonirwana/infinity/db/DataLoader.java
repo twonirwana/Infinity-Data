@@ -203,7 +203,7 @@ public class DataLoader {
 
     private static List<BootyRoll> mapBootyRolls(Metadata metadata) {
         Map<String, List<Weapon>> weaponNameMap = metadata.getWeapons().stream()
-                .map(w -> UnitMapper.mapWeapon(w, null, List.of()))
+                .map(w -> UnitMapper.mapWeapon(w, null, List.of(), w.getType(), null))
                 .collect(Collectors.groupingBy(Weapon::getName));
         Map<String, List<Weapon>> bootyWeaponMapping = Map.of(
                 "5-6", weaponNameMap.get("Grenades"),
