@@ -44,6 +44,7 @@ public class JsonDiff {
                     Optional.ofNullable(left).map(JsonNode::toPrettyString).orElse(""),
                     Optional.ofNullable(right).map(JsonNode::toPrettyString).orElse(""),
                     DiffType.different_type));
+            return;
         }
         JsonNodeType nodeType = nodeTypes.getFirst();
         if (VALUE_TYPES.contains(nodeType)) {

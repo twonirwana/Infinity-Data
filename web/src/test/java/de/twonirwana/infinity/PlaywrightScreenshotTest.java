@@ -48,7 +48,7 @@ public class PlaywrightScreenshotTest {
     static final long TEST_ID = System.currentTimeMillis();
     static final int PLAYWRIGHT_PORT = 3000;
     @Container
-    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.59.0-noble")
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.60.0-noble")
             .withExposedPorts(PLAYWRIGHT_PORT)
             .withAccessToHost(true)
             .withCommand("/bin/bash", "-c", "npx -y playwright@1.60.0 run-server --port 3000 --host 0.0.0.0")
