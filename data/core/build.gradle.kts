@@ -16,6 +16,8 @@ dependencies {
     implementation("com.google.guava:guava:33.6.0-jre")
     implementation("com.google.code.gson:gson:2.14.0")
     implementation("io.micrometer:micrometer-core:1.16.5")
+    implementation("io.avaje:avaje-config:5.1")
+    implementation("io.avaje:avaje-applog-slf4j:1.2")
 
     implementation("tools.jackson.core:jackson-core:3.1.3")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
