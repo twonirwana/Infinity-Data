@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="deployablesFragment(deployables, showSavingRollInsteadOfAmmo, printUtils)">
+    <div class="card" th:if="${deployables != null and not #lists.isEmpty(deployables)}">
+        <div class="card-content">
+
+            <div class="card-header">
+                <h2 class="card-header-title">Deployable Profiles</h2>
+            </div>
+            <table class="weapon">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>CC</th>
+                    <th>BS</th>
+                    <th th:if="${!showSavingRollInsteadOfAmmo}">PS</th>
+                    <th class="weapon-padding" th:if="${showSavingRollInsteadOfAmmo}">Saving Roll</th>
+                    <th th:if="${!showSavingRollInsteadOfAmmo}">Ammo</th>
+                    <th>ARM</th>
+                    <th>BTS</th>
+                    <th>STR</th>
+                    <th>S</th>
+                    <th>Traits</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="deployable : ${deployables}">
+                    <td class="weapon-table-name-header" th:text="${deployable.getName()}"></td>
+                    <td th:text="${deployable.getCc()}"></td>
+                    <td th:text="${deployable.getBs()}"></td>
+                    <td th:if="${!showSavingRollInsteadOfAmmo}"
+                        th:text="${printUtils.getWeaponPsWithExtra(null, deployable.getWeapon())}"></td>
+                    <td class="weapon-padding" th:if="${showSavingRollInsteadOfAmmo}"
+                        th:text="${printUtils.getWeaponSavingRollWithExtra(null, deployable.getWeapon())}"></td>
+                    <td th:if="${!showSavingRollInsteadOfAmmo}"
+                        th:text="${deployable.getWeapon() != null && deployable.getWeapon().getAmmunition() != null ? deployable.getWeapon().getAmmunition().getName() : ''}"></td>
+                    <td th:text="${deployable.getArm()}"></td>
+                    <td th:text="${deployable.getBts()}"></td>
+                    <td th:text="${deployable.getStructure()}"></td>
+                    <td th:text="${deployable.getSilhouette()}"></td>
+                    <td class="weapon-table-traits" th:text="${deployable.getTraits()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

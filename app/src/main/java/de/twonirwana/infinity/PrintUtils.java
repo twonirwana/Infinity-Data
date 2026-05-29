@@ -26,6 +26,27 @@ public class PrintUtils {
     private static final String XVISOR_NAME = "X Visor";
     private static final String VIRAL_TRAIT = "Bioweapon (DA+SHOCK)";
     private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L";
+    private static final Pattern DEPLOYABLE_ARM = Pattern.compile("ARM=(\\d)");
+    private static final Pattern DEPLOYABLE_BTS = Pattern.compile("BTS=(\\d)");
+    private static final Pattern DEPLOYABLE_STR = Pattern.compile("STR=(\\d)");
+    private static final Pattern DEPLOYABLE_S = Pattern.compile(" S=(\\d)");
+    private final static Set<String> IRRELEVANT_DEPLOAYBLE_TRAITS = Set.of(
+            "Disposable (3)",
+            "Disposable (2)",
+            "Disposable (1)",
+            "Deployable",
+            "[*]",
+            "[**]",
+            "[***]"
+    );
+
+    public static Deployable weaponProfile2Deployable(Weapon weapon) {
+        String arm = findInString(DEPLOYABLE_ARM, weapon.getProfile()).orElse("-");
+        String bts = findInString(DEPLOYABLE_BTS, weapon.getProfile()).orElse("-");
+        String str = findInString(DEPLOYABLE_STR, weapon.getProfile()).orElse("-");
+        String s = findInString(DEPLOYABLE_S, weapon.getProfile()).orElse("-");
+        return Deployable.of(weapon.getName(), "-", "-", weapon, arm, bts, str, s, String.join(",", cleanupDeployableWeaponTraits(weapon.getProperties())));
+    }
 
     public static String getRangeHeader(boolean useInch) {
         return "Range %s".formatted(useInch ? "″" : "cm");
@@ -83,7 +104,7 @@ public class PrintUtils {
     }
 
     public static String getWeaponBurstWithExtra(UnitPrintCard unitPrintCard, Weapon weapon) {
-        if (weapon.getBurst() == null) {
+        if (weapon == null || weapon.getBurst() == null) {
             return "";
         }
         if (unitPrintCard == null || !isWeaponOrHasBsProperty(weapon)) {
@@ -128,6 +149,9 @@ public class PrintUtils {
     }
 
     public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        if (weapon == null) {
+            return "";
+        }
         if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*") || weapon.getProbabilityOfSurvival().equals("-")) {
             return weapon.getProbabilityOfSurvival();
         }
@@ -168,6 +192,9 @@ public class PrintUtils {
     }
 
     public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+        if (weapon == null) {
+            return "";
+        }
         if (trooperProfile == null) {
             getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null);
         }
@@ -296,32 +323,22 @@ public class PrintUtils {
     }
 
     static Optional<String> toSrExtra(ExtraValue extraValue) {
-        if (extraValue.getText() == null) {
-            return Optional.empty();
-        }
-        Matcher matcher = SURVIVAL_RATE_EXTRA_REGEX.matcher(extraValue.getText());
-        if (matcher.find()) {
-            return Optional.of(matcher.group(1));
-        }
-        return Optional.empty();
+        return findInString(SURVIVAL_RATE_EXTRA_REGEX, extraValue.getText());
     }
 
     static Optional<String> toBracketValue(ExtraValue extraValue) {
-        if (extraValue.getText() == null) {
-            return Optional.empty();
-        }
-        Matcher matcher = BRACKET_REGEX.matcher(extraValue.getText());
-        if (matcher.find()) {
-            return Optional.of(matcher.group(1));
-        }
-        return Optional.empty();
+        return findInString(BRACKET_REGEX, extraValue.getText());
     }
 
     static Optional<String> toPsExtra(ExtraValue extraValue) {
-        if (extraValue.getText() == null) {
+        return findInString(PS_EXTRA_REGEX, extraValue.getText());
+    }
+
+    private static Optional<String> findInString(Pattern pattern, String input) {
+        if (input == null) {
             return Optional.empty();
         }
-        Matcher matcher = PS_EXTRA_REGEX.matcher(extraValue.getText());
+        Matcher matcher = pattern.matcher(input);
         if (matcher.find()) {
             return Optional.of(matcher.group(1));
         }
@@ -329,25 +346,11 @@ public class PrintUtils {
     }
 
     static Optional<String> toBurstExtra(ExtraValue extraValue) {
-        if (extraValue.getText() == null) {
-            return Optional.empty();
-        }
-        Matcher matcher = BURST_EXTRA_REGEX.matcher(extraValue.getText());
-        if (matcher.find()) {
-            return Optional.of(matcher.group(1));
-        }
-        return Optional.empty();
+        return findInString(BURST_EXTRA_REGEX, extraValue.getText());
     }
 
     static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
-        if (extraValue.getText() == null) {
-            return Optional.empty();
-        }
-        Matcher matcher = SPECIAL_DIE_EXTRA_REGEX.matcher(extraValue.getText());
-        if (matcher.find()) {
-            return Optional.of(matcher.group(1));
-        }
-        return Optional.empty();
+        return findInString(SPECIAL_DIE_EXTRA_REGEX, extraValue.getText());
     }
 
     public static String getRangeClassWithOptionalXVisor(TrooperProfile profile, String range, Map<String, String> rangeClassMap) {
@@ -423,7 +426,6 @@ public class PrintUtils {
         }
         return rangeModi;
     }
-
 
     private static String getHackingPsWithExtra(HackingProgram hackingProgram, Set<ExtraValue> extraValues, List<HackingProgram> allHackingPrograms) {
         if ("-".equals(hackingProgram.getPs().trim())) { //only hacking program with ps get extra to it
@@ -561,6 +563,12 @@ public class PrintUtils {
                         applyUnitModifier ? getHackingPsWithExtra(h, usedHackingDeviceExtras, allHackingPrograms) : h.getPs(),
                         applyUnitModifier ? getHackingBurstWithExtra(h, usedHackingDeviceExtras, allHackingPrograms) : h.getBurst()))
                 .toList();
+    }
+
+    public static String cleanupDeployableWeaponTraits(List<String> traits) {
+        return traits.stream()
+                .filter(trait -> !IRRELEVANT_DEPLOAYBLE_TRAITS.contains(trait))
+                .collect(Collectors.joining(", "));
     }
 
     public String getRangeTemplate(Weapon weapon) {

@@ -136,7 +136,10 @@ public class WebApp {
         long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
         log.info("Set database refresh interval to {} seconds.", refreshDbIntervalSec);
         if (refreshDbIntervalSec > 0) {
-            ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(() -> updateData(database, registry),
+            ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(() -> {
+                        updateData(database, registry);
+                        log.info("Updated db, next refresh: {}", LocalDateTime.now().plusSeconds(refreshDbIntervalSec));
+                    },
                     refreshDbIntervalSec,
                     refreshDbIntervalSec,
                     TimeUnit.SECONDS);

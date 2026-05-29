@@ -403,6 +403,9 @@
         th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
 </th:block>
 <th:block
+        th:replace="~{fragments/Deployables :: deployablesFragment(${deployables}, ${showSavingRollInsteadOfAmmo}, ${printUtils})}">
+</th:block>
+<th:block
         th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">
 </th:block>
 <th:block
