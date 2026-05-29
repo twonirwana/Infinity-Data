@@ -391,6 +391,9 @@
         </th:block>
     </div>
     <th:block
+            th:replace="~{fragments/Deployables :: deployablesFragment(${deployables}, ${showSavingRollInsteadOfAmmo}, ${printUtils})}">
+    </th:block>
+    <th:block
             th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">
     </th:block>
     <th:block

@@ -1,5 +1,6 @@
 package de.twonirwana.infinity;
 
+import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.fireteam.FireteamChart;
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class HtmlPrinter {
@@ -422,6 +424,25 @@ public class HtmlPrinter {
             allowedFireteams = null;
         }
 
+        List<Deployable> deployables = unitPrintCards.stream()
+                .flatMap(e -> e.getWeapons().stream())
+                .flatMap(w -> {
+                    if (!Strings.isNullOrEmpty(w.getProfile())) {
+                        return Stream.of(PrintUtils.weaponProfile2Deployable(w));
+                    } else if (w.getName().endsWith("Mine")) {
+                        String traits = PrintUtils.cleanupDeployableWeaponTraits(w.getProperties());
+                        return Stream.of(Deployable.of(w.getName(), "-", "-", w, "0", "0", "1", "0", traits));
+                    } else if (w.getName().contains("Armed Turret")) {
+                        return Stream.of(Deployable.of("Armed Turret", "5", "10", null, "2", "3", "1", "2", "360 Visor, Total Reaction"));
+                    } else if (w.getName().equals("Pitcher")) {
+                        return Stream.of(Deployable.of("Pitcher Repeater", "-", "-", w, "0", "0", "1", "1", ""));
+                    }
+                    return Stream.empty();
+                })
+                .distinct()
+                .sorted(Comparator.comparing(Deployable::getName))
+                .toList();
+
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
         context.setVariable("rangeModifierClassMap", rangeClassMap);
@@ -437,6 +458,7 @@ public class HtmlPrinter {
         context.setVariable("printUtils", new PrintUtils());
         context.setVariable("programs1", programsCard1);
         context.setVariable("programs2", programsCard2);
+        context.setVariable("deployables", deployables);
         context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(allMetaChemistryRolls) : List.of());
         context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(allBootyRolls) : List.of());
         context.setVariable("bootyWeapons", hasBooty ? mapBootyWeapons(allBootyRolls) : List.of());

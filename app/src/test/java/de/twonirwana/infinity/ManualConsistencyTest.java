@@ -104,11 +104,11 @@ public class ManualConsistencyTest {
         long unitOptionCount = res.stream().map(u -> u.getUnitId() + "-" + u.getOptionId()).distinct().count();
 
         SoftAssertions.assertSoftly(a -> {
-            a.assertThat(res.size()).isEqualTo(11192);
-            a.assertThat(troopers.size()).isEqualTo(12161);
-            a.assertThat(trooperProfiles.size()).isEqualTo(12722);
-            a.assertThat(unitIdCount).isEqualTo(877L);
-            a.assertThat(unitOptionCount).isEqualTo(3091L);
+            a.assertThat(res.size()).isEqualTo(13034);
+            a.assertThat(troopers.size()).isEqualTo(14130);
+            a.assertThat(trooperProfiles.size()).isEqualTo(14715);
+            a.assertThat(unitIdCount).isEqualTo(889L);
+            a.assertThat(unitOptionCount).isEqualTo(3157L);
         });
     }
 }
