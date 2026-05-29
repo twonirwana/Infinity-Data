@@ -36,11 +36,9 @@ import java.nio.file.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -81,15 +79,9 @@ public class WebApp {
 
         MicrometerPlugin micrometerPlugin = new MicrometerPlugin(micrometerPluginConfig -> micrometerPluginConfig.registry = registry);
 
-        long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
-        if (refreshDbIntervalSec > 0) {
-            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.scheduleAtFixedRate(() -> updateData(database, registry),
-                    refreshDbIntervalSec,
-                    refreshDbIntervalSec,
-                    TimeUnit.SECONDS);
-            Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdownNow));
-        }
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        final AtomicReference<ScheduledFuture<?>> scheduledFuture = new AtomicReference<>(setUpdateScheduler(executorService, null, database, registry));
+        Config.onChange("db.refreshIntervalSec", _ -> scheduledFuture.set(setUpdateScheduler(executorService, scheduledFuture.get(), database, registry)));
 
         if (Config.getBool("db.preCropImages", false)) {
             AtomicLong counter = new AtomicLong(0);
@@ -132,6 +124,26 @@ public class WebApp {
             helpPage(config, registry);
             prometheusPage(config, registry);
         });
+    }
+
+    private static ScheduledFuture<?> setUpdateScheduler(ScheduledExecutorService executorService,
+                                                         ScheduledFuture<?> existingScheduler,
+                                                         Database database,
+                                                         MeterRegistry registry) {
+        if (existingScheduler != null) {
+            existingScheduler.cancel(true);
+        }
+        long refreshDbIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
+        log.info("Set database refresh interval to {} seconds.", refreshDbIntervalSec);
+        if (refreshDbIntervalSec > 0) {
+            ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(() -> updateData(database, registry),
+                    refreshDbIntervalSec,
+                    refreshDbIntervalSec,
+                    TimeUnit.SECONDS);
+            Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdownNow));
+            return scheduledFuture;
+        }
+        return null;
     }
 
     private static void prometheusPage(JavalinConfig config, PrometheusMeterRegistry registry) {

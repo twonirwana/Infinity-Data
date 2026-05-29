@@ -23,6 +23,7 @@ import de.twonirwana.infinity.model.specops.SpecopsNestedItemDeserializer;
 import de.twonirwana.infinity.model.unit.Profile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
+import io.avaje.config.Config;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import lombok.Getter;
@@ -31,10 +32,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -43,7 +41,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -103,8 +103,18 @@ public class DataLoader {
 
         createFolderIfNotExists(customUnitImageFolder);
 
-        long metaDataLastModifiedAge = System.currentTimeMillis() - Path.of(metaDataFilePath).toFile().lastModified();
-        boolean fileOutOfDate = metaDataLastModifiedAge > 24 * 60 * 60 * 1000; //update if file are older then 24h
+        long lastModifiedDateTimestamp = Stream.concat(
+                        Stream.of(Path.of(metaDataFilePath).toFile().lastModified()),
+                        getLastModifiedDates(sectorialFolder).stream())
+                .mapToLong(l -> l)
+                .max().orElse(0L);
+
+        log.info("Last modified date: {}", Instant.ofEpochMilli(lastModifiedDateTimestamp)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+
+        long metaDataLastModifiedAge = System.currentTimeMillis() - lastModifiedDateTimestamp;
+        boolean fileOutOfDate = metaDataLastModifiedAge > Config.getLong("db.refreshIntervalSec", 24 * 60 * 60) * 1000;
 
         final boolean updateNow = updateOption == UpdateOption.FORCE_UPDATE ||
                 (fileOutOfDate && updateOption == UpdateOption.TIMED_UPDATE);
@@ -170,6 +180,22 @@ public class DataLoader {
         metaChemistry = mapChemistryRolls(metadata);
 
         sectorialFireteamCharts = mapFireteamChat(sectorialListMap);
+    }
+
+    private static List<Long> getLastModifiedDates(String folderPath) throws IOException {
+        Path directory = Paths.get(folderPath);
+
+        if (!Files.isDirectory(directory)) {
+            throw new IllegalArgumentException("The provided path is not a directory: " + folderPath);
+        }
+
+        try (Stream<Path> paths = Files.list(directory)) {
+            return paths
+                    .filter(Files::isRegularFile) // Exclude sub-directories
+                    .map(Path::toFile)
+                    .map(File::lastModified)
+                    .collect(Collectors.toList());
+        }
     }
 
     private static Map<Sectorial, FireteamChart> mapFireteamChat(Map<Sectorial, SectorialList> sectorialListMap) {
@@ -253,10 +279,12 @@ public class DataLoader {
             Path path = Paths.get("%s/%s".formatted(folderPath, fileName));
             if (Files.notExists(path)) {
                 log.info("download new file: {}", fileName);
-                BufferedInputStream in = getStreamForURL(urlString);
-                Files.copy(in, path);
+                Optional<BufferedInputStream> in = getStreamForURL(urlString);
+                if (in.isPresent()) {
+                    Files.copy(in.get(), path);
+                }
             }
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             String message = urlString + " -> " + e.getMessage();
             if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                 UNIQUE_LOG_MESSAGES.add(message);
@@ -347,12 +375,17 @@ public class DataLoader {
         return om.readValue(path.toFile(), SectorialList.class);
     }
 
-    private static BufferedInputStream getStreamForURL(String urlString) throws IOException, URISyntaxException {
-        URL url = new URI(urlString).toURL();
-        URLConnection urlConnection = url.openConnection();
-        urlConnection.setRequestProperty("Origin", "https://infinitytheuniverse.com");
-        urlConnection.setRequestProperty("Referer", "https://infinitytheuniverse.com/");
-        return new BufferedInputStream(urlConnection.getInputStream());
+    private static Optional<BufferedInputStream> getStreamForURL(String urlString) {
+        try {
+            URL url = new URI(urlString).toURL();
+            URLConnection urlConnection = url.openConnection();
+            urlConnection.setRequestProperty("Origin", "https://infinityuniverse.com");
+            urlConnection.setRequestProperty("Referer", "https://infinityuniverse.com/");
+            return Optional.of(new BufferedInputStream(urlConnection.getInputStream()));
+        } catch (Exception e) {
+            log.error("Error downloading: {}", urlString, e);
+            return Optional.empty();
+        }
     }
 
     private void downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {
@@ -360,9 +393,11 @@ public class DataLoader {
         Path path = Paths.get(imageDataFileFormat.formatted(sectorial.getId(), sectorial.getSlug()));
         if (!path.toFile().exists() || forceUpdate) {
             try {
-                BufferedInputStream in = getStreamForURL(UNIT_IMAGE_URL.formatted(sectorial.getId()));
-                savePrettyJson(in, path);
-            } catch (IOException | URISyntaxException e) {
+                Optional<BufferedInputStream> in = getStreamForURL(UNIT_IMAGE_URL.formatted(sectorial.getId()));
+                if (in.isPresent()) {
+                    savePrettyJson(in.get(), path);
+                }
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -373,9 +408,11 @@ public class DataLoader {
         Path path = Paths.get(sectorialFolder, SECTORIAL_FILE_FORMAT.formatted(id, name));
         if (!path.toFile().exists() || forceUpdate) {
             try {
-                BufferedInputStream in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
-                savePrettyJson(in, path);
-            } catch (IOException | URISyntaxException e) {
+                Optional<BufferedInputStream> in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
+                if (in.isPresent()) {
+                    savePrettyJson(in.get(), path);
+                }
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -383,12 +420,14 @@ public class DataLoader {
         return deserializeSectorialList(path);
     }
 
-    private Metadata loadMetadata(boolean forceUpdate) throws IOException, URISyntaxException {
+    private Metadata loadMetadata(boolean forceUpdate) throws IOException {
         createFolderIfNotExists(resourcesFolder);
         Path path = Paths.get(metaDataFilePath);
         if (!path.toFile().exists() || forceUpdate) {
-            BufferedInputStream metaDataInput = getStreamForURL(META_DATA_URL);
-            savePrettyJson(metaDataInput, path);
+            Optional<BufferedInputStream> metaDataInput = getStreamForURL(META_DATA_URL);
+            if (metaDataInput.isPresent()) {
+                savePrettyJson(metaDataInput.get(), path);
+            }
         }
 
         return objectMapper.readValue(path.toFile(), Metadata.class);

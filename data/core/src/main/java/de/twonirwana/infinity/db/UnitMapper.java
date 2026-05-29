@@ -82,8 +82,8 @@ public class UnitMapper {
                                                         weaponIdMap,
                                                         skillIdMap,
                                                         equipmentIdMap,
-                                                        sectorialImageMap.get(e.getKey()),
-                                                        getSectorialFilter(e.getValue()),
+                                                        sectorialImageMap.get(e.getKey()), //todo is this correct?
+                                                        getSectorialFilter(reenforcementListMap.get(e.getKey())),
                                                         true
                                                 ).stream())
                                                 : Stream.empty()
@@ -276,7 +276,7 @@ public class UnitMapper {
                 .flatMap(pgo ->
                         IntStream.range(0, pgo.include().getQ())
                                 .boxed()
-                                .map(i -> createTrooper(
+                                .map(_ -> createTrooper(
                                         sectorial,
                                         unit,
                                         pgo.group().getId(),
@@ -392,8 +392,16 @@ public class UnitMapper {
         //turret logic, id 226 contains all kinds of turrets and it needs to be filtered over the mode
         if (pi.getId() == 226) {
             if (type == de.twonirwana.infinity.unit.api.Weapon.Type.TURRET) {
-                return mapTurrets(unit, weapons, extras).stream()
-                        .map(weapon -> mapWeapon(weapon, pi.getQ(), extras, de.twonirwana.infinity.unit.api.Weapon.Type.TURRET.name(), null))
+                return mapTurrets(unit, weapons, weaponIdMap.values().stream().flatMap(Collection::stream).toList(), extras).stream()
+                        .map(weapon -> {
+                            final String overwriteName;
+                            if (!weapon.getName().contains("Armed Turret")) {
+                                overwriteName = "Armed Turret";
+                            } else {
+                                overwriteName = null;
+                            }
+                            return mapWeapon(weapon, pi.getQ(), extras, de.twonirwana.infinity.unit.api.Weapon.Type.TURRET.name(), overwriteName);
+                        })
                         .filter(w -> w.getType() == type)
                         .toList();
             } else {
@@ -786,24 +794,32 @@ public class UnitMapper {
         return new SectorialFilter(weaponFilter, skillFilter, equipmentFilter, categoryFilter, characteristicsFilter, typeFilter, peripheralFilter, extraFilter);
     }
 
-    private static List<Weapon> mapTurrets(Unit unit, List<Weapon> weapons, List<ExtraValue> extras) {
+    private static List<Weapon> mapTurrets(Unit unit, List<Weapon> turretWeapons, List<Weapon> allWeapons, List<ExtraValue> extras) {
         Map<String, String> extra2WeaponModeNameMapping = ImmutableMap.<String, String>builder()
-                .putAll(weapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
+                .putAll(turretWeapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
                 .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle")
                 .put("Combi R.", "Combi Rifle")
                 .put("AP Marksman Rifle", "Marksman Rifle")
                 .put("Thunderbolt (AP)", "Thunderbolt")
+                .put("Plasma Carabine", "Plasma Carbine")
                 .build();
         Optional<ExtraValue> turretTypeExtra = extras.stream()
                 .filter(e -> e.getType() == ExtraValue.Type.Text)
                 .filter(e -> extra2WeaponModeNameMapping.containsKey(e.getText()))
                 .findFirst();
         if (turretTypeExtra.isPresent()) {
-            List<Weapon> turrets = weapons.stream()
-                    .filter(w -> Objects.equals(w.getMode(), extra2WeaponModeNameMapping.get(turretTypeExtra.get().getText())))
+            String turretName = extra2WeaponModeNameMapping.getOrDefault(turretTypeExtra.get().getText(), turretTypeExtra.get().getText());
+            List<Weapon> turrets = turretWeapons.stream()
+                    .filter(w -> Objects.equals(w.getMode(), turretName))
                     .toList();
+            //fallback to all weapons
             if (turrets.isEmpty()) {
-                String message = "Can't map turret with extras: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
+                turrets = allWeapons.stream()
+                        .filter(w -> Objects.equals(w.getName(), turretName))
+                        .toList();
+            }
+            if (turrets.isEmpty()) {
+                String message = "Can't map turret with extras to weapon: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
                 if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                     UNIQUE_LOG_MESSAGES.add(message);
                     log.error(message);
@@ -817,7 +833,7 @@ public class UnitMapper {
                 log.warn(message);
             }
             //use only base version
-            return weapons.stream()
+            return turretWeapons.stream()
                     .filter(w -> Strings.isNullOrEmpty(w.getMode()))
                     .toList();
         }
