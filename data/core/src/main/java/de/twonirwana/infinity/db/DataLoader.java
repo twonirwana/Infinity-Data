@@ -383,7 +383,7 @@ public class DataLoader {
             urlConnection.setRequestProperty("Referer", "https://infinityuniverse.com/");
             return Optional.of(new BufferedInputStream(urlConnection.getInputStream()));
         } catch (Exception e) {
-            log.error("Error downloading: {}", urlString, e);
+            log.error("Error downloading {}: {}", urlString, e.getMessage());
             return Optional.empty();
         }
     }
