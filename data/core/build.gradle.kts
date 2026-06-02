@@ -20,7 +20,7 @@ dependencies {
     implementation("io.avaje:avaje-applog-slf4j:1.2")
 
     implementation("tools.jackson.core:jackson-core:3.1.4")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
     implementation("tools.jackson.core:jackson-databind:3.1.4")
 
     testImplementation(platform("org.junit:junit-bom:6.1.0"))
