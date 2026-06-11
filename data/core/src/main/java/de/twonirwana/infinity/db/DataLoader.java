@@ -121,22 +121,29 @@ public class DataLoader {
         if (updateNow) {
             log.info("update all files");
         }
-        Metadata metadata = loadMetadata(updateNow);
+        MetadataAndUpdateFlag metadataAndUpdateFlag = loadMetadata(updateNow);
+        Metadata metadata = metadataAndUpdateFlag.metadata();
+        boolean hasMetadataUpdate = metadataAndUpdateFlag.hasUpdate();
 
         sectorialIdMap = metadata.getFactions().stream()
                 .sorted(Comparator.comparingInt(Faction::getId))
                 .filter(f -> f.getId() != 901) // NA2 doesn't have a vanilla option
                 .map(f -> new Sectorial(f.getId(),
                         f.getParent(),
-                        f.getName(),
+                        f.getName().replace("\n", " "),
                         f.getSlug(),
                         f.isDiscontinued(),
                         Utils.getFileNameFromUrl(f.getLogo())))
                 .collect(Collectors.toMap(Sectorial::getId, Function.identity()));
-        Map<Sectorial, SectorialList> sectorialListMap = sectorialIdMap.values().stream()
-                .collect(Collectors.toMap(Function.identity(), f -> loadSectorial(f.getId(), f.getSlug(), updateNow)));
+        Map<Sectorial, SectorialListAndUpdateFlag> sectorialListAndUpdateFlags = sectorialIdMap.values().stream()
+                .collect(Collectors.toMap(Function.identity(), s -> loadSectorial(s.getId(), s.getSlug(), updateNow)));
 
-        Map<Sectorial, SectorialList> reenforcementListMap = sectorialListMap.entrySet().stream()
+        boolean hasSectorialUpdate = sectorialListAndUpdateFlags.values().stream().anyMatch(SectorialListAndUpdateFlag::hasUpdate);
+
+        Map<Sectorial, SectorialList> sectorialListMap = sectorialListAndUpdateFlags.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, s -> s.getValue().sectorialList()));
+
+        Map<Sectorial, SectorialListAndUpdateFlag> reenforcementUpdateListMap = sectorialListMap.entrySet().stream()
                 .flatMap(e -> {
                     if (e.getValue().getReinforcements() != null) {
                         return Stream.of(e);
@@ -152,9 +159,15 @@ public class DataLoader {
                 .collect(Collectors.toMap(Map.Entry::getKey, e ->
                         loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", updateNow)));
 
-        //todo ref image
-        sectorialIdMap.values()
-                .forEach(s -> downloadImageDataFile(s, updateNow));
+        boolean hasSectorialRefUpdate = reenforcementUpdateListMap.values().stream().anyMatch(SectorialListAndUpdateFlag::hasUpdate);
+        Map<Sectorial, SectorialList> reenforcementListMap = reenforcementUpdateListMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, s -> s.getValue().sectorialList()));
+
+        boolean hasImageUpdate = sectorialIdMap.values()
+                .stream()
+                .anyMatch(s -> downloadImageDataFile(s, updateNow));
+
+
         Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
                 .filter(s -> Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())).toFile().exists())
                 .collect(Collectors.toMap(Function.identity(), s -> deserializeSectorialImage(Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())))));
@@ -180,6 +193,19 @@ public class DataLoader {
         metaChemistry = mapChemistryRolls(metadata);
 
         sectorialFireteamCharts = mapFireteamChat(sectorialListMap);
+
+        if (hasMetadataUpdate || hasSectorialUpdate || hasSectorialRefUpdate || hasImageUpdate) {
+            List<UnitOption> unitOptions = getAllUnits().stream()
+                    .filter(u -> !u.getSectorial().isDiscontinued())
+                    .filter(u -> !u.isMerc())
+                    .filter(u -> !u.isReinforcementUnit())
+                    .distinct()
+                    .sorted(Comparator.comparing(UnitOption::getCombinedId))
+                    .toList();
+
+            CsvPrinter.printList(DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.hashCode(), unitOptions);
+        }
+        //todo ref image
     }
 
     private static List<Long> getLastModifiedDates(String folderPath) throws IOException {
@@ -313,7 +339,8 @@ public class DataLoader {
     }
 
     //gson has the better pretty print format
-    private static void savePrettyJson(BufferedInputStream inputStream, Path targetFilePath) throws IOException {
+    private static boolean savePrettyJson(BufferedInputStream inputStream, Path targetFilePath) throws IOException {
+        boolean hasUpdate = false;
         JsonElement jsonElement;
         String baseFileName = getBaseName(targetFilePath.getFileName().toString());
         try (InputStreamReader reader = new InputStreamReader(inputStream)) {
@@ -343,6 +370,7 @@ public class DataLoader {
                 List<JsonDiff.Diff> diffs = JsonDiff.getDiffs(existingFile, newJson, List.of("resume", "filters", "peripheral"));
 
                 updateCounter.increment(diffs.size());
+                hasUpdate = true;
 
                 diffs.forEach(diff -> log.info("{}.{}", baseFileName, diff.toString()));
             } else {
@@ -356,6 +384,7 @@ public class DataLoader {
         }
         Files.copy(tempFile, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
         tempFile.toFile().delete();
+        return hasUpdate;
     }
 
     private static SectorialImage deserializeSectorialImage(Path path) {
@@ -388,49 +417,53 @@ public class DataLoader {
         }
     }
 
-    private void downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {
+    private boolean downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {
+        boolean hasUpdate = false;
         createFolderIfNotExists(imageDataFolder);
         Path path = Paths.get(imageDataFileFormat.formatted(sectorial.getId(), sectorial.getSlug()));
         if (!path.toFile().exists() || forceUpdate) {
             try {
                 Optional<BufferedInputStream> in = getStreamForURL(UNIT_IMAGE_URL.formatted(sectorial.getId()));
                 if (in.isPresent()) {
-                    savePrettyJson(in.get(), path);
+                    hasUpdate = savePrettyJson(in.get(), path);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+        return hasUpdate;
     }
 
-    private SectorialList loadSectorial(int id, String name, boolean forceUpdate) {
+    private SectorialListAndUpdateFlag loadSectorial(int id, String name, boolean forceUpdate) {
+        boolean hasUpdate = false;
         createFolderIfNotExists(sectorialFolder);
         Path path = Paths.get(sectorialFolder, SECTORIAL_FILE_FORMAT.formatted(id, name));
         if (!path.toFile().exists() || forceUpdate) {
             try {
                 Optional<BufferedInputStream> in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
                 if (in.isPresent()) {
-                    savePrettyJson(in.get(), path);
+                    hasUpdate = savePrettyJson(in.get(), path);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        return deserializeSectorialList(path);
+        return new SectorialListAndUpdateFlag(deserializeSectorialList(path), hasUpdate);
     }
 
-    private Metadata loadMetadata(boolean forceUpdate) throws IOException {
+    private MetadataAndUpdateFlag loadMetadata(boolean forceUpdate) throws IOException {
+        boolean hasUpdate = false;
         createFolderIfNotExists(resourcesFolder);
         Path path = Paths.get(metaDataFilePath);
         if (!path.toFile().exists() || forceUpdate) {
             Optional<BufferedInputStream> metaDataInput = getStreamForURL(META_DATA_URL);
             if (metaDataInput.isPresent()) {
-                savePrettyJson(metaDataInput.get(), path);
+                hasUpdate = savePrettyJson(metaDataInput.get(), path);
             }
         }
 
-        return objectMapper.readValue(path.toFile(), Metadata.class);
+        return new MetadataAndUpdateFlag(objectMapper.readValue(path.toFile(), Metadata.class), hasUpdate);
     }
 
     private void downloadAllSectorialLogos(Set<String> logoUrls) {
@@ -479,5 +512,11 @@ public class DataLoader {
         FORCE_UPDATE,
         TIMED_UPDATE,
         NEVER_UPDATE
+    }
+
+    private record SectorialListAndUpdateFlag(SectorialList sectorialList, boolean hasUpdate) {
+    }
+
+    private record MetadataAndUpdateFlag(Metadata metadata, boolean hasUpdate) {
     }
 }

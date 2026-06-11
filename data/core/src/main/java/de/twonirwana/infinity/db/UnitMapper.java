@@ -289,7 +289,9 @@ public class UnitMapper {
                                         equipmentIdMap,
                                         sectorialImage,
                                         sectorialFilter))
-                ).toList();
+                )
+                .sorted(Comparator.comparing(Trooper::getCombinedId))
+                .toList();
     }
 
     private static List<ProfileIncludeGroupAndOption> getProfileGroupFromInclude(Unit unit, List<ProfileInclude> profileIncludes) {
@@ -602,6 +604,7 @@ public class UnitMapper {
                 .filter(Objects::nonNull)
                 .map(pi -> peripheralFilter.get(pi.getId()))
                 .filter(Objects::nonNull)
+                .sorted()
                 .toList();
     }
 
@@ -647,8 +650,12 @@ public class UnitMapper {
                 .filter(io -> io.getOptions().contains(profileOption.getId()))
                 .map(ImgOption::getUrl)
                 .map(Utils::getFileNameFromUrl)
+                .sorted()
                 .toList();
-        List<de.twonirwana.infinity.unit.api.Order> orders = profileOption.getOrders().stream().map(UnitMapper::mapOrder).toList();
+        List<de.twonirwana.infinity.unit.api.Order> orders = profileOption.getOrders().stream()
+                .map(UnitMapper::mapOrder)
+                .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Order::getType))
+                .toList();
 
         return new TrooperProfile(
                 sectorial,
@@ -713,6 +720,7 @@ public class UnitMapper {
                         equipmentIdMap,
                         sectorialImage,
                         sectorialFilter))
+                .sorted(Comparator.comparing(TrooperProfile::getProfileId))
                 .toList();
         return new Trooper(
                 section,
@@ -737,6 +745,7 @@ public class UnitMapper {
                 .filter(Objects::nonNull)
                 .map(characteristicsFilter::get)
                 .filter(Objects::nonNull)
+                .sorted()
                 .toList();
     }
 
