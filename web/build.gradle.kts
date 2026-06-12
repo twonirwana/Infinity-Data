@@ -20,7 +20,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.46")
     annotationProcessor("org.projectlombok:lombok:1.18.46")
     implementation("com.google.guava:guava:33.6.0-jre")
-    implementation("io.avaje:avaje-config:5.1")
+    implementation("io.avaje:avaje-config:5.2")
     implementation("io.avaje:avaje-applog-slf4j:1.2")
 
     testImplementation(platform("org.junit:junit-bom:6.1.0"))
