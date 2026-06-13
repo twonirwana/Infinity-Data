@@ -52,6 +52,8 @@ public class TrooperProfile {
     @NonNull
     List<String> imageNames;
     @NonNull
+    List<String> products;
+    @NonNull
     List<Order> orders;
 
     public String getCombinedProfileId() {

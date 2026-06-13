@@ -28,7 +28,7 @@ public class CsvPrinter {
                 "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
                 "Points", "SWC",
                 "Skills", "Equipment", "Weapons", "Characteristics",
-                "CB Image"
+                "CB Image", "CB Product"
         };
 
         try {
@@ -114,8 +114,8 @@ public class CsvPrinter {
                     equipment,
                     weapons,
                     String.join(", ", profile.getCharacteristics()),
-                    !profile.getImageNames().isEmpty()
-
+                    String.join(", ", profile.getImageNames()),
+                    String.join(", ", profile.getProducts())
             );
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -203,7 +203,7 @@ public class DataLoader {
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
                     .toList();
 
-            CsvPrinter.printList(DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.hashCode(), unitOptions);
+            CsvPrinter.printList(DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode(), unitOptions);
         }
         //todo ref image
     }

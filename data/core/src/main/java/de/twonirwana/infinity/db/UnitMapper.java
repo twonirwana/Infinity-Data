@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.model.*;
 import de.twonirwana.infinity.model.image.ImgOption;
+import de.twonirwana.infinity.model.image.Product;
 import de.twonirwana.infinity.model.image.SectorialImage;
 import de.twonirwana.infinity.model.unit.*;
 import de.twonirwana.infinity.unit.api.ExtraValue;
@@ -88,7 +89,6 @@ public class UnitMapper {
                                                 ).stream())
                                                 : Stream.empty()
                                 )
-
                                 .toList()
                 ));
     }
@@ -483,6 +483,7 @@ public class UnitMapper {
                 weapon.getSavingNum(),
                 Optional.ofNullable(weapon.getProperties()).orElse(List.of()).stream()
                         .filter(Objects::nonNull)
+                        .sorted()
                         .toList(),
                 getUpToRangeModi(weapon.getDistance(), 20),
                 getUpToRangeModi(weapon.getDistance(), 40),
@@ -495,6 +496,7 @@ public class UnitMapper {
                 quantity,
                 Optional.ofNullable(extras).orElse(List.of()).stream()
                         .filter(Objects::nonNull)
+                        .sorted(Comparator.comparing(ExtraValue::getId))
                         .toList()
         );
     }
@@ -525,6 +527,7 @@ public class UnitMapper {
                     List<ExtraValue> extras = Optional.ofNullable(pi.getExtra()).stream()
                             .flatMap(Collection::stream)
                             .map(extraFilter::get)
+                            .sorted(Comparator.comparing(ExtraValue::getId))
                             .toList();
                     if (s != null) {
                         return Stream.of(s).map(skill -> mapSkill(skill, pi.getQ(), extras));
@@ -550,6 +553,7 @@ public class UnitMapper {
                 quantity, // quantity is always null or 1
                 extras.stream()
                         .filter(Objects::nonNull)
+                        .sorted(Comparator.comparing(ExtraValue::getId))
                         .toList()
         );
     }
@@ -570,6 +574,7 @@ public class UnitMapper {
                     List<ExtraValue> extras = Optional.ofNullable(pi.getExtra()).stream()
                             .flatMap(Collection::stream)
                             .map(extraFilter::get)
+                            .sorted(Comparator.comparing(ExtraValue::getId))
                             .toList();
                     if (e != null) {
                         return Stream.of(e).map(equip -> mapEquipment(equip, pi.getQ(), extras));
@@ -595,6 +600,7 @@ public class UnitMapper {
                 quantity,
                 extras.stream()
                         .filter(Objects::nonNull)
+                        .sorted(Comparator.comparing(ExtraValue::getId))
                         .toList()
         );
     }
@@ -642,16 +648,28 @@ public class UnitMapper {
                 sectorial.getName());
         String type = sectorialFilter.typeFilter().get(profile.getType());
         List<String> characteristics = getUnitCharacteristics(profileOption, profile, sectorialFilter.characteristicsFilter());
-        List<String> imageNames = sectorialImage.getUnits().stream()
+
+        List<ImgOption> imgOptions = sectorialImage.getUnits().stream()
                 .filter(u -> u.getId() == unit.getId())
                 .flatMap(u -> u.getProfileGroups().stream())
                 .filter(pg -> pg.getId() == profileGroupId)
                 .flatMap(pg -> pg.getImgOptions().stream())
                 .filter(io -> io.getOptions().contains(profileOption.getId()))
+                .toList();
+
+        List<String> imageNames = imgOptions.stream()
                 .map(ImgOption::getUrl)
                 .map(Utils::getFileNameFromUrl)
+                .filter(Objects::nonNull)
                 .sorted()
                 .toList();
+
+        List<String> products = imgOptions.stream()
+                .flatMap(s -> s.getProducts().stream())
+                .map(Product::getName)
+                .sorted()
+                .toList();
+
         List<de.twonirwana.infinity.unit.api.Order> orders = profileOption.getOrders().stream()
                 .map(UnitMapper::mapOrder)
                 .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Order::getType))
@@ -683,6 +701,7 @@ public class UnitMapper {
                 characteristics,
                 Utils.getFileNameFromUrl(profile.getLogo()),
                 imageNames,
+                products,
                 orders);
     }
 
@@ -820,11 +839,13 @@ public class UnitMapper {
             String turretName = extra2WeaponModeNameMapping.getOrDefault(turretTypeExtra.get().getText(), turretTypeExtra.get().getText());
             List<Weapon> turrets = turretWeapons.stream()
                     .filter(w -> Objects.equals(w.getMode(), turretName))
+                    .sorted(Comparator.comparing(Weapon::getName))
                     .toList();
             //fallback to all weapons
             if (turrets.isEmpty()) {
                 turrets = allWeapons.stream()
                         .filter(w -> Objects.equals(w.getName(), turretName))
+                        .sorted(Comparator.comparing(Weapon::getName))
                         .toList();
             }
             if (turrets.isEmpty()) {
@@ -844,6 +865,7 @@ public class UnitMapper {
             //use only base version
             return turretWeapons.stream()
                     .filter(w -> Strings.isNullOrEmpty(w.getMode()))
+                    .sorted(Comparator.comparing(Weapon::getName))
                     .toList();
         }
     }
