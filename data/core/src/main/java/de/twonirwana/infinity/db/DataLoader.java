@@ -203,7 +203,7 @@ public class DataLoader {
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
                     .toList();
 
-            CsvPrinter.printList(DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.hashCode(), unitOptions);
+            CsvPrinter.printList(DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode(), unitOptions);
         }
         //todo ref image
     }
@@ -412,7 +412,7 @@ public class DataLoader {
             urlConnection.setRequestProperty("Referer", "https://infinityuniverse.com/");
             return Optional.of(new BufferedInputStream(urlConnection.getInputStream()));
         } catch (Exception e) {
-            log.error("Error downloading {}: {}", urlString, e.getMessage());
+            log.error("Error downloading: {}", urlString, e);
             return Optional.empty();
         }
     }
