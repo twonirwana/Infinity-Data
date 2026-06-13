@@ -28,7 +28,6 @@ public class CsvPrinter {
                 "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
                 "Points", "SWC",
                 "Skills", "Equipment", "Weapons", "Characteristics",
-                "CB Image", "CB Product"
         };
 
         try {

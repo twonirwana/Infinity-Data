@@ -60,10 +60,10 @@
                     th:text="${printUtils.getWeaponSavingRollWithExtra(unitProfile, weapon)}"></td>
 
                 <td th:if="${!showSavingRollInsteadOfAmmo}"
-                    th:text="${weapon.ammunition != null ? weapon.ammunition.name : ''}"></td>
+                    th:text="${printUtils.getAmmo(weapon)}"></td>
 
                 <td class="weapon-table-traits"
-                    th:text="${printUtils.getWeaponPropertiesString(weapon, showSavingRollInsteadOfAmmo)}"></td>
+                    th:text="${printUtils.getWeaponPropertiesString(unitProfile, weapon, showSavingRollInsteadOfAmmo)}"></td>
             </tr>
 
             </tbody>
