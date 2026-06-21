@@ -163,10 +163,14 @@ public class DataLoader {
         Map<Sectorial, SectorialList> reenforcementListMap = reenforcementUpdateListMap.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, s -> s.getValue().sectorialList()));
 
-        boolean hasImageUpdate = sectorialIdMap.values()
-                .stream()
-                .anyMatch(s -> downloadImageDataFile(s, updateNow));
+        boolean hasImageUpdate = false;
 
+        for (Sectorial sectorial : sectorialIdMap.values()) {
+            boolean sectorialHasImageUpdate = downloadImageDataFile(sectorial, updateNow);
+            if (sectorialHasImageUpdate) {
+                hasImageUpdate = true;
+            }
+        }
 
         Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
                 .filter(s -> Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())).toFile().exists())
@@ -340,7 +344,6 @@ public class DataLoader {
 
     //gson has the better pretty print format
     private static boolean savePrettyJson(BufferedInputStream inputStream, Path targetFilePath) throws IOException {
-        boolean hasUpdate = false;
         JsonElement jsonElement;
         String baseFileName = getBaseName(targetFilePath.getFileName().toString());
         try (InputStreamReader reader = new InputStreamReader(inputStream)) {
@@ -361,30 +364,33 @@ public class DataLoader {
         }
 
         HashCode newFileHash = com.google.common.io.Files.asByteSource(tempFile.toFile()).hash(Hashing.murmur3_128());
-        if (!newFileHash.equals(existingFileHash)) {
+        if (!Objects.equals(newFileHash, existingFileHash)) {
 
             if (targetFilePath.toFile().exists()) {
-                log.info("{} was updated", baseFileName);
+                //archive existing
+                String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
+                String archivedName = "%s/%s_%s.json".formatted(ARCHIVE_FOLDER, baseFileName, timestamp);
+                Files.copy(targetFilePath, Path.of(archivedName), StandardCopyOption.REPLACE_EXISTING);
+
+                //check for diffs
                 String newJson = new String(Files.readAllBytes(tempFile));
                 String existingFile = new String(Files.readAllBytes(targetFilePath));
                 List<JsonDiff.Diff> diffs = JsonDiff.getDiffs(existingFile, newJson, List.of("resume", "filters", "peripheral"));
 
                 updateCounter.increment(diffs.size());
-                hasUpdate = true;
 
                 diffs.forEach(diff -> log.info("{}.{}", baseFileName, diff.toString()));
+                log.info("{} has hash change from: {} to {}. Existing archived to: {}", baseFileName, existingFileHash, newFileHash, archivedName);
             } else {
                 log.info("{} was created", baseFileName);
             }
 
+            Files.copy(tempFile, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+            tempFile.toFile().delete();
+            return true;
         }
-        if (targetFilePath.toFile().exists()) {
-            String timestamp = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-            Files.copy(targetFilePath, Path.of("%s/%s_%s.json".formatted(ARCHIVE_FOLDER, baseFileName, timestamp)), StandardCopyOption.REPLACE_EXISTING);
-        }
-        Files.copy(tempFile, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
-        tempFile.toFile().delete();
-        return hasUpdate;
+
+        return false;
     }
 
     private static SectorialImage deserializeSectorialImage(Path path) {
@@ -412,7 +418,7 @@ public class DataLoader {
             urlConnection.setRequestProperty("Referer", "https://infinityuniverse.com/");
             return Optional.of(new BufferedInputStream(urlConnection.getInputStream()));
         } catch (Exception e) {
-            log.error("Error downloading: {}", urlString, e);
+            log.error("Error downloading: {} : {}", urlString, e.getMessage());
             return Optional.empty();
         }
     }
