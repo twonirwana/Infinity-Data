@@ -27,7 +27,8 @@ public class CsvPrinter {
                 "Sectorial", "ID", "Unit Name", "Option Name", "Unit Option Name", "Profile Name",
                 "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
                 "Points", "SWC",
-                "Skills", "Equipment", "Weapons", "Characteristics",
+                "Skills", "Equipment", "Weapons",
+                "Characteristics", "CB Image", "CB Product"
         };
 
         try {
@@ -140,9 +141,6 @@ public class CsvPrinter {
                 .map(CsvPrinter::prettyExtra)
                 .collect(Collectors.joining(", ")));
         return "%s%s".formatted(weapon.getName(), extraString);
-    }
-
-    private record UnitOptionTrooperProfile(UnitOption unitOption, Trooper trooper, TrooperProfile profile) {
     }
 
 }
