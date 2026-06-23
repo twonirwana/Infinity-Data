@@ -54,7 +54,6 @@ public class WebApp {
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
-    private final static String CSV_PATH = "/csv/all";
     private final static Set<String> ARMY_CODES = new ConcurrentSkipListSet<>();
 
     static void main() {
@@ -115,7 +114,7 @@ public class WebApp {
             config.registerPlugin(micrometerPlugin);
             config.routes.get("/favicon.ico", ctx -> {
                 ctx.contentType("image/x-icon");
-                ctx.result(WebApp.class.getResourceAsStream("/favicon.ico"));
+                Optional.ofNullable(WebApp.class.getResourceAsStream("/favicon.ico")).ifPresent(ctx::result);
             });
             startPage(config, registry);
             downloadAllUnitsCsv(config, registry, Path.of(database.getAllUnitsCsvListFolder()));
