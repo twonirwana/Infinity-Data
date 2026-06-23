@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 public class ExportAll {
 
     static void main() {
-            Database db = DatabaseImp.createWithoutUpdate("resources");
+           // Database db = DatabaseImp.createWithoutUpdate("resources");
 
 
-        //Database db = DatabaseImp.createTimedUpdate();
+        Database db = DatabaseImp.createForceUpdate();
 
 
         HtmlPrinter htmlPrinter = new HtmlPrinter(LocalDateTime::now);

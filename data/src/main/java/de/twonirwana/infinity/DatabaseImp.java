@@ -27,6 +27,10 @@ public class DatabaseImp implements Database {
         return new DatabaseImp(DataLoader.UpdateOption.TIMED_UPDATE, null);
     }
 
+    public static DatabaseImp createForceUpdate() {
+        return new DatabaseImp(DataLoader.UpdateOption.FORCE_UPDATE, null);
+    }
+
     public static DatabaseImp createWithoutUpdate(String resourceFolder) {
         return new DatabaseImp(DataLoader.UpdateOption.NEVER_UPDATE, resourceFolder);
     }
@@ -126,5 +130,10 @@ public class DatabaseImp implements Database {
     @Override
     public String getSectorialLogoFolder() {
         return loader.getSectorialLogosFolder();
+    }
+
+    @Override
+    public String getAllUnitsCsvListFolder() {
+        return loader.getAllUnitsCsvListFolder();
     }
 }

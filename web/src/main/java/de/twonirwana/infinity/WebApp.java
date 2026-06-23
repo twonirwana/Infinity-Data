@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -52,6 +54,7 @@ public class WebApp {
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
+    private final static String CSV_PATH = "/csv/all";
     private final static Set<String> ARMY_CODES = new ConcurrentSkipListSet<>();
 
     static void main() {
@@ -115,6 +118,7 @@ public class WebApp {
                 ctx.result(WebApp.class.getResourceAsStream("/favicon.ico"));
             });
             startPage(config, registry);
+            downloadAllUnitsCsv(config, registry, Path.of(database.getAllUnitsCsvListFolder()));
             //page that generates cards for the given parameter
             generateCardPage(config, startupTime, registry, contextPath, database, htmlPrinter);
             //page for a generated card set
@@ -123,6 +127,33 @@ public class WebApp {
             imprintPage(config, registry);
             helpPage(config, registry);
             prometheusPage(config, registry);
+        });
+    }
+
+    private static void downloadAllUnitsCsv(JavalinConfig config, PrometheusMeterRegistry registry, Path allUnitsCsvListFolder) {
+        config.routes.get("/downloadAllUnits", ctx -> {
+
+            Optional<Path> latestCsv = getLatestCsvFile(allUnitsCsvListFolder);
+
+            if (latestCsv.isEmpty() || !Files.exists(latestCsv.get()) || !Files.isRegularFile(latestCsv.get())) {
+                log.error("Attempted to download missing file: {}", latestCsv);
+                ctx.status(404).result("File not found.");
+                return;
+            }
+
+            try {
+
+                ctx.header("Content-Disposition", "attachment; filename=\"" + latestCsv.get().getFileName().toString() + "\"");
+                ctx.contentType("text/csv");
+
+                InputStream fileStream = Files.newInputStream(latestCsv.get());
+                ctx.result(fileStream);
+                registry.counter("infinity.downloadCsv").increment();
+
+            } catch (Exception e) {
+                log.error("Error serving file: {}", latestCsv, e);
+                ctx.status(500).result("Internal server error while downloading.");
+            }
         });
     }
 
@@ -401,6 +432,15 @@ public class WebApp {
             );
             ctx.render("templates/index.html", model);
         });
+    }
+
+    private static Optional<Path> getLatestCsvFile(Path directory) throws IOException {
+        try (Stream<Path> files = Files.list(directory)) {
+            return files
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().toLowerCase().endsWith(".csv"))
+                    .max(Comparator.comparing(Path::getFileName));
+        }
     }
 
     private static void updateData(Database database, MeterRegistry registry) {

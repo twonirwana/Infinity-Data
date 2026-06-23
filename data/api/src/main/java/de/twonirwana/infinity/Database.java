@@ -40,4 +40,6 @@ public interface Database {
     FireteamChart getFireteamChart(Sectorial sectorial);
 
     String getSectorialLogoFolder();
+
+    String getAllUnitsCsvListFolder();
 }

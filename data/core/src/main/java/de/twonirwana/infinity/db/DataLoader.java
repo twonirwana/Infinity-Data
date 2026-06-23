@@ -41,9 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -60,6 +58,8 @@ public class DataLoader {
     private static final String META_DATA_FILE_NAME = "metadata.json";
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
     private static final String ARCHIVE_FOLDER = "archive";
+    private static final String CSV_LIST_PATH = "out/csv/list/";
+
     private final static ObjectMapper objectMapper = JsonMapper.builder()
             .changeDefaultNullHandling(ignore -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
             .build();
@@ -84,6 +84,7 @@ public class DataLoader {
     private final String sectorialFolder;
     private final String imageDataFolder;
     private final String imageDataFileFormat;
+    private final Set<Integer> additionalOutOfDateSectorialIds = Set.of(1099, 199, 299, 599, 699, 899, 998, 999);
 
     public DataLoader(UpdateOption updateOption, String resourcesFolder) throws IOException, URISyntaxException {
 
@@ -98,26 +99,15 @@ public class DataLoader {
         imageDataFolder = this.resourcesFolder + "/sectorialImageData/";
         imageDataFileFormat = imageDataFolder + "/sectorialImage%d-%s.json";
 
+        final String nextUpdateFile = this.resourcesFolder + "/lastUpdate.txt";
+
         //needed to set headers to allow download
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
         createFolderIfNotExists(customUnitImageFolder);
+        createFolderIfNotExists(CSV_LIST_PATH);
 
-        long lastModifiedDateTimestamp = Stream.concat(
-                        Stream.of(Path.of(metaDataFilePath).toFile().lastModified()),
-                        getLastModifiedDates(sectorialFolder).stream())
-                .mapToLong(l -> l)
-                .max().orElse(0L);
-
-        log.info("Last modified date: {}", Instant.ofEpochMilli(lastModifiedDateTimestamp)
-                .atZone(ZoneId.systemDefault())
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-
-        long metaDataLastModifiedAge = System.currentTimeMillis() - lastModifiedDateTimestamp;
-        boolean fileOutOfDate = metaDataLastModifiedAge > Config.getLong("db.refreshIntervalSec", 24 * 60 * 60) * 1000;
-
-        final boolean updateNow = updateOption == UpdateOption.FORCE_UPDATE ||
-                (fileOutOfDate && updateOption == UpdateOption.TIMED_UPDATE);
+        final boolean updateNow = shouldUpdate(updateOption, new File(nextUpdateFile));
         if (updateNow) {
             log.info("update all files");
         }
@@ -198,33 +188,78 @@ public class DataLoader {
 
         sectorialFireteamCharts = mapFireteamChat(sectorialListMap);
 
-        if (hasMetadataUpdate || hasSectorialUpdate || hasSectorialRefUpdate || hasImageUpdate) {
+        if (hasMetadataUpdate ||
+                hasSectorialUpdate ||
+                hasSectorialRefUpdate ||
+                hasImageUpdate ||
+                updateOption == UpdateOption.FORCE_UPDATE ||
+                !csvExists()) {
             List<UnitOption> unitOptions = getAllUnits().stream()
                     .filter(u -> !u.getSectorial().isDiscontinued())
+                    .filter(u -> !additionalOutOfDateSectorialIds.contains(u.getSectorial().getId()))
                     .filter(u -> !u.isMerc())
                     .filter(u -> !u.isReinforcementUnit())
                     .distinct()
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
                     .toList();
-
-            CsvPrinter.printList(DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode(), unitOptions);
+            String filePath = CSV_LIST_PATH + DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode() + ".csv";
+            CsvPrinter.printList(filePath, unitOptions, customUnitImageFolder);
         }
         //todo ref image
     }
 
-    private static List<Long> getLastModifiedDates(String folderPath) throws IOException {
-        Path directory = Paths.get(folderPath);
+    private static boolean csvExists() {
+        try (Stream<Path> files = Files.list(Path.of(CSV_LIST_PATH))) {
+            return files
+                    .filter(Files::isRegularFile)
+                    .anyMatch(path -> path.toString().toLowerCase().endsWith(".csv"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        if (!Files.isDirectory(directory)) {
-            throw new IllegalArgumentException("The provided path is not a directory: " + folderPath);
+    private static boolean shouldUpdate(UpdateOption updateOption, File lastUpdateFile) {
+        if (updateOption == UpdateOption.NEVER_UPDATE) {
+            return false;
+        } else if (updateOption == UpdateOption.FORCE_UPDATE) {
+            return true;
         }
 
-        try (Stream<Path> paths = Files.list(directory)) {
-            return paths
-                    .filter(Files::isRegularFile) // Exclude sub-directories
-                    .map(Path::toFile)
-                    .map(File::lastModified)
-                    .collect(Collectors.toList());
+        LocalDateTime now = LocalDateTime.now();
+
+        long updateIntervalSec = Config.getLong("db.refreshIntervalSec", 24 * 60 * 60);
+
+        if (!lastUpdateFile.exists()) {
+            log.info("Next update file missing, create with last update: {}", now);
+            overwriteToFile(lastUpdateFile, now.toString());
+            return true;
+        }
+
+        LocalDateTime currentPersistedLastUpdateDateTime;
+        try {
+            String date = Files.readString(lastUpdateFile.toPath());
+            currentPersistedLastUpdateDateTime = LocalDateTime.parse(date);
+        } catch (Exception e) {
+            log.error("Error reading update file, create with last update: {}", now, e);
+            overwriteToFile(lastUpdateFile, now.toString());
+            return true;
+        }
+
+        if (currentPersistedLastUpdateDateTime.plusSeconds(updateIntervalSec).isBefore(now)) {
+            log.info("Files out of date with last update {} with interval {}sec, create with next update: {}", currentPersistedLastUpdateDateTime, updateIntervalSec, now);
+            overwriteToFile(lastUpdateFile, now.toString());
+            return true;
+        }
+        log.info("Files are up to date with last update {} with interval {}sec", currentPersistedLastUpdateDateTime, updateIntervalSec);
+
+        return false;
+    }
+
+    private static void overwriteToFile(File file, String content) {
+        try {
+            Files.writeString(file.toPath(), content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -512,6 +547,10 @@ public class DataLoader {
                 .filter(u -> !u.isMerc())
                 .toList();
 
+    }
+
+    public String getAllUnitsCsvListFolder() {
+        return CSV_LIST_PATH;
     }
 
     public enum UpdateOption {
