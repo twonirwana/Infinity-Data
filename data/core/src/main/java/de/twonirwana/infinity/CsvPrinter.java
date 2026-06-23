@@ -5,11 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -21,23 +20,18 @@ public class CsvPrinter {
 
     private static final Set<Weapon.Type> WEAPON_TYPES = Set.of(Weapon.Type.WEAPON, Weapon.Type.TURRET);
 
-    public static void printList(String name, List<UnitOption> printableUnits) {
+    public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder) {
 
         String[] headers = {
-                "Sectorial", "ID", "Unit Name", "Option Name", "Unit Option Name", "Profile Name",
+                "Sectorial", "Option ID", "Profile ID", "Ics", "Unit Name", "Name",
                 "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
                 "Points", "SWC",
                 "Skills", "Equipment", "Weapons",
-                "Characteristics", "CB Image", "CB Product"
+                "Characteristics", "Type", "Category",
+                "CB Image", "CB Product", "Community Image"
         };
 
-        try {
-            Files.createDirectories(Path.of("out/csv/"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try (Writer writer = new FileWriter("out/csv/" + name + ".csv");
+        try (Writer writer = new FileWriter(filePath);
              CSVPrinter csvPrinter = new CSVPrinter(writer,
                      CSVFormat.Builder.create().setDelimiter(';').setHeader(headers).get())) {
 
@@ -46,10 +40,10 @@ public class CsvPrinter {
                     .filter(u -> !u.isMerc())
                     .forEach(unitOption -> unitOption.getAllTrooper()
                             .forEach(trooper -> trooper.getProfiles()
-                                    .forEach(profile -> printUnitOptionProfile(csvPrinter, unitOption, trooper, profile))));
+                                    .forEach(profile -> printUnitOptionProfile(csvPrinter, unitOption, trooper, profile, customUnitImageFolder))));
 
             csvPrinter.flush();
-            log.info("Update of {} units have been printed into {}", printableUnits.size(), name);
+            log.info("Update of {} units have been printed into {}", printableUnits.size(), filePath);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -68,7 +62,7 @@ public class CsvPrinter {
         throw new RuntimeException("Type not implemented");
     }
 
-    private static void printUnitOptionProfile(CSVPrinter csvPrinter, UnitOption unitOption, Trooper trooper, TrooperProfile profile) {
+    private static void printUnitOptionProfile(CSVPrinter csvPrinter, UnitOption unitOption, Trooper trooper, TrooperProfile profile, String customUnitImageFolder) {
         String skills = profile.getSkills().stream()
                 .map(CsvPrinter::getSkillNameAndExtra)
                 .collect(Collectors.joining(", "));
@@ -86,11 +80,11 @@ public class CsvPrinter {
 
             csvPrinter.printRecord(
                     unitOption.getSectorial().getName(),
+                    unitOption.getCombinedId(),
                     profile.getCombinedProfileId(),
+                    unitOption.getIsc(),
                     unitOption.getUnitName(),
-                    trooper.getOptionName(),
-                    unitOption.getUnitOptionName(),
-                    profile.getName(),
+                    getName(unitOption, trooper, profile),
                     profile.getMovementInCm().stream()
                             .map(DistanceUtil::toInch)
                             .map(Objects::toString)
@@ -114,12 +108,51 @@ public class CsvPrinter {
                     equipment,
                     weapons,
                     String.join(", ", profile.getCharacteristics()),
+                    profile.getType(),
+                    trooper.getCategory(),
                     String.join(", ", profile.getImageNames()),
-                    String.join(", ", profile.getProducts())
+                    String.join(", ", profile.getProducts()),
+                    getCommunityImageName(profile, customUnitImageFolder)
+
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String getName(UnitOption unitOption, Trooper trooper, TrooperProfile profile) {
+
+        if (trooper.getProfiles().size() > 1) {
+            final String shortUnitName;
+            final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
+            if (baseName.contains(",")) {
+                shortUnitName = baseName.substring(0, baseName.indexOf(",")).trim();
+            } else {
+                shortUnitName = baseName.trim();
+            }
+
+            final String shortProfileName;
+            if (profile.getName().contains(",")) {
+                shortProfileName = profile.getName().substring(0, profile.getName().indexOf(",")).trim();
+            } else {
+                shortProfileName = profile.getName().trim();
+            }
+            if (shortProfileName.contains(shortUnitName)) {
+                return shortProfileName;
+            }
+            return shortUnitName + " - " + shortProfileName;
+        }
+        return trooper.getOptionName();
+
+
+    }
+
+    private static String getCommunityImageName(TrooperProfile profile, String customUnitImageFolder) {
+        String imageName = profile.getCombinedProfileId() + ".png";
+        if (new File(customUnitImageFolder + imageName).exists()) {
+            return imageName;
+        }
+        return null;
     }
 
     private static String getSkillNameAndExtra(Skill skill) {

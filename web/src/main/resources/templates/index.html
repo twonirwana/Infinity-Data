@@ -236,6 +236,16 @@
             text-decoration: underline;
         }
 
+        .allCsv {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .allCsv a {
+            color: var(--primary-color-glow);
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -299,6 +309,10 @@
 
         <button type="submit">Generate and View Cards</button>
     </form>
+
+    <div class="allCsv">
+        <a th:href="@{/downloadAllUnits}" target="_blank">Download all Units as CSV</a>
+    </div>
 
     <div class="help">
         <a th:href="@{/help}" target="_blank">Help</a>
