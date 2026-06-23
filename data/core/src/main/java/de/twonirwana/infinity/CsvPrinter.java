@@ -9,7 +9,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,7 +27,7 @@ public class CsvPrinter {
                 "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
                 "Points", "SWC",
                 "Skills", "Equipment", "Weapons",
-                "Characteristics",
+                "Characteristics", "Type", "Category",
                 "CB Image", "CB Product", "Community Image"
         };
 
@@ -105,6 +108,8 @@ public class CsvPrinter {
                     equipment,
                     weapons,
                     String.join(", ", profile.getCharacteristics()),
+                    profile.getType(),
+                    trooper.getCategory(),
                     String.join(", ", profile.getImageNames()),
                     String.join(", ", profile.getProducts()),
                     getCommunityImageName(profile, customUnitImageFolder)
