@@ -67,18 +67,20 @@ public class DataLoader {
     private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
     private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
     private final static Counter updateCounter = Metrics.globalRegistry.counter("infinity.data.update");
-    private final static Set<Integer> ADDITIONAL_OUT_OF_DATE_SECTORIAL_IDS = Set.of(
-            1099, //Teams Gladius
+    private final static Set<Integer> NOT_PLAYABLE_SECTORIAL_IDS = Set.of(
             199, //Code: Capital
             299, //Daebak Force
             399, //L' Équipe Argent
             499, //Melek Reaction Group
             599, //Vipera Pursuit Force
-            699, //The Exrah Comissariat
+            699, //The Exrah Comissariat
             799, //Ank Program
             899, //Deras kaar
             998, //CONTRACTED BACK-UP
-            999); //Contracted Back-Up
+            999, //Contracted Back-
+            1099, //Teams Gladius
+            1199 //Hayabusa
+    );
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
     private final Map<Integer, Sectorial> sectorialIdMap;
@@ -189,7 +191,7 @@ public class DataLoader {
 
     private static void updateCsvIfChanged(List<UnitOption> allUnits, String customUnitImageFolder) {
         List<UnitOption> unitOptions = allUnits.stream()
-                .filter(u -> !ADDITIONAL_OUT_OF_DATE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
+                .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .filter(u -> !u.isMerc())
                 .filter(u -> !u.isReinforcementUnit())
                 .distinct()
