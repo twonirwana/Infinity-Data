@@ -43,7 +43,6 @@ public class CsvPrinter {
                                     .forEach(profile -> printUnitOptionProfile(csvPrinter, unitOption, trooper, profile, customUnitImageFolder))));
 
             csvPrinter.flush();
-            log.info("Update of {} units have been printed into {}", printableUnits.size(), filePath);
 
         } catch (IOException e) {
             throw new RuntimeException(e);

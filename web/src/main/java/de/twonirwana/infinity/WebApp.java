@@ -148,6 +148,7 @@ public class WebApp {
                 InputStream fileStream = Files.newInputStream(latestCsv.get());
                 ctx.result(fileStream);
                 registry.counter("infinity.downloadCsv").increment();
+                log.info("All unit csv files have been downloaded.");
 
             } catch (Exception e) {
                 log.error("Error serving file: {}", latestCsv, e);
