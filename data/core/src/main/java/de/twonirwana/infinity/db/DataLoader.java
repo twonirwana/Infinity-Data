@@ -551,6 +551,9 @@ public class DataLoader {
     public List<UnitOption> getAllUnits() {
         return sectorialUnitOptions.values().stream()
                 .flatMap(Collection::stream)
+                .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
+                .distinct()
+                .sorted(Comparator.comparing(UnitOption::getCombinedId))
                 .toList();
     }
 
@@ -560,6 +563,9 @@ public class DataLoader {
 
     public List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial) {
         return sectorialUnitOptions.get(sectorial).stream()
+                .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
+                .distinct()
+                .sorted(Comparator.comparing(UnitOption::getCombinedId))
                 .filter(u -> !u.isMerc())
                 .toList();
 
