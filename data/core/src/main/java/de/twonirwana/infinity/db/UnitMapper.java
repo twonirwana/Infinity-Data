@@ -542,6 +542,7 @@ public class UnitMapper {
                     }
                     return Stream.empty();
                 })
+                .distinct()
                 .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Skill::getName))
                 .toList();
     }
@@ -589,6 +590,7 @@ public class UnitMapper {
                     }
                     return Stream.empty();
                 })
+                .distinct()
                 .sorted(Comparator.comparing(de.twonirwana.infinity.unit.api.Equipment::getName))
                 .toList();
     }
