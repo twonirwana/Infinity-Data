@@ -16,6 +16,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -116,7 +117,7 @@ public class PlaywrightScreenshotTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testCssRefactoringMatchesBaseline(BrowserTyp browserType, HtmlPrinter.Template template) throws IOException {
+    void testBrowserAndTemplate(BrowserTyp browserType, HtmlPrinter.Template template) throws IOException {
         Browser browser = fromType(browserType);
         context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(1920, 1080));
@@ -125,7 +126,7 @@ public class PlaywrightScreenshotTest {
         page.waitForLoadState();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Select Card Style:").selectOption(template.name());
-        page.getByLabel("Your army code:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBkAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABwCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgKIBAgAAhyMBAgA%3D");
+        page.getByLabel("Army Code or Option IDs:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBkAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABwCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgKIBAgAAhyMBAgA%3D");
 
 
         Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());
@@ -135,6 +136,49 @@ public class PlaywrightScreenshotTest {
                 .setFullPage(true));
 
         String fileName = browser.browserType().name() + "_" + template.name();
+        File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
+        BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
+        if (!expectedFile.exists()) {
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
+            Assertions.fail();
+        }
+
+        BufferedImage expected = ImageIO.read(expectedFile);
+        ImageComparisonResult result = new ImageComparison(expected, actual)
+                .setPixelToleranceLevel(0.1)
+                .setDifferenceRectangleColor(Color.BLUE)
+                .compareImages();
+
+
+        if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
+            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected" + ".png"));
+        }
+
+        Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
+    }
+
+    @Test
+    void testById() throws IOException {
+        Browser browser = chromium;
+        context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080));
+        page = context.newPage();
+        page.navigate(baseUrl);
+        page.waitForLoadState();
+        assertThat(page.locator("body")).isVisible();
+        String templateName = HtmlPrinter.Template.a4_image.name();
+        page.getByLabel("Select Card Style:").selectOption(templateName);
+        page.getByLabel("Army Code or Option IDs:").fill("1102-1160-1-1,999-999-999-999,abc-da,1102-1818-1-2,1102-1818-1-2,1102-1788-1-1,1102-1569-1-5");
+
+
+        Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());
+
+        newPage.waitForLoadState();
+        byte[] actualImageBytes = newPage.screenshot(new Page.ScreenshotOptions()
+                .setFullPage(true));
+
+        String fileName = "by_id_" + browser.browserType().name() + "_" + templateName;
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {

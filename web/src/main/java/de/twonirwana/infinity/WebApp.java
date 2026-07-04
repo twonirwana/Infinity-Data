@@ -41,6 +41,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -56,6 +58,7 @@ public class WebApp {
     private final static String INCH_UNIT_KEY = "inch";
     private final static String CM_UNIT_KEY = "cm";
     private final static Set<String> ARMY_CODES = new ConcurrentSkipListSet<>();
+    private static final Pattern COMBINED_ID_PATERN = Pattern.compile("\\d+-\\d+-\\d+-\\d+");
 
     static void main() {
         int port = Config.getInt("server.port", 7070);
@@ -295,8 +298,8 @@ public class WebApp {
                                          HtmlPrinter htmlPrinter) {
         config.routes.get("/generate", ctx -> {
             registry.counter("infinity.generate.called").increment();
-            String armyCode = ctx.queryParam("armyCode");
-            if (Strings.isNullOrEmpty(armyCode)) {
+            String armyData = ctx.queryParam("armyData");
+            if (Strings.isNullOrEmpty(armyData)) {
                 ctx.status(400).html("Missing Army Code");
                 return;
             }
@@ -332,80 +335,190 @@ public class WebApp {
                 return;
             }
 
-            armyCode = armyCode.trim();
-            String armyCodeHash = HashUtil.hash128Bit(armyCode);
-            String fileName = getFileName(armyCodeHash, startupTime, styleOptional.get(), unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
-            if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
-                log.info("army code already exists: {} -> {}", armyCode, fileName);
-                registry.counter("infinity.generate.existing").increment();
-                ctx.redirect(contextPath + "view/" + fileName);
-                return;
-            }
-
-            try {
-                Stopwatch stopwatch = Stopwatch.createStarted();
-                boolean isValid = checkArmyCodes(ctx, registry, armyCode, database);
-                if (!isValid) {
-                    return;
-                }
-
-                ArmyList al = database.getArmyListForArmyCode(armyCode);
-                if (!ARMY_CODES.contains(armyCode)) {
-                    ARMY_CODES.add(armyCode);
-                    registry.counter("infinity.unique.army.code", Tags.of("sectorial", al.getSectorial().getSlug())).increment();
-                }
-                List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
-                        .sorted()
-                        .flatMap(k -> al.getCombatGroups().get(k).stream())
-                        .toList();
-
-                htmlPrinter.printCardForArmyCode(armyListOptions,
-                        database.getAllHackingPrograms(),
-                        database.getAllMartialArtLevels(),
-                        database.getAllBootyRolls(),
-                        database.getAllMetaChemistryRolls(),
-                        al,
-                        database.getFireteamChart(al.getSectorial()),
-                        al.getSectorial(),
-                        database.getUnitImageFolder(),
-                        database.getCustomUnitImageFolder(),
-                        database.getUnitLogosFolder(),
-                        database.getSectorialLogoFolder(),
-                        fileName,
-                        armyCode,
-                        useInch,
-                        showSavingRollInsteadOfAmmo,
-                        removeDuplicates,
-                        reduceColor,
-                        weaponTypes,
-                        !removeImages,
-                        true,
-                        styleOptional.get());
-                log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
-                registry.counter("infinity.generate.list",
-                        "sectorial", al.getSectorial().getSlug(),
-                        "style", styleOptional.get().name(),
-                        "unit", unit,
-                        "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
-                        "reduceColor", String.valueOf(reduceColor),
-                        "removeImages", String.valueOf(removeImages),
-                        "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
-                        "showSkillWeapon", String.valueOf(showSkillWeapon),
-                        "distinct", String.valueOf(removeDuplicates)
-                ).increment();
-
-                Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
-
-                metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
-                ctx.redirect(contextPath + "view/" + fileName);
-            } catch (Exception e) {
-                log.error("Error read army code: {}", armyCode, e);
-                registry.counter("infinity.error.army.code").increment();
-                Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
-                ctx.status(400).html("Error read army code: " + armyCode);
+            List<String> unitIds = combinedIdMatcher(armyData);
+            if (unitIds.isEmpty()) {
+                printArmyCode(ctx, startupTime, registry, contextPath,
+                        database, htmlPrinter, armyData, unit, useInch, removeImages, showEquipmentWeapons,
+                        showSkillWeapon, removeDuplicates, showSavingRollInsteadOfAmmo, reduceColor, weaponTypes, styleOptional.get());
+            } else {
+                printUnitOptionIds(ctx, startupTime, registry, contextPath,
+                        database, htmlPrinter, unitIds, unit, useInch, removeImages, showEquipmentWeapons,
+                        showSkillWeapon, removeDuplicates, showSavingRollInsteadOfAmmo, reduceColor, weaponTypes, styleOptional.get());
             }
 
         });
+    }
+
+    private static List<String> combinedIdMatcher(String input) {
+        List<String> matches = new ArrayList<>();
+        Matcher matcher = COMBINED_ID_PATERN.matcher(input);
+        while (matcher.find()) {
+            matches.add(matcher.group());
+        }
+        return matches;
+    }
+
+    private static void printArmyCode(Context ctx,
+                                      final long startupTime,
+                                      PrometheusMeterRegistry registry,
+                                      String contextPath,
+                                      Database database,
+                                      HtmlPrinter htmlPrinter,
+                                      String armyCode,
+                                      String unit,
+                                      boolean useInch,
+                                      boolean removeImages,
+                                      boolean showEquipmentWeapons,
+                                      boolean showSkillWeapon,
+                                      boolean removeDuplicates,
+                                      boolean showSavingRollInsteadOfAmmo,
+                                      boolean reduceColor,
+                                      Set<Weapon.Type> weaponTypes,
+                                      HtmlPrinter.Template style) throws IOException {
+        armyCode = armyCode.trim();
+        String armyCodeHash = HashUtil.hash128Bit(armyCode);
+        String fileName = getFileName(armyCodeHash, startupTime, style, unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
+        if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
+            log.info("army code already exists: {} -> {}", armyCode, fileName);
+            registry.counter("infinity.generate.existing").increment();
+            ctx.redirect(contextPath + "view/" + fileName);
+            return;
+        }
+
+        try {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+            boolean isValid = checkArmyCodes(ctx, registry, armyCode, database);
+            if (!isValid) {
+                return;
+            }
+
+            ArmyList al = database.getArmyListForArmyCode(armyCode);
+            if (!ARMY_CODES.contains(armyCode)) {
+                ARMY_CODES.add(armyCode);
+                registry.counter("infinity.unique.army.code", Tags.of("sectorial", al.getSectorial().getSlug())).increment();
+            }
+            List<UnitOption> armyListOptions = al.getCombatGroups().keySet().stream()
+                    .sorted()
+                    .flatMap(k -> al.getCombatGroups().get(k).stream())
+                    .toList();
+
+            htmlPrinter.printCard(armyListOptions,
+                    database.getAllHackingPrograms(),
+                    database.getAllMartialArtLevels(),
+                    database.getAllBootyRolls(),
+                    database.getAllMetaChemistryRolls(),
+                    al,
+                    database.getFireteamChart(al.getSectorial()),
+                    al.getSectorial(),
+                    database.getUnitImageFolder(),
+                    database.getCustomUnitImageFolder(),
+                    database.getUnitLogosFolder(),
+                    database.getSectorialLogoFolder(),
+                    fileName,
+                    armyCode,
+                    useInch,
+                    showSavingRollInsteadOfAmmo,
+                    removeDuplicates,
+                    reduceColor,
+                    weaponTypes,
+                    !removeImages,
+                    true,
+                    style);
+            log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
+            registry.counter("infinity.generate.list",
+                    "sectorial", al.getSectorial().getSlug(),
+                    "style", style.name(),
+                    "unit", unit,
+                    "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
+                    "reduceColor", String.valueOf(reduceColor),
+                    "removeImages", String.valueOf(removeImages),
+                    "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
+                    "showSkillWeapon", String.valueOf(showSkillWeapon),
+                    "distinct", String.valueOf(removeDuplicates)
+            ).increment();
+
+            Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
+
+            metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
+            ctx.redirect(contextPath + "view/" + fileName);
+        } catch (Exception e) {
+            log.error("Error read army code: {}", armyCode, e);
+            registry.counter("infinity.error.army.code").increment();
+            Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
+            ctx.status(400).html("Error read army code: " + armyCode);
+        }
+    }
+
+    private static void printUnitOptionIds(Context ctx,
+                                           final long startupTime,
+                                           PrometheusMeterRegistry registry,
+                                           String contextPath,
+                                           Database database,
+                                           HtmlPrinter htmlPrinter,
+                                           List<String> unitOptionIds,
+                                           String unit,
+                                           boolean useInch,
+                                           boolean removeImages,
+                                           boolean showEquipmentWeapons,
+                                           boolean showSkillWeapon,
+                                           boolean removeDuplicates,
+                                           boolean showSavingRollInsteadOfAmmo,
+                                           boolean reduceColor,
+                                           Set<Weapon.Type> weaponTypes,
+                                           HtmlPrinter.Template style) {
+
+        try {
+            Stopwatch stopwatch = Stopwatch.createStarted();
+
+            Map<String, UnitOption> unitOptionById = database.getAllUnitOptions().stream()
+                    .collect(Collectors.toMap(UnitOption::getCombinedId, Function.identity()));
+            List<UnitOption> unitOptions = unitOptionIds.stream()
+                    .map(unitOptionById::get)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            String unitIdsHash = HashUtil.hash128Bit(unitOptionById.toString());
+            String fileName = getFileName(unitIdsHash, startupTime, style, unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
+            htmlPrinter.printCard(unitOptions,
+                    database.getAllHackingPrograms(),
+                    database.getAllMartialArtLevels(),
+                    database.getAllBootyRolls(),
+                    database.getAllMetaChemistryRolls(),
+                    null,
+                    null,
+                    unitOptions.getFirst().getSectorial(),
+                    database.getUnitImageFolder(),
+                    database.getCustomUnitImageFolder(),
+                    database.getUnitLogosFolder(),
+                    database.getSectorialLogoFolder(),
+                    fileName,
+                    null,
+                    useInch,
+                    showSavingRollInsteadOfAmmo,
+                    removeDuplicates,
+                    reduceColor,
+                    weaponTypes,
+                    !removeImages,
+                    true,
+                    style);
+            log.info("Created cards for: {} ; {} -> {}", unitOptions.getFirst().getSectorial().getSlug(), unitOptionIds, fileName);
+            registry.counter("infinity.generate.list",
+                    "sectorial", unitOptions.getFirst().getSectorial().getSlug(),
+                    "style", style.name(),
+                    "unit", unit,
+                    "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
+                    "reduceColor", String.valueOf(reduceColor),
+                    "removeImages", String.valueOf(removeImages),
+                    "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
+                    "showSkillWeapon", String.valueOf(showSkillWeapon),
+                    "distinct", String.valueOf(removeDuplicates)
+            ).increment();
+
+            metricsTimer("infinity.generate.unitOptionIds.new", stopwatch.elapsed(), registry);
+            ctx.redirect(contextPath + "view/" + fileName);
+        } catch (Exception e) {
+            ctx.status(400).html("Error read unitOptionIds: " + unitOptionIds);
+        }
     }
 
 
@@ -428,12 +541,14 @@ public class WebApp {
                                                  PrometheusMeterRegistry registry,
                                                  Database database) {
         config.routes.get("/joinedAvaResult", ctx -> {
-            registry.counter("infinity.joined.ava.result").increment();
+
             String armyCodes = ctx.queryParam("input");
             if (Strings.isNullOrEmpty(armyCodes)) {
                 ctx.status(400).html("Missing Army Codes");
                 return;
             }
+            registry.counter("infinity.joined.ava.result").increment();
+            log.info("Showed joined AVA Check result for: {}", armyCodes);
 
             List<String> armyCodeList = Arrays.stream(armyCodes.split(","))
                     .map(String::trim)

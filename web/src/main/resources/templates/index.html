@@ -246,6 +246,16 @@
             text-decoration: underline;
         }
 
+        .avaChecker {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .avaChecker a {
+            color: var(--primary-color-glow);
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
@@ -254,8 +264,9 @@
     <h1>Trooper Card Generator</h1>
     <form action="#" th:action="@{/generate}" method="get" target="_blank">
 
-        <label for="armyCode">Your army code:</label>
-        <input type="text" id="armyCode" name="armyCode" required placeholder="Enter Army Code...">
+        <label for="armyData">Army Code or Option IDs:</label>
+        <input type="text" id="armyData" name="armyData" required placeholder="Enter Army Code OR comma-separated Option IDs...">
+
         <label for="style-selector">Select Card Style:</label>
         <div class="select-wrapper">
             <select id="style-selector" name="style">
@@ -312,6 +323,10 @@
 
     <div class="allCsv">
         <a th:href="@{/downloadAllUnits}" target="_blank">Download all Units as CSV</a>
+    </div>
+
+    <div class="avaChecker">
+        <a th:href="@{/joinedAva}">Joined Army List AVA Checker</a>
     </div>
 
     <div class="help">

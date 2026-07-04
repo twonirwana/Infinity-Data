@@ -159,7 +159,7 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCardForArmyCode(armyListOptions,
+        underTest.printCard(armyListOptions,
                 db.getAllHackingPrograms(),
                 db.getAllMartialArtLevels(),
                 db.getAllBootyRolls(),
