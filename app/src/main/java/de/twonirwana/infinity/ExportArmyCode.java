@@ -29,7 +29,7 @@ public class ExportArmyCode {
                 .toList();
 
         new HtmlPrinter(LocalDateTime::now)
-                .printCardForArmyCode(armyListOptions,
+                .printCard(armyListOptions,
                         List.of(),
                         db.getAllMartialArtLevels(),
                         db.getAllBootyRolls(),

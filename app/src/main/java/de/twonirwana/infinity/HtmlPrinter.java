@@ -111,28 +111,28 @@ public class HtmlPrinter {
     }
 
 
-    public void printCardForArmyCode(List<UnitOption> unitOptions,
-                                     List<HackingProgram> allHackingPrograms,
-                                     List<MartialArtLevel> allMartialArtLevels,
-                                     List<BootyRoll> allBootyRolls,
-                                     List<MetaChemistryRoll> allMetaChemistryRolls,
-                                     ArmyList armyList,
-                                     FireteamChart fireteamChart,
-                                     Sectorial sectorial,
-                                     String unitImagePath,
-                                     String customUnitImagePath,
-                                     String logoImagePath,
-                                     String secotialLogoImagePath,
-                                     String fileName,
-                                     String armyCode,
-                                     boolean useInch,
-                                     boolean showSavingRollInsteadOfAmmo,
-                                     boolean removeDuplicates,
-                                     boolean reduceColor,
-                                     Set<Weapon.Type> showWeaponOfType,
-                                     boolean showImage,
-                                     boolean showHackingPrograms,
-                                     Template template) {
+    public void printCard(List<UnitOption> unitOptions,
+                          List<HackingProgram> allHackingPrograms,
+                          List<MartialArtLevel> allMartialArtLevels,
+                          List<BootyRoll> allBootyRolls,
+                          List<MetaChemistryRoll> allMetaChemistryRolls,
+                          ArmyList armyList,
+                          FireteamChart fireteamChart,
+                          Sectorial sectorial,
+                          String unitImagePath,
+                          String customUnitImagePath,
+                          String logoImagePath,
+                          String secotialLogoImagePath,
+                          String fileName,
+                          String armyCode,
+                          boolean useInch,
+                          boolean showSavingRollInsteadOfAmmo,
+                          boolean removeDuplicates,
+                          boolean reduceColor,
+                          Set<Weapon.Type> showWeaponOfType,
+                          boolean showImage,
+                          boolean showHackingPrograms,
+                          Template template) {
         writeCards(unitOptions,
                 allHackingPrograms,
                 allMartialArtLevels,
@@ -285,29 +285,29 @@ public class HtmlPrinter {
                 template);
     }
 
-    public void writeCards(List<UnitOption> unitOptions,
-                           List<HackingProgram> allHackingPrograms,
-                           List<MartialArtLevel> allMartialArtLevels,
-                           List<BootyRoll> allBootyRolls,
-                           List<MetaChemistryRoll> allMetaChemistryRolls,
-                           FireteamChart fireteamChart,
-                           ArmyList armyList,
-                           String fileName,
-                           String armyCode,
-                           Sectorial sectorial,
-                           String unitImagePath,
-                           String customUnitImagePath,
-                           String logoImagePath,
-                           String secotialLogoImagePath,
-                           String outputFolder,
-                           boolean useInch,
-                           boolean showSavingRollInsteadOfAmmo,
-                           boolean removeDuplicates,
-                           boolean reduceColor,
-                           Set<Weapon.Type> showWeaponOfType,
-                           boolean showImage,
-                           boolean showHackingPrograms,
-                           Template template) {
+    void writeCards(List<UnitOption> unitOptions,
+                    List<HackingProgram> allHackingPrograms,
+                    List<MartialArtLevel> allMartialArtLevels,
+                    List<BootyRoll> allBootyRolls,
+                    List<MetaChemistryRoll> allMetaChemistryRolls,
+                    FireteamChart fireteamChart,
+                    ArmyList armyList,
+                    String fileName,
+                    String armyCode,
+                    Sectorial sectorial,
+                    String unitImagePath,
+                    String customUnitImagePath,
+                    String logoImagePath,
+                    String secotialLogoImagePath,
+                    String outputFolder,
+                    boolean useInch,
+                    boolean showSavingRollInsteadOfAmmo,
+                    boolean removeDuplicates,
+                    boolean reduceColor,
+                    Set<Weapon.Type> showWeaponOfType,
+                    boolean showImage,
+                    boolean showHackingPrograms,
+                    Template template) {
         String outputPath = HTML_OUTPUT_PATH + outputFolder;
         String imageOutputPath = outputPath + IMAGE_FOLDER;
 
@@ -354,7 +354,7 @@ public class HtmlPrinter {
         }
 
         final List<UnitPrintCard> unitPrintCards;
-        if (removeDuplicates) {
+        if (removeDuplicates || armyList == null) {
             Set<String> ids = new ConcurrentSkipListSet<>();
             unitPrintCards = unitOptions.stream()
                     .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels, allHackingPrograms, null).stream())
@@ -429,7 +429,7 @@ public class HtmlPrinter {
                 .flatMap(w -> {
                     if (!Strings.isNullOrEmpty(w.getProfile())) {
                         return Stream.of(PrintUtils.weaponProfile2Deployable(w));
-                    } else if (w.getName().endsWith("Mine")) {
+                    } else if (w.getName().endsWith("Mine") && !w.getName().equals("Chest Mine")) {
                         String traits = PrintUtils.cleanupDeployableWeaponTraits(w.getProperties());
                         return Stream.of(Deployable.of(w.getName(), "-", "-", w, "0", "0", "1", "0", traits));
                     } else if (w.getName().contains("Armed Turret")) {
