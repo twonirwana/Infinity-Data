@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">list</title>
+    <link rel="icon" type="image/x-icon" th:href="@{favicon.ico}">
+    <style>
+        :root {
+            --primary-color-glow: #00d4ff;
+            --primary-color-dark: #009ec4;
+            --dark-bg: #12151a;
+            --content-bg: rgba(20, 25, 30, 0.85);
+            --text-color: #e0e0e0;
+            --text-muted: #8899aa;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Orbitron', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
+            color: var(--primary-color-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            color: var(--primary-color-glow);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7), 0 0 12px rgba(0, 212, 255, 0.4);
+            margin-bottom: 1.5em;
+        }
+
+        table {
+            border-collapse: collapse;
+            background-color: var(--content-bg);
+            color: var(--text-color);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        td {
+            padding: 12px 20px;
+            border: 1px solid var(--primary-color-dark);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    <span th:text="${title}">Title</span>
+</h1>
+
+<div th:if="${message != null and message.length() > 0}">
+    <span th:text="${message}">message</span>
+</div>
+<p></p>
+
+<table>
+    <tr th:each="row : ${list}">
+        <td th:each="cell : ${row}" th:text="${cell}"></td>
+    </tr>
+</table>
+
+</body>
+</html>

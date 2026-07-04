@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class CheckJoinedAvailability {
 
-    private static final Army ALL_ARMIES = new Army("-", "all", 0);
+    public static final Army ALL_ARMIES = new Army("-", "all", 0);
 
     public static List<ArmyUnitCount> checkArmyCodeForJoinedAvailability(List<String> armyCodes, Database database) {
 
@@ -24,7 +24,7 @@ public class CheckJoinedAvailability {
                                     .flatMap(Collection::stream)
                                     .map(u -> new ArmyCodeUnit(
                                             new Army(ac, al.getArmyName(), armyIndex),
-                                            new Unit(u.getCombinedId(), u.getUnitName(), u.getPrimaryUnit().getProfiles().getFirst().getAvailability())));
+                                            new Unit(u.getSectorial().getId() + "-" + u.getUnitId(), u.getUnitName(), u.getPrimaryUnit().getProfiles().getFirst().getAvailability())));
                         }
                 ).toList();
 
@@ -85,12 +85,12 @@ public class CheckJoinedAvailability {
 
     }
 
-    private record Unit(String unitId,
-                        String unitName, int availability) {
+    public record Unit(String unitId,
+                       String unitName, int availability) {
 
     }
 
-    public record ArmyCodeUnit(Army army, Unit unit) {
+    private record ArmyCodeUnit(Army army, Unit unit) {
     }
 
 

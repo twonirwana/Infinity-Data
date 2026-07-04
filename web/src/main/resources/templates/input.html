@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trooper Card Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" th:href="@{favicon.ico}">
+    <style>
+        :root {
+            --primary-color-glow: #00d4ff;
+            --primary-color-dark: #00a1c7;
+            --dark-bg: #12151a;
+            --content-bg: rgba(20, 25, 30, 0.85);
+            --text-color: #e0e0e0;
+            --text-muted: #8899aa;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Orbitron', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2em;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            color: var(--primary-color-glow);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7), 0 0 12px rgba(0, 212, 255, 0.5);
+            margin-bottom: 1.5em;
+            position: relative;
+        }
+
+        .form-container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--content-bg);
+            padding: 2.5em;
+            border: 2px solid var(--primary-color-glow);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5), 0 0 5px rgba(0, 212, 255, 0.8) inset;
+            backdrop-filter: blur(5px);
+            margin-bottom: 2em;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: var(--primary-color-dark);
+            letter-spacing: 1px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1.5em;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--primary-color-dark);
+            color: var(--text-color);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="text"]::placeholder {
+            color: #667;
+            opacity: 1;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color-glow);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        button {
+            font-family: var(--font-display);
+            padding: 12px 15px;
+            cursor: pointer;
+            border: 2px solid var(--primary-color-glow);
+            background-color: transparent;
+            color: var(--primary-color-glow);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+            margin-top: 1em;
+        }
+
+        button:hover {
+            background-color: var(--primary-color-glow);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h1>
+        <span th:text="${title}">Title</span>
+    </h1>
+
+    <div class="message" th:if="${message != null and message.length() > 0}">
+        <span th:text="${message}">message</span>
+    </div>
+
+    <form action="#" th:action="@{${dynamicUrl}}" method="get" target="_blank">
+
+        <label for="input" th:text="${inputLabel}"></label>
+        <input type="text" id="input" name="input" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>

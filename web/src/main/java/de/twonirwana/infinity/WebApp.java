@@ -40,6 +40,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -126,6 +127,8 @@ public class WebApp {
             imprintPage(config, registry);
             helpPage(config, registry);
             prometheusPage(config, registry);
+            inputAvailabilityPage(config, registry);
+            generateAvailabilityPage(config, registry, database);
         });
     }
 
@@ -207,12 +210,16 @@ public class WebApp {
         config.routes.get("/imprint", ctx -> {
             registry.counter("infinity.imprint").increment();
 
+            List<List<String>> imprint = Arrays.stream(Config.get("website.imprint", "").split("\\\\n"))
+                    .map(List::of)
+                    .toList();
+
             Map<String, Object> model = Map.of(
                     "title", "Imprint",
-                    "list", Config.get("website.imprint", "").split("\\\\n"),
+                    "list", imprint,
                     "message", ""
             );
-            ctx.render("templates/list.html", model);
+            ctx.render("templates/table.html", model);
         });
     }
 
@@ -233,9 +240,51 @@ public class WebApp {
                         "list", List.of(),
                         "message", "Sorry, no page was found for the key: %s. Please generate the cards again.".formatted(armyCodeHash)
                 );
-                ctx.render("templates/list.html", model);
+                ctx.render("templates/table.html", model);
             }
         });
+    }
+
+    private static boolean checkArmyCodes(Context ctx,
+                                          PrometheusMeterRegistry registry,
+                                          String armyCode,
+                                          Database database) {
+        boolean canDecode = database.canDecodeArmyCode(armyCode);
+        if (!canDecode) {
+            registry.counter("infinity.invalid.army.code").increment();
+            log.info("Can't read army code: {}", armyCode);
+            try {
+                Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+            Map<String, Object> model = Map.of(
+                    "title", "Invalid Army Code Format",
+                    "list", List.of(),
+                    "message", "The army code: %s has an invalid format. Try to copy it again.".formatted(armyCode)
+            );
+            ctx.render("templates/table.html", model);
+            return false;
+        }
+        List<List<String>> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode).stream().map(List::of).toList();
+        if (!missingArmyCodeUnits.isEmpty()) {
+            registry.counter("infinity.missing.army.code.units").increment();
+            log.warn("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+            try {
+                Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+
+            Map<String, Object> model = Map.of(
+                    "title", "Invalid IDs in Army Code",
+                    "list", missingArmyCodeUnits,
+                    "message", "The following IDs from the army code: %s could not resolved. Most likely it is out of date. Try to generate a new army code new in Corvus Bellis Army Builder.".formatted(armyCode)
+            );
+            ctx.render("templates/table.html", model);
+            return false;
+        }
+        return true;
     }
 
     private static void generateCardPage(JavalinConfig config,
@@ -295,32 +344,8 @@ public class WebApp {
 
             try {
                 Stopwatch stopwatch = Stopwatch.createStarted();
-                boolean canDecode = database.canDecodeArmyCode(armyCode);
-                if (!canDecode) {
-                    registry.counter("infinity.invalid.army.code").increment();
-                    log.info("Can't read army code: {}", armyCode);
-                    Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
-                    Map<String, Object> model = Map.of(
-                            "title", "Invalid Army Code Format",
-                            "list", List.of(),
-                            "message", "The army code: %s has an invalid format. Try to copy it again.".formatted(armyCode)
-                    );
-                    ctx.render("templates/list.html", model);
-                    return;
-                }
-                List<String> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
-                if (!missingArmyCodeUnits.isEmpty()) {
-                    registry.counter("infinity.missing.army.code.units").increment();
-                    log.warn("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
-                    Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
-
-                    Map<String, Object> model = Map.of(
-                            "title", "Invalid IDs in Army Code",
-                            "list", missingArmyCodeUnits,
-                            "message", "The following IDs from the army code: %s could not resolved. Most likely it is out of date. Try to generate a new army code new in Corvus Bellis Army Builder.".formatted(armyCode)
-                    );
-                    ctx.render("templates/list.html", model);
-
+                boolean isValid = checkArmyCodes(ctx, registry, armyCode, database);
+                if (!isValid) {
                     return;
                 }
 
@@ -379,6 +404,86 @@ public class WebApp {
                 Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
                 ctx.status(400).html("Error read army code: " + armyCode);
             }
+
+        });
+    }
+
+
+    private static void inputAvailabilityPage(JavalinConfig config, PrometheusMeterRegistry registry) {
+        config.routes.get("/joinedAva", ctx -> {
+            registry.counter("infinity.joined.ava.called").increment();
+
+            Map<String, Object> model = Map.of(
+                    "title", "Joined AVA Check",
+                    "inputLabel", "Army Codes: ",
+                    "dynamicUrl", "joinedAvaResult",
+                    "message", "Input Army code, joined with \",\", and check if the combined units go over the availability"
+
+            );
+            ctx.render("templates/input.html", model);
+        });
+    }
+
+    private static void generateAvailabilityPage(JavalinConfig config,
+                                                 PrometheusMeterRegistry registry,
+                                                 Database database) {
+        config.routes.get("/joinedAvaResult", ctx -> {
+            registry.counter("infinity.joined.ava.result").increment();
+            String armyCodes = ctx.queryParam("input");
+            if (Strings.isNullOrEmpty(armyCodes)) {
+                ctx.status(400).html("Missing Army Codes");
+                return;
+            }
+
+            List<String> armyCodeList = Arrays.stream(armyCodes.split(","))
+                    .map(String::trim)
+                    .filter(s -> !Strings.isNullOrEmpty(s))
+                    .toList();
+
+            boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database));
+            if (anyInvalid) {
+                return;
+            }
+
+            List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database);
+            Map<CheckJoinedAvailability.Unit, List<CheckJoinedAvailability.ArmyUnitCount>> unitMap = armyUnitCount.stream().collect(Collectors.groupingBy(CheckJoinedAvailability.ArmyUnitCount::unit));
+
+            List<CheckJoinedAvailability.Army> armies = armyUnitCount.stream()
+                    .map(CheckJoinedAvailability.ArmyUnitCount::army)
+                    .distinct()
+                    .sorted(Comparator.comparingLong(CheckJoinedAvailability.Army::armyCodeIndex))
+                    .toList();
+
+            List<List<String>> rows = new ArrayList<>();
+            List<String> header = armies.stream().map(a -> a.armyCodeIndex() + ": " + a.armyName()).collect(Collectors.toList());
+            header.addFirst("Unit Name");
+            header.addFirst("Unit Id");
+            rows.add(header);
+            unitMap.entrySet().stream()
+                    .sorted(Comparator.comparing(e -> e.getKey().unitId()))
+                    .forEach(e -> {
+                        Map<CheckJoinedAvailability.Army, CheckJoinedAvailability.ArmyUnitCount> inEachArmy = e.getValue().stream().collect(Collectors.toMap(CheckJoinedAvailability.ArmyUnitCount::army, Function.identity()));
+                        List<String> countInEachArmy = armies.stream()
+                                .map(a -> inEachArmy.getOrDefault(a, new CheckJoinedAvailability.ArmyUnitCount(a, e.getKey(), 0)))
+                                .map(auc -> auc.count() + "/" + e.getKey().availability())
+                                .collect(Collectors.toList());
+                        countInEachArmy.addFirst(e.getKey().unitName());
+                        countInEachArmy.addFirst(e.getKey().unitId());
+                        rows.add(countInEachArmy);
+                    });
+
+            boolean isOverJoinedAva = armyUnitCount.stream()
+                    .filter(a -> a.army().equals(CheckJoinedAvailability.ALL_ARMIES))
+                    .anyMatch(u -> u.count() > u.unit().availability());
+
+            String message = isOverJoinedAva ? "More units than AVA!" : "Lists are ok";
+            Map<String, Object> model = Map.of(
+                    "title", "Joined Unit Availability",
+                    "list", rows,
+                    "message", message
+            );
+            ctx.render("templates/table.html", model);
+
 
         });
     }
