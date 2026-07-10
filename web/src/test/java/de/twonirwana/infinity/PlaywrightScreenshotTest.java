@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
@@ -179,6 +180,46 @@ public class PlaywrightScreenshotTest {
                 .setFullPage(true));
 
         String fileName = "by_id_" + browser.browserType().name() + "_" + templateName;
+        File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
+        BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
+        if (!expectedFile.exists()) {
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
+            Assertions.fail();
+        }
+
+        BufferedImage expected = ImageIO.read(expectedFile);
+        ImageComparisonResult result = new ImageComparison(expected, actual)
+                .setPixelToleranceLevel(0.1)
+                .setDifferenceRectangleColor(Color.BLUE)
+                .compareImages();
+
+
+        if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
+            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
+            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected" + ".png"));
+        }
+
+        Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
+    }
+
+    @Test
+    void testJoinedAva() throws IOException {
+        Browser browser = chromium;
+        context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080));
+        page = context.newPage();
+        page.navigate(baseUrl + "joinedAva");
+        page.waitForLoadState();
+        assertThat(page.locator("body")).isVisible();
+        page.getByLabel("Army Code 1").fill("hE4Mc2hpbmRlbmJ1dGFpASCBkAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABwCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgKIBAgAAhyMBAgA%3D");
+        page.getByLabel("Army Code 2").fill("hE4Mc2hpbmRlbmJ1dGFpASCBkAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABwCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgKIBAgAAhyMBAgA%3D");
+
+        page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Submit")).click();
+        page.waitForURL(Pattern.compile(".*[?&]input1=*"));
+        byte[] actualImageBytes = page.screenshot(new Page.ScreenshotOptions()
+                .setFullPage(true));
+
+        String fileName = "joined_ava_" + browser.browserType().name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {

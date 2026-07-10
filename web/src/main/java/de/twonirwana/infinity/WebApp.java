@@ -130,8 +130,7 @@ public class WebApp {
             imprintPage(config, registry);
             helpPage(config, registry);
             prometheusPage(config, registry);
-            inputAvailabilityPage(config, registry);
-            generateAvailabilityPage(config, registry, database);
+            joinedAvaPage(config, registry, database);
         });
     }
 
@@ -522,85 +521,100 @@ public class WebApp {
     }
 
 
-    private static void inputAvailabilityPage(JavalinConfig config, PrometheusMeterRegistry registry) {
+    private static void joinedAvaPage(JavalinConfig config,
+                                      PrometheusMeterRegistry registry,
+                                      Database database) {
+
         config.routes.get("/joinedAva", ctx -> {
-            registry.counter("infinity.joined.ava.called").increment();
+
+            List<String> armyCodeList = getArmyCodes(ctx.queryParam("input1"),
+                    ctx.queryParam("input2"),
+                    ctx.queryParam("input3"));
+            final String message;
+            final List<List<String>> rows;
+            final List<String> header;
+            final boolean isValid;
+            final String feedbackMsg;
+
+            if (!armyCodeList.isEmpty()) {
+                registry.counter("infinity.joined.ava.submitted").increment();
+
+                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database));
+                if (anyInvalid) {
+                    return;
+                }
+
+                List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database);
+                Map<CheckJoinedAvailability.Unit, List<CheckJoinedAvailability.ArmyUnitCount>> unitMap = armyUnitCount.stream().collect(Collectors.groupingBy(CheckJoinedAvailability.ArmyUnitCount::unit));
+
+                List<CheckJoinedAvailability.Army> armies = armyUnitCount.stream()
+                        .map(CheckJoinedAvailability.ArmyUnitCount::army)
+                        .distinct()
+                        .sorted(Comparator.comparingLong(CheckJoinedAvailability.Army::armyCodeIndex))
+                        .toList();
+
+                rows = new ArrayList<>();
+                header = armies.stream().map(a -> a.armyCodeIndex() + ": " + a.armyName()).collect(Collectors.toList());
+                header.addFirst("Unit Name");
+                header.addFirst("Unit Id");
+                unitMap.entrySet().stream()
+                        .sorted(Comparator.comparing(e -> e.getKey().unitId()))
+                        .forEach(e -> {
+                            Map<CheckJoinedAvailability.Army, CheckJoinedAvailability.ArmyUnitCount> inEachArmy = e.getValue().stream().collect(Collectors.toMap(CheckJoinedAvailability.ArmyUnitCount::army, Function.identity()));
+                            List<String> countInEachArmy = armies.stream()
+                                    .map(a -> inEachArmy.getOrDefault(a, new CheckJoinedAvailability.ArmyUnitCount(a, e.getKey(), 0)))
+                                    .map(auc -> auc.count() + "/" + e.getKey().availability())
+                                    .collect(Collectors.toList());
+                            countInEachArmy.addFirst(e.getKey().unitName());
+                            countInEachArmy.addFirst(e.getKey().unitId());
+                            rows.add(countInEachArmy);
+                        });
+
+                isValid = armyUnitCount.stream()
+                        .filter(a -> a.army().equals(CheckJoinedAvailability.ALL_ARMIES))
+                        .noneMatch(u -> u.count() > u.unit().availability());
+                message = "";
+
+                feedbackMsg = isValid ? "AVA is ok" : "More units than AVA!";
+
+            } else {
+                message = "Input Army code and check if the combined units go over the availability";
+                rows = List.of();
+                header = List.of();
+                isValid = true;
+                feedbackMsg = "";
+            }
+
 
             Map<String, Object> model = Map.of(
                     "title", "Joined AVA Check",
-                    "inputLabel", "Army Codes: ",
-                    "dynamicUrl", "joinedAvaResult",
-                    "message", "Input Army code, joined with \",\", and check if the combined units go over the availability"
-
+                    "message", message,
+                    "feedbackMsg", feedbackMsg,
+                    "isValid", isValid,
+                    "header", header,
+                    "list", rows,
+                    "armyCode1", getElementOnPosition(armyCodeList, 0),
+                    "armyCode2", getElementOnPosition(armyCodeList, 1),
+                    "armyCode3", getElementOnPosition(armyCodeList, 2)
             );
-            ctx.render("templates/input.html", model);
+            ctx.render("templates/joinedAva.html", model);
         });
     }
 
-    private static void generateAvailabilityPage(JavalinConfig config,
-                                                 PrometheusMeterRegistry registry,
-                                                 Database database) {
-        config.routes.get("/joinedAvaResult", ctx -> {
+    private static String getElementOnPosition(List<String> strings, int position) {
+        if (position >= strings.size()) {
+            return "";
+        }
+        return strings.get(position);
+    }
 
-            String armyCodes = ctx.queryParam("input");
-            if (Strings.isNullOrEmpty(armyCodes)) {
-                ctx.status(400).html("Missing Army Codes");
-                return;
-            }
-            registry.counter("infinity.joined.ava.result").increment();
-            log.info("Showed joined AVA Check result for: {}", armyCodes);
-
-            List<String> armyCodeList = Arrays.stream(armyCodes.split(","))
-                    .map(String::trim)
-                    .filter(s -> !Strings.isNullOrEmpty(s))
-                    .toList();
-
-            boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database));
-            if (anyInvalid) {
-                return;
-            }
-
-            List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database);
-            Map<CheckJoinedAvailability.Unit, List<CheckJoinedAvailability.ArmyUnitCount>> unitMap = armyUnitCount.stream().collect(Collectors.groupingBy(CheckJoinedAvailability.ArmyUnitCount::unit));
-
-            List<CheckJoinedAvailability.Army> armies = armyUnitCount.stream()
-                    .map(CheckJoinedAvailability.ArmyUnitCount::army)
-                    .distinct()
-                    .sorted(Comparator.comparingLong(CheckJoinedAvailability.Army::armyCodeIndex))
-                    .toList();
-
-            List<List<String>> rows = new ArrayList<>();
-            List<String> header = armies.stream().map(a -> a.armyCodeIndex() + ": " + a.armyName()).collect(Collectors.toList());
-            header.addFirst("Unit Name");
-            header.addFirst("Unit Id");
-            rows.add(header);
-            unitMap.entrySet().stream()
-                    .sorted(Comparator.comparing(e -> e.getKey().unitId()))
-                    .forEach(e -> {
-                        Map<CheckJoinedAvailability.Army, CheckJoinedAvailability.ArmyUnitCount> inEachArmy = e.getValue().stream().collect(Collectors.toMap(CheckJoinedAvailability.ArmyUnitCount::army, Function.identity()));
-                        List<String> countInEachArmy = armies.stream()
-                                .map(a -> inEachArmy.getOrDefault(a, new CheckJoinedAvailability.ArmyUnitCount(a, e.getKey(), 0)))
-                                .map(auc -> auc.count() + "/" + e.getKey().availability())
-                                .collect(Collectors.toList());
-                        countInEachArmy.addFirst(e.getKey().unitName());
-                        countInEachArmy.addFirst(e.getKey().unitId());
-                        rows.add(countInEachArmy);
-                    });
-
-            boolean isOverJoinedAva = armyUnitCount.stream()
-                    .filter(a -> a.army().equals(CheckJoinedAvailability.ALL_ARMIES))
-                    .anyMatch(u -> u.count() > u.unit().availability());
-
-            String message = isOverJoinedAva ? "More units than AVA!" : "Lists are ok";
-            Map<String, Object> model = Map.of(
-                    "title", "Joined Unit Availability",
-                    "list", rows,
-                    "message", message
-            );
-            ctx.render("templates/table.html", model);
-
-
-        });
+    private static List<String> getArmyCodes(String input1, String input2, String input3) {
+        return Stream.of(input1, input2, input3)
+                .filter(Objects::nonNull)
+                .flatMap(s -> Stream.of(s.split(",")))
+                .map(String::trim)
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .toList();
     }
 
     private static String getFileName(String armyCodeHash,

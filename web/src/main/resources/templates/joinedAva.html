@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">List</title>
+    <link rel="icon" type="image/x-icon" th:href="@{favicon.ico}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color-glow: #00d4ff;
+            --primary-color-dark: #00a1c7;
+            --success-color: #00ffcc;
+            --error-color: #ff2a7a;
+            --dark-bg: #12151a;
+            --content-bg: rgba(20, 25, 30, 0.85);
+            --text-color: #e0e0e0;
+            --text-muted: #8899aa;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Orbitron', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 3rem 1rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            color: var(--primary-color-glow);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7), 0 0 12px rgba(0, 212, 255, 0.5);
+            margin-bottom: 1.5em;
+            position: relative;
+        }
+
+        .message-box {
+            background-color: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--primary-color-dark);
+            color: var(--primary-color-glow);
+            padding: 12px 20px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+            letter-spacing: 1px;
+        }
+
+        form {
+            background-color: var(--content-bg);
+            padding: 2.5rem;
+            border: 1px solid var(--primary-color-dark);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 3rem;
+        }
+
+        .input-row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            color: var(--primary-color-glow);
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        input[type="text"] {
+            background-color: var(--dark-bg);
+            border: 1px solid var(--primary-color-dark);
+            color: var(--primary-color-glow);
+            font-family: var(--font-body);
+            padding: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color-glow);
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+            background-color: rgba(0, 212, 255, 0.05);
+        }
+
+        button {
+            font-family: var(--font-display);
+            padding: 12px 15px;
+            cursor: pointer;
+            border: 2px solid var(--primary-color-glow);
+            background-color: transparent;
+            color: var(--primary-color-glow);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 1rem;
+            transition: all 0.3s ease-in-out;
+            margin-top: 1em;
+        }
+
+        button:hover {
+            background-color: var(--primary-color-glow);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feedback-text {
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 12px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .feedback-text.valid {
+            color: var(--success-color);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            background-color: rgba(0, 255, 204, 0.05);
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.1);
+        }
+
+        .feedback-text.invalid {
+            color: var(--error-color);
+            border: 1px solid rgba(255, 42, 122, 0.3);
+            background-color: rgba(255, 42, 122, 0.05);
+            text-shadow: 0 0 8px rgba(255, 42, 122, 0.4);
+            box-shadow: 0 0 10px rgba(255, 42, 122, 0.1);
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--content-bg);
+            color: var(--text-color);
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--primary-color-dark);
+        }
+
+        th {
+            background-color: rgba(0, 158, 196, 0.2);
+            color: var(--primary-color-glow);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(0, 212, 255, 0.1);
+            color: var(--primary-color-glow);
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    <span th:text="${title}">Title</span>
+</h1>
+
+<div class="message-box" th:if="${message != null and message.length() > 0}">
+    <span th:text="${message}">message</span>
+</div>
+
+<form action="#" th:action="@{/joinedAva}" method="get">
+    <div class="input-row">
+        <div class="input-group">
+            <label for="input1">Army Code 1</label>
+            <input type="text" id="input1" name="input1" th:value="${armyCode1}" required>
+        </div>
+
+        <div class="input-group">
+            <label for="input2">Army Code 2</label>
+            <input type="text" id="input2" name="input2" th:value="${armyCode2}">
+        </div>
+
+        <div class="input-group">
+            <label for="input3">Army Code 3</label>
+            <input type="text" id="input3" name="input3" th:value="${armyCode3}">
+        </div>
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<div class="table-wrapper">
+    <div th:if="${feedbackMsg != null and feedbackMsg.length() > 0}"
+         class="feedback-text"
+         th:classappend="${isValid} ? 'valid' : 'invalid'"
+         th:text="${feedbackMsg}">
+        Feedback Message
+    </div>
+
+    <div class="table-scroll">
+        <table>
+            <thead>
+            <tr>
+                <th th:each="h : ${header}" th:text="${h}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${list}">
+                <td th:each="cell : ${row}" th:text="${cell}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
