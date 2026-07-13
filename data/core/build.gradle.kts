@@ -20,9 +20,9 @@ dependencies {
     implementation("io.avaje:avaje-applog-slf4j:1.2")
     implementation("org.apache.commons:commons-csv:1.14.1")
 
-    implementation("tools.jackson.core:jackson-core:3.2.0")
+    implementation("tools.jackson.core:jackson-core:3.2.1")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
-    implementation("tools.jackson.core:jackson-databind:3.2.0")
+    implementation("tools.jackson.core:jackson-databind:3.2.1")
 
     testImplementation(platform("org.junit:junit-bom:6.1.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
