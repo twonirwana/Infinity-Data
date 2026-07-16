@@ -31,6 +31,7 @@ public class Trooper {
     List<String> peripheral;
     String notes;
     String groupNote;
+    String trooperIsc;
 
     public String getCombinedId() {
         return "%d-%d-%d-%d".formatted(sectorial.getId(), unitId, groupId, optionId);

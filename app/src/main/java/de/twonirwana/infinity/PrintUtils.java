@@ -230,26 +230,30 @@ public class PrintUtils {
         } else {
             psOp = ps + "+";
         }
-        String weaponSkill = getWeaponSkill(weapon);
-        Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
-        Set<String> weaponExtra = Optional.ofNullable(trooperProfile)
-                .map(TrooperProfile::getSkills).orElse(List.of()).stream()
-                .filter(s -> s.getName().equals(weaponSkill))
-                .flatMap(s -> s.getExtras().stream())
-                .map(ExtraValue::getText)
-                .filter(Objects::nonNull)
-                .filter(relevantWeaponSkillExtras::contains)
-                .collect(Collectors.toSet());
-
+        final Set<String> weaponExtraFromTrooperSkill;
+        if (!weapon.getProperties().contains("Deployable")) {
+            String weaponSkill = getWeaponSkill(weapon);
+            Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
+            weaponExtraFromTrooperSkill = Optional.ofNullable(trooperProfile)
+                    .map(TrooperProfile::getSkills).orElse(List.of()).stream()
+                    .filter(s -> s.getName().equals(weaponSkill))
+                    .flatMap(s -> s.getExtras().stream())
+                    .map(ExtraValue::getText)
+                    .filter(Objects::nonNull)
+                    .filter(relevantWeaponSkillExtras::contains)
+                    .collect(Collectors.toSet());
+        } else {
+            weaponExtraFromTrooperSkill = Set.of();
+        }
 
         List<String> extraList = new ArrayList<>();
-        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("T2")) || weaponExtra.contains("T2")) {
+        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("T2")) || weaponExtraFromTrooperSkill.contains("T2")) {
             extraList.add("T2");
         }
-        if (weapon.getProperties().contains("Continous Damage") || weaponExtra.contains("Continous Damage")) {
+        if (weapon.getProperties().contains("Continous Damage") || weaponExtraFromTrooperSkill.contains("Continous Damage")) {
             extraList.add("C");
         }
-        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("Shock")) || weaponExtra.contains("Shock") ||
+        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("Shock")) || weaponExtraFromTrooperSkill.contains("Shock") ||
                 (weapon.getProperties().contains(VIRAL_TRAIT) && applyViral)) {
             extraList.add("S");
         }
@@ -258,7 +262,7 @@ public class PrintUtils {
         }
 
         String saving = weapon.getSaving();
-        if (weaponExtra.contains("AP")) {
+        if (weaponExtraFromTrooperSkill.contains("AP")) {
             if ("BTS".equals(saving)) {
                 saving = "BTS/2";
             } else if ("ARM".equals(saving)) {

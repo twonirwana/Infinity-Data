@@ -755,7 +755,8 @@ public class UnitMapper {
                 trooperProfiles,
                 peripheral,
                 unit.getNotes(),
-                profileGroup.getNotes()
+                profileGroup.getNotes(),
+                profileGroup.getIsc()
         );
     }
 

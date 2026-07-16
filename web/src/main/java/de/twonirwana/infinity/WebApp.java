@@ -538,6 +538,7 @@ public class WebApp {
 
             if (!armyCodeList.isEmpty()) {
                 registry.counter("infinity.joined.ava.submitted").increment();
+                log.info("Showed joined AVA Check result for: {}", armyCodeList);
 
                 boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database));
                 if (anyInvalid) {
@@ -558,7 +559,7 @@ public class WebApp {
                 header.addFirst("Unit Name");
                 header.addFirst("Unit Id");
                 unitMap.entrySet().stream()
-                        .sorted(Comparator.comparing(e -> e.getKey().unitId()))
+                        .sorted(Comparator.comparing(e -> e.getKey().getSectorialUnitId()))
                         .forEach(e -> {
                             Map<CheckJoinedAvailability.Army, CheckJoinedAvailability.ArmyUnitCount> inEachArmy = e.getValue().stream().collect(Collectors.toMap(CheckJoinedAvailability.ArmyUnitCount::army, Function.identity()));
                             List<String> countInEachArmy = armies.stream()
@@ -566,7 +567,7 @@ public class WebApp {
                                     .map(auc -> auc.count() + "/" + e.getKey().availability())
                                     .collect(Collectors.toList());
                             countInEachArmy.addFirst(e.getKey().unitName());
-                            countInEachArmy.addFirst(e.getKey().unitId());
+                            countInEachArmy.addFirst(e.getKey().getSectorialUnitId());
                             rows.add(countInEachArmy);
                         });
 
