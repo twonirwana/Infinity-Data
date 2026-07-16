@@ -31,11 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Disabled //only for manual check that everything works
 //complex profiles:
-// - Polaris 1522,
-// - Scylla 721
-// - Jazz & Bill 1551
-// - Zondnautica 1091
-// Seed Soldiers, Scarface, Posthumans,
+// - Polaris 1522 gS0HYXJpYWRuYQEggSwBAQEAAgCF8gABAACF8gACAA%3D%3D
+// - Scylla 721 gr4Nc3RlZWwtcGhhbGFueAEggSwBAQEAAwCC0QEDAACC0QEBAACC0QEHAA%3D%3D
+// - Jazz & Bill 1551 gfUGbm9tYWRzASCBLAEBAQACAIYPAAEAAIYPAAIA
+// - Zondnautica 1091 gfgIdHVuZ3Vza2EBIIEsAQEBAAMAhEMAAQAAhEMAAgAAhEMAAwA%3D
+// Sacreface 380 gZEJaGFxcWlzbGFtASCBLAEBAQADAIF8AAEAAIF8AAIAAIF8AAMA
+// Posthumans 703 gr8Kb3BlcmF0aW9ucwpKQSBCZXN0IG9mgSwBAQEAAgCCVQEBAACCVQIBAA%3D%3D
+// Seed Soldiers
 // code with many weapons: gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D
 // all hacking programs: glsKc2hhc3Zhc3RpaQEggSwBAQEABACFEwEBAACC5QEBAACB9gEIAACB9gEIAA%3D%3D
 // booty and meta chemistry: gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D
