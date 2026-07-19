@@ -231,7 +231,7 @@ public class PrintUtils {
             psOp = ps + "+";
         }
         final Set<String> weaponExtraFromTrooperSkill;
-        if (weapon.getProperties().contains("Deployable") || hasNoRange(weapon)) { //mines and d-charge
+        if (weapon.getProperties().contains("Deployable") || hasNonCCWeaponHasNoRange(weapon)) { //mines and d-charge
             weaponExtraFromTrooperSkill = Set.of();
         } else {
             String weaponSkill = getWeaponSkill(weapon);
@@ -281,8 +281,10 @@ public class PrintUtils {
         return "%sd ≤ %s%s%s".formatted(savingNumber, psOp, saving, extraString);
     }
 
-    private static boolean hasNoRange(Weapon weapon) {
-        return getRangeTemplate(weapon) == null && weapon.getRangeCombinedModifiers().isEmpty();
+    private static boolean hasNonCCWeaponHasNoRange(Weapon weapon) {
+        return weapon.getSkill() != Weapon.Skill.CC &&
+                getRangeTemplate(weapon) == null &&
+                weapon.getRangeCombinedModifiers().isEmpty();
     }
 
     public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {
@@ -432,7 +434,7 @@ public class PrintUtils {
         if (weapon.getProperties().contains("Deployable")) {
             return false;
         }
-        if (weapon.getType() == Weapon.Type.WEAPON && !hasNoRange(weapon)) { //d-charge has no range
+        if (weapon.getType() == Weapon.Type.WEAPON && !hasNonCCWeaponHasNoRange(weapon)) { //d-charge has no range
             return true;
         }
         return weapon.getProperties().stream()
