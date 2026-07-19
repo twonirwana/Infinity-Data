@@ -231,7 +231,9 @@ public class PrintUtils {
             psOp = ps + "+";
         }
         final Set<String> weaponExtraFromTrooperSkill;
-        if (!weapon.getProperties().contains("Deployable")) {
+        if (weapon.getProperties().contains("Deployable") || hasNonCCWeaponHasNoRange(weapon)) { //mines and d-charge
+            weaponExtraFromTrooperSkill = Set.of();
+        } else {
             String weaponSkill = getWeaponSkill(weapon);
             Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
             weaponExtraFromTrooperSkill = Optional.ofNullable(trooperProfile)
@@ -242,8 +244,6 @@ public class PrintUtils {
                     .filter(Objects::nonNull)
                     .filter(relevantWeaponSkillExtras::contains)
                     .collect(Collectors.toSet());
-        } else {
-            weaponExtraFromTrooperSkill = Set.of();
         }
 
         List<String> extraList = new ArrayList<>();
@@ -279,6 +279,12 @@ public class PrintUtils {
         }
 
         return "%sd ≤ %s%s%s".formatted(savingNumber, psOp, saving, extraString);
+    }
+
+    private static boolean hasNonCCWeaponHasNoRange(Weapon weapon) {
+        return weapon.getSkill() != Weapon.Skill.CC &&
+                getRangeTemplate(weapon) == null &&
+                weapon.getRangeCombinedModifiers().isEmpty();
     }
 
     public static String getRangeModifier(Weapon.RangeModifier rangeModifier, boolean useInch) {
@@ -428,7 +434,7 @@ public class PrintUtils {
         if (weapon.getProperties().contains("Deployable")) {
             return false;
         }
-        if (weapon.getType() == Weapon.Type.WEAPON) {
+        if (weapon.getType() == Weapon.Type.WEAPON && !hasNonCCWeaponHasNoRange(weapon)) { //d-charge has no range
             return true;
         }
         return weapon.getProperties().stream()
@@ -596,7 +602,7 @@ public class PrintUtils {
                 .collect(Collectors.joining(", "));
     }
 
-    public String getRangeTemplate(Weapon weapon) {
+    public static String getRangeTemplate(Weapon weapon) {
         if (weapon.getRangeCombinedModifiers().isEmpty()) {
             return weapon.getProperties().stream().map(PrintUtils::getTeardropType)
                     .filter(Objects::nonNull)
@@ -606,7 +612,7 @@ public class PrintUtils {
         return null;
     }
 
-    public boolean isCC(Weapon weapon) {
+    public static boolean isCC(Weapon weapon) {
         return "CC Mode".equals(weapon.getMode()) || weapon.getProperties().contains("CC");
     }
 }
