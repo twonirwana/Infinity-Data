@@ -544,11 +544,11 @@ public class PrintUtils {
         return hackingProgram.getName();
     }
 
-    public static List<PrintHackingProgram> getUsedHackingPrograms(List<UnitOption> unitOptions, List<HackingProgram> allHackingPrograms) {
-        return unitOptions.stream()
+    public static List<PrintHackingProgram> getUsedHackingPrograms(PrintData printData) {
+        return printData.getUnitOptions().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
-                .flatMap(u -> getUnitHackingPrograms(u, allHackingPrograms, false).stream())
+                .flatMap(u -> getUnitHackingPrograms(u, printData.getAllHackingPrograms(), false).stream())
                 .distinct()
                 .sorted(Comparator.comparing(PrintHackingProgram::getName))
                 .toList();

@@ -3,12 +3,12 @@ package de.twonirwana.infinity;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import de.twonirwana.infinity.fireteam.FireteamChart;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.ImageUtils;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -31,10 +31,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class HtmlPrinter {
 
-    public static final String CARD_FOLDER = "card";
-    public static final String IMAGES_ICONS_FOLDER = "/images/icons/";
-    public static final String HTML_OUTPUT_PATH = "out/html/";
-    public static final String IMAGE_FOLDER = "/image/";
+    private static final String IMAGES_ICONS_FOLDER = "/images/icons/";
     //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
     private static final Map<Integer, String> SECTORIAL_COLORS = ImmutableMap.<Integer, String>builder()
             .put(100, "#00b0f2")
@@ -111,70 +108,6 @@ public class HtmlPrinter {
     }
 
 
-    public void printCard(List<UnitOption> unitOptions,
-                          List<HackingProgram> allHackingPrograms,
-                          List<MartialArtLevel> allMartialArtLevels,
-                          List<BootyRoll> allBootyRolls,
-                          List<MetaChemistryRoll> allMetaChemistryRolls,
-                          ArmyList armyList,
-                          FireteamChart fireteamChart,
-                          Sectorial sectorial,
-                          String unitImagePath,
-                          String customUnitImagePath,
-                          String logoImagePath,
-                          String secotialLogoImagePath,
-                          String fileName,
-                          String armyCode,
-                          boolean useInch,
-                          boolean showSavingRollInsteadOfAmmo,
-                          boolean removeDuplicates,
-                          boolean reduceColor,
-                          Set<Weapon.Type> showWeaponOfType,
-                          boolean showImage,
-                          boolean showHackingPrograms,
-                          Template template) {
-        writeCards(unitOptions,
-                allHackingPrograms,
-                allMartialArtLevels,
-                allBootyRolls,
-                allMetaChemistryRolls,
-                fireteamChart,
-                armyList,
-                fileName,
-                armyCode,
-                sectorial,
-                unitImagePath,
-                customUnitImagePath,
-                logoImagePath,
-                secotialLogoImagePath,
-                CARD_FOLDER,
-                useInch,
-                showSavingRollInsteadOfAmmo,
-                removeDuplicates,
-                reduceColor,
-                showWeaponOfType,
-                showImage,
-                showHackingPrograms,
-                template);
-    }
-
-    public void printAll(Database db, boolean useInch, Template template) {
-        db.getAllSectorials().stream()
-                .filter(s -> !s.isDiscontinued())
-                .flatMap(s -> db.getAllUnitsForSectorialWithoutMercs(s).stream())
-                .forEach(u -> writeToFile(u,
-                        db.getAllMartialArtLevels(),
-                        db.getUnitImageFolder(),
-                        db.getCustomUnitImageFolder(),
-                        db.getUnitLogosFolder(),
-                        db.getSectorialLogoFolder(),
-                        "all/" + u.getSectorial().getSlug(),
-                        useInch,
-                        false,
-                        false,
-                        template));
-    }
-
     private void copyFile(String fileName, String sourcePath, String outPath) {
         try {
             Path targetPath = Paths.get(outPath, fileName);
@@ -248,68 +181,11 @@ public class HtmlPrinter {
                 });
     }
 
-    public void writeToFile(UnitOption unitOption,
-                            List<MartialArtLevel> allMartialArtLevels,
-                            String unitImagePath,
-                            String customUnitImagePath,
-                            String logoImagePath,
-                            String secotialLogoImagePath,
-                            String outputFolder,
-                            boolean useInch,
-                            boolean showSavingRollInsteadOfAmmo,
-                            boolean reduceColor,
-                            Template template) {
-        String fileName = "%s_%s".formatted(unitOption.getCombinedId(), unitOption.getSlug());
-        writeCards(List.of(unitOption),
-                List.of(),
-                allMartialArtLevels,
-                List.of(),
-                List.of(),
-                null,
-                null,
-                fileName,
-                "-",
-                unitOption.getSectorial(),
-                unitImagePath,
-                customUnitImagePath,
-                logoImagePath,
-                secotialLogoImagePath,
-                outputFolder,
-                useInch,
-                showSavingRollInsteadOfAmmo,
-                false,
-                reduceColor,
-                Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL),
-                true,
-                false,
-                template);
-    }
-
-    void writeCards(List<UnitOption> unitOptions,
-                    List<HackingProgram> allHackingPrograms,
-                    List<MartialArtLevel> allMartialArtLevels,
-                    List<BootyRoll> allBootyRolls,
-                    List<MetaChemistryRoll> allMetaChemistryRolls,
-                    FireteamChart fireteamChart,
-                    ArmyList armyList,
-                    String fileName,
-                    String armyCode,
-                    Sectorial sectorial,
-                    String unitImagePath,
-                    String customUnitImagePath,
-                    String logoImagePath,
-                    String secotialLogoImagePath,
-                    String outputFolder,
-                    boolean useInch,
-                    boolean showSavingRollInsteadOfAmmo,
-                    boolean removeDuplicates,
-                    boolean reduceColor,
-                    Set<Weapon.Type> showWeaponOfType,
-                    boolean showImage,
-                    boolean showHackingPrograms,
-                    Template template) {
-        String outputPath = HTML_OUTPUT_PATH + outputFolder;
-        String imageOutputPath = outputPath + IMAGE_FOLDER;
+    public void writeCards(@NonNull PrintData data,
+                           @NonNull PrintContext printContext,
+                           @NonNull PrintOptions options) {
+        String outputPath = printContext.getOutputFolder();
+        String imageOutputPath = printContext.getImageOutputFolder();
 
         try {
             Files.createDirectories(Path.of(imageOutputPath));
@@ -321,12 +197,15 @@ public class HtmlPrinter {
 
         //if there are multiple image options they should all be used
         Set<String> usedImages = new CopyOnWriteArraySet<>();
-        for (UnitOption unitOption : unitOptions) {
-            copyLogos(unitOption, logoImagePath, imageOutputPath);
-            copyUnitImages(unitOption, unitImagePath, imageOutputPath, usedImages);
-            copyCustomUnitImages(unitOption, customUnitImagePath, imageOutputPath); //customUnitImage have priority and overwrite CB images
+        for (UnitOption unitOption : data.getUnitOptions()) {
+            copyLogos(unitOption, printContext.getLogoImagePath(), imageOutputPath);
+            copyUnitImages(unitOption, printContext.getUnitImagePath(), imageOutputPath, usedImages);
+            copyCustomUnitImages(unitOption, printContext.getCustomUnitImagePath(), imageOutputPath); //customUnitImage have priority and overwrite CB images
         }
-        copyFile(sectorial.getLogo(), secotialLogoImagePath, imageOutputPath);
+        data.getUnitOptions().stream()
+                .map(UnitOption::getSectorial)
+                .distinct()
+                .forEach(s -> copyFile(s.getLogo(), printContext.getSectorialLogoImagePath(), imageOutputPath));
 
         final String primaryColor;
         final String secondaryColor;
@@ -335,7 +214,16 @@ public class HtmlPrinter {
         final Map<String, String> rangeClassMap;
         final String tableHeaderFontColor;
         final boolean showSectorialLogo;
-        if (reduceColor) {
+        final Sectorial sectorial;
+        if (data.getArmyList() != null) {
+            sectorial = data.getArmyList().getSectorial();
+        } else if (data.getUnitOptions().stream().map(UnitOption::getSectorial).distinct().count() == 1) {
+            sectorial = data.getUnitOptions().getFirst().getSectorial();
+        } else {
+            //todo cards with different sectorials
+            sectorial = null;
+        }
+        if (options.isReduceColor() || sectorial == null) {
             primaryColor = "white";
             secondaryColor = "white";
             headerColor = "black";
@@ -353,11 +241,103 @@ public class HtmlPrinter {
             showSectorialLogo = true;
         }
 
-        final List<UnitPrintCard> unitPrintCards;
-        if (removeDuplicates || armyList == null) {
+        final List<UnitPrintCard> unitPrintCards = createUnitPrintCards(data, options);
+
+        List<PrintHackingProgram> usedHackingPrograms = options.isShowHackingPrograms() ? PrintUtils.getUsedHackingPrograms(data) : List.of();
+
+        final List<PrintHackingProgram> programsCard1;
+        final List<PrintHackingProgram> programsCard2;
+
+        int maxProgramsOnFirstCard = options.getTemplate().numberOfHackingProgramsOnExtraCard;
+        if (usedHackingPrograms.size() > maxProgramsOnFirstCard) {
+            programsCard1 = usedHackingPrograms.subList(0, maxProgramsOnFirstCard);
+            programsCard2 = usedHackingPrograms.subList(maxProgramsOnFirstCard, usedHackingPrograms.size());
+        } else {
+            programsCard1 = usedHackingPrograms;
+            programsCard2 = List.of();
+        }
+
+        int cardWidthInMm = options.getTemplate().widthInMm;
+        int cardHeightInMm = options.getTemplate().heightInMm;
+
+        boolean hasBooty = hasAnySkill(data.getUnitOptions(), "Booty");
+        boolean hasMetaChemistry = hasAnySkill(data.getUnitOptions(), "MetaChemistry");
+        final Map<String, List<UnitCost>> armyListUnits;
+        final String armyListTitel;
+        if (data.getArmyList() != null) {
+            armyListUnits = data.getArmyList().getCombatGroups().entrySet().stream()
+                    .collect(Collectors.toMap(e -> "Group: " + e.getKey(), e -> e.getValue().stream()
+                            .map(UnitCost::fromUnitOption)
+                            .toList()
+                    ));
+            String armyName = Optional.of(data.getArmyList())
+                    .map(ArmyList::getArmyName)
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .orElse(data.getArmyList().getSectorial().getName());
+            armyListTitel = "Army List: %s - %dpts".formatted(armyName, data.getArmyList().getMaxPoints());
+        } else {
+            armyListUnits = Map.of();
+            armyListTitel = "";
+        }
+
+        final List<PrintFireteam> fireteams;
+        final String allowedFireteams;
+        if (data.getFireteamChart() != null) {
+            fireteams = data.getFireteamChart().getTeams().stream()
+                    .map(PrintFireteam::fromFireteamChartTeam)
+                    .toList();
+            String duoCount = data.getFireteamChart().getDuoCount() == 256 ? "Unlimited" : String.valueOf(data.getFireteamChart().getDuoCount());
+            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, data.getFireteamChart().getHarisCount(), data.getFireteamChart().getCoreCount());
+        } else {
+            fireteams = null;
+            allowedFireteams = null;
+        }
+
+
+        Context context = new Context();
+        context.setVariable("unitPrintCards", unitPrintCards);
+        context.setVariable("rangeModifierClassMap", rangeClassMap);
+        context.setVariable("listName", printContext.getFileName());
+        context.setVariable("armyCode", data.getArmyCode());
+        context.setVariable("primaryColor", primaryColor);
+        context.setVariable("secondaryColor", secondaryColor);
+        context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
+        context.setVariable("boarderColor", boarderColor);
+        context.setVariable("showSectorialLogo", showSectorialLogo);
+        context.setVariable("headerColor", headerColor);
+        context.setVariable("showSavingRollInsteadOfAmmo", options.isShowSavingRollInsteadOfAmmo());
+        context.setVariable("printUtils", new PrintUtils());
+        context.setVariable("programs1", programsCard1);
+        context.setVariable("programs2", programsCard2);
+        context.setVariable("deployables", getDeployable(unitPrintCards));
+        context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(data.getAllMetaChemistryRolls()) : List.of());
+        context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(data.getAllBootyRolls()) : List.of());
+        context.setVariable("bootyWeapons", hasBooty ? mapBootyWeapons(data.getAllBootyRolls()) : List.of());
+        context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
+        context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
+        context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
+        context.setVariable("useInch", options.isUseInch());
+        context.setVariable("armyList", armyListUnits);
+        context.setVariable("armyListTitel", armyListTitel);
+        context.setVariable("fireteams", fireteams);
+        context.setVariable("allowedFireteams", allowedFireteams);
+        context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
+        context.setVariable("showImage", options.getTemplate().supportImages); //todo why additionaly with template, combine with option?
+
+        String savePath = "%s/%s.html".formatted(outputPath, printContext.getFileName());
+        try (FileWriter writer = new FileWriter(savePath)) {
+            templateEngine.process(options.getTemplate().fileName, context, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<UnitPrintCard> createUnitPrintCards(PrintData data, PrintOptions options) {
+        if (options.isRemoveDuplicates() || data.getArmyList() == null) {
             Set<String> ids = new ConcurrentSkipListSet<>();
-            unitPrintCards = unitOptions.stream()
-                    .flatMap(u -> UnitPrintCard.fromUnitOption(u, useInch, showWeaponOfType, showImage, allMartialArtLevels, allHackingPrograms, null).stream())
+            return data.getUnitOptions().stream()
+                    .flatMap(u -> UnitPrintCard.fromUnitOption(u, data, options, null).stream())
                     .filter(u -> {
                         if (ids.contains(u.getCombinedProfileId())) {
                             return false;
@@ -368,63 +348,15 @@ public class HtmlPrinter {
                     })
                     .toList();
         } else {
-            unitPrintCards = armyList.getCombatGroups().entrySet().stream()
+            return data.getArmyList().getCombatGroups().entrySet().stream()
                     .flatMap(e -> e.getValue().stream()
-                            .flatMap(uo -> UnitPrintCard.fromUnitOption(uo, useInch, showWeaponOfType, showImage, allMartialArtLevels, allHackingPrograms, e.getKey()).stream())
+                            .flatMap(uo -> UnitPrintCard.fromUnitOption(uo, data, options, e.getKey()).stream())
                     ).toList();
         }
+    }
 
-        List<PrintHackingProgram> usedHackingPrograms = showHackingPrograms ? PrintUtils.getUsedHackingPrograms(unitOptions, allHackingPrograms) : List.of();
-
-        final List<PrintHackingProgram> programsCard1;
-        final List<PrintHackingProgram> programsCard2;
-
-        int maxProgramsOnFirstCard = template.numberOfHackingProgramsOnExtraCard;
-        if (usedHackingPrograms.size() > maxProgramsOnFirstCard) {
-            programsCard1 = usedHackingPrograms.subList(0, maxProgramsOnFirstCard);
-            programsCard2 = usedHackingPrograms.subList(maxProgramsOnFirstCard, usedHackingPrograms.size());
-        } else {
-            programsCard1 = usedHackingPrograms;
-            programsCard2 = List.of();
-        }
-
-        int cardWidthInMm = template.widthInMm;
-        int cardHeightInMm = template.heightInMm;
-
-        boolean hasBooty = hasAnySkill(unitOptions, "Booty");
-        boolean hasMetaChemistry = hasAnySkill(unitOptions, "MetaChemistry");
-        final Map<String, List<UnitCost>> armyListUnits;
-        final String armyListTitel;
-        if (armyList != null) {
-            armyListUnits = armyList.getCombatGroups().entrySet().stream()
-                    .collect(Collectors.toMap(e -> "Group: " + e.getKey(), e -> e.getValue().stream()
-                            .map(UnitCost::fromUnitOption)
-                            .toList()
-                    ));
-            String armyName = Optional.ofNullable(armyList.getArmyName())
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .orElse(sectorial.getName());
-            armyListTitel = "Army List: %s - %dpts".formatted(armyName, armyList.getMaxPoints());
-        } else {
-            armyListUnits = Map.of();
-            armyListTitel = "";
-        }
-
-        final List<PrintFireteam> fireteams;
-        final String allowedFireteams;
-        if (fireteamChart != null) {
-            fireteams = fireteamChart.getTeams().stream()
-                    .map(PrintFireteam::fromFireteamChartTeam)
-                    .toList();
-            String duoCount = fireteamChart.getDuoCount() == 256 ? "Unlimited" : String.valueOf(fireteamChart.getDuoCount());
-            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, fireteamChart.getHarisCount(), fireteamChart.getCoreCount());
-        } else {
-            fireteams = null;
-            allowedFireteams = null;
-        }
-
-        List<Deployable> deployables = unitPrintCards.stream()
+    private List<Deployable> getDeployable(List<UnitPrintCard> unitPrintCards) {
+        return unitPrintCards.stream()
                 .flatMap(e -> e.getWeapons().stream())
                 .flatMap(w -> {
                     if (!Strings.isNullOrEmpty(w.getProfile())) {
@@ -443,42 +375,6 @@ public class HtmlPrinter {
                 .sorted(Comparator.comparing(Deployable::getName))
                 .toList();
 
-        Context context = new Context();
-        context.setVariable("unitPrintCards", unitPrintCards);
-        context.setVariable("rangeModifierClassMap", rangeClassMap);
-        context.setVariable("listName", fileName);
-        context.setVariable("armyCode", armyCode);
-        context.setVariable("primaryColor", primaryColor);
-        context.setVariable("secondaryColor", secondaryColor);
-        context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
-        context.setVariable("boarderColor", boarderColor);
-        context.setVariable("showSectorialLogo", showSectorialLogo);
-        context.setVariable("headerColor", headerColor);
-        context.setVariable("showSavingRollInsteadOfAmmo", showSavingRollInsteadOfAmmo);
-        context.setVariable("printUtils", new PrintUtils());
-        context.setVariable("programs1", programsCard1);
-        context.setVariable("programs2", programsCard2);
-        context.setVariable("deployables", deployables);
-        context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(allMetaChemistryRolls) : List.of());
-        context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(allBootyRolls) : List.of());
-        context.setVariable("bootyWeapons", hasBooty ? mapBootyWeapons(allBootyRolls) : List.of());
-        context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
-        context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
-        context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
-        context.setVariable("useInch", useInch);
-        context.setVariable("armyList", armyListUnits);
-        context.setVariable("armyListTitel", armyListTitel);
-        context.setVariable("fireteams", fireteams);
-        context.setVariable("allowedFireteams", allowedFireteams);
-        context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
-        context.setVariable("showImage", template.supportImages);
-
-        String savePath = "%s/%s.html".formatted(outputPath, fileName);
-        try (FileWriter writer = new FileWriter(savePath)) {
-            templateEngine.process(template.fileName, context, writer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private boolean hasAnySkill(List<UnitOption> unitOptions, String skillName) {

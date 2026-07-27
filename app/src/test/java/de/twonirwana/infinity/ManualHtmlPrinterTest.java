@@ -161,21 +161,10 @@ public class ManualHtmlPrinterTest {
                 .flatMap(k -> al.getCombatGroups().get(k).stream())
                 .toList();
 
-        underTest.printCard(armyListOptions,
-                db.getAllHackingPrograms(),
-                db.getAllMartialArtLevels(),
-                db.getAllBootyRolls(),
-                db.getAllMetaChemistryRolls(),
-                al,
-                db.getFireteamChart(al.getSectorial()),
-                al.getSectorial(),
-                db.getUnitImageFolder(),
-                db.getCustomUnitImageFolder(),
-                db.getSectorialLogoFolder(),
-                db.getUnitLogosFolder(),
-                fileName,
-                armyCode,
-                useInch,
+        PrintData data = PrintData.of(db, armyListOptions, armyList, armyCode);
+
+        PrintContext context = PrintContext.of(db, fileName, "out/html/card/", "out/html/card/image/");
+        PrintOptions options = new PrintOptions(useInch,
                 showSavingRollInsteadOfAmmo,
                 removeDuplicate,
                 reduceColor,
@@ -183,6 +172,8 @@ public class ManualHtmlPrinterTest {
                 showImage,
                 showHackingPrograms,
                 template);
+
+        underTest.writeCards(data, context, options);
 
         Path result = Paths.get("out/html/card/" + fileName + ".html");
         assertThat(result).exists();

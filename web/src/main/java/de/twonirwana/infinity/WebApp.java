@@ -49,9 +49,10 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class WebApp {
-    private final static String CARD_FOLDER = HtmlPrinter.HTML_OUTPUT_PATH + HtmlPrinter.CARD_FOLDER;
-    private final static String IMAGE_FOLDER = HtmlPrinter.IMAGE_FOLDER;
-    private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + IMAGE_FOLDER;
+
+    private final static String OUTPUT_FOLDER = "out/html/";
+    private final static String CARD_FOLDER = OUTPUT_FOLDER + "card";
+    private final static String CARD_IMAGE_FOLDER = CARD_FOLDER + "/image/";
     private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
     private final static Path INVALID_ARMY_CODE_FILE = Path.of("invalid_army_code.csv"); //not in out because it should not be archived
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
@@ -401,20 +402,10 @@ public class WebApp {
                     .flatMap(k -> al.getCombatGroups().get(k).stream())
                     .toList();
 
-            htmlPrinter.printCard(armyListOptions,
-                    database.getAllHackingPrograms(),
-                    database.getAllMartialArtLevels(),
-                    database.getAllBootyRolls(),
-                    database.getAllMetaChemistryRolls(),
-                    al,
-                    database.getFireteamChart(al.getSectorial()),
-                    al.getSectorial(),
-                    database.getUnitImageFolder(),
-                    database.getCustomUnitImageFolder(),
-                    database.getUnitLogosFolder(),
-                    database.getSectorialLogoFolder(),
-                    fileName,
-                    armyCode,
+            PrintData data = PrintData.of(database, armyListOptions, al, armyCode);
+
+            PrintContext context = PrintContext.of(database, fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
+            PrintOptions options = new PrintOptions(
                     useInch,
                     showSavingRollInsteadOfAmmo,
                     removeDuplicates,
@@ -423,7 +414,9 @@ public class WebApp {
                     !removeImages,
                     true,
                     style);
-            log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getMaxPoints(), al.getArmyName(), armyCode, fileName);
+
+            htmlPrinter.writeCards(data, context, options);
+            log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getTotalCost(), al.getArmyName(), armyCode, fileName);
             registry.counter("infinity.generate.list",
                     "sectorial", al.getSectorial().getSlug(),
                     "style", style.name(),
@@ -478,20 +471,10 @@ public class WebApp {
 
             String unitIdsHash = HashUtil.hash128Bit(unitOptionById.toString());
             String fileName = getFileName(unitIdsHash, startupTime, style, unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
-            htmlPrinter.printCard(unitOptions,
-                    database.getAllHackingPrograms(),
-                    database.getAllMartialArtLevels(),
-                    database.getAllBootyRolls(),
-                    database.getAllMetaChemistryRolls(),
-                    null,
-                    null,
-                    unitOptions.getFirst().getSectorial(),
-                    database.getUnitImageFolder(),
-                    database.getCustomUnitImageFolder(),
-                    database.getUnitLogosFolder(),
-                    database.getSectorialLogoFolder(),
-                    fileName,
-                    null,
+            PrintData data = PrintData.of(database, unitOptions, null, null);
+
+            PrintContext context = PrintContext.of(database, fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
+            PrintOptions options = new PrintOptions(
                     useInch,
                     showSavingRollInsteadOfAmmo,
                     removeDuplicates,
@@ -500,6 +483,8 @@ public class WebApp {
                     !removeImages,
                     true,
                     style);
+
+            htmlPrinter.writeCards(data, context, options);
             log.info("Created cards for: {} ; {} -> {}", unitOptions.getFirst().getSectorial().getSlug(), unitOptionIds, fileName);
             registry.counter("infinity.generate.list",
                     "sectorial", unitOptions.getFirst().getSectorial().getSlug(),

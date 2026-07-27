@@ -157,22 +157,22 @@ public class HtmlPrinterTest {
     @MethodSource("generateTestData")
     void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInsteadOfAmmo, boolean removeDuplicate, boolean reduceColor, HtmlPrinter.Template template) {
         fileName = "testFile_" + System.currentTimeMillis();
-        underTest.writeCards(List.of(unitOption),
+        PrintData data = new PrintData(List.of(unitOption),
                 List.of(hackingProgram),
                 martialArtLevels,
                 bootyRolls,
                 metaChemistryRolls,
                 fireteamChart,
                 armyList,
-                fileName,
-                "",
-                sectorial,
-                "",
+                "");
+        PrintContext context = new PrintContext(fileName,
                 "",
                 "",
                 "",
                 "",
-                useInch,
+                "",
+                "");
+        PrintOptions options = new PrintOptions(useInch,
                 showSavingRollInsteadOfAmmo,
                 removeDuplicate,
                 reduceColor,
@@ -180,6 +180,11 @@ public class HtmlPrinterTest {
                 showImage,
                 showHackingProgram,
                 template);
+        underTest.writeCards(
+                data,
+                context,
+                options
+        );
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }
