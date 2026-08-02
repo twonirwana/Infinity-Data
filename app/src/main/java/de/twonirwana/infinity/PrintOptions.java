@@ -9,13 +9,25 @@ import java.util.Set;
 @Value
 public class PrintOptions {
     boolean useInch;
-    boolean showSavingRollInsteadOfAmmo;
     boolean removeDuplicates;
     boolean reduceColor;
     @NonNull
     Set<Weapon.Type> showWeaponOfType;
-    boolean showImage;
-    boolean showHackingPrograms;
+    boolean showUnitImages;
+    boolean showSectorialIcon;
+    boolean showUnitIcon;
+    boolean showHackingProgramsCard;
     @NonNull
     HtmlPrinter.Template template;
+    boolean useLetterInsteadA4;
+
+    boolean disableApplyingSkillWeaponExtra;
+    boolean showSaveAttribute;
+    boolean showNumberOfSaveRolls;
+    boolean showAmmo;
+    boolean showBurst;
+    boolean showPs;
+    boolean showSavingRoll;
+    boolean showWeaponSkill;
+    //todo showWeaponTraits showWeaponRange alternative range 0-8":+3 ...
 }

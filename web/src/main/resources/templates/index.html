@@ -118,6 +118,35 @@
             padding-right: 40px;
         }
 
+        /* --- NEW STYLES FOR ADVANCED SECTION --- */
+        details {
+            width: 100%;
+            margin-bottom: 1.5em;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: var(--primary-color-glow);
+            letter-spacing: 1px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--primary-color-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        summary:hover {
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7);
+        }
+
+        .details-content {
+            padding-top: 1.5em;
+        }
+
+        /* --------------------------------------- */
+
         button {
             font-family: var(--font-display);
             padding: 12px 15px;
@@ -139,7 +168,7 @@
         }
 
         .checkbox-group {
-            margin-top: 1.5em;
+            margin-top: 0;
             margin-bottom: 0.5em;
             display: flex;
             flex-direction: column;
@@ -226,36 +255,15 @@
             color: var(--primary-color-dark);
         }
 
-        .help {
+        .help, .allCsv, .avaChecker {
             margin-top: 10px;
             text-align: center;
         }
 
-        .help a {
+        .help a, .allCsv a, .avaChecker a {
             color: var(--primary-color-glow);
             text-decoration: underline;
         }
-
-        .allCsv {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .allCsv a {
-            color: var(--primary-color-glow);
-            text-decoration: underline;
-        }
-
-        .avaChecker {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .avaChecker a {
-            color: var(--primary-color-glow);
-            text-decoration: underline;
-        }
-
     </style>
 </head>
 <body>
@@ -265,58 +273,119 @@
     <form action="#" th:action="@{/generate}" method="get" target="_blank">
 
         <label for="armyData">Army Code or Option IDs:</label>
-        <input type="text" id="armyData" name="armyData" required placeholder="Enter Army Code OR comma-separated Option IDs...">
+        <input type="text" id="armyData" name="armyData" required
+               placeholder="Enter Army Code OR comma-separated Option IDs...">
 
         <label for="style-selector">Select Card Style:</label>
         <div class="select-wrapper">
             <select id="style-selector" name="style">
-                <option value="a4_image" selected>Color and image - DIN-A4</option>
-                <option value="c6onA4_image">Color and image - 6 on a DIN-A4</option>
-                <option value="a4_overview">Overview List - DIN-A4</option>
-                <option value="a7_image">Color and image - DIN-A7</option>
-                <option value="letter_image">Color and image - US Letter</option>
-                <option value="card_bw">Black and white - playing card</option>
+                <option value="a4_image" selected>Color and image - one per Page</option>
+                <option value="c6onA4_image">Color and image - 6 on one page</option>
+                <option value="a4_overview">Overview List</option>
+                <option value="card_bw">Black and white - playing card (legacy and no options)</option>
             </select>
         </div>
-        <label for="unit-selector">Select Unit System:</label>
-        <div class="select-wrapper">
-            <select id="unit-selector" name="unit">
-                <option value="inch" selected>Inches</option>
-                <option value="cm">Centimeters</option>
-            </select>
-        </div>
-        <div class="checkbox-group">
-            <label class="checkbox-label">
-                <input type="checkbox" name="showSavingRollInsteadOfAmmo" value="true" checked>
-                <span class="checkbox-custom"></span>
-                Show Saving Roll instead of PS/Ammo
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" name="removeImages" value="true">
-                <span class="checkbox-custom"></span>
-                Remove Unit Images
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" name="showEquipmentWeapons" value="true" checked>
-                <span class="checkbox-custom"></span>
-                Show Equipment Weapons (e.g. Medkit ...)
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" name="showSkillWeapon" value="true" checked>
-                <span class="checkbox-custom"></span>
-                Show Skill Weapon (e.g. Forward Observer ...)
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" name="distinctUnits" value="true">
-                <span class="checkbox-custom"></span>
-                Remove duplicate units (removes also combat group number)
-            </label>
-            <label class="checkbox-label">
-                <input type="checkbox" name="reduceColor" value="true">
-                <span class="checkbox-custom"></span>
-                Reduced color (better for black and white printers)
-            </label>
-        </div>
+
+        <details>
+            <summary>Advanced Options</summary>
+
+            <div class="details-content">
+
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="useCm" value="true">
+                        <span class="checkbox-custom"></span>
+                        Use cm instead of inch
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="useLetterInsteadA4" value="true">
+                        <span class="checkbox-custom"></span>
+                        Use Letter format instead of A4
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showSectorialIcon" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Sectorial Icon in the background
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showUnitIcon" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Unit Icon
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showUnitImages" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Unit Images
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="reduceColor" value="true">
+                        <span class="checkbox-custom"></span>
+                        Reduced color (better for black and white printers)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showEquipmentWeapons" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Equipment Weapons (e.g. Medkit ...)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showSkillWeapon" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Skill Weapon (e.g. Forward Observer ...)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showHackingPrograms" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Card with Hacking Programs
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="distinctUnits" value="true">
+                        <span class="checkbox-custom"></span>
+                        Remove duplicate units (removes also combat group number)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showWeaponSkill" value="true">
+                        <span class="checkbox-custom"></span>
+                        Show Weapon Skill column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showBurst" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Burst column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showSavingRoll" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Show Saving Roll column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showAmmo" value="true">
+                        <span class="checkbox-custom"></span>
+                        Show Ammo column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showPs" value="true">
+                        <span class="checkbox-custom"></span>
+                        Show PS column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showSaveAttribute" value="true">
+                        <span class="checkbox-custom"></span>
+                        Show Saving Attribute column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="showNumberOfSaveRolls" value="true">
+                        <span class="checkbox-custom"></span>
+                        Show Number Saving Rolls column
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="applyingSkillWeaponExtra" value="true" checked>
+                        <span class="checkbox-custom"></span>
+                        Apply Weapon Skill Modifier (Burst, SR ...) to weapons and remove from skill list
+                    </label>
+
+                </div>
+            </div>
+        </details>
 
         <button type="submit">Generate and View Cards</button>
     </form>

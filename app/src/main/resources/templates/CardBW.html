@@ -222,7 +222,7 @@
                     <td class="skills"><span th:text="${unitPrintCard.prettyEquipments()}"></span></td>
                 </tr>
                 <tr>
-                    <td class="skills"><span th:text="${unitPrintCard.prettySkills()}"></span></td>
+                    <td class="skills"><span th:text="${unitPrintCard.prettySkills(printOptions)}"></span></td>
                 </tr>
             </table>
         </div>
@@ -238,7 +238,7 @@
                     <th>Ammo</th>
                 </tr>
                 <tr th:each="weapon : ${unitPrintCard.getProfile().getWeapons()}">
-                    <td th:text="${printUtils.prettyWeaponName(weapon, unitPrintCard.isUseInch())}"></td>
+                    <td th:text="${printUtils.prettyWeaponName(weapon, printOptions)}"></td>
                     <td>
                         <div class="flex">
                             <div th:each="range : ${weapon.getRangeCombinedModifiers()}"
@@ -250,8 +250,8 @@
                             </div>
                         </div>
                     </td>
-                    <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon)}"></td>
-                    <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon)}"></td>
+                    <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon, printOptions)}"></td>
+                    <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon, printOptions)}"></td>
                     <td th:text="${weapon.getAmmunition() != null ? weapon.getAmmunition().getName() : ''}"></td>
                 </tr>
 

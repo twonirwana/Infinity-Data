@@ -56,8 +56,6 @@ public class WebApp {
     private final static Path ARMY_UNIT_HASH_FILE = Path.of("army_code-hash.csv"); //not in out because it should not be archived
     private final static Path INVALID_ARMY_CODE_FILE = Path.of("invalid_army_code.csv"); //not in out because it should not be archived
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
-    private final static String INCH_UNIT_KEY = "inch";
-    private final static String CM_UNIT_KEY = "cm";
     private final static Set<String> ARMY_CODES = new ConcurrentSkipListSet<>();
     private static final Pattern COMBINED_ID_PATERN = Pattern.compile("\\d+-\\d+-\\d+-\\d+");
 
@@ -304,24 +302,25 @@ public class WebApp {
                 return;
             }
 
-            String unit = ctx.queryParam("unit");
-            final boolean useInch;
-            if (INCH_UNIT_KEY.equals(unit)) {
-                useInch = true;
-            } else if (CM_UNIT_KEY.equals(unit)) {
-                useInch = false;
-            } else {
-                log.error("Invalid unit '{}'", unit);
-                ctx.status(400).html("Invalid unit: " + unit);
-                return;
-            }
-
-            final boolean removeImages = getCheckboxValue(ctx, "removeImages");
+            final boolean useInch = !getCheckboxValue(ctx, "useCm");
+            final boolean useLetterInsteadA4 = getCheckboxValue(ctx, "useLetterInsteadA4");
+            final boolean showUnitImages = getCheckboxValue(ctx, "showUnitImages");
             final boolean showEquipmentWeapons = getCheckboxValue(ctx, "showEquipmentWeapons");
             final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
+            final boolean showHackingPrograms = getCheckboxValue(ctx, "showHackingPrograms");
             final boolean removeDuplicates = getCheckboxValue(ctx, "distinctUnits");
-            final boolean showSavingRollInsteadOfAmmo = getCheckboxValue(ctx, "showSavingRollInsteadOfAmmo");
             final boolean reduceColor = getCheckboxValue(ctx, "reduceColor");
+            final boolean showSectorialIcon = getCheckboxValue(ctx, "showSectorialIcon");
+            final boolean showUnitIcon = getCheckboxValue(ctx, "showUnitIcon");
+
+            final boolean disableApplyingSkillWeaponExtra = !getCheckboxValue(ctx, "applyingSkillWeaponExtra");
+            final boolean showSaveAttribute = getCheckboxValue(ctx, "showSaveAttribute");
+            final boolean showNumberOfSaveRolls = getCheckboxValue(ctx, "showNumberOfSaveRolls");
+            final boolean showAmmo = getCheckboxValue(ctx, "showAmmo");
+            final boolean showBurst = getCheckboxValue(ctx, "showBurst");
+            final boolean showPs = getCheckboxValue(ctx, "showPs");
+            final boolean showSavingRoll = getCheckboxValue(ctx, "showSavingRoll");
+            final boolean showWeaponSkill = getCheckboxValue(ctx, "showWeaponSkill");
 
             Set<Weapon.Type> weaponTypes = getShowWeaponType(showSkillWeapon, showEquipmentWeapons);
 
@@ -336,14 +335,48 @@ public class WebApp {
             }
 
             List<String> unitIds = combinedIdMatcher(armyData);
+
+            PrintOptions options = new PrintOptions(
+                    useInch,
+                    removeDuplicates,
+                    reduceColor,
+                    weaponTypes,
+                    showUnitImages,
+                    showSectorialIcon,
+                    showUnitIcon,
+                    showHackingPrograms,
+                    styleOptional.get(),
+                    useLetterInsteadA4,
+                    disableApplyingSkillWeaponExtra,
+                    showSaveAttribute,
+                    showNumberOfSaveRolls,
+                    showAmmo,
+                    showBurst,
+                    showPs,
+                    showSavingRoll,
+                    showWeaponSkill);
+            final List<UnitOption> generated;
             if (unitIds.isEmpty()) {
-                printArmyCode(ctx, startupTime, registry, contextPath,
-                        database, htmlPrinter, armyData, unit, useInch, removeImages, showEquipmentWeapons,
-                        showSkillWeapon, removeDuplicates, showSavingRollInsteadOfAmmo, reduceColor, weaponTypes, styleOptional.get());
+                generated = printArmyCode(ctx, startupTime, registry, contextPath,
+                        database, htmlPrinter, armyData, options);
             } else {
-                printUnitOptionIds(ctx, startupTime, registry, contextPath,
-                        database, htmlPrinter, unitIds, unit, useInch, removeImages, showEquipmentWeapons,
-                        showSkillWeapon, removeDuplicates, showSavingRollInsteadOfAmmo, reduceColor, weaponTypes, styleOptional.get());
+                generated = printUnitOptionIds(ctx, startupTime, registry, contextPath,
+                        database, htmlPrinter, unitIds, options);
+            }
+
+            if (!generated.isEmpty()) {
+                registry.counter("infinity.generate.list",
+                        "sectorial", generated.getFirst().getSectorial().getSlug(),
+                        "template", options.getTemplate().name(),
+                        "useInch", String.valueOf(options.isUseInch()),
+                        "useLetterInsteadA4", String.valueOf(options.isUseLetterInsteadA4()),
+                        "removeDuplicates", String.valueOf(options.isRemoveDuplicates()),
+                        "reduceColor", String.valueOf(options.isReduceColor()),
+                        "disableApplyingSkillWeaponExtra", String.valueOf(options.isDisableApplyingSkillWeaponExtra()),
+                        "showAmmo", String.valueOf(options.isShowAmmo()),
+                        "showPs", String.valueOf(options.isShowPs()),
+                        "showSavingRoll", String.valueOf(options.isShowSavingRoll())
+                ).increment();
             }
 
         });
@@ -358,38 +391,29 @@ public class WebApp {
         return matches;
     }
 
-    private static void printArmyCode(Context ctx,
-                                      final long startupTime,
-                                      PrometheusMeterRegistry registry,
-                                      String contextPath,
-                                      Database database,
-                                      HtmlPrinter htmlPrinter,
-                                      String armyCode,
-                                      String unit,
-                                      boolean useInch,
-                                      boolean removeImages,
-                                      boolean showEquipmentWeapons,
-                                      boolean showSkillWeapon,
-                                      boolean removeDuplicates,
-                                      boolean showSavingRollInsteadOfAmmo,
-                                      boolean reduceColor,
-                                      Set<Weapon.Type> weaponTypes,
-                                      HtmlPrinter.Template style) throws IOException {
+    private static List<UnitOption> printArmyCode(Context ctx,
+                                                  final long startupTime,
+                                                  PrometheusMeterRegistry registry,
+                                                  String contextPath,
+                                                  Database database,
+                                                  HtmlPrinter htmlPrinter,
+                                                  String armyCode,
+                                                  PrintOptions options) throws IOException {
         armyCode = armyCode.trim();
         String armyCodeHash = HashUtil.hash128Bit(armyCode);
-        String fileName = getFileName(armyCodeHash, startupTime, style, unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
+        String fileName = getFileName(armyCodeHash, startupTime, options);
         if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
             log.info("army code already exists: {} -> {}", armyCode, fileName);
             registry.counter("infinity.generate.existing").increment();
             ctx.redirect(contextPath + "view/" + fileName);
-            return;
+            return List.of();
         }
 
         try {
             Stopwatch stopwatch = Stopwatch.createStarted();
             boolean isValid = checkArmyCodes(ctx, registry, armyCode, database);
             if (!isValid) {
-                return;
+                return List.of();
             }
 
             ArmyList al = database.getArmyListForArmyCode(armyCode);
@@ -405,59 +429,32 @@ public class WebApp {
             PrintData data = PrintData.of(database, armyListOptions, al, armyCode);
 
             PrintContext context = PrintContext.of(database, fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
-            PrintOptions options = new PrintOptions(
-                    useInch,
-                    showSavingRollInsteadOfAmmo,
-                    removeDuplicates,
-                    reduceColor,
-                    weaponTypes,
-                    !removeImages,
-                    true,
-                    style);
 
             htmlPrinter.writeCards(data, context, options);
             log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getTotalCost(), al.getArmyName(), armyCode, fileName);
-            registry.counter("infinity.generate.list",
-                    "sectorial", al.getSectorial().getSlug(),
-                    "style", style.name(),
-                    "unit", unit,
-                    "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
-                    "reduceColor", String.valueOf(reduceColor),
-                    "removeImages", String.valueOf(removeImages),
-                    "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
-                    "showSkillWeapon", String.valueOf(showSkillWeapon),
-                    "distinct", String.valueOf(removeDuplicates)
-            ).increment();
 
             Files.writeString(ARMY_UNIT_HASH_FILE, "%s;%s;%s\n".formatted(fileName, armyCode, armyCodeHash), StandardOpenOption.APPEND);
 
             metricsTimer("infinity.generate.new", stopwatch.elapsed(), registry);
             ctx.redirect(contextPath + "view/" + fileName);
+            return armyListOptions;
         } catch (Exception e) {
             log.error("Error read army code: {}", armyCode, e);
             registry.counter("infinity.error.army.code").increment();
             Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
             ctx.status(400).html("Error read army code: " + armyCode);
+            return List.of();
         }
     }
 
-    private static void printUnitOptionIds(Context ctx,
-                                           final long startupTime,
-                                           PrometheusMeterRegistry registry,
-                                           String contextPath,
-                                           Database database,
-                                           HtmlPrinter htmlPrinter,
-                                           List<String> unitOptionIds,
-                                           String unit,
-                                           boolean useInch,
-                                           boolean removeImages,
-                                           boolean showEquipmentWeapons,
-                                           boolean showSkillWeapon,
-                                           boolean removeDuplicates,
-                                           boolean showSavingRollInsteadOfAmmo,
-                                           boolean reduceColor,
-                                           Set<Weapon.Type> weaponTypes,
-                                           HtmlPrinter.Template style) {
+    private static List<UnitOption> printUnitOptionIds(Context ctx,
+                                                       final long startupTime,
+                                                       PrometheusMeterRegistry registry,
+                                                       String contextPath,
+                                                       Database database,
+                                                       HtmlPrinter htmlPrinter,
+                                                       List<String> unitOptionIds,
+                                                       PrintOptions options) {
 
         try {
             Stopwatch stopwatch = Stopwatch.createStarted();
@@ -470,41 +467,22 @@ public class WebApp {
                     .toList();
 
             String unitIdsHash = HashUtil.hash128Bit(unitOptionById.toString());
-            String fileName = getFileName(unitIdsHash, startupTime, style, unit, removeDuplicates, weaponTypes, removeImages, showSavingRollInsteadOfAmmo, reduceColor);
+            String fileName = getFileName(unitIdsHash, startupTime, options);
             PrintData data = PrintData.of(database, unitOptions, null, null);
 
             PrintContext context = PrintContext.of(database, fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
-            PrintOptions options = new PrintOptions(
-                    useInch,
-                    showSavingRollInsteadOfAmmo,
-                    removeDuplicates,
-                    reduceColor,
-                    weaponTypes,
-                    !removeImages,
-                    true,
-                    style);
 
             htmlPrinter.writeCards(data, context, options);
             log.info("Created cards for: {} ; {} -> {}", unitOptions.getFirst().getSectorial().getSlug(), unitOptionIds, fileName);
-            registry.counter("infinity.generate.list",
-                    "sectorial", unitOptions.getFirst().getSectorial().getSlug(),
-                    "style", style.name(),
-                    "unit", unit,
-                    "savingRoll", String.valueOf(showSavingRollInsteadOfAmmo),
-                    "reduceColor", String.valueOf(reduceColor),
-                    "removeImages", String.valueOf(removeImages),
-                    "showEquipmentWeapons", String.valueOf(showEquipmentWeapons),
-                    "showSkillWeapon", String.valueOf(showSkillWeapon),
-                    "distinct", String.valueOf(removeDuplicates)
-            ).increment();
 
             metricsTimer("infinity.generate.unitOptionIds.new", stopwatch.elapsed(), registry);
             ctx.redirect(contextPath + "view/" + fileName);
+            return unitOptions;
         } catch (Exception e) {
             ctx.status(400).html("Error read unitOptionIds: " + unitOptionIds);
+            return List.of();
         }
     }
-
 
     private static void joinedAvaPage(JavalinConfig config,
                                       PrometheusMeterRegistry registry,
@@ -605,22 +583,11 @@ public class WebApp {
 
     private static String getFileName(String armyCodeHash,
                                       long startupTime,
-                                      HtmlPrinter.Template template,
-                                      String unit,
-                                      boolean distinctUnit,
-                                      Set<Weapon.Type> weaponTypes,
-                                      boolean removeImage,
-                                      boolean showSavingRollInsteadOfAmmo,
-                                      boolean reduceColor) {
-        return "%s-%s-%s-%s-%s-%s-%s-%s-%s".formatted(armyCodeHash,
-                startupTime,
-                template,
-                unit,
-                distinctUnit ? "distinct" : "all",
-                weaponTypes.stream().map(Enum::name).sorted().collect(Collectors.joining("-")),
-                removeImage ? "noImage" : "showImage",
-                showSavingRollInsteadOfAmmo ? "savingRoll" : "psAndAmmo",
-                reduceColor ? "reduceColor" : "color"
+                                      PrintOptions options) {
+        String printOptionHash = HashUtil.hash128Bit(options.toString());
+        return "%s-%s-%s".formatted(startupTime,
+                armyCodeHash,
+                printOptionHash
         );
 
     }

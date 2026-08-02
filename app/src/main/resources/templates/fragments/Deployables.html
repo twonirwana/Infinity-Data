@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div th:fragment="deployablesFragment(deployables, showSavingRollInsteadOfAmmo, printUtils)">
+<div th:fragment="deployablesFragment()">
     <div class="card" th:if="${deployables != null and not #lists.isEmpty(deployables)}">
         <div class="card-content">
 
@@ -31,9 +31,9 @@
                     <td th:text="${deployable.getCc()}"></td>
                     <td th:text="${deployable.getBs()}"></td>
                     <td th:if="${!showSavingRollInsteadOfAmmo}"
-                        th:text="${printUtils.getWeaponPsWithExtra(null, deployable.getWeapon())}"></td>
+                        th:text="${printUtils.getWeaponPsWithExtra(null, deployable.getWeapon(), printOptions)}"></td>
                     <td class="weapon-padding" th:if="${showSavingRollInsteadOfAmmo}"
-                        th:text="${printUtils.getWeaponSavingRollWithExtra(null, deployable.getWeapon())}"></td>
+                        th:text="${printUtils.getWeaponSavingRollWithExtra(null, deployable.getWeapon(), printOptions)}"></td>
                     <td th:if="${!showSavingRollInsteadOfAmmo}"
                         th:text="${deployable.getWeapon() != null && deployable.getWeapon().getAmmunition() != null ? deployable.getWeapon().getAmmunition().getName() : ''}"></td>
                     <td th:text="${deployable.getArm()}"></td>

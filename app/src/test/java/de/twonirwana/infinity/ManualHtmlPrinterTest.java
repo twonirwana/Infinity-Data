@@ -124,7 +124,7 @@ public class ManualHtmlPrinterTest {
             throw new RuntimeException(e);
         }
         return armyCodeAndUnits.stream()
-                .map(a -> Arguments.of(a.get(0), a.get(1), true, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, true, true, HtmlPrinter.Template.a7_image));
+                .map(a -> Arguments.of(a.get(0), a.get(1), true, true, Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET), true, true, true, HtmlPrinter.Template.a4_image));
 
     }
 
@@ -133,7 +133,7 @@ public class ManualHtmlPrinterTest {
     void testHtml(String armyCode,
                   String expectedUnitIds,
                   boolean useInch,
-                  boolean showSavingRollInsteadOfAmmo,
+                  boolean showSavingRoll,
                   Set<Weapon.Type> weaponOption,
                   boolean showImage,
                   boolean showHackingPrograms,
@@ -164,14 +164,25 @@ public class ManualHtmlPrinterTest {
         PrintData data = PrintData.of(db, armyListOptions, armyList, armyCode);
 
         PrintContext context = PrintContext.of(db, fileName, "out/html/card/", "out/html/card/image/");
-        PrintOptions options = new PrintOptions(useInch,
-                showSavingRollInsteadOfAmmo,
+        PrintOptions options = new PrintOptions(
+                useInch,
                 removeDuplicate,
                 reduceColor,
                 weaponOption,
                 showImage,
+                true,
+                true,
                 showHackingPrograms,
-                template);
+                template,
+                false,
+                !showSavingRoll,
+                !showSavingRoll,
+                !showSavingRoll,
+                !showSavingRoll,
+                !showSavingRoll,
+                !showSavingRoll,
+                !showSavingRoll,
+                showSavingRoll);
 
         underTest.writeCards(data, context, options);
 

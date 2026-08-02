@@ -12,7 +12,7 @@ public class PrintContext {
     @NonNull
     String customUnitImagePath;
     @NonNull
-    String logoImagePath;
+    String unitLogoImagePath;
     @NonNull
     String sectorialLogoImagePath;
     @NonNull
@@ -24,8 +24,8 @@ public class PrintContext {
         return new PrintContext(fileName,
                 db.getUnitImageFolder(),
                 db.getCustomUnitImageFolder(),
-                db.getSectorialLogoFolder(),
                 db.getUnitLogosFolder(),
+                db.getSectorialLogoFolder(),
                 outputFolder,
                 imageOutputFolder
         );

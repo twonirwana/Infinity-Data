@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,6 +93,10 @@ public class HtmlPrinter {
             "regular.svg",
             "tactical.svg"
     );
+    private final static int A4_LONG = 297; //mm
+    private final static int A4_SHORT = 210; //mm
+    private final static int LETTER_LONG = 279; //mm
+    private final static int LETTER_SHORT = 216; //mm
     private final TemplateEngine templateEngine;
     private final Supplier<LocalDateTime> currentTimeSupplier;
 
@@ -107,7 +112,6 @@ public class HtmlPrinter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
-
     private void copyFile(String fileName, String sourcePath, String outPath) {
         try {
             Path targetPath = Paths.get(outPath, fileName);
@@ -119,7 +123,7 @@ public class HtmlPrinter {
         }
     }
 
-    private void copyLogos(UnitOption option, String logoImagePath, String outPath) {
+    private void copyUnitLogos(UnitOption option, String logoImagePath, String outPath) {
         option.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream())
                 .map(TrooperProfile::getLogo)
@@ -198,7 +202,7 @@ public class HtmlPrinter {
         //if there are multiple image options they should all be used
         Set<String> usedImages = new CopyOnWriteArraySet<>();
         for (UnitOption unitOption : data.getUnitOptions()) {
-            copyLogos(unitOption, printContext.getLogoImagePath(), imageOutputPath);
+            copyUnitLogos(unitOption, printContext.getUnitLogoImagePath(), imageOutputPath);
             copyUnitImages(unitOption, printContext.getUnitImagePath(), imageOutputPath, usedImages);
             copyCustomUnitImages(unitOption, printContext.getCustomUnitImagePath(), imageOutputPath); //customUnitImage have priority and overwrite CB images
         }
@@ -213,7 +217,6 @@ public class HtmlPrinter {
         final String boarderColor;
         final Map<String, String> rangeClassMap;
         final String tableHeaderFontColor;
-        final boolean showSectorialLogo;
         final Sectorial sectorial;
         if (data.getArmyList() != null) {
             sectorial = data.getArmyList().getSectorial();
@@ -230,7 +233,6 @@ public class HtmlPrinter {
             rangeClassMap = BW_RANGE_CLASS_MAP;
             tableHeaderFontColor = "black";
             boarderColor = "black";
-            showSectorialLogo = false;
         } else {
             primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
             secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
@@ -238,12 +240,11 @@ public class HtmlPrinter {
             rangeClassMap = RANGE_CLASS_MAP;
             tableHeaderFontColor = "white";
             boarderColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
-            showSectorialLogo = true;
         }
 
         final List<UnitPrintCard> unitPrintCards = createUnitPrintCards(data, options);
 
-        List<PrintHackingProgram> usedHackingPrograms = options.isShowHackingPrograms() ? PrintUtils.getUsedHackingPrograms(data) : List.of();
+        List<PrintHackingProgram> usedHackingPrograms = options.isShowHackingProgramsCard() ? PrintUtils.getUsedHackingPrograms(data) : List.of();
 
         final List<PrintHackingProgram> programsCard1;
         final List<PrintHackingProgram> programsCard2;
@@ -257,8 +258,10 @@ public class HtmlPrinter {
             programsCard2 = List.of();
         }
 
-        int cardWidthInMm = options.getTemplate().widthInMm;
-        int cardHeightInMm = options.getTemplate().heightInMm;
+
+        Template.Format format = options.isUseLetterInsteadA4() ? Template.Format.LETTER : Template.Format.A4;
+        int cardWidthInMm = options.getTemplate().dimensionFunction.apply(format).cardWidthInMm();
+        int cardHeightInMm = options.getTemplate().dimensionFunction.apply(format).cardHeightInMm();
 
         boolean hasBooty = hasAnySkill(data.getUnitOptions(), "Booty");
         boolean hasMetaChemistry = hasAnySkill(data.getUnitOptions(), "MetaChemistry");
@@ -304,10 +307,9 @@ public class HtmlPrinter {
         context.setVariable("secondaryColor", secondaryColor);
         context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
         context.setVariable("boarderColor", boarderColor);
-        context.setVariable("showSectorialLogo", showSectorialLogo);
         context.setVariable("headerColor", headerColor);
-        context.setVariable("showSavingRollInsteadOfAmmo", options.isShowSavingRollInsteadOfAmmo());
-        context.setVariable("printUtils", new PrintUtils());
+        context.setVariable("printOptions", options);
+        context.setVariable("printUtils", new PrintUtils()); //todo split in helper and
         context.setVariable("programs1", programsCard1);
         context.setVariable("programs2", programsCard2);
         context.setVariable("deployables", getDeployable(unitPrintCards));
@@ -317,13 +319,12 @@ public class HtmlPrinter {
         context.setVariable("pageSize", "%dmm %dmm".formatted(cardWidthInMm, cardHeightInMm));
         context.setVariable("cardWidthInMm", "%dmm".formatted(cardWidthInMm));
         context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
-        context.setVariable("useInch", options.isUseInch());
         context.setVariable("armyList", armyListUnits);
         context.setVariable("armyListTitel", armyListTitel);
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
         context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
-        context.setVariable("showImage", options.getTemplate().supportImages); //todo why additionaly with template, combine with option?
+        context.setVariable("templateSupportsImage", options.getTemplate().supportImages); //todo move to card gen?
 
         String savePath = "%s/%s.html".formatted(outputPath, printContext.getFileName());
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -415,19 +416,33 @@ public class HtmlPrinter {
                 .toList();
     }
 
-
     @AllArgsConstructor
     public enum Template {
-        a7_image("ColorAndOptionalImageCardSmall", 99, 70, 8, true),
-        a4_image("ColorAndOptionalImageCard", 297, 210, 10, true),
-        c6onA4_image("ColorAndOptionalImageCard6", 315, 297, 12, true),
-        letter_image("ColorAndOptionalImageCard", 279, 216, 10, true),
-        a4_overview("OverviewList", 210, 297, 0, false),
-        card_bw("CardBW", 0, 0, 0, false);
+        a4_image("ColorAndOptionalImageCard", 10, true, f -> switch (f) {
+            case A4 -> new Dimension(A4_LONG, A4_SHORT);
+            case LETTER -> new Dimension(LETTER_LONG, LETTER_SHORT);
+        }),
+        c6onA4_image("ColorAndOptionalImageCard6", 12, true, f -> switch (f) {
+            case A4 -> new Dimension(A4_LONG, A4_SHORT / 2 * 3);
+            case LETTER -> new Dimension(LETTER_LONG, LETTER_LONG / 2 * 3);
+        }),
+        a4_overview("OverviewList", 0, false, f -> switch (f) {
+            case A4 -> new Dimension(A4_SHORT, A4_LONG);
+            case LETTER -> new Dimension(LETTER_SHORT, LETTER_LONG);
+        }),
+        card_bw("CardBW", 0, false, f -> new Dimension(0, 0)); //don't support dimensions
         final String fileName;
-        final int widthInMm;
-        final int heightInMm;
         final int numberOfHackingProgramsOnExtraCard; //not shown on all templates
         final boolean supportImages;
+        final Function<Format, Dimension> dimensionFunction;
+
+        public enum Format {
+            A4,
+            LETTER
+        }
+
+        public record Dimension(int cardWidthInMm,
+                                int cardHeightInMm) {
+        }
     }
 }

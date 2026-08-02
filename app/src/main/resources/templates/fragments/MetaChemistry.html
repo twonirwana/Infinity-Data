@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div th:fragment="metaChemistryFragment(metaChemistry)">
+<div th:fragment="metaChemistryFragment()">
     <div class="card" th:if="${metaChemistry != null and not #lists.isEmpty(metaChemistry)}">
         <div class="card-content">
 

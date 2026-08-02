@@ -52,7 +52,7 @@ public class PrintUtils {
         return "Range %s".formatted(useInch ? "″" : "cm");
     }
 
-    public static String prettyWeaponName(Weapon weapon, boolean useInch) {
+    public static String prettyWeaponName(Weapon weapon, PrintOptions printOptions) {
         if ("Suppressive Fire Mode Weapon".equals(weapon.getName())) {
             return "Suppressive Fire";
         }
@@ -71,7 +71,7 @@ public class PrintUtils {
                 .filter(e -> toBurstExtra(e).isEmpty())
                 .filter(e -> toSpecialDieExtra(e).isEmpty())
                 .count() > 0) {
-            out = "%s (%s)".formatted(out, getExtraString(weapon, useInch));
+            out = "%s (%s)".formatted(out, getExtraString(weapon, printOptions.isUseInch()));
         }
         return out;
     }
@@ -99,15 +99,19 @@ public class PrintUtils {
                 .collect(Collectors.joining(", "));
     }
 
+    public static String getPrintWeaponSkill(Weapon weapon) {
+        return weapon.getSkill().name();
+    }
+
     private static String getWeaponSkill(Weapon weapon) {
         return Weapon.Skill.CC == weapon.getSkill() ? CC_ATTACK_SKILL_NAME : BS_ATTACK_SKILL_NAME;
     }
 
-    public static String getWeaponBurstWithExtra(UnitPrintCard unitPrintCard, Weapon weapon) {
+    public static String getWeaponBurstWithExtra(UnitPrintCard unitPrintCard, Weapon weapon, PrintOptions options) {
         if (weapon == null || weapon.getBurst() == null) {
             return "";
         }
-        if (unitPrintCard == null || !isWeaponOrHasBsProperty(weapon)) {
+        if (unitPrintCard == null || !isWeaponOrHasBsProperty(weapon) || options.isDisableApplyingSkillWeaponExtra()) {
             return weapon.getBurst();
         }
         String weaponSkill = getWeaponSkill(weapon);
@@ -148,14 +152,15 @@ public class PrintUtils {
         return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra) + maBurstBonus;
     }
 
-    public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
+    public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon, PrintOptions options) {
         if (weapon == null) {
             return "";
         }
-        if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*") || weapon.getProbabilityOfSurvival().equals("-")) {
-            return weapon.getProbabilityOfSurvival();
-        }
-        if (trooperProfile == null) {
+        if (weapon.getProbabilityOfSurvival() == null ||
+                weapon.getProbabilityOfSurvival().equals("*") ||
+                weapon.getProbabilityOfSurvival().equals("-") ||
+                trooperProfile == null ||
+                options.isDisableApplyingSkillWeaponExtra()) {
             return weapon.getProbabilityOfSurvival();
         }
         String weaponSkill = getWeaponSkill(weapon);
@@ -191,29 +196,29 @@ public class PrintUtils {
         return ps + "";
     }
 
-    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon) {
-        return getWeaponSavingRollWithExtra(trooperProfile, weapon, true);
+    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon, PrintOptions options) {
+        return getWeaponSavingRollWithExtra(trooperProfile, weapon, true, options);
     }
 
 
-    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon, boolean applyViral) {
+    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon, boolean applyViral, PrintOptions options) {
         if (weapon == null) {
             return "";
         }
         if (trooperProfile == null) {
-            getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null, applyViral);
+            getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null, applyViral, options);
         }
-        String modifiedPs = getWeaponPsWithExtra(trooperProfile, weapon);
+        String modifiedPs = getWeaponPsWithExtra(trooperProfile, weapon, options);
         if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*")) {
             return weapon.getProbabilityOfSurvival();
         } else if (weapon.getProbabilityOfSurvival().equals("-")) {
-            if (weapon.getSaving().equals("-") || weapon.getSaving().isEmpty()) {
+            if (weapon.getSavingAttribute().equals("-") || weapon.getSavingAttribute().isEmpty()) {
                 return weapon.getProbabilityOfSurvival();
             }
-            return getSavingRoll(weapon, null, trooperProfile, applyViral); //PARA weapons
+            return getSavingRoll(weapon, null, trooperProfile, applyViral, options); //PARA weapons
         }
 
-        return getSavingRoll(weapon, modifiedPs, trooperProfile, applyViral);
+        return getSavingRoll(weapon, modifiedPs, trooperProfile, applyViral, options);
     }
 
     public static String getCcRangeText(MartialArtLevel martialArtLevel) {
@@ -223,7 +228,7 @@ public class PrintUtils {
         return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevel.getAttackerModi(), martialArtLevel.getOpponentModi());
     }
 
-    public static String getSavingRoll(Weapon weapon, String ps, TrooperProfile trooperProfile, boolean applyViral) {
+    public static String getSavingRoll(Weapon weapon, String ps, TrooperProfile trooperProfile, boolean applyViral, PrintOptions printOptions) {
         final String psOp;
         if (ps == null || "-".equals(ps)) {
             psOp = "";
@@ -231,7 +236,9 @@ public class PrintUtils {
             psOp = ps + "+";
         }
         final Set<String> weaponExtraFromTrooperSkill;
-        if (weapon.getProperties().contains("Deployable") || hasNonCCWeaponHasNoRange(weapon)) { //mines and d-charge
+        if (weapon.getProperties().contains("Deployable") ||
+                hasNonCCWeaponHasNoRange(weapon) ||//mines and d-charge
+                printOptions.isDisableApplyingSkillWeaponExtra()) {
             weaponExtraFromTrooperSkill = Set.of();
         } else {
             String weaponSkill = getWeaponSkill(weapon);
@@ -261,7 +268,7 @@ public class PrintUtils {
             extraList.add("E");
         }
 
-        String saving = weapon.getSaving();
+        String saving = weapon.getSavingAttribute();
         if (weaponExtraFromTrooperSkill.contains("AP")) {
             if ("BTS".equals(saving)) {
                 saving = "BTS/2";
@@ -303,16 +310,30 @@ public class PrintUtils {
         return weapon.getAmmunition().getName();
     }
 
-    public static String getWeaponPropertiesString(TrooperProfile trooperProfile, Weapon weapon, boolean showSavingRollInsteadOfAmmo) {
+    public static String getSavingAttribut(Weapon weapon) {
+        if (weapon == null) {
+            return "";
+        }
+        return weapon.getSavingAttribute();
+    }
+
+    public static String getSavingNumber(Weapon weapon) {
+        if (weapon == null) {
+            return "";
+        }
+        return weapon.getSavingNum();
+    }
+
+    public static String getWeaponPropertiesString(TrooperProfile trooperProfile, Weapon weapon, PrintOptions printOptions) {
         List<String> traits = weapon.getProperties().stream()
                 .map(PrintUtils::stripTeardropSuffix)
                 .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
                 .filter(s -> !CC_PROPERTY.equals(s)) //shown in range
-                .filter(s -> !VIRAL_TRAIT.equals(s) || !showSavingRollInsteadOfAmmo)
+                .filter(s -> !VIRAL_TRAIT.equals(s) || !printOptions.isShowSavingRoll())
                 .collect(Collectors.toList());
 
-        if (showSavingRollInsteadOfAmmo && weapon.getProperties().stream().anyMatch(VIRAL_TRAIT::equals)) {
-            traits.add("%s vs STR".formatted(getWeaponSavingRollWithExtra(trooperProfile, weapon, false)));
+        if (printOptions.isShowSavingRoll() && weapon.getProperties().stream().anyMatch(VIRAL_TRAIT::equals)) {
+            traits.add("%s vs STR".formatted(getWeaponSavingRollWithExtra(trooperProfile, weapon, false, printOptions)));
         }
         return Joiner.on(", ").join(traits);
     }

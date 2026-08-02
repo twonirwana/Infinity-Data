@@ -170,16 +170,28 @@ public class HtmlPrinterTest {
                 "",
                 "",
                 "",
-                "",
-                "");
-        PrintOptions options = new PrintOptions(useInch,
-                showSavingRollInsteadOfAmmo,
+                "out/html/",
+                "/image/");
+        PrintOptions options = new PrintOptions(
+                useInch,
                 removeDuplicate,
                 reduceColor,
                 weaponOption,
                 showImage,
+                true,
+                true,
                 showHackingProgram,
-                template);
+                template,
+                false,
+                !showSavingRollInsteadOfAmmo,
+                !showSavingRollInsteadOfAmmo,
+                !showSavingRollInsteadOfAmmo,
+                !showSavingRollInsteadOfAmmo,
+                !showSavingRollInsteadOfAmmo,
+                !showSavingRollInsteadOfAmmo,
+                !showSavingRollInsteadOfAmmo,
+                showSavingRollInsteadOfAmmo
+        );
         underTest.writeCards(
                 data,
                 context,

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div th:fragment="armyListFragment(armyListTitel, armyList, creationDate, armyCode)">
+<div th:fragment="armyListFragment()">
     <div class="card" th:if="${armyList != null and not #maps.isEmpty(armyList)}">
 
         <div class="card-header">

@@ -20,7 +20,7 @@ public class Weapon {
     Ammunition ammunition;
     String burst; //int?
     String probabilityOfSurvival; //int?
-    String saving; //int?
+    String savingAttribute;
     String savingNum; //int?
     @NonNull
     List<String> properties;
