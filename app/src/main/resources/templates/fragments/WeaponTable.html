@@ -22,7 +22,7 @@
                 <th th:if="${printOptions.isShowAmmo()}">Ammo</th>
                 <th th:if="${printOptions.isShowSaveAttribute()}">Save<br>Attr.</th>
                 <th th:if="${printOptions.isShowNumberOfSaveRolls()}">Save<br>Rolls</th>
-                <th>Traits</th>
+                <th th:if="${printOptions.isShowWeaponTraits()}">Traits</th>
             </tr>
             </thead>
             <tbody>
@@ -71,6 +71,7 @@
                     th:text="${printUtils.getSavingNumber(weapon)}"></td>
 
                 <td class="weapon-table-traits"
+                    th:if="${printOptions.isShowWeaponTraits()}"
                     th:text="${printUtils.getWeaponPropertiesString(unitProfile, weapon, printOptions)}"></td>
             </tr>
 

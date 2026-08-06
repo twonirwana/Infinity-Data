@@ -302,27 +302,7 @@ public class WebApp {
                 return;
             }
 
-            final boolean useInch = !getCheckboxValue(ctx, "useCm");
-            final boolean useLetterInsteadA4 = getCheckboxValue(ctx, "useLetterInsteadA4");
-            final boolean showUnitImages = getCheckboxValue(ctx, "showUnitImages");
-            final boolean showEquipmentWeapons = getCheckboxValue(ctx, "showEquipmentWeapons");
-            final boolean showSkillWeapon = getCheckboxValue(ctx, "showSkillWeapon");
-            final boolean showHackingPrograms = getCheckboxValue(ctx, "showHackingPrograms");
-            final boolean removeDuplicates = getCheckboxValue(ctx, "distinctUnits");
-            final boolean reduceColor = getCheckboxValue(ctx, "reduceColor");
-            final boolean showSectorialIcon = getCheckboxValue(ctx, "showSectorialIcon");
-            final boolean showUnitIcon = getCheckboxValue(ctx, "showUnitIcon");
-
-            final boolean disableApplyingSkillWeaponExtra = !getCheckboxValue(ctx, "applyingSkillWeaponExtra");
-            final boolean showSaveAttribute = getCheckboxValue(ctx, "showSaveAttribute");
-            final boolean showNumberOfSaveRolls = getCheckboxValue(ctx, "showNumberOfSaveRolls");
-            final boolean showAmmo = getCheckboxValue(ctx, "showAmmo");
-            final boolean showBurst = getCheckboxValue(ctx, "showBurst");
-            final boolean showPs = getCheckboxValue(ctx, "showPs");
-            final boolean showSavingRoll = getCheckboxValue(ctx, "showSavingRoll");
-            final boolean showWeaponSkill = getCheckboxValue(ctx, "showWeaponSkill");
-
-            Set<Weapon.Type> weaponTypes = getShowWeaponType(showSkillWeapon, showEquipmentWeapons);
+            final Set<Weapon.Type> weaponTypes = getShowWeaponType(getCheckboxValue(ctx, "showSkillWeapon"), getCheckboxValue(ctx, "showEquipmentWeapons"));
 
             String styleKey = ctx.queryParam("style");
             final Optional<HtmlPrinter.Template> styleOptional = Arrays.stream(HtmlPrinter.Template.values())
@@ -337,24 +317,25 @@ public class WebApp {
             List<String> unitIds = combinedIdMatcher(armyData);
 
             PrintOptions options = new PrintOptions(
-                    useInch,
-                    removeDuplicates,
-                    reduceColor,
+                    !getCheckboxValue(ctx, "useCm"),
+                    getCheckboxValue(ctx, "distinctUnits"),
+                    getCheckboxValue(ctx, "reduceColor"),
                     weaponTypes,
-                    showUnitImages,
-                    showSectorialIcon,
-                    showUnitIcon,
-                    showHackingPrograms,
+                    getCheckboxValue(ctx, "showUnitImages"),
+                    getCheckboxValue(ctx, "showSectorialIcon"),
+                    getCheckboxValue(ctx, "showUnitIcon"),
+                    getCheckboxValue(ctx, "showHackingPrograms"),
                     styleOptional.get(),
-                    useLetterInsteadA4,
-                    disableApplyingSkillWeaponExtra,
-                    showSaveAttribute,
-                    showNumberOfSaveRolls,
-                    showAmmo,
-                    showBurst,
-                    showPs,
-                    showSavingRoll,
-                    showWeaponSkill);
+                    getCheckboxValue(ctx, "useLetterInsteadA4"),
+                    !getCheckboxValue(ctx, "applyingSkillWeaponExtra"),
+                    getCheckboxValue(ctx, "showSaveAttribute"),
+                    getCheckboxValue(ctx, "showNumberOfSaveRolls"),
+                    getCheckboxValue(ctx, "showAmmo"),
+                    getCheckboxValue(ctx, "showBurst"),
+                    getCheckboxValue(ctx, "showPs"),
+                    getCheckboxValue(ctx, "showSavingRoll"),
+                    getCheckboxValue(ctx, "showWeaponSkill"),
+                    getCheckboxValue(ctx, "showWeaponTraits"));
             final List<UnitOption> generated;
             if (unitIds.isEmpty()) {
                 generated = printArmyCode(ctx, startupTime, registry, contextPath,
