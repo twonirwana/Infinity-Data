@@ -20,7 +20,7 @@
         }
 
         body {
-            font-family: var(--font-body);
+            font-family: var(--font-body), sans-serif;
             background-color: var(--dark-bg);
             background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
             color: var(--text-color);
@@ -46,7 +46,7 @@
         }
 
         h1 {
-            font-family: var(--font-display);
+            font-family: var(--font-display), sans-serif;
             color: var(--primary-color-glow);
             text-align: center;
             text-transform: uppercase;
@@ -190,6 +190,39 @@
         <div class="faq-answer">
             <p>Use the “Distinct Units” option to generate only one card per unique trooper profile. The “No Filter”
                 option creates a card for every trooper in your list, even if they are identical.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>Can I use my own images for the units?</summary>
+        <div class="faq-answer">
+
+            <p>Yes, this is possible using this workaround:</p>
+            <ol>
+                <li>
+                    <strong>Save the page:</strong> Create your cards as you normally would. Once you are on the final
+                    Results page, save the entire page to your computer. To do this, right-click anywhere on the page
+                    and select <em>Save as...</em> (or use the shortcut <kbd>Ctrl</kbd> + <kbd>S</kbd> / <kbd>Cmd</kbd>
+                    + <kbd>S</kbd>). Make sure to choose "Webpage, Complete" as the format.
+                </li>
+                <li>
+                    <strong>Open the image folder:</strong> Your browser will now download an HTML file and
+                    automatically create an accompanying folder in the same location (usually bearing the same name as
+                    the file). This folder contains all the images used on the page.
+                </li>
+                <li>
+                    <strong>Replace the images:</strong> Open that folder and locate the unit images you want to change.
+                    Simply replace them with your own custom images. <strong>Important:</strong> Ensure that your new
+                    images have exactly the same file name and file extension as the original images you are.
+                    Even cards that have currently no image reference an image file with there Profile ID
+                    (see the csv export or the HTML code for it)
+                </li>
+                <li>
+                    <strong>Finish up:</strong> Finally, open the downloaded local HTML file in your browser. Your cards
+                    will now load with your custom images, and you can print them out or save them as a PDF just like
+                    before.
+                </li>
+            </ol>
         </div>
     </details>
 

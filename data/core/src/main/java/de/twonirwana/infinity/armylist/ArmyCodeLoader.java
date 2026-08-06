@@ -5,6 +5,7 @@ import de.twonirwana.infinity.ArmyList;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URLDecoder;
@@ -227,7 +228,7 @@ public class ArmyCodeLoader {
         int combatGroupCount = readVLI(dataBuffer);
         Map<Integer, List<CombatGroupMember>> combatGroups = IntStream.range(0, combatGroupCount)
                 .boxed()
-                .collect(Collectors.toMap(i -> i + 1, i -> getCombatGroupFromCode(dataBuffer)));
+                .collect(Collectors.toMap(i -> i + 1, _ -> getCombatGroupFromCode(dataBuffer)));
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 
@@ -236,6 +237,7 @@ public class ArmyCodeLoader {
             int groupId,
             int optionId) {
         @Override
+        @NonNull
         public String toString() {
             return "%d-%d-%d".formatted(unitId, groupId, optionId);
         }

@@ -41,7 +41,8 @@ import java.util.stream.Stream;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 /**
- * Using Army Code: hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABQCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QA%3D
+ * Using Army Code:
+ hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D
  */
 @Testcontainers
 public class PlaywrightScreenshotTest {
@@ -127,7 +128,7 @@ public class PlaywrightScreenshotTest {
         page.waitForLoadState();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Select Card Style:").selectOption(template.name());
-        page.getByLabel("Army Code or Option IDs:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBkAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABwCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgKIBAgAAhyMBAgA%3D");
+        page.getByLabel("Army Code or Option IDs:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
 
 
         Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());

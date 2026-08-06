@@ -391,22 +391,22 @@
         </th:block>
     </div>
     <th:block
-            th:replace="~{fragments/Deployables :: deployablesFragment(${deployables}, ${showSavingRollInsteadOfAmmo}, ${printUtils})}">
+            th:replace="~{fragments/Deployables :: deployablesFragment()}">
     </th:block>
     <th:block
-            th:replace="~{fragments/MetaChemistry :: metaChemistryFragment(${metaChemistry})}">
+            th:replace="~{fragments/MetaChemistry :: metaChemistryFragment()}">
     </th:block>
     <th:block
-            th:replace="~{fragments/BootyRollTable :: bootyRollFragment(${bootyRolls})}">
+            th:replace="~{fragments/BootyRollTable :: bootyRollFragment()}">
     </th:block>
     <th:block
-            th:replace="~{fragments/BootyWeapon :: bootyWeaponFragment(${bootyWeapons}, ${showSavingRollInsteadOfAmmo}, ${printUtils}, ${useInch})}">
+            th:replace="~{fragments/BootyWeapon :: bootyWeaponFragment()}">
     </th:block>
     <th:block
-            th:replace="~{fragments/ArmyList :: armyListFragment(${armyListTitel}, ${armyList}, ${currentDate}, ${armyCode})}">
+            th:replace="~{fragments/ArmyList :: armyListFragment()}">
     </th:block>
     <th:block
-            th:replace="~{fragments/FireTeam :: fireteamFragment(${fireteams}, ${allowedFireteams})}">
+            th:replace="~{fragments/FireTeam :: fireteamFragment()}">
     </th:block>
 </div>
 </body>

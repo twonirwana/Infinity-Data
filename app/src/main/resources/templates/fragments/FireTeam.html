@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div th:fragment="fireteamFragment(fireteams, allowedFireteams)">
+<div th:fragment="fireteamFragment()">
     <div class="card" th:if="${fireteams != null and not #lists.isEmpty(fireteams)}">
 
         <div class="card-header">

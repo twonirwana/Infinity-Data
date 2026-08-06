@@ -24,28 +24,25 @@ public class UnitPrintCard {
     List<PrintHackingProgram> hackingPrograms;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
-                                                     boolean useInch,
-                                                     Set<Weapon.Type> showWeaponOfType,
-                                                     boolean showImage,
-                                                     List<MartialArtLevel> allMartialArtLevels,
-                                                     List<HackingProgram> allHackingPrograms,
+                                                     PrintData printData,
+                                                     PrintOptions options,
                                                      Integer combatGroup) {
-        Map<String, MartialArtLevel> martialArtLevelMap = allMartialArtLevels.stream()
+        Map<String, MartialArtLevel> martialArtLevelMap = printData.getAllMartialArtLevels().stream()
                 .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
         return unitOption.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream().map(p -> new UnitPrintCard(unitOption,
                         t,
                         p,
-                        useInch,
-                        showWeaponOfType,
-                        showImage,
+                        options.isUseInch(),
+                        options.getShowWeaponOfType(),
+                        options.isShowUnitImages() && options.getTemplate().supportImages,
                         PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
-                        PrintUtils.getUnitHackingPrograms(p, allHackingPrograms, true)))
+                        PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true)))
                 )
                 .toList();
     }
 
-    private static boolean notAppliedToWeapon(Skill skill) {
+     private static boolean notAppliedToWeapon(Skill skill) {
         if (!Set.of(PrintUtils.BS_ATTACK_SKILL_NAME, PrintUtils.CC_ATTACK_SKILL_NAME).contains(skill.getName())) {
             return true;
         }
@@ -65,7 +62,12 @@ public class UnitPrintCard {
         if (PrintUtils.toSrExtra(extraValue).isPresent()) {
             return false;
         }
-        //martial arts is still shown
+        if(PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())){
+            return false;
+        }
+        if(PrintUtils.skillIsMartialArt(skill)){
+            return false;
+        }
         return true;
     }
 
@@ -122,8 +124,8 @@ public class UnitPrintCard {
     public String getNotes() {
         return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
                 .filter(n -> !Strings.isNullOrEmpty(n))
-                .map(s -> s.replaceAll("\n", ""))
-                .map(s -> s.replaceAll("NOTE:", ""))
+                .map(s -> s.replace("\n", ""))
+                .map(s -> s.replace("NOTE:", ""))
                 .map(String::trim)
                 .distinct()
                 .collect(Collectors.joining(""));
@@ -131,15 +133,15 @@ public class UnitPrintCard {
 
     private String getSkillNameAndExtra(Skill skill) {
         String extraString = skill.getExtras().isEmpty() ? "" : " [%s]".formatted(skill.getExtras().stream()
-                                                                                  .map(e -> PrintUtils.prettyExtra(e, useInch))
-                                                                                  .collect(Collectors.joining(", ")));
+                .map(e -> PrintUtils.prettyExtra(e, useInch))
+                .collect(Collectors.joining(", ")));
         return "%s%s".formatted(skill.getName(), extraString);
     }
 
     private String getEquipmentNameAndExtra(Equipment equipment) {
         String extraString = equipment.getExtras().isEmpty() ? "" : " [%s]".formatted(equipment.getExtras().stream()
-                                                                                      .map(e -> PrintUtils.prettyExtra(e, useInch))
-                                                                                      .collect(Collectors.joining(", ")));
+                .map(e -> PrintUtils.prettyExtra(e, useInch))
+                .collect(Collectors.joining(", ")));
         return "%s%s".formatted(equipment.getName(), extraString);
     }
 
@@ -171,7 +173,7 @@ public class UnitPrintCard {
         profile.getOrders().stream()
                 .flatMap(o -> IntStream.range(0, o.getTotal())
                         .boxed()
-                        .map(i -> o.getType()))
+                        .map(_ -> o.getType()))
                 .forEach(orderType -> {
                     switch (orderType) {
                         case REGULAR -> iconFileNames.add("regular.svg");
@@ -185,9 +187,10 @@ public class UnitPrintCard {
         return iconFileNames;
     }
 
-    public String prettySkills() {
+    public String prettySkills(PrintOptions printOptions) {
         return profile.getSkills().stream()
-                .filter(UnitPrintCard::notAppliedToWeapon).map(this::getSkillNameAndExtra)
+                .filter(skill -> printOptions.isDisableApplyingSkillWeaponExtra() || notAppliedToWeapon(skill))
+                .map(this::getSkillNameAndExtra)
                 .collect(Collectors.joining(", "));
     }
 

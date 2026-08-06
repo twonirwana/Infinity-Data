@@ -37,25 +37,38 @@ public class HtmlPrinterTest {
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
-        for (boolean useInch : new boolean[]{true, false}) {
-            for (boolean showSavingRollInsteadOfAmmo : new boolean[]{true, false}) {
-                for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
-                    for (boolean showImage : new boolean[]{true, false}) {
-                        for (boolean showHackingProgram : new boolean[]{true, false}) {
-                            for (boolean removeDuplicate : new boolean[]{true, false}) {
-                                for (boolean reduceColor : new boolean[]{true, false}) {
-                                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                                        testData.add(Arguments.of(useInch, weaponOption, showImage, showHackingProgram, showSavingRollInsteadOfAmmo, removeDuplicate, reduceColor, template));
-                                    }
-                                }
-                            }
-                        }
-                    }
+        for (boolean booleanOption : new boolean[]{true, false}) {
+            for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
+
+                for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                    PrintOptions options = new PrintOptions(
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            weaponOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            template,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption
+                    );
+                    testData.add(Arguments.of(options));
                 }
             }
         }
         return testData.stream();
     }
+
 
     @BeforeEach
     void setup() {
@@ -155,31 +168,28 @@ public class HtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(boolean useInch, Set<Weapon.Type> weaponOption, boolean showImage, boolean showHackingProgram, boolean showSavingRollInsteadOfAmmo, boolean removeDuplicate, boolean reduceColor, HtmlPrinter.Template template) {
+    void testHtml(PrintOptions options) {
         fileName = "testFile_" + System.currentTimeMillis();
-        underTest.writeCards(List.of(unitOption),
+        PrintData data = new PrintData(List.of(unitOption),
                 List.of(hackingProgram),
                 martialArtLevels,
                 bootyRolls,
                 metaChemistryRolls,
                 fireteamChart,
                 armyList,
-                fileName,
-                "",
-                sectorial,
-                "",
+                "");
+        PrintContext context = new PrintContext(fileName,
                 "",
                 "",
                 "",
                 "",
-                useInch,
-                showSavingRollInsteadOfAmmo,
-                removeDuplicate,
-                reduceColor,
-                weaponOption,
-                showImage,
-                showHackingProgram,
-                template);
+                "out/html/",
+                "image/");
+        underTest.writeCards(
+                data,
+                context,
+                options
+        );
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
     }

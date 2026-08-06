@@ -24,7 +24,7 @@ public class CsvPrinter {
     public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder) {
 
         String[] headers = {
-                "Sectorial", "Option ID", "Profile ID", "Ics", "Unit Name", "Profile Name",
+                "Sectorial", "Option ID", "Profile ID", "Ics", "Ics Abbreviation", "Profile Ics", "Unit Name", "Profile Name",
                 "Option Feature",
                 "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
                 "Points", "SWC",
@@ -86,6 +86,8 @@ public class CsvPrinter {
                     unitOption.getCombinedId(),
                     profile.getCombinedProfileId(),
                     unitOption.getIsc(),
+                    unitOption.getIscAbbr(),
+                    trooper.getTrooperIsc(),
                     unitOption.getUnitName(),
                     getName(unitOption, trooper, profile),
                     optionFeature,
