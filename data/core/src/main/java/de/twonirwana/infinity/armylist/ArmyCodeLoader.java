@@ -228,7 +228,7 @@ public class ArmyCodeLoader {
         int combatGroupCount = readVLI(dataBuffer);
         Map<Integer, List<CombatGroupMember>> combatGroups = IntStream.range(0, combatGroupCount)
                 .boxed()
-                .collect(Collectors.toMap(i -> i + 1, i -> getCombatGroupFromCode(dataBuffer)));
+                .collect(Collectors.toMap(i -> i + 1, _ -> getCombatGroupFromCode(dataBuffer)));
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 
