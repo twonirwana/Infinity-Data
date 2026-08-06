@@ -384,7 +384,7 @@ public class WebApp {
         String armyCodeHash = HashUtil.hash128Bit(armyCode);
         String fileName = getFileName(armyCodeHash, startupTime, options);
         if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
-            log.info("army code already exists: {} -> {}", armyCode, fileName);
+            log.debug("army code already exists: {} -> {}", armyCode, fileName);
             registry.counter("infinity.generate.existing").increment();
             ctx.redirect(contextPath + "view/" + fileName);
             return List.of();

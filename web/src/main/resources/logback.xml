@@ -5,6 +5,7 @@
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="org.thymeleaf" level="INFO"/>
     <logger name="io.javalin.Javalin" level="INFO"/>
+    <logger name="de.twonirwana.infinity.WebApp" level="INFO"/>
 
     <!-- Display the logs in your console with the following format -->
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->
