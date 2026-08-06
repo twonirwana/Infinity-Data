@@ -190,7 +190,8 @@ public class HtmlPrinterTest {
                 !showSavingRollInsteadOfAmmo,
                 !showSavingRollInsteadOfAmmo,
                 !showSavingRollInsteadOfAmmo,
-                showSavingRollInsteadOfAmmo
+                showSavingRollInsteadOfAmmo,
+                true
         );
         underTest.writeCards(
                 data,
