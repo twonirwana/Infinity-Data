@@ -5,6 +5,7 @@ import de.twonirwana.infinity.ArmyList;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
 import de.twonirwana.infinity.unit.api.UnitOption;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URLDecoder;
@@ -236,6 +237,7 @@ public class ArmyCodeLoader {
             int groupId,
             int optionId) {
         @Override
+        @NonNull
         public String toString() {
             return "%d-%d-%d".formatted(unitId, groupId, optionId);
         }

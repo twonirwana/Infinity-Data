@@ -8,6 +8,7 @@ import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.ImageUtils;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.TemplateEngine;
@@ -277,7 +278,10 @@ public class HtmlPrinter {
                     .map(ArmyList::getArmyName)
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
-                    .orElse(data.getArmyList().getSectorial().getName());
+                    .or(() -> Optional.of(data.getArmyList())
+                            .map(ArmyList::getSectorial)
+                            .map(Sectorial::getName))
+                    .orElse(data.getArmyList().getSectorialName());
             armyListTitel = "Army List: %s - %dpts".formatted(armyName, data.getArmyList().getMaxPoints());
         } else {
             armyListUnits = Map.of();
@@ -309,7 +313,7 @@ public class HtmlPrinter {
         context.setVariable("boarderColor", boarderColor);
         context.setVariable("headerColor", headerColor);
         context.setVariable("printOptions", options);
-        context.setVariable("printUtils", new PrintUtils()); //todo split in helper and
+        context.setVariable("printUtils", new PrintUtils()); //better accessable in the templates
         context.setVariable("programs1", programsCard1);
         context.setVariable("programs2", programsCard2);
         context.setVariable("deployables", getDeployable(unitPrintCards));
@@ -324,7 +328,6 @@ public class HtmlPrinter {
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
         context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
-        context.setVariable("templateSupportsImage", options.getTemplate().supportImages); //todo move to card gen?
 
         String savePath = "%s/%s.html".formatted(outputPath, printContext.getFileName());
         try (FileWriter writer = new FileWriter(savePath)) {
@@ -417,6 +420,7 @@ public class HtmlPrinter {
     }
 
     @AllArgsConstructor
+    @Getter
     public enum Template {
         a4_image("ColorAndOptionalImageCard", 10, true, f -> switch (f) {
             case A4 -> new Dimension(A4_LONG, A4_SHORT);
@@ -430,7 +434,7 @@ public class HtmlPrinter {
             case A4 -> new Dimension(A4_SHORT, A4_LONG);
             case LETTER -> new Dimension(LETTER_SHORT, LETTER_LONG);
         }),
-        card_bw("CardBW", 0, false, f -> new Dimension(0, 0)); //don't support dimensions
+        card_bw("CardBW", 0, false, _ -> new Dimension(0, 0)); //don't support dimensions
         final String fileName;
         final int numberOfHackingProgramsOnExtraCard; //not shown on all templates
         final boolean supportImages;

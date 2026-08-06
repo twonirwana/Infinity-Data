@@ -35,15 +35,14 @@ public class UnitPrintCard {
                         p,
                         options.isUseInch(),
                         options.getShowWeaponOfType(),
-                        options.isShowUnitImages(),
+                        options.isShowUnitImages() && options.getTemplate().supportImages,
                         PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
                         PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true)))
                 )
                 .toList();
     }
 
-    //todo -> to utils
-    private static boolean notAppliedToWeapon(Skill skill) {
+     private static boolean notAppliedToWeapon(Skill skill) {
         if (!Set.of(PrintUtils.BS_ATTACK_SKILL_NAME, PrintUtils.CC_ATTACK_SKILL_NAME).contains(skill.getName())) {
             return true;
         }
@@ -63,8 +62,12 @@ public class UnitPrintCard {
         if (PrintUtils.toSrExtra(extraValue).isPresent()) {
             return false;
         }
-        //todo ammo extras like T2
-        //martial arts is still shown
+        if(PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())){
+            return false;
+        }
+        if(PrintUtils.skillIsMartialArt(skill)){
+            return false;
+        }
         return true;
     }
 
@@ -77,8 +80,6 @@ public class UnitPrintCard {
     public String getRangeHeader() {
         return PrintUtils.getRangeHeader(useInch);
     }
-
-    //todo -> to utils
 
     public String getUnitName() {
 
@@ -120,7 +121,6 @@ public class UnitPrintCard {
                 .orElse("");
     }
 
-    //todo -> to utils
     public String getNotes() {
         return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
                 .filter(n -> !Strings.isNullOrEmpty(n))
@@ -131,8 +131,6 @@ public class UnitPrintCard {
                 .collect(Collectors.joining(""));
     }
 
-    //todo -> to utils
-
     private String getSkillNameAndExtra(Skill skill) {
         String extraString = skill.getExtras().isEmpty() ? "" : " [%s]".formatted(skill.getExtras().stream()
                 .map(e -> PrintUtils.prettyExtra(e, useInch))
@@ -140,16 +138,12 @@ public class UnitPrintCard {
         return "%s%s".formatted(skill.getName(), extraString);
     }
 
-    //todo -> to utils
-
     private String getEquipmentNameAndExtra(Equipment equipment) {
         String extraString = equipment.getExtras().isEmpty() ? "" : " [%s]".formatted(equipment.getExtras().stream()
                 .map(e -> PrintUtils.prettyExtra(e, useInch))
                 .collect(Collectors.joining(", ")));
         return "%s%s".formatted(equipment.getName(), extraString);
     }
-
-    //todo -> to utils
 
     public String getMovement() {
         return profile.getMovementInCm().stream()
@@ -179,7 +173,7 @@ public class UnitPrintCard {
         profile.getOrders().stream()
                 .flatMap(o -> IntStream.range(0, o.getTotal())
                         .boxed()
-                        .map(i -> o.getType()))
+                        .map(_ -> o.getType()))
                 .forEach(orderType -> {
                     switch (orderType) {
                         case REGULAR -> iconFileNames.add("regular.svg");
@@ -192,8 +186,6 @@ public class UnitPrintCard {
 
         return iconFileNames;
     }
-
-    //todo -> to utils
 
     public String prettySkills(PrintOptions printOptions) {
         return profile.getSkills().stream()
@@ -210,8 +202,6 @@ public class UnitPrintCard {
         }
         return profile.getAvailability() + "";
     }
-
-    //todo -> to utils
 
     public String prettyEquipments() {
         return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));

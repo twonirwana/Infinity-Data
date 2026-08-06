@@ -6,21 +6,21 @@
     <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
         <div class="card-content" >
 
-            <img th:if="${printOptions.isShowSectorialIcon() && templateSupportsImage}"
+            <img th:if="${printOptions.isShowSectorialIcon() && printOptions.getTemplate().isSupportImages()}"
                  th:src="${unitPrintCard.getSectorialImageName()}"
                  class="sectorial-background"
                  alt=""/>
             <th:block
                     th:replace="~{fragments/UnitHeader :: unitHeaderFragment(${unitPrintCard})}">
             </th:block>
-            <div th:class="${unitPrintCard.isShowImage() && templateSupportsImage} ? 'unit-image-area' : 'non-unit-image-area'">
+            <div th:class="${unitPrintCard.isShowImage()} ? 'unit-image-area' : 'non-unit-image-area'">
 
-                <img th:if="${unitPrintCard.isShowImage() && templateSupportsImage}"
+                <img th:if="${unitPrintCard.isShowImage()}"
                      th:src="${unitPrintCard.getUnitImageName()}"
                      class="unit-img"
                      alt=""/>
 
-                <div th:class="${unitPrintCard.isShowImage() && templateSupportsImage} ? 'area-for-image' : 'no-image'">
+                <div th:class="${unitPrintCard.isShowImage()} ? 'area-for-image' : 'no-image'">
                     <div class="attribut-equipment-skill-column">
                         <th:block
                                 th:replace="~{fragments/AttributsTable :: attributsFragment(${unitPrintCard})}">

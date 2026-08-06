@@ -9,9 +9,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PrintUtils {
+public final class PrintUtils {
     public static final String CC_ATTACK_SKILL_NAME = "CC Attack";
     public static final String BS_ATTACK_SKILL_NAME = "BS Attack";
+    public static final Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
     private static final Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
     private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*B");
     private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*SD");
@@ -242,7 +243,6 @@ public class PrintUtils {
             weaponExtraFromTrooperSkill = Set.of();
         } else {
             String weaponSkill = getWeaponSkill(weapon);
-            Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
             weaponExtraFromTrooperSkill = Optional.ofNullable(trooperProfile)
                     .map(TrooperProfile::getSkills).orElse(List.of()).stream()
                     .filter(s -> s.getName().equals(weaponSkill))
@@ -305,7 +305,7 @@ public class PrintUtils {
             return "";
         }
         if (weapon.getProperties().stream().anyMatch(VIRAL_TRAIT::equals)) {
-            return "%s+Bio".formatted(weapon.getAmmunition().getName());
+            return "BIO/%s".formatted(weapon.getAmmunition().getName());
         }
         return weapon.getAmmunition().getName();
     }
