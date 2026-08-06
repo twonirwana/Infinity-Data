@@ -171,7 +171,7 @@ public class HtmlPrinterTest {
                 "",
                 "",
                 "out/html/",
-                "/image/");
+                "image/");
         PrintOptions options = new PrintOptions(
                 useInch,
                 removeDuplicate,
