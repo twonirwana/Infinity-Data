@@ -536,6 +536,7 @@ public class DataLoader {
         if (imageOutputFolder == null) {
             return;
         }
+        createFolderIfNotExists(imageOutputFolder);
         copyStandardIcons(imageOutputFolder);
         copyFiles(unitLogosFolder, imageOutputFolder);
         copyFiles(customUnitImageFolder, imageOutputFolder);
