@@ -6,7 +6,6 @@ import com.google.common.base.Supplier;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
 import de.twonirwana.infinity.util.HashUtil;
-import de.twonirwana.infinity.util.ImageUtils;
 import io.avaje.config.Config;
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
@@ -33,12 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -65,7 +66,7 @@ public class WebApp {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         registry.config().commonTags("application", "infinity-cards-generator");
         Metrics.addRegistry(registry);
-        createWebApp(DatabaseImp.createTimedUpdate(), LocalDateTime::now, registry).start(host, port);
+        createWebApp(DatabaseImp.createTimedUpdate(CARD_IMAGE_FOLDER), LocalDateTime::now, registry).start(host, port);
     }
 
     static Javalin createWebApp(final Database database,
@@ -87,23 +88,6 @@ public class WebApp {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         final AtomicReference<ScheduledFuture<?>> scheduledFuture = new AtomicReference<>(setUpdateScheduler(executorService, null, database, registry));
         Config.onChange("db.refreshIntervalSec", _ -> scheduledFuture.set(setUpdateScheduler(executorService, scheduledFuture.get(), database, registry)));
-
-        if (Config.getBool("db.preCropImages", false)) {
-            AtomicLong counter = new AtomicLong(0);
-            database.getAllUnitOptions().stream()
-                    .flatMap(u -> u.getAllTrooper().stream())
-                    .flatMap(t -> t.getProfiles().stream())
-                    .distinct()
-                    .parallel()
-                    .forEach(p -> p.getImageNames().forEach(image -> {
-                        counter.incrementAndGet();
-                        ImageUtils.autoCrop(database.getUnitImageFolder() + image,
-                                CARD_IMAGE_FOLDER + p.getCombinedProfileId() + ".png");
-                    }));
-            log.info("Pre crop {} images found in database.", counter.get());
-            //customUnitImages have priority and overwrite CB Images
-            copyFiles(database.getCustomUnitImageFolder(), CARD_IMAGE_FOLDER);
-        }
 
         return Javalin.create(config -> {
             config.staticFiles.add(staticFileConfig -> {
@@ -409,7 +393,7 @@ public class WebApp {
 
             PrintData data = PrintData.of(database, armyListOptions, al, armyCode);
 
-            PrintContext context = PrintContext.of(database, fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
+            PrintContext context = PrintContext.of(fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
 
             htmlPrinter.writeCards(data, context, options);
             log.info("Created cards for: {} ; {} ; {} ; {} -> {}", al.getSectorial().getSlug(), al.getTotalCost(), al.getArmyName(), armyCode, fileName);
@@ -451,7 +435,7 @@ public class WebApp {
             String fileName = getFileName(unitIdsHash, startupTime, options);
             PrintData data = PrintData.of(database, unitOptions, null, null);
 
-            PrintContext context = PrintContext.of(database, fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
+            PrintContext context = PrintContext.of(fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
 
             htmlPrinter.writeCards(data, context, options);
             log.info("Created cards for: {} ; {} -> {}", unitOptions.getFirst().getSectorial().getSlug(), unitOptionIds, fileName);
@@ -613,7 +597,7 @@ public class WebApp {
 
     private static void updateData(Database database, MeterRegistry registry) {
         registry.counter("infinity.update.data").increment();
-        database.updateData();
+        database.updateData(CARD_IMAGE_FOLDER);
     }
 
     private static void crateFileIfNotExists(Path file) {
@@ -633,31 +617,6 @@ public class WebApp {
             if (Files.notExists(path)) {
                 Files.createDirectories(path);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void copyFiles(String source, String target) {
-        Path sourceDir = Paths.get(source);
-        Path targetDir = Paths.get(target);
-        int count = 0;
-        try {
-            if (!Files.exists(targetDir)) {
-                Files.createDirectories(targetDir);
-            }
-
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
-                for (Path file : stream) {
-                    if (!file.toFile().isDirectory()) {
-                        Path targetPath = targetDir.resolve(file.getFileName());
-                        Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        count++;
-                    }
-                }
-            }
-            log.info("copied {} files from {} to {}", count, sourceDir, targetDir);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -179,10 +179,6 @@ public class HtmlPrinterTest {
                 armyList,
                 "");
         PrintContext context = new PrintContext(fileName,
-                "",
-                "",
-                "",
-                "",
                 "out/html/",
                 "image/");
         underTest.writeCards(

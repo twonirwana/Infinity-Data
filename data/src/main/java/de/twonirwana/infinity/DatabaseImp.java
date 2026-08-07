@@ -15,39 +15,24 @@ public class DatabaseImp implements Database {
 
     private DataLoader loader;
 
-    private DatabaseImp(DataLoader.UpdateOption updateOption, String resourceFolder) {
+    private DatabaseImp(DataLoader.UpdateOption updateOption, String resourceFolder, String imageOutputFolder) {
         try {
-            loader = new DataLoader(updateOption, resourceFolder);
+            loader = new DataLoader(updateOption, resourceFolder, imageOutputFolder);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static DatabaseImp createTimedUpdate() {
-        return new DatabaseImp(DataLoader.UpdateOption.TIMED_UPDATE, null);
+    public static DatabaseImp createTimedUpdate(String imageOutputFolder) {
+        return new DatabaseImp(DataLoader.UpdateOption.TIMED_UPDATE, null, imageOutputFolder);
     }
 
-    public static DatabaseImp createForceUpdate() {
-        return new DatabaseImp(DataLoader.UpdateOption.FORCE_UPDATE, null);
+    public static DatabaseImp createForceUpdate(String imageOutputFolder) {
+        return new DatabaseImp(DataLoader.UpdateOption.FORCE_UPDATE, null, imageOutputFolder);
     }
 
-    public static DatabaseImp createWithoutUpdate(String resourceFolder) {
-        return new DatabaseImp(DataLoader.UpdateOption.NEVER_UPDATE, resourceFolder);
-    }
-
-    @Override
-    public String getUnitImageFolder() {
-        return loader.getUnitImageFolder();
-    }
-
-    @Override
-    public String getCustomUnitImageFolder() {
-        return loader.getCustomUnitImageFolder();
-    }
-
-    @Override
-    public String getUnitLogosFolder() {
-        return loader.getUnitLogosFolder();
+    public static DatabaseImp createWithoutUpdate(String resourceFolder, String imageOutputFolder) {
+        return new DatabaseImp(DataLoader.UpdateOption.NEVER_UPDATE, resourceFolder, imageOutputFolder);
     }
 
     @Override
@@ -76,10 +61,10 @@ public class DatabaseImp implements Database {
     }
 
     @Override
-    public void updateData() {
+    public void updateData(String imageOutputFolder) {
         try {
             log.info("Start updating data");
-            DataLoader newDataLoader = new DataLoader(DataLoader.UpdateOption.FORCE_UPDATE, null);
+            DataLoader newDataLoader = new DataLoader(DataLoader.UpdateOption.FORCE_UPDATE, null, imageOutputFolder);
             log.info("Finish updating data");
             loader = newDataLoader;
         } catch (IOException | URISyntaxException e) {
@@ -125,11 +110,6 @@ public class DatabaseImp implements Database {
     @Override
     public FireteamChart getFireteamChart(Sectorial sectorial) {
         return loader.getSectorialFireteamCharts().get(sectorial);
-    }
-
-    @Override
-    public String getSectorialLogoFolder() {
-        return loader.getSectorialLogosFolder();
     }
 
     @Override

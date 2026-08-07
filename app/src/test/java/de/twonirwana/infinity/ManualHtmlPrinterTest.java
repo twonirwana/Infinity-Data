@@ -55,7 +55,7 @@ public class ManualHtmlPrinterTest {
 
     @BeforeAll
     static void setUp() {
-        db = DatabaseImp.createTimedUpdate();
+        db = DatabaseImp.createTimedUpdate("out/html/card/image/");
     }
 
     static List<String> findAllRegex(String content, Pattern pattern) {
@@ -163,7 +163,7 @@ public class ManualHtmlPrinterTest {
 
         PrintData data = PrintData.of(db, armyListOptions, armyList, armyCode);
 
-        PrintContext context = PrintContext.of(db, fileName, "out/html/card/", "out/html/card/image/");
+        PrintContext context = PrintContext.of(fileName, "out/html/card/", "out/html/card/image/");
         PrintOptions options = new PrintOptions(
                 useInch,
                 removeDuplicate,
