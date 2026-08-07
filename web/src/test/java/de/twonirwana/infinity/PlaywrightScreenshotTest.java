@@ -66,7 +66,7 @@ public class PlaywrightScreenshotTest {
 
     @BeforeAll
     public static void setupGlobal() {
-        Database database = DatabaseImp.createWithoutUpdate("playwright/resources");
+        Database database = DatabaseImp.createWithoutUpdate("playwright/resources", "out/html/card/image/");
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         registry.config().commonTags("application", "infinity-cards-generator");
         Metrics.addRegistry(registry);

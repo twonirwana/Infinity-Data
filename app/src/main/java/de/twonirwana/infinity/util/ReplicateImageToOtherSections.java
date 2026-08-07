@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ReplicateImageToOtherSections {
 
     static void main() throws IOException {
-        Database db = DatabaseImp.createTimedUpdate();
+        Database db = DatabaseImp.createTimedUpdate("out/html/card/image/");
         List<TrooperProfile> allProfiles = db.getAllUnitOptions().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())

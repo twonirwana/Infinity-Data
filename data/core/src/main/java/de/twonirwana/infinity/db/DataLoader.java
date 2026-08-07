@@ -37,14 +37,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -81,6 +79,18 @@ public class DataLoader {
             1099, //Teams Gladius
             1199 //Hayabusa
     );
+    private static final String IMAGES_ICONS_FOLDER = "/images/icons/";
+    private static final List<String> ICON_FILE_NAMES = List.of(
+            "cube.svg",
+            "cube-2.svg",
+            "hackable.svg",
+            "impetuous.svg",
+            "irregular.svg",
+            "lieutenant.svg",
+            "peripheral.svg",
+            "regular.svg",
+            "tactical.svg"
+    );
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
     private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
     private final Map<Integer, Sectorial> sectorialIdMap;
@@ -99,7 +109,7 @@ public class DataLoader {
     private final String imageDataFolder;
     private final String imageDataFileFormat;
 
-    public DataLoader(UpdateOption updateOption, String resourcesFolder) throws IOException, URISyntaxException {
+    public DataLoader(UpdateOption updateOption, String resourcesFolder, String imageOutputFolder) throws IOException, URISyntaxException {
 
         this.resourcesFolder = resourcesFolder == null ? "resources" : resourcesFolder;
         logosFolder = this.resourcesFolder + "/logo";
@@ -185,8 +195,51 @@ public class DataLoader {
 
         sectorialFireteamCharts = mapFireteamChat(sectorialListMap);
 
+        copyAllImagesToOutputFolder(imageOutputFolder);
 
         updateCsvIfChanged(getAllUnits(), customUnitImageFolder);
+    }
+
+    private static void copyStandardIcons(String outPath) {
+        for (String fileName : ICON_FILE_NAMES) {
+            Path targetPath = Path.of(outPath, fileName);
+            if (!Files.exists(targetPath)) {
+                try (InputStream inputStream = DataLoader.class.getResourceAsStream(IMAGES_ICONS_FOLDER + fileName)) {
+                    if (inputStream == null) {
+                        throw new RuntimeException("file not found: " + fileName);
+                    }
+                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private static void copyFiles(String source, String target) {
+        Path sourceDir = Paths.get(source);
+        Path targetDir = Paths.get(target);
+        int count = 0;
+        try {
+            if (!Files.exists(targetDir)) {
+                Files.createDirectories(targetDir);
+            }
+
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
+                for (Path file : stream) {
+                    if (!file.toFile().isDirectory()) {
+                        Path targetPath = targetDir.resolve(file.getFileName());
+                        Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        count++;
+                    }
+                }
+            }
+            log.info("copied {} files from {} to {}", count, sourceDir, targetDir);
+
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     private static void updateCsvIfChanged(List<UnitOption> allUnits, String customUnitImageFolder) {
@@ -478,6 +531,36 @@ public class DataLoader {
             return Optional.empty();
         }
     }
+
+    private void copyAllImagesToOutputFolder(String imageOutputFolder) {
+        if (imageOutputFolder == null) {
+            return;
+        }
+        createFolderIfNotExists(imageOutputFolder);
+        copyStandardIcons(imageOutputFolder);
+        copyFiles(unitLogosFolder, imageOutputFolder);
+        copyFiles(customUnitImageFolder, imageOutputFolder);
+        copyFiles(sectorialLogosFolder, imageOutputFolder);
+        cropAndCopyCbFiles(imageOutputFolder);
+    }
+
+    private void cropAndCopyCbFiles(String imageOutputFolder) {
+        AtomicLong counter = new AtomicLong(0);
+        getAllUnits().stream()
+                .flatMap(u -> u.getAllTrooper().stream())
+                .flatMap(t -> t.getProfiles().stream())
+                .distinct()
+                .parallel()
+                .filter(p -> !p.getImageNames().isEmpty())
+                .filter(t -> !Files.exists(Path.of(imageOutputFolder + t.getCombinedProfileId() + ".png")))
+                .forEach(p -> {
+                    counter.incrementAndGet();
+                    ImageUtils.autoCrop(unitImageFolder + p.getImageNames().getFirst(),
+                            imageOutputFolder + p.getCombinedProfileId() + ".png");
+                });
+        log.info("Copy and crop {} images found in database.", counter.get());
+    }
+
 
     private void downloadImageDataFile(Sectorial sectorial, boolean forceUpdate) {
         createFolderIfNotExists(imageDataFolder);

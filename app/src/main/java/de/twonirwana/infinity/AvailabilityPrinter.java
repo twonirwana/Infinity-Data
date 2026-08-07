@@ -15,8 +15,8 @@ import java.util.stream.Stream;
 
 public class AvailabilityPrinter {
 
-    public static void main(String[] args) throws IOException {
-        Database db = DatabaseImp.createTimedUpdate();
+    static void main() throws IOException {
+        Database db = DatabaseImp.createTimedUpdate(null);
         try {
             Files.createDirectories(Path.of("out/csv/"));
         } catch (IOException e) {

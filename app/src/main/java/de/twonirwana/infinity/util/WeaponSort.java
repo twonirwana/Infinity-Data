@@ -26,7 +26,7 @@ public class WeaponSort {
     }
 
     void main() {
-        DatabaseImp.createTimedUpdate().getAllUnitOptions().stream()
+        DatabaseImp.createTimedUpdate(null).getAllUnitOptions().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .flatMap(profile -> profile.getWeapons().stream().map(w -> new UnitAndWeapon(profile, w)))

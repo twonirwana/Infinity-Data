@@ -3,10 +3,8 @@ package de.twonirwana.infinity;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
-import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
-import de.twonirwana.infinity.util.ImageUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -17,15 +15,11 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,7 +27,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class HtmlPrinter {
 
-    private static final String IMAGES_ICONS_FOLDER = "/images/icons/";
     //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
     private static final Map<Integer, String> SECTORIAL_COLORS = ImmutableMap.<Integer, String>builder()
             .put(100, "#00b0f2")
@@ -83,17 +76,7 @@ public class HtmlPrinter {
             "+3", "bw-range-plus-3",
             "-6", "bw-range-minus-6",
             "+6", "bw-range-plus-6");
-    private static final List<String> ICON_FILE_NAMES = List.of(
-            "cube.svg",
-            "cube-2.svg",
-            "hackable.svg",
-            "impetuous.svg",
-            "irregular.svg",
-            "lieutenant.svg",
-            "peripheral.svg",
-            "regular.svg",
-            "tactical.svg"
-    );
+
     private final static int A4_LONG = 297; //mm
     private final static int A4_SHORT = 210; //mm
     private final static int LETTER_LONG = 279; //mm
@@ -113,79 +96,6 @@ public class HtmlPrinter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
-    private void copyFile(String fileName, String sourcePath, String outPath) {
-        try {
-            Path targetPath = Paths.get(outPath, fileName);
-            if (!Files.exists(targetPath)) {
-                Files.copy(Path.of(sourcePath, fileName), targetPath);
-            }
-        } catch (IOException e) {
-            log.error("file not found: {}", fileName);
-        }
-    }
-
-    private void copyUnitLogos(UnitOption option, String logoImagePath, String outPath) {
-        option.getAllTrooper().stream()
-                .flatMap(t -> t.getProfiles().stream())
-                .map(TrooperProfile::getLogo)
-                .distinct()
-                .forEach(l -> copyFile(l, logoImagePath, outPath));
-    }
-
-    private void copyStandardIcons(String outPath) {
-        for (String fileName : ICON_FILE_NAMES) {
-            Path targetPath = Path.of(outPath, fileName);
-            if (!Files.exists(targetPath)) {
-                try (InputStream inputStream = HtmlPrinter.class.getResourceAsStream(IMAGES_ICONS_FOLDER + fileName)) {
-                    if (inputStream == null) {
-                        throw new RuntimeException("file not found: " + fileName);
-                    }
-                    Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    private void copyUnitImages(UnitOption option, String unitImagePath, String outPath, Set<String> usedImages) {
-        option.getAllTrooper().stream()
-                .flatMap(t -> t.getProfiles().stream())
-                .parallel()
-                .forEach(p -> {
-                    if (!p.getImageNames().isEmpty()) {
-                        Optional<String> unusedImage = p.getImageNames().stream()
-                                .filter(i -> !usedImages.contains(i))
-                                .findFirst();
-                        unusedImage.ifPresent(usedImages::add);
-                        String target = outPath + p.getCombinedProfileId() + ".png";
-                        if (!Files.exists(Path.of(target))) {
-                            ImageUtils.autoCrop(unitImagePath + unusedImage.orElse(p.getImageNames().getFirst()),
-                                    outPath + p.getCombinedProfileId() + ".png");
-                        }
-                    }
-
-                });
-    }
-
-    private void copyCustomUnitImages(UnitOption option, String unitImagePath, String outPath) {
-        option.getAllTrooper().stream()
-                .flatMap(t -> t.getProfiles().stream())
-                .forEach(p -> {
-                    String fileName = p.getCombinedProfileId() + ".png";
-                    Path sourcePath = Path.of(unitImagePath, fileName);
-                    if (Files.exists(sourcePath)) {
-                        Path targetPath = Path.of(outPath, fileName);
-                        try {
-                            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-
-                });
-    }
-
     public void writeCards(@NonNull PrintData data,
                            @NonNull PrintContext printContext,
                            @NonNull PrintOptions options) {
@@ -198,19 +108,6 @@ public class HtmlPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        copyStandardIcons(imageOutputPath);
-
-        //if there are multiple image options they should all be used
-        Set<String> usedImages = new CopyOnWriteArraySet<>();
-        for (UnitOption unitOption : data.getUnitOptions()) {
-            copyUnitLogos(unitOption, printContext.getUnitLogoImagePath(), imageOutputPath);
-            copyUnitImages(unitOption, printContext.getUnitImagePath(), imageOutputPath, usedImages);
-            copyCustomUnitImages(unitOption, printContext.getCustomUnitImagePath(), imageOutputPath); //customUnitImage have priority and overwrite CB images
-        }
-        data.getUnitOptions().stream()
-                .map(UnitOption::getSectorial)
-                .distinct()
-                .forEach(s -> copyFile(s.getLogo(), printContext.getSectorialLogoImagePath(), imageOutputPath));
 
         final String primaryColor;
         final String secondaryColor;

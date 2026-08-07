@@ -7,12 +7,6 @@ import java.util.List;
 
 public interface Database {
 
-    String getUnitImageFolder();
-
-    String getCustomUnitImageFolder();
-
-    String getUnitLogosFolder();
-
     List<UnitOption> getAllUnitOptions();
 
     ArmyList getArmyListForArmyCode(String armyCode);
@@ -23,7 +17,7 @@ public interface Database {
 
     List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial);
 
-    void updateData();
+    void updateData(String imageOutputFolder);
 
     boolean canDecodeArmyCode(String armyCode);
 
@@ -38,8 +32,6 @@ public interface Database {
     List<MetaChemistryRoll> getAllMetaChemistryRolls();
 
     FireteamChart getFireteamChart(Sectorial sectorial);
-
-    String getSectorialLogoFolder();
 
     String getAllUnitsCsvListFolder();
 }
