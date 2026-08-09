@@ -431,7 +431,7 @@ public class WebApp {
                     .filter(Objects::nonNull)
                     .toList();
 
-            String unitIdsHash = HashUtil.hash128Bit(unitOptionById.toString());
+            String unitIdsHash = HashUtil.hash128Bit(unitOptions.stream().map(UnitOption::getCombinedId).collect(Collectors.joining(",")));
             String fileName = getFileName(unitIdsHash, startupTime, options);
             PrintData data = PrintData.of(database, unitOptions, null, null);
 
