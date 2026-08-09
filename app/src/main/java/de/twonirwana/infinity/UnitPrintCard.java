@@ -206,6 +206,4 @@ public class UnitPrintCard {
     public String prettyEquipments() {
         return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
     }
-
-
 }

@@ -4,11 +4,14 @@
 
 <div class="unit-header" th:fragment="unitHeaderFragment(unitPrintCard)">
 
-    <img th:if="${printOptions.isShowUnitIcon()}" th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().getLogo()})}"
+    <img th:if="${printOptions.isShowUnitIcon()}"
+         th:src="@{image/{imageName}(imageName=${unitPrintCard.getProfile().getLogo()})}"
          alt="Logo" class="unit-header-logo">
 
     <h2 class="card-header-title">
-        <span th:text="${unitPrintCard.getUnitName()}">Trooper Profile Name</span>
+        <span class="card-header-title-text"
+              th:class="${unitPrintCard.getCombatGroup()} == 1 ? 'card-header-title-text' : 'card-header-title-text light'"
+              th:text="${unitPrintCard.getUnitName()}">Trooper Profile Name</span>
     </h2>
 
     <div class="unit-header-icon-group">
@@ -16,7 +19,8 @@
             <img th:src="@{image/{fileName}(fileName=${imageName})}"
                  alt="Unit icon" class="unit-header-icon">
         </th:block>
-        <div class="unit-group-number" th:if="${unitPrintCard.getCombatGroup() != null}" th:text="${unitPrintCard.getCombatGroup()}"></div>
+        <div th:class="${unitPrintCard.getCombatGroup()} == 1 ? 'unit-group-number group1-color' : 'unit-group-number group2-color'"
+             th:if="${unitPrintCard.getCombatGroup() != null && printOptions.isShowCombatGroupNumber()}" th:text="${unitPrintCard.getCombatGroup()}"></div>
     </div>
 </div>
 

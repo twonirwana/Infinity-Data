@@ -30,6 +30,7 @@ public class PrintOptions {
     boolean showSavingRoll;
     boolean showWeaponSkill;
     boolean showWeaponTraits;
+    boolean showCombatGroupNumber;
     //todo showWeaponRange alternative range 0-8":+3 ...
     //todo showWeaponTraits as line
 }

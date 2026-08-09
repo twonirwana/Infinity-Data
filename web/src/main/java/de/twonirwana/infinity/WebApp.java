@@ -319,7 +319,9 @@ public class WebApp {
                     getCheckboxValue(ctx, "showPs"),
                     getCheckboxValue(ctx, "showSavingRoll"),
                     getCheckboxValue(ctx, "showWeaponSkill"),
-                    getCheckboxValue(ctx, "showWeaponTraits"));
+                    getCheckboxValue(ctx, "showWeaponTraits"),
+                    getCheckboxValue(ctx, "showCombatGroupNumber")
+            );
             final List<UnitOption> generated;
             if (unitIds.isEmpty()) {
                 generated = printArmyCode(ctx, startupTime, registry, contextPath,

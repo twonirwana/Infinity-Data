@@ -113,6 +113,8 @@ public class HtmlPrinter {
         final String secondaryColor;
         final String headerColor;
         final String boarderColor;
+        final String nameTextGroup1Color; //group 2 is a lighter version of SECTORIAL_COLORS don't need to be set
+        final String nameBoarderColor;
         final Map<String, String> rangeClassMap;
         final String tableHeaderFontColor;
         final Sectorial sectorial;
@@ -131,6 +133,8 @@ public class HtmlPrinter {
             rangeClassMap = BW_RANGE_CLASS_MAP;
             tableHeaderFontColor = "black";
             boarderColor = "black";
+            nameTextGroup1Color = "black";
+            nameBoarderColor = "grey";
         } else {
             primaryColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
             secondaryColor = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
@@ -138,6 +142,8 @@ public class HtmlPrinter {
             rangeClassMap = RANGE_CLASS_MAP;
             tableHeaderFontColor = "white";
             boarderColor = SECTORIAL_COLORS.get(sectorial.getParentId() - 1);
+            nameTextGroup1Color = SECTORIAL_2ND_COLORS.get(sectorial.getParentId() - 1);
+            nameBoarderColor = "white";
         }
 
         final List<UnitPrintCard> unitPrintCards = createUnitPrintCards(data, options);
@@ -206,6 +212,8 @@ public class HtmlPrinter {
         context.setVariable("armyCode", data.getArmyCode());
         context.setVariable("primaryColor", primaryColor);
         context.setVariable("secondaryColor", secondaryColor);
+        context.setVariable("nameTextGroup1Color", nameTextGroup1Color);
+        context.setVariable("nameBoarderColor", nameBoarderColor);
         context.setVariable("tableHeaderFontColor", tableHeaderFontColor);
         context.setVariable("boarderColor", boarderColor);
         context.setVariable("headerColor", headerColor);

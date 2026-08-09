@@ -125,6 +125,49 @@
             align-content: center;
         }
 
+        /* default Group 1 (darker version) */
+        .card-header-title-text {
+            --card-bg: [[${nameTextGroup1Color}]];
+            --text-color: white;
+            padding: 3px 10px;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+            background: var(--card-bg);
+            color: var(--text-color);
+
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        /* Group 2 (Light version) */
+        .card-header-title-text.light {
+            --card-bg: rgba(255, 255, 255, 0.4);
+            --text-color: black;
+        }
+
+        .card-header-title-text::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: [[${nameBoarderColor}]];
+            clip-path: polygon(
+                    8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px, 8px 0,
+                    9px 2px, 2px 9px, 2px calc(100% - 2px), calc(100% - 9px) calc(100% - 2px),
+                    calc(100% - 2px) calc(100% - 9px), calc(100% - 2px) 2px, 9px 2px
+            );
+            z-index: -1;
+        }
+
+        .group1-color {
+            background-color: [[${nameTextGroup1Color}]];
+            color: white;
+        }
+
+        .group2-color {
+            background-color: rgba(255, 255, 255, 0.4);
+            color: black;
+        }
+
         .unit-header-icon-group {
             display: flex;
             gap: 2px;
@@ -132,16 +175,14 @@
 
         .unit-group-number {
             width: 10px;
-            background-color: [[${secondaryColor}]];
 
             display: flex;
             justify-content: center;
             align-items: center;
 
-            border: 2px solid lightgrey;
+            border: 2px solid white;
             font-size: 12px;
             font-weight: bold;
-            color: [[${headerColor}]];
         }
 
         .unit-header-icon {
