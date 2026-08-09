@@ -22,6 +22,7 @@ public class UnitPrintCard {
     MartialArtLevel martialArtLevel;
     Integer combatGroup;
     List<PrintHackingProgram> hackingPrograms;
+    String name;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
                                                      PrintData printData,
@@ -31,18 +32,20 @@ public class UnitPrintCard {
                 .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
         return unitOption.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream().map(p -> new UnitPrintCard(unitOption,
-                        t,
-                        p,
-                        options.isUseInch(),
-                        options.getShowWeaponOfType(),
-                        options.isShowUnitImages() && options.getTemplate().supportImages,
-                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
-                        PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true)))
+                                t,
+                                p,
+                                options.isUseInch(),
+                                options.getShowWeaponOfType(),
+                                options.isShowUnitImages() && options.getTemplate().supportImages,
+                                PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
+                                PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true),
+                                createName(unitOption, t, p, true))
+                        )
                 )
                 .toList();
     }
 
-     private static boolean notAppliedToWeapon(Skill skill) {
+    private static boolean notAppliedToWeapon(Skill skill) {
         if (!Set.of(PrintUtils.BS_ATTACK_SKILL_NAME, PrintUtils.CC_ATTACK_SKILL_NAME).contains(skill.getName())) {
             return true;
         }
@@ -62,13 +65,55 @@ public class UnitPrintCard {
         if (PrintUtils.toSrExtra(extraValue).isPresent()) {
             return false;
         }
-        if(PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())){
+        if (PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())) {
             return false;
         }
-        if(PrintUtils.skillIsMartialArt(skill)){
+        if (PrintUtils.skillIsMartialArt(skill)) {
             return false;
         }
         return true;
+    }
+
+    private static String createName(UnitOption unitOption, Trooper trooper, TrooperProfile profile, boolean addOptionFeature) {
+        final String name;
+        if (trooper.getProfiles().size() > 1) {
+            final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
+            final String shortUnitName = firstOfList(baseName);
+            final String shortProfileName = firstOfList(profile.getName());
+
+            if (shortProfileName.contains(shortUnitName)) {
+                name = shortProfileName;
+            } else {
+                name = shortUnitName + " - " + shortProfileName;
+
+            }
+        } else {
+            name = trooper.getOptionName();
+        }
+
+
+        final String optionFeature;
+        if (addOptionFeature && !Strings.isNullOrEmpty(unitOption.getOptionFeature())) { //todo check primary unit/profile/length/only if multiple in list
+            if (name.length() + unitOption.getOptionFeature().length() <= 50) {
+                optionFeature = unitOption.getOptionFeature();
+            } else if (name.length() + firstOfList(unitOption.getOptionFeature()).length() <= 50) {
+                optionFeature = firstOfList(unitOption.getOptionFeature());
+            } else {
+                optionFeature = null;
+            }
+        } else {
+            optionFeature = null;
+        }
+        return Stream.of(name, optionFeature)
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .collect(Collectors.joining(" - "));
+    }
+
+    private static String firstOfList(String in) {
+        if (in.contains(",")) {
+            return in.substring(0, in.indexOf(",")).trim();
+        }
+        return in.trim();
     }
 
     public List<Weapon> getWeapons() {
@@ -82,28 +127,7 @@ public class UnitPrintCard {
     }
 
     public String getUnitName() {
-
-        if (trooper.getProfiles().size() > 1) {
-            final String shortUnitName;
-            final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
-            if (baseName.contains(",")) {
-                shortUnitName = baseName.substring(0, baseName.indexOf(",")).trim();
-            } else {
-                shortUnitName = baseName.trim();
-            }
-
-            final String shortProfileName;
-            if (profile.getName().contains(",")) {
-                shortProfileName = profile.getName().substring(0, profile.getName().indexOf(",")).trim();
-            } else {
-                shortProfileName = profile.getName().trim();
-            }
-            if (shortProfileName.contains(shortUnitName)) {
-                return shortProfileName;
-            }
-            return shortUnitName + " - " + shortProfileName;
-        }
-        return trooper.getOptionName();
+        return name;
     }
 
 

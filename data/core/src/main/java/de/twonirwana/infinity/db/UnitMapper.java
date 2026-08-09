@@ -68,29 +68,48 @@ public class UnitMapper {
         Map<Integer, Equipment> equipmentIdMap = metadata.getEquips().stream().collect(Collectors.toMap(Equipment::getId, Function.identity()));
 
         return sectorialListMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> Stream.concat(e.getValue().getUnits().stream()
-                                                .flatMap(u -> getUnitOption(e.getKey(),
-                                                        u,
-                                                        weaponIdMap,
-                                                        skillIdMap,
-                                                        equipmentIdMap,
-                                                        sectorialImageMap.get(e.getKey()),
-                                                        getSectorialFilter(e.getValue()),
-                                                        false).stream()),
-                                        reenforcementListMap.containsKey(e.getKey()) ? reenforcementListMap.get(e.getKey()).getUnits().stream()
-                                                .flatMap(u -> getUnitOption(e.getKey(),
-                                                        u,
-                                                        weaponIdMap,
-                                                        skillIdMap,
-                                                        equipmentIdMap,
-                                                        sectorialImageMap.get(e.getKey()), //todo is this correct?
-                                                        getSectorialFilter(reenforcementListMap.get(e.getKey())),
-                                                        true
-                                                ).stream())
-                                                : Stream.empty()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                                e -> OptionFeatureHelper.setOptionFeature(
+                                        createUnitOptionWithReenforcement(e.getKey(),
+                                                e.getValue(),
+                                                weaponIdMap,
+                                                skillIdMap,
+                                                equipmentIdMap,
+                                                sectorialImageMap,
+                                                reenforcementListMap)
                                 )
-                                .toList()
-                ));
+                        )
+                );
+    }
+
+
+    private static List<UnitOption> createUnitOptionWithReenforcement(Sectorial sectorial, SectorialList sectorialList, Map<Integer, List<Weapon>> weaponIdMap,
+                                                                      Map<Integer, Skill> skillIdMap,
+                                                                      Map<Integer, Equipment> equipmentIdMap,
+                                                                      Map<Sectorial, SectorialImage> sectorialImageMap,
+                                                                      Map<Sectorial, SectorialList> reenforcementListMap) {
+        return Stream.concat(sectorialList.getUnits().stream()
+                                .flatMap(u -> getUnitOption(sectorial,
+                                        u,
+                                        weaponIdMap,
+                                        skillIdMap,
+                                        equipmentIdMap,
+                                        sectorialImageMap.get(sectorial),
+                                        getSectorialFilter(sectorialList),
+                                        false).stream()),
+                        reenforcementListMap.containsKey(sectorial) ? reenforcementListMap.get(sectorial).getUnits().stream()
+                                .flatMap(u -> getUnitOption(sectorial,
+                                        u,
+                                        weaponIdMap,
+                                        skillIdMap,
+                                        equipmentIdMap,
+                                        sectorialImageMap.get(sectorial), //todo is this correct?
+                                        getSectorialFilter(reenforcementListMap.get(sectorial)),
+                                        true
+                                ).stream())
+                                : Stream.empty()
+                )
+                .toList();
     }
 
     private static List<UnitOption> getUnitOption(Sectorial sectorial,
@@ -260,7 +279,8 @@ public class UnitMapper {
                 totalCost,
                 totalSwc,
                 unit.getNotes(),
-                reinforcement);
+                reinforcement,
+                "");
     }
 
     //additional units have the same id, independent if they are from a unitOption or a groupOption
