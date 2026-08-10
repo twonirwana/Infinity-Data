@@ -320,7 +320,9 @@ public class WebApp {
                     getCheckboxValue(ctx, "showSavingRoll"),
                     getCheckboxValue(ctx, "showWeaponSkill"),
                     getCheckboxValue(ctx, "showWeaponTraits"),
-                    getCheckboxValue(ctx, "showCombatGroupNumber")
+                    getCheckboxValue(ctx, "showCombatGroupNumber"),
+                    getCheckboxValue(ctx, "showAlwaysOptionFeatureInName"),
+                    getCheckboxValue(ctx, "showOptionFeatureInNameToDifferentiate")
             );
             final List<UnitOption> generated;
             if (unitIds.isEmpty()) {

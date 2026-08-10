@@ -280,7 +280,7 @@ public class UnitMapper {
                 totalSwc,
                 unit.getNotes(),
                 reinforcement,
-                "");
+                List.of());
     }
 
     //additional units have the same id, independent if they are from a unitOption or a groupOption

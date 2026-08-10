@@ -34,7 +34,7 @@ public class UnitOption {
 
     String note;
     boolean reinforcementUnit;
-    String optionFeature;
+    List<OptionFeature> optionFeatures;
 
     public List<Trooper> getAllTrooper() {
         return Stream.concat(Stream.of(primaryUnit), additionalUnits.stream())
