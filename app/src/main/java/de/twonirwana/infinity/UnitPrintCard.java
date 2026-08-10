@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 @Value
 public class UnitPrintCard {
 
+    private final static String OPTION_FEATURE_DELIMITER = " - ";
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
@@ -22,6 +23,7 @@ public class UnitPrintCard {
     MartialArtLevel martialArtLevel;
     Integer combatGroup;
     List<PrintHackingProgram> hackingPrograms;
+    String name;
 
     public static List<UnitPrintCard> fromUnitOption(UnitOption unitOption,
                                                      PrintData printData,
@@ -31,18 +33,23 @@ public class UnitPrintCard {
                 .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
         return unitOption.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream().map(p -> new UnitPrintCard(unitOption,
-                        t,
-                        p,
-                        options.isUseInch(),
-                        options.getShowWeaponOfType(),
-                        options.isShowUnitImages() && options.getTemplate().supportImages,
-                        PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
-                        PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true)))
+                                t,
+                                p,
+                                options.isUseInch(),
+                                options.getShowWeaponOfType(),
+                                options.isShowUnitImages() && options.getTemplate().supportImages,
+                                PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
+                                PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true),
+                                createNameAndAddon(unitOption, t, p,
+                                        printData.getUnitOptions(),
+                                        options.isShowAlwaysOptionFeatureInName(),
+                                        options.isShowOptionFeatureInNameToDifferentiate()))
+                        )
                 )
                 .toList();
     }
 
-     private static boolean notAppliedToWeapon(Skill skill) {
+    private static boolean notAppliedToWeapon(Skill skill) {
         if (!Set.of(PrintUtils.BS_ATTACK_SKILL_NAME, PrintUtils.CC_ATTACK_SKILL_NAME).contains(skill.getName())) {
             return true;
         }
@@ -62,13 +69,151 @@ public class UnitPrintCard {
         if (PrintUtils.toSrExtra(extraValue).isPresent()) {
             return false;
         }
-        if(PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())){
+        if (PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())) {
             return false;
         }
-        if(PrintUtils.skillIsMartialArt(skill)){
+        if (PrintUtils.skillIsMartialArt(skill)) {
             return false;
         }
         return true;
+    }
+
+    private static String createNameAndAddon(UnitOption unitOption,
+                                             Trooper trooper,
+                                             TrooperProfile profile,
+                                             List<UnitOption> allUnitOptions,
+                                             boolean showOptionFeatureInName,
+                                             boolean showOptionFeatureInNameWhenMultipleOptionsInList) {
+        return Stream.of(createName(unitOption, trooper, profile), createNameAddon(unitOption, trooper, profile, allUnitOptions, showOptionFeatureInName, showOptionFeatureInNameWhenMultipleOptionsInList))
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .collect(Collectors.joining(" - "));
+    }
+
+    private static String createNameAddon(UnitOption unitOption,
+                                          Trooper trooper,
+                                          TrooperProfile profile,
+                                          List<UnitOption> allUnitOptions,
+                                          boolean showOptionFeatureInName,
+                                          boolean showOptionFeatureInNameWhenMultipleOptionsInList) {
+
+
+        final List<OptionFeature> optionFeatures;
+        if (showOptionFeatureInName && isPrimary(unitOption, profile)) {
+            optionFeatures = unitOption.getOptionFeatures();
+        } else if (showOptionFeatureInNameWhenMultipleOptionsInList && isPrimary(unitOption, profile)) {
+            List<UnitOption> unitsWithTheSameId = allUnitOptions.stream()
+                    .filter(u -> u.getUnitId() == unitOption.getUnitId())
+                    .toList();
+            if (unitsWithTheSameId.size() > 1) {
+                optionFeatures = unitsWithTheSameId.stream()
+                        .flatMap(u -> u.getOptionFeatures().stream())
+                        .filter(unitOption.getOptionFeatures()::contains)
+                        .collect(Collectors.groupingBy(Function.identity())).entrySet().stream()
+                        .filter(e -> e.getValue().size() == 1)
+                        .map(Map.Entry::getKey)
+                        .sorted()
+                        .toList();
+            } else {
+                optionFeatures = List.of();
+            }
+        } else {
+            optionFeatures = List.of();
+        }
+        if (optionFeatures.isEmpty()) {
+            return null;
+        }
+
+        final String name = createName(unitOption, trooper, profile);
+
+        final int maxLength = 48 - OPTION_FEATURE_DELIMITER.length() - (getIconFileNames(profile).size() * 4) - name.length();
+        return findNotToLongOptionFeatureName(optionFeatures, maxLength);
+
+    }
+
+    private static String findNotToLongOptionFeatureName(List<OptionFeature> optionFeatures, int maxLength) {
+        List<String> out = new ArrayList<>();
+        for (OptionFeature optionFeature : optionFeatures) {
+            if (lengthWithAddedValue(out, optionFeature.getName()) < maxLength) {
+                out.add(optionFeature.getName());
+            }
+        }
+        return String.join(", ", out);
+    }
+
+    private static int lengthWithAddedValue(List<String> strings, String newValue) {
+        return Stream.concat(strings.stream(), Stream.of(newValue))
+                .collect(Collectors.joining(", "))
+                .length();
+    }
+
+    private static String createName(UnitOption unitOption,
+                                     Trooper trooper,
+                                     TrooperProfile profile) {
+        final String name;
+        if (trooper.getProfiles().size() > 1) {
+            final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
+            final String shortUnitName = firstOfList(baseName);
+            final String shortProfileName = firstOfList(profile.getName());
+
+            if (shortProfileName.contains(shortUnitName)) {
+                name = shortProfileName;
+            } else {
+                name = shortUnitName + " - " + shortProfileName;
+
+            }
+        } else {
+            name = trooper.getOptionName();
+        }
+        return name;
+    }
+
+    private static boolean isPrimary(UnitOption unitOption, TrooperProfile profile) {
+        return Objects.equals(unitOption.getPrimaryUnit().getProfiles().getFirst(), profile);
+    }
+
+    private static String firstOfList(String in) {
+        if (in.contains(",")) {
+            return in.substring(0, in.indexOf(",")).trim();
+        }
+        return in.trim();
+    }
+
+    private static String removeExtra(String in) {
+        if (in.contains("+")) {
+            return in.substring(0, in.indexOf("+")).trim();
+        }
+        return in.trim();
+    }
+
+    private static List<String> getIconFileNames(TrooperProfile profile) {
+        List<String> iconFileNames = new ArrayList<>();
+        if (profile.isHackable()) {
+            iconFileNames.add("hackable.svg");
+        }
+        if (profile.hasCube()) {
+            iconFileNames.add("cube.svg");
+        }
+        if (profile.hasCube2()) {
+            iconFileNames.add("cube-2.svg");
+        }
+        if (profile.isPeripheral()) {
+            iconFileNames.add("peripheral.svg");
+        }
+        profile.getOrders().stream()
+                .flatMap(o -> IntStream.range(0, o.getTotal())
+                        .boxed()
+                        .map(_ -> o.getType()))
+                .forEach(orderType -> {
+                    switch (orderType) {
+                        case REGULAR -> iconFileNames.add("regular.svg");
+                        case IRREGULAR -> iconFileNames.add("irregular.svg");
+                        case IMPETUOUS -> iconFileNames.add("impetuous.svg");
+                        case TACTICAL -> iconFileNames.add("tactical.svg");
+                        case LIEUTENANT -> iconFileNames.add("lieutenant.svg");
+                    }
+                });
+
+        return iconFileNames;
     }
 
     public List<Weapon> getWeapons() {
@@ -82,30 +227,8 @@ public class UnitPrintCard {
     }
 
     public String getUnitName() {
-
-        if (trooper.getProfiles().size() > 1) {
-            final String shortUnitName;
-            final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
-            if (baseName.contains(",")) {
-                shortUnitName = baseName.substring(0, baseName.indexOf(",")).trim();
-            } else {
-                shortUnitName = baseName.trim();
-            }
-
-            final String shortProfileName;
-            if (profile.getName().contains(",")) {
-                shortProfileName = profile.getName().substring(0, profile.getName().indexOf(",")).trim();
-            } else {
-                shortProfileName = profile.getName().trim();
-            }
-            if (shortProfileName.contains(shortUnitName)) {
-                return shortProfileName;
-            }
-            return shortUnitName + " - " + shortProfileName;
-        }
-        return trooper.getOptionName();
+        return name;
     }
-
 
     public String getUnitImageName() {
         return "image/%s.png".formatted(getCombinedProfileId());
@@ -157,34 +280,7 @@ public class UnitPrintCard {
     }
 
     public List<String> getIconFileNames() {
-        List<String> iconFileNames = new ArrayList<>();
-        if (profile.isHackable()) {
-            iconFileNames.add("hackable.svg");
-        }
-        if (profile.hasCube()) {
-            iconFileNames.add("cube.svg");
-        }
-        if (profile.hasCube2()) {
-            iconFileNames.add("cube-2.svg");
-        }
-        if (profile.isPeripheral()) {
-            iconFileNames.add("peripheral.svg");
-        }
-        profile.getOrders().stream()
-                .flatMap(o -> IntStream.range(0, o.getTotal())
-                        .boxed()
-                        .map(_ -> o.getType()))
-                .forEach(orderType -> {
-                    switch (orderType) {
-                        case REGULAR -> iconFileNames.add("regular.svg");
-                        case IRREGULAR -> iconFileNames.add("irregular.svg");
-                        case IMPETUOUS -> iconFileNames.add("impetuous.svg");
-                        case TACTICAL -> iconFileNames.add("tactical.svg");
-                        case LIEUTENANT -> iconFileNames.add("lieutenant.svg");
-                    }
-                });
-
-        return iconFileNames;
+        return getIconFileNames(profile);
     }
 
     public String prettySkills(PrintOptions printOptions) {
@@ -206,6 +302,4 @@ public class UnitPrintCard {
     public String prettyEquipments() {
         return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
     }
-
-
 }

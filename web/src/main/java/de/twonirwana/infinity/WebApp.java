@@ -319,7 +319,11 @@ public class WebApp {
                     getCheckboxValue(ctx, "showPs"),
                     getCheckboxValue(ctx, "showSavingRoll"),
                     getCheckboxValue(ctx, "showWeaponSkill"),
-                    getCheckboxValue(ctx, "showWeaponTraits"));
+                    getCheckboxValue(ctx, "showWeaponTraits"),
+                    getCheckboxValue(ctx, "showCombatGroupNumber"),
+                    getCheckboxValue(ctx, "showAlwaysOptionFeatureInName"),
+                    getCheckboxValue(ctx, "showOptionFeatureInNameToDifferentiate")
+            );
             final List<UnitOption> generated;
             if (unitIds.isEmpty()) {
                 generated = printArmyCode(ctx, startupTime, registry, contextPath,
