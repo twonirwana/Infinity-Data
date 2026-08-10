@@ -60,6 +60,9 @@ public class HtmlPrinterTest {
                             booleanOption,
                             booleanOption,
                             booleanOption,
+                            booleanOption,
+                            booleanOption,
+                            booleanOption,
                             booleanOption
                     );
                     testData.add(Arguments.of(options));
@@ -153,7 +156,7 @@ public class HtmlPrinterTest {
         martialArtLevels = List.of(new MartialArtLevel("-3", "-", "+3", "3", "+1SD"));
 
         unitOption = new UnitOption(sectorial, 1, 2, 3, "isc", "iscAbbr", "unitName", "optionName", "slug", "unitOptionName",
-                trooper, List.of(), 20, "0.5", "note", false);
+                trooper, List.of(), 20, "0.5", "note", false, List.of(new OptionFeature("Gun", "+1SD", OptionFeature.FeatureType.Weapon, true, 3)));
 
         armyList = new ArmyList(sectorial, "sectorialName", "armyName", 300, Map.of(1, List.of(unitOption)));
 

@@ -183,7 +183,11 @@ public class ManualHtmlPrinterTest {
                 !showSavingRoll,
                 !showSavingRoll,
                 showSavingRoll,
-                true);
+                true,
+                false,
+                false,
+                true
+        );
 
         underTest.writeCards(data, context, options);
 
