@@ -1,4 +1,4 @@
-package de.twonirwana.infinity;
+package de.twonirwana.infinity.update;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

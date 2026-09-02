@@ -1,4 +1,4 @@
-package de.twonirwana.infinity;
+package de.twonirwana.infinity.update;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
