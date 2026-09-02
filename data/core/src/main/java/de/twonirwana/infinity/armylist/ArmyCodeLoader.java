@@ -141,12 +141,13 @@ public class ArmyCodeLoader {
         return matches;
     }
 
-    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
+    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, boolean hasFollowZero) {
+
         CombatGroupMember result;
         final int unitId = readInt(data);
         final int groupId = readInt(data);
         final int optionId = readInt(data);
-        //debug(data);
+
         boolean hasModi = matchAndSkip(data, new int[]{0, 1});
         List<String> modifier = new ArrayList<>();
 
@@ -157,6 +158,9 @@ public class ArmyCodeLoader {
                 modifier.add(readString(data, modiLength));
             }
 
+        } else if ((hasFollowZero && nextIs(data, new int[]{0, 0, 0})) || (!hasFollowZero && nextIs(data, new int[]{0, 0}))) {
+            readInt(data);
+            readInt(data);
         } else {
             matchAndSkip(data, new int[]{0});
         }
@@ -209,8 +213,9 @@ public class ArmyCodeLoader {
             if (versionSwitch == 0) {
                 int unitCount = readInt(data);
             }
-            result.add(getCombatGroupMemberFromCode(data));
-            if (i < combatGroupSize - 1 && versionSwitch == 1) { //only for version 1
+            boolean hasFollowZero = i < combatGroupSize - 1 && versionSwitch == 1;
+            result.add(getCombatGroupMemberFromCode(data, hasFollowZero));
+            if (hasFollowZero) { //only for version 1
                 int inBetweenMemberZero = readInt(data); //always 0
             }
         }
