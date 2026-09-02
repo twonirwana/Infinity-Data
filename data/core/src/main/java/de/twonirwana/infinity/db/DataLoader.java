@@ -18,11 +18,11 @@ import de.twonirwana.infinity.model.Metadata;
 import de.twonirwana.infinity.model.SectorialList;
 import de.twonirwana.infinity.model.image.ImgOption;
 import de.twonirwana.infinity.model.image.SectorialImage;
-import de.twonirwana.infinity.model.specops.SpecopsNestedItem;
-import de.twonirwana.infinity.model.specops.SpecopsNestedItemDeserializer;
 import de.twonirwana.infinity.model.unit.Profile;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import de.twonirwana.infinity.unit.api.Weapon;
+import de.twonirwana.infinity.update.CsvPrinter;
+import de.twonirwana.infinity.update.JsonDiff;
 import io.avaje.config.Config;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @Getter
 @Slf4j
@@ -226,12 +227,15 @@ public class DataLoader {
             }
 
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(sourceDir)) {
-                for (Path file : stream) {
-                    if (!file.toFile().isDirectory()) {
-                        Path targetPath = targetDir.resolve(file.getFileName());
-                        Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        count++;
-                    }
+                List<Path> toCopy = StreamSupport.stream(stream.spliterator(), true)
+                        .filter(f -> !Files.isDirectory(f))
+                        .filter(f -> fileNotExistsOrDifferent(f, targetDir.resolve(f.getFileName())))
+                        .toList();
+                for (Path path : toCopy) {
+                    Path targetPath = targetDir.resolve(path.getFileName());
+                    log.info("Updated: {}", path.getFileName());
+                    Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    count++;
                 }
             }
             log.info("copied {} files from {} to {}", count, sourceDir, targetDir);
@@ -240,6 +244,15 @@ public class DataLoader {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    private static boolean fileNotExistsOrDifferent(Path source, Path target) {
+        if (Files.notExists(target)) {
+            return true;
+        }
+        HashCode sourceHash = getHashCode(source.toFile());
+        HashCode targetHash = getHashCode(target.toFile());
+        return !Objects.equals(sourceHash, targetHash);
     }
 
     private static void updateCsvIfChanged(List<UnitOption> allUnits, String customUnitImageFolder) {
@@ -508,12 +521,9 @@ public class DataLoader {
 
     private static SectorialList deserializeSectorialList(Path path) {
 
-        SimpleModule sm = new SimpleModule();
-        sm.addDeserializer(SpecopsNestedItem.class, new SpecopsNestedItemDeserializer());
 
         JsonMapper om = JsonMapper.builder()
-                .changeDefaultNullHandling(ignore -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
-                .addModule(sm)
+                .changeDefaultNullHandling(_ -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
                 .build();
 
         return om.readValue(path.toFile(), SectorialList.class);

@@ -293,7 +293,7 @@ public class WebApp {
                     .filter(t -> t.name().equals(styleKey))
                     .findFirst();
             if (styleOptional.isEmpty()) {
-                log.error("Invalid styleKey '{}'", styleKey);
+                log.error("Invalid styleKey '{}' in '{}'", styleKey, ctx.queryString());
                 ctx.status(400).html("Invalid style: " + styleKey);
                 return;
             }

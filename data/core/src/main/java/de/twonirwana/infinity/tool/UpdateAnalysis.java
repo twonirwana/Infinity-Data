@@ -1,6 +1,6 @@
 package de.twonirwana.infinity.tool;
 
-import de.twonirwana.infinity.JsonDiff;
+import de.twonirwana.infinity.update.JsonDiff;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,7 +1,6 @@
 package de.twonirwana.infinity.model;
 
 import de.twonirwana.infinity.model.fireteamChart.FireteamChart;
-import de.twonirwana.infinity.model.specops.Specops;
 import de.twonirwana.infinity.model.unit.Unit;
 import lombok.Data;
 
@@ -22,7 +21,6 @@ public class SectorialList {
     private List<Resume> resume;
     private List<Object> fireteams; //never used and empty
     private List<Relation> relations; // TODO:: Is this ever used?
-    private Specops specops;
     private FireteamChart fireteamChart;
 
 }

@@ -1,6 +1,7 @@
-package de.twonirwana.infinity;
+package de.twonirwana.infinity.update;
 
 import com.google.common.base.Strings;
+import de.twonirwana.infinity.DistanceUtil;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;

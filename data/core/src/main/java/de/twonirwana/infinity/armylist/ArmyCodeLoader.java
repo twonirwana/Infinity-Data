@@ -63,16 +63,15 @@ import java.util.stream.IntStream;
 @Slf4j
 public class ArmyCodeLoader {
 
-    private static int readVLI(ByteBuffer data) {
+    private static int readInt(ByteBuffer data) {
         data.mark();
         int result = data.get();
         if (result < 0) {
             data.reset();
-            result = data.getShort() & 0xffff & ~(1 << 15L);
+            result = data.getShort() & 0x7FFF;
         }
         return result;
     }
-
 
     public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
         ArmyCodeData armyCodeData;
@@ -106,6 +105,8 @@ public class ArmyCodeLoader {
         List<UnitOption> unitsForSectorial = dataLoader.getAllUnitsForSectorial(sectorial);
         List<UnitOption> allUnits = dataLoader.getAllUnits();
 
+
+        //todo validate modi
         return armyCodeData.combatGroups.values().stream()
                 .flatMap(Collection::stream)
                 .filter(m -> findUnitOptions(m, unitsForSectorial).size() != 1)
@@ -129,54 +130,88 @@ public class ArmyCodeLoader {
                 .toList();
     }
 
+
+    private static boolean matchAndSkip(ByteBuffer data, int[] pattern) {
+        boolean matches = nextIs(data, pattern);
+        if (matches) {
+            for (int i = 0; i < pattern.length; i++) {
+                data.get();
+            }
+        }
+        return matches;
+    }
+
     private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data) {
         CombatGroupMember result;
-        final int unitId = readVLI(data);
-        final int groupId = readVLI(data);
-        final int optionId = readVLI(data);
-        int zero = data.get(); //always 0
+        final int unitId = readInt(data);
+        final int groupId = readInt(data);
+        final int optionId = readInt(data);
+        //debug(data);
+        boolean hasModi = matchAndSkip(data, new int[]{0, 1});
+        List<String> modifier = new ArrayList<>();
+
+        if (hasModi) {
+            int numberOfModi = readInt(data);
+            for (int i = 0; i < numberOfModi; i++) {
+                int modiLength = readInt(data);
+                modifier.add(readString(data, modiLength));
+            }
+
+        } else {
+            matchAndSkip(data, new int[]{0});
+        }
 
         result = new CombatGroupMember(
                 unitId,
                 groupId,
-                optionId
+                optionId,
+                modifier
         );
+
         return result;
+    }
+
+
+    private static void debug(ByteBuffer data) {
+        data.mark();
+        StringBuilder out = new StringBuilder();
+        while (data.hasRemaining()) {
+            byte b = data.get();
+            if (b >= 32 && b <= 126) {
+                char c = (char) b;
+                out.append(c);
+
+            } else {
+                int value = b & 0xFF;
+                out.append(value);
+            }
+        }
+        data.reset();
+        System.out.println(out);
     }
 
     private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data) {
 
-        /*
-        for debugging
-        List<Integer> number = new ArrayList<>();
-        int p = data.position();
-        while (data.hasRemaining()) {
-            number.add(readVLI(data));
-        }
-        data.position(p);
-        log.info(number.toString());
-        */
-
-        int combatGroupId = readVLI(data);
-        int versionSwitch = readVLI(data);
+        int combatGroupId = readInt(data);
+        int versionSwitch = readInt(data);
         Integer reinforcement = null; //reinforcement ?0 no, 1 yes
         if (versionSwitch == 1) {
-            reinforcement = readVLI(data);
+            reinforcement = readInt(data);
         }
-        int combatGroupSize = readVLI(data);
+        int combatGroupSize = readInt(data);
         Integer fillerZero = null; //no use?
         if (versionSwitch == 1) {
-            fillerZero = readVLI(data);
+            fillerZero = readInt(data);
         }
 
         List<CombatGroupMember> result = new ArrayList<>();
         for (int i = 0; i < combatGroupSize; i++) {
             if (versionSwitch == 0) {
-                int unitCount = readVLI(data);
+                int unitCount = readInt(data);
             }
             result.add(getCombatGroupMemberFromCode(data));
             if (i < combatGroupSize - 1 && versionSwitch == 1) { //only for version 1
-                int inBetweenMemberZero = readVLI(data); //always 0
+                int inBetweenMemberZero = readInt(data); //always 0
             }
         }
 
@@ -198,6 +233,13 @@ public class ArmyCodeLoader {
         return null;
     }
 
+    private static String readString(ByteBuffer data, int length) {
+        byte[] stringBytes = new byte[length];
+        data.get(stringBytes, 0, length);
+
+        return new String(stringBytes, StandardCharsets.UTF_8);
+    }
+
     @VisibleForTesting
     public static ArmyCodeData mapArmyCode(final String armyCode) {
         byte[] decoded = decodeArmyCode(armyCode);
@@ -207,39 +249,59 @@ public class ArmyCodeLoader {
 
         ByteBuffer dataBuffer = ByteBuffer.wrap(decoded);
 
-        int sectorialId = readVLI(dataBuffer);
-        int faction_length = readVLI(dataBuffer);
-        byte[] factionNameData = new byte[faction_length];
-        dataBuffer.get(factionNameData, 0, faction_length);
+        int sectorialId = readInt(dataBuffer);
+        int factionStringLength = readInt(dataBuffer);
 
-        String fractionName = new String(factionNameData, StandardCharsets.UTF_8);
+        String fractionName = readString(dataBuffer, factionStringLength);
 
         // Get the army name, if set. The default army name is ' '.
         int armyNameLength = dataBuffer.get() & 0xffffff;
         String armyName = null;
         if (armyNameLength > 0) {
-            byte[] army_name_data = new byte[armyNameLength];
-            dataBuffer.get(army_name_data, 0, armyNameLength);
-            armyName = new String(army_name_data, StandardCharsets.UTF_8);
+            armyName = readString(dataBuffer, armyNameLength);
         }
 
-        int maxPoints = readVLI(dataBuffer);
+        int maxPoints = readInt(dataBuffer);
 
-        int combatGroupCount = readVLI(dataBuffer);
+        int combatGroupCount = readInt(dataBuffer);
         Map<Integer, List<CombatGroupMember>> combatGroups = IntStream.range(0, combatGroupCount)
                 .boxed()
                 .collect(Collectors.toMap(i -> i + 1, _ -> getCombatGroupFromCode(dataBuffer)));
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 
+    private static boolean nextIs(ByteBuffer data, int[] expected) {
+        if (!data.hasRemaining()) {
+            return false;
+        }
+        data.mark();
+        for (int c : expected) {
+            if (!data.hasRemaining()) {
+                data.reset();
+                return false;
+            }
+            byte next = data.get();
+            if (next != c) {
+                data.reset();
+                return false;
+            }
+        }
+        data.reset();
+        return true;
+    }
+
     public record CombatGroupMember(
             int unitId,
             int groupId,
-            int optionId) {
+            int optionId,
+            List<String> modifier) {
         @Override
         @NonNull
         public String toString() {
-            return "%d-%d-%d".formatted(unitId, groupId, optionId);
+            if (modifier == null || modifier.isEmpty()) {
+                return "%d-%d-%d".formatted(unitId, groupId, optionId);
+            }
+            return "%d-%d-%d-%s".formatted(unitId, groupId, optionId, modifier);
         }
     }
 
@@ -250,5 +312,4 @@ public class ArmyCodeLoader {
             int maxPoints,
             Map<Integer, List<CombatGroupMember>> combatGroups) {
     }
-
 }
