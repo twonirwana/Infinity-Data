@@ -1,12 +1,22 @@
 package de.twonirwana.infinity.armylist;
 
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,9 +59,8 @@ class ArmyCodeLoaderTest {
 
                 //strange code, with skipping counter
                 Arguments.of("gS0HYXJpYWRuYQpQb3dlcmhvdXNlgSwBAQEABQOA5wECAAAEhH4BAgAABYDuAQUAAAaEZgEHAAAHgQcBAgAA", "ArmyCodeData[sectorialId=301, sectorialName=ariadna, armyName=Powerhouse, maxPoints=300, combatGroups={1=[231-1-2, 1150-1-2, 238-1-5, 1126-1-7, 263-1-2]}]"), //301-231-1-2-1 301-1150-1-2-1 301-238-1-5-1 301-1126-1-7-1 301-263-1-2-1
-                Arguments.of("ahpzdmFsYXJoZWltYS1zLXdpbnRlci1mb3JjZQ4gRmlyc3QgTjUgTGlzdIEsAgEBAAgAhdMBAQABhiIBBAACAQEJAAQBAQoABYXdAQIABhEBAQAHhdwBAQAIhcwBAQACAQAFAIXOAQQAAQUBBgAChc4BBgAEBgEHAAAGAQIA", ""),
 
-
+                Arguments.of("ahpzdmFsYXJoZWltYS1zLXdpbnRlci1mb3JjZQl0ZXN0IGNvZGWBLAIBAQAIAIXTAQEAAACGIgEEAAAAAQEJAAAAAQEKAAAAhd0BAgAAABEBAQAAAIXcAQEAAACFzAEBAAACAQABAIXOAQQAAA%3D%3D", "ArmyCodeData[sectorialId=106, sectorialName=svalarheima-s-winter-force, armyName=test code, maxPoints=300, combatGroups={1=[1491-1-1, 1570-1-4, 1-1-9, 1-1-10, 1501-1-2, 17-1-1, 1500-1-1, 1484-1-1], 2=[1486-1-4]}]"),
                 Arguments.of("gS0HYXJpYWRuYRlTaW4gQ2l0eSBTbWFja2Rvd24gTGlzdCAygSwCAQEACQGDCQEDAAKBAgABAAOA5wEEAASA5wEFAAWBBwECAAaEbgGQVgAHgPwBBQAIhGYBAwAJgPABAgACAQAFAYDmAQYAAoDmAQYAA4DvAQIABIDvAQIABTIBAQA%3D", "ArmyCodeData[sectorialId=301, sectorialName=ariadna, armyName=Sin City Smackdown List 2, maxPoints=300, combatGroups={1=[777-1-3, 258-0-1, 231-1-4, 231-1-5, 263-1-2, 1134-1-4182, 252-1-5, 1126-1-3, 240-1-2], 2=[230-1-6, 230-1-6, 239-1-2, 239-1-2, 50-1-1]}]"),
                 Arguments.of("gS0HYXJpYWRuYRpBcmlhZG5hIFBvbGFyaXMgbWl0IEhhY2tlcoEsAgEACAGF7gEIAAKF7gEIAAOBBwEBAASA7QEGAAWF8gACAAaA%2FAEEAAeF7wECAAiA5wEDAAIABQGA6gEHAAKA5AEEAAOA%2FwEBAASBCQECAAWA4wEGAA%3D%3D", "ArmyCodeData[sectorialId=301, sectorialName=ariadna, armyName=Ariadna Polaris mit Hacker, maxPoints=300, combatGroups={1=[1518-1-8, 1518-1-8, 263-1-1, 237-1-6, 1522-0-2, 252-1-4, 1519-1-2, 231-1-3], 2=[234-1-7, 228-1-4, 255-1-1, 265-1-2, 227-1-6]}]"),
                 Arguments.of("gMoQaW1wZXJpYWwtc2VydmljZQEzgSwBAQAKAYCUAQUAAoYEAQEAA4dKAQIABIdKAQIABYdLAQIABodLAQIAB4dPAQUACIdPAQUACW0BCwAKgJsBgioA", "ArmyCodeData[sectorialId=202, sectorialName=imperial-service, armyName=3, maxPoints=300, combatGroups={1=[148-1-5, 1540-1-1, 1866-1-2, 1866-1-2, 1867-1-2, 1867-1-2, 1871-1-5, 1871-1-5, 109-1-11, 155-1-554]}]"),
@@ -147,36 +156,76 @@ class ArmyCodeLoaderTest {
                 Arguments.of("gfYKY29ycmVnaWRvch4wIE5leHQgR2FtZSBNY011cnJvdWdoIFZhcmlhbnSBLAIBAAoBgYsBBgAAAoGLAQYAAAOGBwECAAAEgX4BCgAABYGlAQMAAAaBpQEDAAAHgaoBAQAACIGqAQEAAAmB0AEBAAAKgRsBAQAAAgAFAYYPAAIAAAKBlAEBAAADgZQBAQAABIGUAQEAAAWBlAEBAAA%3D", "ArmyCodeData[sectorialId=502, sectorialName=corregidor, armyName=0 Next Game McMurrough Variant, maxPoints=300, combatGroups={1=[395-1-6, 395-1-6, 1543-1-2, 382-1-10, 421-1-3, 421-1-3, 426-1-1, 426-1-1, 464-1-1, 283-1-1], 2=[1551-0-2, 404-1-1, 404-1-1, 404-1-1, 404-1-1]}]"),
                 Arguments.of("gfcHYmFrdW5pbgh0ZXN0IDE1MICWAQEBAAkAhkgBAQAAAIZDAQEAAACBjAEIAAAAhkEBAgAAAIGiAQMAAACBngEBAAAAgZ4BAQAAAIGTAQIAAACBkwEDAAA%3D", "ArmyCodeData[sectorialId=503, sectorialName=bakunin, armyName=test 150, maxPoints=150, combatGroups={1=[1608-1-1, 1603-1-1, 396-1-8, 1601-1-2, 418-1-3, 414-1-1, 414-1-1, 403-1-2, 403-1-3]}]"),
                 Arguments.of("gl0JbmV4dC13YXZlBU53IHYygMgCAQEACACHjwMBAAAAh48CAgABASZbeyJ0eXBlIjoic2tpbGwiLCJpZCI6MjgsImV4dHJhIjpbNl19XQCHjwEGAAEBclt7InR5cGUiOiJzdGF0Iiwic3RhdCI6Im1vdmUwIiwicSI6MTV9LHsidHlwZSI6InN0YXQiLCJzdGF0IjoibW92ZTEiLCJxIjoxMH0seyJ0eXBlIjoic2tpbGwiLCJpZCI6NDAsImV4dHJhIjpbNl19XQCHVAELAAAAh1QBAQAAAIH9AQMAAACHXwEBAAAAh5QBAgAAAgEAAgCHYQEBAAAAgf8BAQAA", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName=Nw v2, maxPoints=200, combatGroups={1=[1935-3-1, 1935-2-2-[[{\"type\":\"skill\",\"id\":28,\"extra\":[6]}]], 1935-1-6-[[{\"type\":\"stat\",\"stat\":\"move0\",\"q\":15},{\"type\":\"stat\",\"stat\":\"move1\",\"q\":10},{\"type\":\"skill\",\"id\":40,\"extra\":[6]}]], 1876-1-11, 1876-1-1, 509-1-3, 1887-1-1, 1940-1-2], 2=[1889-1-1, 511-1-1]}]")
-                );
+        );
+    }
+
+    private static Stream<Arguments> generateDataFromFile() {
+        List<CSVRecord> armyCodeAndUnits;
+        try {
+            armyCodeAndUnits = dataFromCsvFile("/armyCodes.csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return armyCodeAndUnits.stream()
+                .map(a -> Arguments.of(a.get(0), a.get(1)));
+
+    }
+
+    private static List<CSVRecord> dataFromCsvFile(String fileName) throws IOException {
+
+        InputStream is = ArmyCodeLoaderTest.class.getResourceAsStream(fileName);
+        if (is == null) {
+            throw new IOException("CSV file not found");
+        }
+        try (Reader reader = new InputStreamReader(is)) {
+            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                    .setDelimiter(";")
+                    .setTrim(true).get();
+            return StreamSupport.stream(csvFormat.parse(reader).spliterator(), false)
+                    .toList();
+        }
     }
 
     @ParameterizedTest
     @MethodSource("testData")
     void testArmyCodeGeneration(String armyCode, String expectedArmyData) {
-     //    System.out.printf("   Arguments.of(\"%s\", \"%s\"),%n", armyCode, ArmyCodeLoader.mapArmyCode(armyCode).toString());
+        //    System.out.printf("   Arguments.of(\"%s\", \"%s\"),%n", armyCode, ArmyCodeLoader.mapArmyCode(armyCode).toString());
         assertThat(ArmyCodeLoader.mapArmyCode(armyCode).toString()).isEqualTo(expectedArmyData);
     }
 
+    @ParameterizedTest
+    @MethodSource("generateDataFromFile")
+    void testArmyCodeGenerationFile(String armyCode, String expectedUnitIds) {
+        ArmyCodeLoader.ArmyCodeData res = ArmyCodeLoader.mapArmyCode(armyCode);
+        String foundUnitIds = res.combatGroups().keySet().stream()
+                .sorted()
+                .map(k -> res.combatGroups().get(k))
+                .flatMap(Collection::stream)
+                .map(ArmyCodeLoader.CombatGroupMember::toString)
+                .map(s -> res.sectorialId() + "-" + s + "-1")
+                .collect(Collectors.joining(", "));
+
+        assertThat(foundUnitIds).isEqualTo(expectedUnitIds);
+    }
 
     @Test
-    void test(){
+    void test() {
 
 
-         //       Arguments.of("g%2BsSdG9yY2hsaWdodC1icmlnYWRlGlRvcmNobGlnaHQgMzAwIDE1IGZpcmV0ZWFtgSwCAQEACACHSAEBAACG8QEDAACG8AEBAACG8AEBAACFpwEJAQE1AAAAAAABcgAAAAAAAAIAAAIBAAABAACGNAEFAACFvQEBAACFvQEBAAIBAAYAhb8BAQAAhvMBAgAAhvIBAgAAhu0BAQAAhu4BBAAAh1ABAQA%3D",""),
-           //     Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMGIE1PMi4wgSwCAQEACgCGGQEDAACF0QEEAAAbAQIAAB0BBAAAGAENAQIoAAEBAQAAABwAAQEGAAAAAAIIAAAAAAAcAAAAAAAAAAEBAQAAAAAAgwMBBAAAhc8BAgAAhhgBAQAAhhgBAQAAhhgBAQACAQADAB4BAwAAHgEFAAAeAQEA",""),
-             //   Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMBIIEsAgEBAAkAhhkBAwAAhdEBAwAAGwEDAAAdAQQAABgBDQECMQAAAAAAKAABAQEAAAAAAggAAAAAABEAAAAAAAAAAAEBAAABAACDAwEEAACFzwECAACGGAEBAACGGAEBAAIBAAMAHgEDAAAeAQUAAB4BAQA%3D",""),
+        //       Arguments.of("g%2BsSdG9yY2hsaWdodC1icmlnYWRlGlRvcmNobGlnaHQgMzAwIDE1IGZpcmV0ZWFtgSwCAQEACACHSAEBAACG8QEDAACG8AEBAACG8AEBAACFpwEJAQE1AAAAAAABcgAAAAAAAAIAAAIBAAABAACGNAEFAACFvQEBAACFvQEBAAIBAAYAhb8BAQAAhvMBAgAAhvIBAgAAhu0BAQAAhu4BBAAAh1ABAQA%3D",""),
+        //     Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMGIE1PMi4wgSwCAQEACgCGGQEDAACF0QEEAAAbAQIAAB0BBAAAGAENAQIoAAEBAQAAABwAAQEGAAAAAAIIAAAAAAAcAAAAAAAAAAEBAQAAAAAAgwMBBAAAhc8BAgAAhhgBAQAAhhgBAQAAhhgBAQACAQADAB4BAwAAHgEFAAAeAQEA",""),
+        //   Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMBIIEsAgEBAAkAhhkBAwAAhdEBAwAAGwEDAAAdAQQAABgBDQECMQAAAAAAKAABAQEAAAAAAggAAAAAABEAAAAAAAAAAAEBAAABAACDAwEEAACFzwECAACGGAEBAACGGAEBAAIBAAMAHgEDAAAeAQUAAB4BAQA%3D",""),
 
 
         //         Arguments.of("gr4Nc3RlZWwtcGhhbGFueA4gRmFzdCByZWFjdGlvboEsAgEBAAkAgmMBiGEAAIJbAQYAAIY4AQYAAIY5AQMAAILRAAEAAIJcAQMAAIJYAQEAAIdAAQEAAIJYAQoBAxoAAAAAADEAAAAAADgAAAAAAQGAxAAAAAABAAAAAQAAAQACAQAFAIJdAQIAAIJoAQUAAIDAAQEAAIJPAQIAAIdSAQEA",""),
 
-        testArmyCodeGeneration("ahpzdmFsYXJoZWltYS1zLXdpbnRlci1mb3JjZQ4gRmlyc3QgTjUgTGlzdIEsAgEBAAgAhdMBAQABhiIBBAACAQEJAAQBAQoABYXdAQIABhEBAQAHhdwBAQAIhcwBAQACAQAFAIXOAQQAAQUBBgAChc4BBgAEBgEHAAAGAQIA", "");
+        testArmyCodeGeneration("ahpzdmFsYXJoZWltYS1zLXdpbnRlci1mb3JjZQl0ZXN0IGNvZGWBLAIBAQAIAIXTAQEAAACGIgEEAAAAAQEJAAAAAQEKAAAAhd0BAgAAABEBAQAAAIXcAQEAAACFzAEBAAACAQABAIXOAQQAAA%3D%3D", "ArmyCodeData[sectorialId=106, sectorialName=svalarheima-s-winter-force, armyName=test code, maxPoints=300, combatGroups={1=[1491-1-1, 1570-1-4, 1-1-9, 1-1-10, 1501-1-2, 17-1-1, 1500-1-1, 1484-1-1], 2=[1486-1-4]}]");
 
         //works
 //        testArmyCodeGeneration("gfUGbm9tYWRzASCBLAEBAQACAIbiAQEAAIGeAQEA", "ArmyCodeData[sectorialId=501, sectorialName=nomads, armyName= , maxPoints=300, combatGroups={1=[1762-1-1, 414-1-1]}]");
         //   testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQABAIeBAQcAAQEaW3sidHlwZSI6InNraWxsIiwiaWQiOjY3fV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1921-1-7-[[{\"type\":\"skill\",\"id\":67}]]]}]");
-      //  testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQABAIeBAQcAAQIjW3sidHlwZSI6InN0YXQiLCJzdGF0IjoiYnMiLCJxIjoxfV0aW3sidHlwZSI6InNraWxsIiwiaWQiOjY3fV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1921-1-7-[[{\"type\":\"stat\",\"stat\":\"bs\",\"q\":1}], [{\"type\":\"skill\",\"id\":67}]]]}]");
+        //  testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQABAIeBAQcAAQIjW3sidHlwZSI6InN0YXQiLCJzdGF0IjoiYnMiLCJxIjoxfV0aW3sidHlwZSI6InNraWxsIiwiaWQiOjY3fV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1921-1-7-[[{\"type\":\"stat\",\"stat\":\"bs\",\"q\":1}], [{\"type\":\"skill\",\"id\":67}]]]}]");
     }
-
 
 
 }
