@@ -1,4 +1,6 @@
-package de.twonirwana.infinity.util;
+package de.twonirwana.infinity.tool;
+
+import de.twonirwana.infinity.util.ImageUtils;
 
 public class CropAllIn {
 

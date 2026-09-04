@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -64,13 +65,18 @@ import java.util.stream.IntStream;
 public class ArmyCodeLoader {
 
     private static int readInt(ByteBuffer data) {
-        data.mark();
-        int result = data.get();
-        if (result < 0) {
-            data.reset();
-            result = data.getShort() & 0x7FFF;
+        byte firstByte = data.get();
+
+        // If the highest bit is 0, it's a standard positive byte (under 128)
+        if (firstByte >= 0) {
+            return firstByte;
         }
-        return result;
+
+        // Otherwise, the first bit was 1.
+        // We clear that flag bit (firstByte & 0x7F), shift it up 8 spots,
+        // and combine it with the next byte.
+        byte secondByte = data.get();
+        return ((firstByte & 0x7F) << 8) | (secondByte & 0xFF);
     }
 
     public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
@@ -141,14 +147,43 @@ public class ArmyCodeLoader {
         return matches;
     }
 
-    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, boolean hasFollowZero) {
+    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, int version, AtomicInteger skipCounter) {
+        if (skipCounter != null && skipCounter.get() > 2) {
+            matchAndSkip(data, new int[]{skipCounter.getAndIncrement()});
+        }
+        readNumbersTillEnd(data);
 
         CombatGroupMember result;
         final int unitId = readInt(data);
         final int groupId = readInt(data);
         final int optionId = readInt(data);
+        System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
+        debug(data);
+        readNumbersTillEnd(data);
+        /*int value = readInt(data);
+        System.out.println(value);
+        Integer value2 = null;
+        if (version == 1 ) { //todo
+            value2 = readInt(data);
+            System.out.println(value2);
+        }
+        List<String> modifier = new ArrayList<>();
 
-        boolean hasModi = matchAndSkip(data, new int[]{0, 1});
+        if (value2 != null && value2 == 1) {
+            int numberOfModi = readInt(data);
+            for (int i = 0; i < numberOfModi; i++) {
+                int modiLength = readInt(data);
+                modifier.add(readString(data, modiLength));
+            }
+        }
+        readNumbersTillEnd(data);
+*/
+        boolean hasModi;
+        if(version > 0) {
+            hasModi = matchAndSkip(data, new int[]{0, version});
+        } else {
+            hasModi = false;
+        }
         List<String> modifier = new ArrayList<>();
 
         if (hasModi) {
@@ -157,14 +192,13 @@ public class ArmyCodeLoader {
                 int modiLength = readInt(data);
                 modifier.add(readString(data, modiLength));
             }
-
-        } else if ((hasFollowZero && nextIs(data, new int[]{0, 0, 0})) || (!hasFollowZero && nextIs(data, new int[]{0, 0}))) {
+        } else if ((version == 1 && nextIs(data, new int[]{0, 0, 0})) || (version == 0 && nextIs(data, new int[]{0, 0}))) {
             readInt(data);
             readInt(data);
         } else {
             matchAndSkip(data, new int[]{0});
         }
-
+        readNumbersTillEnd(data);
         result = new CombatGroupMember(
                 unitId,
                 groupId,
@@ -194,33 +228,56 @@ public class ArmyCodeLoader {
         System.out.println(out);
     }
 
-    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data) {
+    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data, boolean lastGroup) {
 
-        int combatGroupId = readInt(data);
+        int combatGroupId = readInt(data); //not the group id, can
         int versionSwitch = readInt(data);
+        if (versionSwitch > 1) {
+            log.error("new version: " + versionSwitch);
+        }
         Integer reinforcement = null; //reinforcement ?0 no, 1 yes
         if (versionSwitch == 1) {
             reinforcement = readInt(data);
         }
         int combatGroupSize = readInt(data);
-        Integer fillerZero = null; //no use?
+        Integer unknownValue = null; //normally 0 but in one known case it is 3 and then the second unit has a 4, the third a 5 ... bevor it
         if (versionSwitch == 1) {
-            fillerZero = readInt(data);
+            unknownValue = readInt(data);
+            if (unknownValue != 0 && unknownValue != 3) {
+                log.error("new unknown value: " + unknownValue);
+            }
         }
-
+        System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " versionSwitch: " + versionSwitch + " unknown value: " + unknownValue + " reinforcement: " + reinforcement);
+        final AtomicInteger skipCounter;
+        if (unknownValue == null) {
+            skipCounter = null;
+        } else {
+            skipCounter = new AtomicInteger(unknownValue);
+        }
         List<CombatGroupMember> result = new ArrayList<>();
         for (int i = 0; i < combatGroupSize; i++) {
             if (versionSwitch == 0) {
                 int unitCount = readInt(data);
             }
-            boolean hasFollowZero = i < combatGroupSize - 1 && versionSwitch == 1;
-            result.add(getCombatGroupMemberFromCode(data, hasFollowZero));
-            if (hasFollowZero) { //only for version 1
+            result.add(getCombatGroupMemberFromCode(data, versionSwitch, skipCounter));
+         //   if (versionSwitch >= 1 && (i < combatGroupSize - 1 || !lastGroup)) { //for version 1 in between all units but not behind the last
+            if (versionSwitch >= 1 && (i < combatGroupSize - 1)) { //for version 1 in between all units but not behind the last
                 int inBetweenMemberZero = readInt(data); //always 0
             }
         }
 
         return result;
+    }
+
+    private static void readNumbersTillEnd(ByteBuffer data) {
+        data.mark();
+        StringBuilder out = new StringBuilder();
+        while (data.hasRemaining()) {
+            out.append(readInt(data));
+            out.append("-");
+        }
+        data.reset();
+        System.out.println(out);
     }
 
     private static byte[] decodeArmyCode(String armyCode) {
@@ -271,7 +328,7 @@ public class ArmyCodeLoader {
         int combatGroupCount = readInt(dataBuffer);
         Map<Integer, List<CombatGroupMember>> combatGroups = IntStream.range(0, combatGroupCount)
                 .boxed()
-                .collect(Collectors.toMap(i -> i + 1, _ -> getCombatGroupFromCode(dataBuffer)));
+                .collect(Collectors.toMap(i -> i + 1, i -> getCombatGroupFromCode(dataBuffer, i == combatGroupCount -1)));
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 

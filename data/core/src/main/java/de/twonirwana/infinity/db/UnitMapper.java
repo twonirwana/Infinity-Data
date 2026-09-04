@@ -4,15 +4,20 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.model.*;
+import de.twonirwana.infinity.model.Equipment;
+import de.twonirwana.infinity.model.Order;
+import de.twonirwana.infinity.model.Skill;
+import de.twonirwana.infinity.model.Weapon;
 import de.twonirwana.infinity.model.image.ImgOption;
 import de.twonirwana.infinity.model.image.Product;
 import de.twonirwana.infinity.model.image.SectorialImage;
+import de.twonirwana.infinity.model.specops.Attribute;
+import de.twonirwana.infinity.model.specops.ItemGroup;
+import de.twonirwana.infinity.model.specops.Spectables;
 import de.twonirwana.infinity.model.unit.*;
-import de.twonirwana.infinity.unit.api.ExtraValue;
-import de.twonirwana.infinity.unit.api.Trooper;
-import de.twonirwana.infinity.unit.api.TrooperProfile;
-import de.twonirwana.infinity.unit.api.UnitOption;
+import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -57,6 +62,7 @@ public class UnitMapper {
     //each database update should not throw the same warnings
     private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
     private static final Pattern TURRET_WEAPON_NAME_PATTERN = Pattern.compile("Armed Turret \\((.*)\\)");
+    private final static ObjectMapper objectMapper = new ObjectMapper();
 
     public static Map<Sectorial, List<UnitOption>> getUnits(Map<Sectorial, SectorialList> sectorialListMap,
                                                             Map<Sectorial, SectorialList> reenforcementListMap,
@@ -82,8 +88,8 @@ public class UnitMapper {
                 );
     }
 
-
-    private static List<UnitOption> createUnitOptionWithReenforcement(Sectorial sectorial, SectorialList sectorialList, Map<Integer, List<Weapon>> weaponIdMap,
+    private static List<UnitOption> createUnitOptionWithReenforcement(Sectorial sectorial, SectorialList sectorialList,
+                                                                      Map<Integer, List<Weapon>> weaponIdMap,
                                                                       Map<Integer, Skill> skillIdMap,
                                                                       Map<Integer, Equipment> equipmentIdMap,
                                                                       Map<Sectorial, SectorialImage> sectorialImageMap,
@@ -162,6 +168,14 @@ public class UnitMapper {
                                 equipmentIdMap,
                                 sectorialImage,
                                 sectorialFilter);
+                        List<ModifierOption> specOpsModifier = Optional.ofNullable(unit.getSpectables())
+                                .map(Spectables::getTable)
+                                .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
+                                .orElse(List.of());
+                        List<ModifierOption> specBall = Optional.ofNullable(unit.getSpectables())
+                                .map(Spectables::getSpecball)
+                                .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
+                                .orElse(List.of());
                         return createUnitOption(sectorial,
                                 unit,
                                 primaryTrooper,
@@ -170,7 +184,9 @@ public class UnitMapper {
                                 unitOption.getName(),
                                 unitOption.getPoints(),
                                 unitOption.getSwc(),
-                                reinforcement);
+                                reinforcement,
+                                specOpsModifier,
+                                specBall);
 
                     })
                     .distinct()
@@ -218,6 +234,14 @@ public class UnitMapper {
                                 equipmentIdMap,
                                 sectorialImage,
                                 sectorialFilter);
+                        List<ModifierOption> specOpsModifier = Optional.ofNullable(unit.getSpectables())
+                                .map(Spectables::getTable)
+                                .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
+                                .orElse(List.of());
+                        List<ModifierOption> specBall = Optional.ofNullable(unit.getSpectables())
+                                .map(Spectables::getSpecball)
+                                .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
+                                .orElse(List.of());
                         return createUnitOption(sectorial,
                                 unit,
                                 primaryTrooper,
@@ -226,7 +250,9 @@ public class UnitMapper {
                                 null,
                                 profileOption.getPoints(),
                                 profileOption.getSwc(),
-                                reinforcement);
+                                reinforcement,
+                                specOpsModifier,
+                                specBall);
 
                     })
                     .toList());
@@ -248,7 +274,15 @@ public class UnitMapper {
                                         equipmentIdMap,
                                         sectorialImage,
                                         sectorialFilter);
-                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of(), null, o.getPoints(), o.getSwc(), reinforcement);
+                                List<ModifierOption> specOpsModifier = Optional.ofNullable(unit.getSpectables())
+                                        .map(Spectables::getTable)
+                                        .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
+                                        .orElse(List.of());
+                                List<ModifierOption> specBall = Optional.ofNullable(unit.getSpectables())
+                                        .map(Spectables::getSpecball)
+                                        .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
+                                        .orElse(List.of());
+                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of(), null, o.getPoints(), o.getSwc(), reinforcement, specOpsModifier, specBall);
                             })).toList());
         }
         return result;
@@ -262,7 +296,9 @@ public class UnitMapper {
                                                String unitOptionName,
                                                int totalCost,
                                                String totalSwc,
-                                               boolean reinforcement) {
+                                               boolean reinforcement,
+                                               List<ModifierOption> specOpsModifier,
+                                               List<ModifierOption> specBall) {
 
         return new UnitOption(sectorial,
                 unit.getId(),
@@ -280,7 +316,78 @@ public class UnitMapper {
                 totalSwc,
                 unit.getNotes(),
                 reinforcement,
-                List.of());
+                List.of(),
+                specOpsModifier,
+                specBall
+        );
+    }
+
+    private static List<ModifierOption> mapSpectables(ItemGroup itemGroup,
+                                                      Map<Integer, List<Weapon>> weaponIdMap,
+                                                      Map<Integer, Skill> skillIdMap,
+                                                      Map<Integer, Equipment> equipmentIdMap,
+                                                      Map<Integer, ExtraValue> extraIdMap) {
+        return itemGroup.getItems().stream()
+                .map(i -> new ModifierOption(
+                        objectMapper.writeValueAsString(i),
+                        i.getAttrs().stream()
+                                .map(a -> mapAttribute(a, weaponIdMap, skillIdMap, equipmentIdMap, extraIdMap))
+                                .toList()
+                ))
+                .toList();
+    }
+
+    private static Modifier mapAttribute(Attribute attribute,
+                                         Map<Integer, List<Weapon>> weaponIdMap,
+                                         Map<Integer, Skill> skillIdMap,
+                                         Map<Integer, Equipment> equipmentIdMap,
+                                         Map<Integer, ExtraValue> extraIdMap) {
+        Modifier.Type type = Modifier.Type.valueOf(attribute.getType());
+        final List<de.twonirwana.infinity.unit.api.Weapon> weapons;
+        final de.twonirwana.infinity.unit.api.Skill skill;
+        final de.twonirwana.infinity.unit.api.Equipment equipment;
+
+        final Modifier.Stat stat;
+        final Integer statModifier;
+        List<ExtraValue> extraValues = Optional.ofNullable(attribute.getExtra()).orElse(List.of()).stream()
+                .map(extraIdMap::get)
+                .toList();
+        if (type == Modifier.Type.stat) {
+            stat = Arrays.stream(Modifier.Stat.values())
+                    .filter(v -> Objects.equals(v.name(), attribute.getStat()))
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Invalid stat: " + attribute.getStat()));
+            statModifier = attribute.getQ();
+            weapons = List.of();
+            skill = null;
+            equipment = null;
+        } else if (type == Modifier.Type.weapon) {
+            stat = null;
+            statModifier = null;
+            weapons = weaponIdMap.get(attribute.getId()).stream()
+                    .map(w -> mapWeapon(w,
+                            attribute.getQ(),
+                            extraValues,
+                            de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON.name(),
+                            null))
+                    .toList();
+            skill = null;
+            equipment = null;
+        } else if (type == Modifier.Type.skill) {
+            stat = null;
+            statModifier = null;
+            weapons = List.of();
+            skill = mapSkill(skillIdMap.get(attribute.getId()), attribute.getQ(), extraValues);
+            equipment = null;
+        } else if (type == Modifier.Type.equip) {
+            stat = null;
+            statModifier = null;
+            weapons = List.of();
+            skill = null;
+            equipment = mapEquipment(equipmentIdMap.get(attribute.getId()), attribute.getQ(), extraValues);
+        } else {
+            throw new IllegalArgumentException("Unknown modifier type: " + type);
+        }
+        return new Modifier(type, weapons, skill, equipment, stat, statModifier);
     }
 
     //additional units have the same id, independent if they are from a unitOption or a groupOption

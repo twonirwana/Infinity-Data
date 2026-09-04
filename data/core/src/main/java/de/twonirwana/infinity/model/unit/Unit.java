@@ -1,5 +1,6 @@
 package de.twonirwana.infinity.model.unit;
 
+import de.twonirwana.infinity.model.specops.Spectables;
 import lombok.Data;
 
 import java.util.List;
@@ -27,5 +28,6 @@ public class Unit {
     private String slug;
     private Map<String, List<Integer>> filters;
     private List<Integer> factions;
+    private Spectables spectables;
 
 }
