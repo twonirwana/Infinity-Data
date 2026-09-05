@@ -141,7 +141,7 @@ public class ArmyCodeLoader {
         boolean matches = nextIs(data, pattern);
         if (matches) {
             for (int i = 0; i < pattern.length; i++) {
-                data.get();
+                readInt(data);
             }
         }
         return matches;
@@ -179,33 +179,50 @@ public class ArmyCodeLoader {
         readNumbersTillEnd(data);
 */
         boolean hasModi;
+        int resetPosition = data.position();
         if (version > 0) {
             hasModi = matchAndSkip(data, new int[]{0, version});
         } else {
             hasModi = false;
         }
         List<String> modifier = new ArrayList<>();
-
-        if (hasModi) {
-            int numberOfModi = readInt(data);
-            for (int i = 0; i < numberOfModi; i++) {
-                int modiLength = readInt(data);
-                modifier.add(readString(data, modiLength));
-            }
-        } else if ((version == 1 && nextIs(data, new int[]{0, 0, 0})) || (version == 0 && nextIs(data, new int[]{0, 0}))) {
-            readInt(data);
-            readInt(data);
-        } else {
-            matchAndSkip(data, new int[]{0});
-        }
         //   readNumbersTillEnd(data);
+        if (hasModi) {
+            try {
+                int numberOfModi = readInt(data);
+                for (int i = 0; i < numberOfModi; i++) {
+                    int modiLength = readInt(data);
+                    String m = readString(data, modiLength);
+                    if (!m.contains("type")) {
+                        throw new IllegalArgumentException("Invalid Mod");
+                    }
+                    modifier.add(m);
+                }
+            } catch (Exception ex) {
+                data.position(resetPosition);
+                log.error(ex.getMessage());
+                hasModi = false;
+            }
+        }
+        //readNumbersTillEnd(data);
+        if (!hasModi) {
+            if (version == 1 && nextIs(data, new int[]{0, 0, 0})) {
+                readInt(data);
+                readInt(data);
+            } else if (version == 0 && nextIs(data, new int[]{0, 0})) {
+                readInt(data);
+                readInt(data);
+            } else {
+                matchAndSkip(data, new int[]{0});
+            }
+        }
         result = new CombatGroupMember(
                 unitId,
                 groupId,
                 optionId,
                 modifier
         );
-
+        readNumbersTillEnd(data);
         return result;
     }
 
@@ -234,23 +251,23 @@ public class ArmyCodeLoader {
         if (combatGroupId != groupCounter) {
             log.error("Combat group id mismatch, shout be: {} but was {} ", groupCounter, combatGroupId);
         }
-        int versionSwitch = readInt(data);
-        if (versionSwitch > 1) {
-            log.error("new version: " + versionSwitch);
+        int version = readInt(data);
+        if (version > 1) {
+            log.error("new version: " + version);
         }
         Integer reinforcement = null; //reinforcement ?0 no, 1 yes
-        if (versionSwitch == 1) {
+        if (version == 1) {
             reinforcement = readInt(data);
         }
         int combatGroupSize = readInt(data);
         Integer unknownValue = null; //normally 0 but in one known case it is 3 and then the second unit has a 4, the third a 5 ... bevor it
-        if (versionSwitch == 1) {
+        if (version == 1) {
             unknownValue = readInt(data);
             if (unknownValue != 0 && unknownValue != 3) {
                 log.error("new unknown value: " + unknownValue);
             }
         }
-        System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " versionSwitch: " + versionSwitch + " unknown value: " + unknownValue + " reinforcement: " + reinforcement);
+        System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " unknownValue: " + unknownValue + " reinforcement: " + reinforcement);
         final AtomicInteger skipCounter;
         if (unknownValue == null) {
             skipCounter = null;
@@ -258,12 +275,15 @@ public class ArmyCodeLoader {
             skipCounter = new AtomicInteger(unknownValue);
         }
         List<CombatGroupMember> result = new ArrayList<>();
+        if(version == 0){
+            matchAndSkip(data, new int[]{0});
+        }
         for (int i = 0; i < combatGroupSize; i++) {
-            if (versionSwitch == 0) {
-                int unitCount = readInt(data);
+            if (version == 0) {
+                matchAndSkip(data, new int[]{(i + 1)});
             }
-            result.add(getCombatGroupMemberFromCode(data, versionSwitch, skipCounter));
-            if (versionSwitch >= 1 && (i < combatGroupSize - 1)) { //for version 1 in between all units but not behind the last
+            result.add(getCombatGroupMemberFromCode(data, version, skipCounter));
+            if (version >= 1 && (i < combatGroupSize - 1)) { //for version 1 in between all units but not behind the last
                 int inBetweenMemberZero = readInt(data); //always 0
             }
         }
@@ -341,19 +361,19 @@ public class ArmyCodeLoader {
         if (!data.hasRemaining()) {
             return false;
         }
-        data.mark();
+        int resetPosition = data.position();
         for (int c : expected) {
             if (!data.hasRemaining()) {
-                data.reset();
+                data.position(resetPosition);
                 return false;
             }
-            byte next = data.get();
+            int next = readInt(data);
             if (next != c) {
-                data.reset();
+                data.position(resetPosition);
                 return false;
             }
         }
-        data.reset();
+        data.position(resetPosition);
         return true;
     }
 

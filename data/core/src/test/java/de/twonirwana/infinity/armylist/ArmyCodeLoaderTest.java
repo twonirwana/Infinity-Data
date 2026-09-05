@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -202,29 +203,31 @@ class ArmyCodeLoaderTest {
                 .map(k -> res.combatGroups().get(k))
                 .flatMap(Collection::stream)
                 .map(ArmyCodeLoader.CombatGroupMember::toString)
-                .map(s -> res.sectorialId() + "-" + s + "-1")
                 .collect(Collectors.joining(", "));
-
+        if (!Objects.equals(foundUnitIds, expectedUnitIds)) {
+            System.out.printf("   Arguments.of(\"%s\", \"%s\"),%n", armyCode, foundUnitIds);
+        }
         assertThat(foundUnitIds).isEqualTo(expectedUnitIds);
+
+
     }
 
     @Test
     void test() {
+/*
+        Arguments.of("gZMLcWFwdS1raGFscWkNUWFwdSBLaGFscWkgM4EsAgEBAAkAgX8BAQABg1EBAQACgVMBBQADgUYBAQAEgUoBAQAFgUsBBAAGgXoBAgAHgXoBAgAAgT4BAQACAQAFCIFFAQIAAIVAAQEAAYFGAQYAAoEyAQMAA4E8AQIA", ""),
+                Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMETWFpboEsAgEBAAoAhfcBAgABhfcBAgACHQEEAAMGAQcABAYBBAAFhhgBAQAGGAEDAAeGGQECAAiDAwEEAAkbAQMAAgEAAwATAQEAAiYBAgAAJgEBAA%3D%3D", ""),
+                Arguments.of("gMkHeXUtamluZwZCIHRlYW2BLAIBAQAIAIY%2FAQEAAYTcAQUAAoTpAQMABH8BBgAFfwECAAaG3AECAACAigECAAB8AQgAAgEABQB8AQUAAITgAQQAAn8BAgAAh1IBAQAAfAECAA%3D%3D", ""),
+                Arguments.of("gr8Kb3BlcmF0aW9ucw1kb3VibGUgZ2FydWRhgSwCAQEACQBuAQQAAIRqAQMAADsBBQABOwEBAACEaAEDAACCUwEBAACCUwEBAACCUQEBAACCUQEBAAIBAAkAbgEDAACCVQECAAGCVQIBAACCVQUCAACG6QECAAGG6gEBAACHUgEBAACCVAECAACAwAEBAA%3D%3D", ""),
+                Arguments.of("gM0Md2hpdGUtYmFubmVyBSBUR1QzgSwCAQAJAICWAQsAAHwBCgAAfAEGAACAiQEBAAB8AQEAAIXcAQEAAICIAQIAAICIAQIAAICLAQEAAgAGAICLAQEAAIYAAQQAAICGAQUAAIY%2FAQEAAICIAQMAAIXUAQIA", "150-1-11, 1-10-0, 1-6-0, 1-1-0, 1-1-0, 1-1-0, 1-2-0, 1-2-0, 1-1-0, 139-1-1, 1-4-0, 1-5-0, 1-1-0, 1-3-0, 1-2-0"),
 
 
-        //       Arguments.of("g%2BsSdG9yY2hsaWdodC1icmlnYWRlGlRvcmNobGlnaHQgMzAwIDE1IGZpcmV0ZWFtgSwCAQEACACHSAEBAACG8QEDAACG8AEBAACG8AEBAACFpwEJAQE1AAAAAAABcgAAAAAAAAIAAAIBAAABAACGNAEFAACFvQEBAACFvQEBAAIBAAYAhb8BAQAAhvMBAgAAhvIBAgAAhu0BAQAAhu4BBAAAh1ABAQA%3D",""),
-        //     Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMGIE1PMi4wgSwCAQEACgCGGQEDAACF0QEEAAAbAQIAAB0BBAAAGAENAQIoAAEBAQAAABwAAQEGAAAAAAIIAAAAAAAcAAAAAAAAAAEBAQAAAAAAgwMBBAAAhc8BAgAAhhgBAQAAhhgBAQAAhhgBAQACAQADAB4BAwAAHgEFAAAeAQEA",""),
-        //   Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMBIIEsAgEBAAkAhhkBAwAAhdEBAwAAGwEDAAAdAQQAABgBDQECMQAAAAAAKAABAQEAAAAAAggAAAAAABEAAAAAAAAAAAEBAAABAACDAwEEAACFzwECAACGGAEBAACGGAEBAAIBAAMAHgEDAAAeAQUAAB4BAQA%3D",""),
-
-
-        //         Arguments.of("gr4Nc3RlZWwtcGhhbGFueA4gRmFzdCByZWFjdGlvboEsAgEBAAkAgmMBiGEAAIJbAQYAAIY4AQYAAIY5AQMAAILRAAEAAIJcAQMAAIJYAQEAAIdAAQEAAIJYAQoBAxoAAAAAADEAAAAAADgAAAAAAQGAxAAAAAABAAAAAQAAAQACAQAFAIJdAQIAAIJoAQUAAIDAAQEAAIJPAQIAAIdSAQEA",""),
-
-        testArmyCodeGeneration("ahpzdmFsYXJoZWltYS1zLXdpbnRlci1mb3JjZQl0ZXN0IGNvZGWBLAIBAQAIAIXTAQEAAACGIgEEAAAAAQEJAAAAAQEKAAAAhd0BAgAAABEBAQAAAIXcAQEAAACFzAEBAAACAQABAIXOAQQAAA%3D%3D", "ArmyCodeData[sectorialId=106, sectorialName=svalarheima-s-winter-force, armyName=test code, maxPoints=300, combatGroups={1=[1491-1-1, 1570-1-4, 1-1-9, 1-1-10, 1501-1-2, 17-1-1, 1500-1-1, 1484-1-1], 2=[1486-1-4]}]");
-
-        //works
-//        testArmyCodeGeneration("gfUGbm9tYWRzASCBLAEBAQACAIbiAQEAAIGeAQEA", "ArmyCodeData[sectorialId=501, sectorialName=nomads, armyName= , maxPoints=300, combatGroups={1=[1762-1-1, 414-1-1]}]");
-        //   testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQABAIeBAQcAAQEaW3sidHlwZSI6InNraWxsIiwiaWQiOjY3fV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1921-1-7-[[{\"type\":\"skill\",\"id\":67}]]]}]");
-        //  testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQABAIeBAQcAAQIjW3sidHlwZSI6InN0YXQiLCJzdGF0IjoiYnMiLCJxIjoxfV0aW3sidHlwZSI6InNraWxsIiwiaWQiOjY3fV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1921-1-7-[[{\"type\":\"stat\",\"stat\":\"bs\",\"q\":1}], [{\"type\":\"skill\",\"id\":67}]]]}]");
+                Arguments.of("g4kfc3RhcmNvLWZyZWUtY29tcGFueS1vZi10aGUtc3RhcgRObyAxgSwCAQEACQCD2wECAAGGIAEBAAB6AQEAAIQwAQMAAIFLAQQAAIGUAQEAAoGZAQIAAIQtAQEAAIQvAQEAAgEABwWBKAEFAACBKAEKAACBKAEBAACBkAEIAACBlQEBAACBigEIAACDqwECAA%3D%3D", ""),
+                Arguments.of("Zw9taWxpdGFyeS1vcmRlcnMKRG91YmxlIE5DT4EsAgEBAAoAhhkBAwACGAEFAAODAwEEAAEvAQEABB4BBgAFHgEFAAaF9wECAAeF9wEEAAiEuQEEAAmHUgEBAAIBAAUAHQEEAAGGNAEBAAImAQEAAxMBAQAEg6cBAgA%3D", ""),
+                Arguments.of("gfYKY29ycmVnaWRvcgEggMgBAQEACwCBrgEHAACBrgEDAACBfgELAACBzgEBAACBGwEBAAGBmQEBAACBlgEBAACBlQEBAACBnAEBAACBnAEBAACBqQEBAA%3D%3D", ""),
+                Arguments.of("gMwPaW52aW5jaWJsZS1hcm15DyBQYWVnaXMgTmV0bGlzdIEsAgEBAAoBgIABAQAAhdkBAgAAhOsBBAAAhzEBBAAAhzEBBAABgJ8BAQAAfwEIAACFpQECAACAjgEBAACAjgEBAAIBAAQAhPsBBAAAhNwBBAACgIwBAgAAgIkBAQA%3D", ""),
+                Arguments.of("gM0Md2hpdGUtYmFubmVyBSBUR1QzgSwCAQAJAICWAQsAAHwBCgAAfAEGAACAiQEBAAB8AQEAAIXcAQEAAICIAQIAAICIAQIAAICLAQEAAgAGAICLAQEAAIYAAQQAAICGAQUAAIY%2FAQEAAICIAQMAAIXUAQIA", "150-1-11, 124-1-10, 124-1-6, 137-1-1, 124-1-1, 1500-1-1, 136-1-2, 136-1-2, 139-1-1, 139-1-1, 1536-1-4, 134-1-5, 1599-1-1, 136-1-3, 1492-1-2")*/
+        testArmyCodeGenerationFile("gM0Md2hpdGUtYmFubmVyBSBUR1QzgSwCAQAJAICWAQsAAHwBCgAAfAEGAACAiQEBAAB8AQEAAIXcAQEAAICIAQIAAICIAQIAAICLAQEAAgAGAICLAQEAAIYAAQQAAICGAQUAAIY%2FAQEAAICIAQMAAIXUAQIA", "150-1-11, 124-1-10, 124-1-6, 137-1-1, 124-1-1, 1500-1-1, 136-1-2, 136-1-2, 139-1-1, 139-1-1, 1536-1-4, 134-1-5, 1599-1-1, 136-1-3, 1492-1-2");
     }
 
 
