@@ -182,10 +182,7 @@ public class ArmyCodeLoader {
 
     private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data, int combatGroupId) {
         // readNumbersTillEnd(data);
-        int groupCounter = readInt(data);
-        if (combatGroupId != groupCounter) {
-            log.error("Combat group id mismatch, shout be: {} but was {} ", groupCounter, combatGroupId); //todo some cases in tests, should check
-        }
+        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
         int version = readInt(data);
         if (version > 1) {
             log.error("new version: " + version);
@@ -231,7 +228,7 @@ public class ArmyCodeLoader {
                 int inBetweenValue = readInt(data); //0 or a counter
             }
         }
-        if (nextIs(data, new int[]{0, (groupCounter + 1)})) { //sometimes there is a 0 in between the group and the next, but not always
+        if (nextIs(data, new int[]{0, (groupNumber + 1)})) { //sometimes there is a 0 in between the group and the next, but not always
             readInt(data);
         }
 
@@ -249,34 +246,26 @@ public class ArmyCodeLoader {
         final int optionId = readInt(data);
         // System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
 
-        boolean possibleModi;
-        int resetPosition = data.position();
+        boolean modifierFlag; //is not 100% valid, there are some army codes that have the flag but no modifier
+        int resetPosition = data.position(); //this allows us to reset, if the flag indicated a modifier but no valid one could be read
+
         if (version > 0) {
-            possibleModi = matchAndSkip(data, new int[]{0, 1});
+            modifierFlag = matchAndSkip(data, new int[]{0, 1});
         } else {
-            possibleModi = false;
+            modifierFlag = false;
         }
-        List<String> modifier = new ArrayList<>();
 
-        if (possibleModi) {
-            try {
-                int numberOfModi = readInt(data);
-                for (int i = 0; i < numberOfModi; i++) {
-                    int modiLength = readInt(data);
-                    String m = readString(data, modiLength);
-                    if (!m.contains("type")) {
-                        throw new IllegalArgumentException("Invalid Mod"); //todo version without exception
-                    }
-                    modifier.add(m);
-                }
-            } catch (Exception ex) {
-                data.position(resetPosition);
-                log.error(ex.getMessage());
-                possibleModi = false;
+        final Optional<List<String>> optionalModifier;
+        if (modifierFlag) {
+            optionalModifier = readMod(data);
+            if (optionalModifier.isEmpty()) {
+                data.position(resetPosition); //reset because the flag was not a flag but part of normal encoding
             }
+        } else {
+            optionalModifier = Optional.empty();
         }
 
-        if (!possibleModi) {
+        if (optionalModifier.isEmpty()) {
             if (version == 1 && nextIs(data, new int[]{0, 0, 0}) ||
                     (version == 0 && nextIs(data, new int[]{0, 0}))) {
                 readInt(data);
@@ -289,11 +278,10 @@ public class ArmyCodeLoader {
                 unitId,
                 groupId,
                 optionId,
-                modifier
+                optionalModifier.orElse(List.of())
         );
         return result;
     }
-
 
     private static void debug(ByteBuffer data) {
         data.mark();
@@ -346,7 +334,6 @@ public class ArmyCodeLoader {
         return new String(stringBytes, StandardCharsets.UTF_8);
     }
 
-
     private static boolean nextIs(ByteBuffer data, int[] expected) {
         if (!data.hasRemaining()) {
             return false;
@@ -365,6 +352,24 @@ public class ArmyCodeLoader {
         }
         data.position(resetPosition);
         return true;
+    }
+
+    private static Optional<List<String>> readMod(ByteBuffer data) {
+        List<String> modifier = new ArrayList<>();
+        try {
+            int numberOfModi = readInt(data);
+            for (int i = 0; i < numberOfModi; i++) {
+                int modiLength = readInt(data);
+                String m = readString(data, modiLength);
+                if (!m.contains("type")) {
+                    return Optional.empty();
+                }
+                modifier.add(m);
+            }
+        } catch (Exception ex) {
+            return Optional.empty();
+        }
+        return Optional.of(modifier);
     }
 
     public record CombatGroupMember(
