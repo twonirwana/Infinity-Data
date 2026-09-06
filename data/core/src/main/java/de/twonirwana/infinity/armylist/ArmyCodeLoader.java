@@ -127,7 +127,7 @@ public class ArmyCodeLoader {
         Map<Integer, List<CombatGroupMember>> combatGroups = new HashMap<>();
 
         for (int i = 1; i <= combatGroupCount; i++) {
-            combatGroups.put(i, getCombatGroupFromCode(data, i));
+            combatGroups.put(i, getCombatGroupFromCode(data));
         }
 
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
@@ -180,7 +180,7 @@ public class ArmyCodeLoader {
         return matches;
     }
 
-    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data, int combatGroupId) {
+    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data) {
         // readNumbersTillEnd(data);
         int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
         int version = readInt(data);
