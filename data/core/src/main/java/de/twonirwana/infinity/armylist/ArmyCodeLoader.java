@@ -63,6 +63,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ArmyCodeLoader {
 
+    private final static Set<Integer> KNOWN_SUB_VERSIONS = Set.of(0, 1, 3, 5, 8);
+
     private static int readInt(ByteBuffer data) {
         byte firstByte = data.get();
 
@@ -168,7 +170,6 @@ public class ArmyCodeLoader {
                 .toList();
     }
 
-
     private static boolean matchAndSkip(ByteBuffer data, int[] pattern) {
         boolean matches = nextIs(data, pattern);
         if (matches) {
@@ -180,6 +181,7 @@ public class ArmyCodeLoader {
     }
 
     private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data, int combatGroupId) {
+        // readNumbersTillEnd(data);
         int groupCounter = readInt(data);
         if (combatGroupId != groupCounter) {
             log.error("Combat group id mismatch, shout be: {} but was {} ", groupCounter, combatGroupId); //todo some cases in tests, should check
@@ -195,13 +197,17 @@ public class ArmyCodeLoader {
         int combatGroupSize = readInt(data);
         /*
         normally 0, but in one known case it is 1 or 3
+         - value=1: there is an additional counter, the second unit has a 2, the third a 3 ...
          - value=3: there is an additional counter, the second unit has a 4, the third a 5 ...
+         - value=5: same as value=0?
+         - value=8: the inBetweenMemberZero, is a counter (first Trooper has 0)?
          */
         Integer subVersion = null;
         if (version == 1) {
             subVersion = readInt(data);
-            if (subVersion != 0 && subVersion != 3) {
-                log.error("new subVersion: " + subVersion); //todo check value: 1
+            if (!KNOWN_SUB_VERSIONS.contains(subVersion)) {
+                log.error("new subVersion: " + subVersion);
+                //readNumbersTillEnd(data);
                 // System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
             }
         }
@@ -220,9 +226,9 @@ public class ArmyCodeLoader {
             if (version == 0) {
                 matchAndSkip(data, new int[]{(i + 1)});
             }
-            result.add(getCombatGroupMemberFromCode(data, version, additionalUnitCounter));
+            result.add(getCombatGroupMemberFromCode(data, version, subVersion, additionalUnitCounter));
             if (version >= 1 && (i < combatGroupSize - 1)) { //for version 1 in between all units but not behind the last
-                int inBetweenMemberZero = readInt(data); //always 0
+                int inBetweenValue = readInt(data); //0 or a counter
             }
         }
         if (nextIs(data, new int[]{0, (groupCounter + 1)})) { //sometimes there is a 0 in between the group and the next, but not always
@@ -232,7 +238,7 @@ public class ArmyCodeLoader {
         return result;
     }
 
-    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, int version, AtomicInteger additionalUnitCounter) {
+    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, int version, Integer subVersion, AtomicInteger additionalUnitCounter) {
         if (additionalUnitCounter != null && additionalUnitCounter.get() > 2) {
             matchAndSkip(data, new int[]{additionalUnitCounter.getAndIncrement()});
         }

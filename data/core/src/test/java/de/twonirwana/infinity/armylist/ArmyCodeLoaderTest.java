@@ -3,6 +3,7 @@ package de.twonirwana.infinity.armylist;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -206,6 +207,18 @@ class ArmyCodeLoaderTest {
 
 
     }
+
+    @Test
+    void test(){
+        //version 1, Subversion 0: "gS0HYXJpYWRuYQEggSwBAQEABQCHNAEBAACA5AEGAACA+AECAACEcAEGAACA/wEBAA==" "1844-1-1, 228-1-6, 248-1-2, 1136-1-6, 255-1-1"
+        testArmyCodeGenerationFile("gS0HYXJpYWRuYQEggSwBAQEABQCHNAEBAACA5AEGAACA+AECAACEcAEGAACA/wEBAA==","1844-1-1, 228-1-6, 248-1-2, 1136-1-6, 255-1-1" );
+
+        //version 1, Subversion 1
+        testArmyCodeGenerationFile("gr4Nc3RlZWwtcGhhbGFueA5TUCAyMDAgTWFjaGFvboDIAQEBAAYBgl8BAgACgmIBAgADgkwBBgAEgkwBAQAFglsBAwAGgloBAwA=","607-1-2, 610-1-2, 588-1-6, 588-1-1, 603-1-3, 602-1-3" );
+
+        //version 1, Subverion 3 gS0HYXJpYWRuYQpQb3dlcmhvdXNlgSwBAQEABQOA5wECAAAEhH4BAgAABYDuAQUAAAaEZgEHAAAHgQcBAgAA ArmyCodeData[sectorialId=301, sectorialName=ariadna, armyName=Powerhouse, maxPoints=300, combatGroups={1=[231-1-2, 1150-1-2, 238-1-5, 1126-1-7, 263-1-2]}]
+    }
+
 
 
 }
