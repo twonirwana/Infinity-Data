@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * # Army Codes
@@ -99,6 +98,39 @@ public class ArmyCodeLoader {
         return new ArmyList(sectorialApiId, armyCodeData.sectorialName, armyCodeData.armyName, armyCodeData.maxPoints, combatGroups);
     }
 
+    @VisibleForTesting
+    public static ArmyCodeData mapArmyCode(final String armyCode) {
+        byte[] decoded = decodeArmyCode(armyCode);
+        if (decoded == null) {
+            throw new IllegalArgumentException("armyCode cannot be null");
+        }
+
+        ByteBuffer data = ByteBuffer.wrap(decoded);
+
+        int sectorialId = readInt(data);
+        int factionStringLength = readInt(data);
+
+        String fractionName = readString(data, factionStringLength);
+
+        // Get the army name, if set. The default army name is ' '.
+        int armyNameLength = readInt(data);
+        String armyName = null;
+        if (armyNameLength > 0) {
+            armyName = readString(data, armyNameLength);
+        }
+
+        int maxPoints = readInt(data);
+
+        int combatGroupCount = readInt(data);
+        Map<Integer, List<CombatGroupMember>> combatGroups = new HashMap<>();
+
+        for (int i = 1; i <= combatGroupCount; i++) {
+            combatGroups.put(i, getCombatGroupFromCode(data, i));
+        }
+
+        return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
+    }
+
     public static List<String> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
         ArmyCodeData armyCodeData;
         try {
@@ -147,69 +179,100 @@ public class ArmyCodeLoader {
         return matches;
     }
 
-    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, int version, AtomicInteger skipCounter) {
-        readNumbersTillEnd(data);
-        if (skipCounter != null && skipCounter.get() > 2) {
-            matchAndSkip(data, new int[]{skipCounter.getAndIncrement()});
+    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data, int combatGroupId) {
+        int groupCounter = readInt(data);
+        if (combatGroupId != groupCounter) {
+            log.error("Combat group id mismatch, shout be: {} but was {} ", groupCounter, combatGroupId); //todo some cases in tests, should check
+        }
+        int version = readInt(data);
+        if (version > 1) {
+            log.error("new version: " + version);
+        }
+        Integer reinforcement = null; //reinforcement ?0 no, 1 yes
+        if (version == 1) {
+            reinforcement = readInt(data);
+        }
+        int combatGroupSize = readInt(data);
+        /*
+        normally 0, but in one known case it is 1 or 3
+         - value=3: there is an additional counter, the second unit has a 4, the third a 5 ...
+         */
+        Integer subVersion = null;
+        if (version == 1) {
+            subVersion = readInt(data);
+            if (subVersion != 0 && subVersion != 3) {
+                log.error("new subVersion: " + subVersion); //todo check value: 1
+                // System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
+            }
+        }
+        //System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
+        final AtomicInteger additionalUnitCounter;
+        if (subVersion == null) {
+            additionalUnitCounter = null;
+        } else {
+            additionalUnitCounter = new AtomicInteger(subVersion);
+        }
+        List<CombatGroupMember> result = new ArrayList<>();
+        if (version == 0) {
+            matchAndSkip(data, new int[]{0});
+        }
+        for (int i = 0; i < combatGroupSize; i++) {
+            if (version == 0) {
+                matchAndSkip(data, new int[]{(i + 1)});
+            }
+            result.add(getCombatGroupMemberFromCode(data, version, additionalUnitCounter));
+            if (version >= 1 && (i < combatGroupSize - 1)) { //for version 1 in between all units but not behind the last
+                int inBetweenMemberZero = readInt(data); //always 0
+            }
+        }
+        if (nextIs(data, new int[]{0, (groupCounter + 1)})) { //sometimes there is a 0 in between the group and the next, but not always
+            readInt(data);
+        }
+
+        return result;
+    }
+
+    private static CombatGroupMember getCombatGroupMemberFromCode(ByteBuffer data, int version, AtomicInteger additionalUnitCounter) {
+        if (additionalUnitCounter != null && additionalUnitCounter.get() > 2) {
+            matchAndSkip(data, new int[]{additionalUnitCounter.getAndIncrement()});
         }
 
         CombatGroupMember result;
         final int unitId = readInt(data);
         final int groupId = readInt(data);
         final int optionId = readInt(data);
-        System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
-        //debug(data);
-        //readNumbersTillEnd(data);
-        /*int value = readInt(data);
-        System.out.println(value);
-        Integer value2 = null;
-        if (version == 1 ) { //todo
-            value2 = readInt(data);
-            System.out.println(value2);
+        // System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
+
+        boolean possibleModi;
+        int resetPosition = data.position();
+        if (version > 0) {
+            possibleModi = matchAndSkip(data, new int[]{0, 1});
+        } else {
+            possibleModi = false;
         }
         List<String> modifier = new ArrayList<>();
 
-        if (value2 != null && value2 == 1) {
-            int numberOfModi = readInt(data);
-            for (int i = 0; i < numberOfModi; i++) {
-                int modiLength = readInt(data);
-                modifier.add(readString(data, modiLength));
-            }
-        }
-        readNumbersTillEnd(data);
-*/
-        boolean hasModi;
-        int resetPosition = data.position();
-        if (version > 0) {
-            hasModi = matchAndSkip(data, new int[]{0, version});
-        } else {
-            hasModi = false;
-        }
-        List<String> modifier = new ArrayList<>();
-        //   readNumbersTillEnd(data);
-        if (hasModi) {
+        if (possibleModi) {
             try {
                 int numberOfModi = readInt(data);
                 for (int i = 0; i < numberOfModi; i++) {
                     int modiLength = readInt(data);
                     String m = readString(data, modiLength);
                     if (!m.contains("type")) {
-                        throw new IllegalArgumentException("Invalid Mod");
+                        throw new IllegalArgumentException("Invalid Mod"); //todo version without exception
                     }
                     modifier.add(m);
                 }
             } catch (Exception ex) {
                 data.position(resetPosition);
                 log.error(ex.getMessage());
-                hasModi = false;
+                possibleModi = false;
             }
         }
-        //readNumbersTillEnd(data);
-        if (!hasModi) {
-            if (version == 1 && nextIs(data, new int[]{0, 0, 0})) {
-                readInt(data);
-                readInt(data);
-            } else if (version == 0 && nextIs(data, new int[]{0, 0})) {
+
+        if (!possibleModi) {
+            if (version == 1 && nextIs(data, new int[]{0, 0, 0}) ||
+                    (version == 0 && nextIs(data, new int[]{0, 0}))) {
                 readInt(data);
                 readInt(data);
             } else {
@@ -222,7 +285,6 @@ public class ArmyCodeLoader {
                 optionId,
                 modifier
         );
-        readNumbersTillEnd(data);
         return result;
     }
 
@@ -243,55 +305,6 @@ public class ArmyCodeLoader {
         }
         data.reset();
         System.out.println(out);
-    }
-
-    private static List<CombatGroupMember> getCombatGroupFromCode(ByteBuffer data, int groupCounter, boolean lastGroup) {
-        readNumbersTillEnd(data);
-        int combatGroupId = readInt(data);
-        if (combatGroupId != groupCounter) {
-            log.error("Combat group id mismatch, shout be: {} but was {} ", groupCounter, combatGroupId);
-        }
-        int version = readInt(data);
-        if (version > 1) {
-            log.error("new version: " + version);
-        }
-        Integer reinforcement = null; //reinforcement ?0 no, 1 yes
-        if (version == 1) {
-            reinforcement = readInt(data);
-        }
-        int combatGroupSize = readInt(data);
-        Integer unknownValue = null; //normally 0 but in one known case it is 3 and then the second unit has a 4, the third a 5 ... bevor it
-        if (version == 1) {
-            unknownValue = readInt(data);
-            if (unknownValue != 0 && unknownValue != 3) {
-                log.error("new unknown value: " + unknownValue);
-            }
-        }
-        System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " unknownValue: " + unknownValue + " reinforcement: " + reinforcement);
-        final AtomicInteger skipCounter;
-        if (unknownValue == null) {
-            skipCounter = null;
-        } else {
-            skipCounter = new AtomicInteger(unknownValue);
-        }
-        List<CombatGroupMember> result = new ArrayList<>();
-        if(version == 0){
-            matchAndSkip(data, new int[]{0});
-        }
-        for (int i = 0; i < combatGroupSize; i++) {
-            if (version == 0) {
-                matchAndSkip(data, new int[]{(i + 1)});
-            }
-            result.add(getCombatGroupMemberFromCode(data, version, skipCounter));
-            if (version >= 1 && (i < combatGroupSize - 1)) { //for version 1 in between all units but not behind the last
-                int inBetweenMemberZero = readInt(data); //always 0
-            }
-        }
-        if (nextIs(data, new int[]{0, (groupCounter + 1)})) { //sometimes there is a 0 in between the group and the next, but not always //todo move to upper methode
-            readInt(data);
-        }
-
-        return result;
     }
 
     private static void readNumbersTillEnd(ByteBuffer data) {
@@ -327,35 +340,6 @@ public class ArmyCodeLoader {
         return new String(stringBytes, StandardCharsets.UTF_8);
     }
 
-    @VisibleForTesting
-    public static ArmyCodeData mapArmyCode(final String armyCode) {
-        byte[] decoded = decodeArmyCode(armyCode);
-        if (decoded == null) {
-            throw new IllegalArgumentException("armyCode cannot be null");
-        }
-
-        ByteBuffer dataBuffer = ByteBuffer.wrap(decoded);
-
-        int sectorialId = readInt(dataBuffer);
-        int factionStringLength = readInt(dataBuffer);
-
-        String fractionName = readString(dataBuffer, factionStringLength);
-
-        // Get the army name, if set. The default army name is ' '.
-        int armyNameLength = dataBuffer.get() & 0xffffff;
-        String armyName = null;
-        if (armyNameLength > 0) {
-            armyName = readString(dataBuffer, armyNameLength);
-        }
-
-        int maxPoints = readInt(dataBuffer);
-
-        int combatGroupCount = readInt(dataBuffer);
-        Map<Integer, List<CombatGroupMember>> combatGroups = IntStream.range(0, combatGroupCount)
-                .boxed()
-                .collect(Collectors.toMap(i -> i + 1, i -> getCombatGroupFromCode(dataBuffer, i + 1, i == combatGroupCount - 1)));
-        return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
-    }
 
     private static boolean nextIs(ByteBuffer data, int[] expected) {
         if (!data.hasRemaining()) {

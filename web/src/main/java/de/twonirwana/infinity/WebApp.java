@@ -251,10 +251,15 @@ public class WebApp {
             ctx.render("templates/table.html", model);
             return false;
         }
-        List<List<String>> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode).stream().map(List::of).toList();
+        List<String> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
         if (!missingArmyCodeUnits.isEmpty()) {
             registry.counter("infinity.missing.army.code.units").increment();
-            log.warn("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+            if (missingArmyCodeUnits.size() == 1 && missingArmyCodeUnits.getFirst().contains("UnitId: 1874")) {
+                //todo sacha produces currently log spam, remove in future
+                log.debug("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+            } else {
+                log.warn("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
+            }
             try {
                 Files.writeString(MISSING_UNIT_ARMY_CODE_FILE, "%s;%s\n".formatted(armyCode, missingArmyCodeUnits), StandardOpenOption.APPEND);
             } catch (IOException e) {
