@@ -9,8 +9,8 @@ repositories {
 dependencies {
     implementation("org.slf4j:slf4j-api:2.0.19")
     implementation("ch.qos.logback:logback-classic:1.6.3")
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    compileOnly("org.projectlombok:lombok:1.18.48")
+    annotationProcessor("org.projectlombok:lombok:1.18.48")
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
