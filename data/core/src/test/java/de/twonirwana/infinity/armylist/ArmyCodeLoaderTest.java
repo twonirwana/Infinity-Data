@@ -155,6 +155,7 @@ class ArmyCodeLoaderTest {
                 Arguments.of("gfYKY29ycmVnaWRvch4wIE5leHQgR2FtZSBNY011cnJvdWdoIFZhcmlhbnSBLAIBAAkBgYsBBgAAAoGLAQYAAAOGBwECAAAEgX4BCgAABYGlAQMAAAaBpQEDAAAHgZgBAQAACIGcAQEAAAmB0AEBAAACAAUBhg8AAgAAAoGUAQEAAAOBlAEBAAAEgZQBAQAABYGUAQEAAA%3D%3D", "ArmyCodeData[sectorialId=502, sectorialName=corregidor, armyName=0 Next Game McMurrough Variant, maxPoints=300, combatGroups={1=[395-1-6, 395-1-6, 1543-1-2, 382-1-10, 421-1-3, 421-1-3, 408-1-1, 412-1-1, 464-1-1], 2=[1551-0-2, 404-1-1, 404-1-1, 404-1-1, 404-1-1]}]"),
                 Arguments.of("gfYKY29ycmVnaWRvch4wIE5leHQgR2FtZSBNY011cnJvdWdoIFZhcmlhbnSBLAIBAAoBgYsBBgAAAoGLAQYAAAOGBwECAAAEgX4BCgAABYGlAQMAAAaBpQEDAAAHgaoBAQAACIGqAQEAAAmB0AEBAAAKgRsBAQAAAgAFAYYPAAIAAAKBlAEBAAADgZQBAQAABIGUAQEAAAWBlAEBAAA%3D", "ArmyCodeData[sectorialId=502, sectorialName=corregidor, armyName=0 Next Game McMurrough Variant, maxPoints=300, combatGroups={1=[395-1-6, 395-1-6, 1543-1-2, 382-1-10, 421-1-3, 421-1-3, 426-1-1, 426-1-1, 464-1-1, 283-1-1], 2=[1551-0-2, 404-1-1, 404-1-1, 404-1-1, 404-1-1]}]"),
                 Arguments.of("gfcHYmFrdW5pbgh0ZXN0IDE1MICWAQEBAAkAhkgBAQAAAIZDAQEAAACBjAEIAAAAhkEBAgAAAIGiAQMAAACBngEBAAAAgZ4BAQAAAIGTAQIAAACBkwEDAAA%3D", "ArmyCodeData[sectorialId=503, sectorialName=bakunin, armyName=test 150, maxPoints=150, combatGroups={1=[1608-1-1, 1603-1-1, 396-1-8, 1601-1-2, 418-1-3, 414-1-1, 414-1-1, 403-1-2, 403-1-3]}]"),
+                Arguments.of("gl0JbmV4dC13YXZlFUVzY2FsYXRpb24gMSAtIDIwMHB0c4DIAQEBAAoAgf0BAwAAAYdFAQYAAAKHRwEDAAADh1QBCwAABIdUAQEAAAWHVAEIAAAGgf8BAQAAB4IUAQEAAAiCFAEBAAAJgfwBAQAA", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName=Escalation 1 - 200pts, maxPoints=200, combatGroups={1=[509-1-3, 1861-1-6, 1863-1-3, 1876-1-11, 1876-1-1, 1876-1-8, 511-1-1, 532-1-1, 532-1-1, 508-1-1]}]"),
                 Arguments.of("gl0JbmV4dC13YXZlBU53IHYygMgCAQEACACHjwMBAAAAh48CAgABASZbeyJ0eXBlIjoic2tpbGwiLCJpZCI6MjgsImV4dHJhIjpbNl19XQCHjwEGAAEBclt7InR5cGUiOiJzdGF0Iiwic3RhdCI6Im1vdmUwIiwicSI6MTV9LHsidHlwZSI6InN0YXQiLCJzdGF0IjoibW92ZTEiLCJxIjoxMH0seyJ0eXBlIjoic2tpbGwiLCJpZCI6NDAsImV4dHJhIjpbNl19XQCHVAELAAAAh1QBAQAAAIH9AQMAAACHXwEBAAAAh5QBAgAAAgEAAgCHYQEBAAAAgf8BAQAA", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName=Nw v2, maxPoints=200, combatGroups={1=[1935-3-1, 1935-2-2-[[{\"type\":\"skill\",\"id\":28,\"extra\":[6]}]], 1935-1-6-[[{\"type\":\"stat\",\"stat\":\"move0\",\"q\":15},{\"type\":\"stat\",\"stat\":\"move1\",\"q\":10},{\"type\":\"skill\",\"id\":40,\"extra\":[6]}]], 1876-1-11, 1876-1-1, 509-1-3, 1887-1-1, 1940-1-2], 2=[1889-1-1, 511-1-1]}]")
         );
     }
@@ -186,6 +187,17 @@ class ArmyCodeLoaderTest {
         }
     }
 
+    private static Stream<Arguments> freshCodes() {
+        return Stream.of(
+
+                Arguments.of("glkNY29tYmluZWQtYXJteQxBY2hpbGxlcyAgdjKBLAIBAQAKAIdHAQEAAACCDwEBAAAAgg8BAQAAAIH4AQQAAACB%2BAEEAAAAhuMBBAAAAIMPAQkAAACB7QECAAAAhRMBAgAAAIH8AQMAAAIBAAYAhPsBBAAAAIH7AQYAAACHXgECAAAAh10BAwAAAIH%2FAQEAAACCFAEBAAA%3D", ""),
+                Arguments.of("gloFbW9yYXQcU29nZXJhdCArIEt5b3NvdCBGaXJldGVhbSB2M4EsAgEBAAoAggoBBgAAAIIYAQEAAACGJgEDAAAAhiUBAgAAAIITAQEAAACB%2BQEBAAAAgfkBAQAAAIYkAQEAAACGJwEBAAAAgfgBBAAAAgEABQCB%2BAEEAAAAhiUBAgAAAIIGAQMAAACB%2FwEBAAAAgf0BAwAA", ""),
+                Arguments.of("glsKc2hhc3Zhc3RpaRhUZWFtT3BzLCBTaGVza2luLCBNZXNzZXKBLAIBAQAJAIUTAQIAAACFDgEBAAAAh44CAQABASdbeyJ0eXBlIjoiZXF1aXAiLCJpZCI6MTgzLCJleHRyYSI6WzddfV0Ah44BBgABAShbeyJ0eXBlIjoic2tpbGwiLCJpZCI6NjIsImV4dHJhIjpbMzUzXX1dAIeOAwEAAQEbW3sidHlwZSI6InNraWxsIiwiaWQiOjIxM31dAIIVAQIAAACB%2FwEBAAAAhQwBBgAAAIIQAQQAAAIBAAQAgfUBBQAAAIICAQMAAACCAgEDAAAAgf8BAQAA", ""),
+                Arguments.of("glsKc2hhc3Zhc3RpaRhUZWFtT3BzLCBTaGVza2luLCBNZXNzZXKBLAIBAQAJAIUTAQIAAACFDgEBAAAAghUBAgAAAIH%2FAQEAAACFDAEGAAAAghABBAAAAIIIAQEAAACFEAECAAAAggABAwAAAgEABACB9QEFAAAAggIBAwAAAIICAQMAAACB%2FwEBAAA%3D", ""),
+                Arguments.of("", "")
+        );
+    }
+
     @ParameterizedTest
     @MethodSource("testData")
     void testArmyCodeGeneration(String armyCode, String expectedArmyData) {
@@ -209,16 +221,36 @@ class ArmyCodeLoaderTest {
     }
 
     @Test
-    void test(){
+    void test() {
+        testArmyCodeGenerationFile("gZIQaGFzc2Fzc2luLWJhaHJhbRRLRkMgLSBBcmVhIExpc3QgdjEuMIEsAgEBAAoAgwsBAQAAgS0BAQALgS0BCwAAgVEBAQAAgVEBAgAAgRsBAQAAhjYBBgAAgT0BAQAAgTgBBAAAgTgBBAACAQAFAIFMAQMAAIYLAQMAAIFUAQMAAIFDAQYAAIFDAQYA", "779-1-1, 301-1-1, 301-1-11, 337-1-1, 337-1-2, 283-1-1, 1590-1-6, 317-1-1, 312-1-4, 312-1-4, 332-1-3, 1547-1-3, 340-1-3, 323-1-6, 323-1-6");
+        testArmyCodeGenerationFile("gM0Md2hpdGUtYmFubmVyBSBUR1QzgSwCAQAJAICWAQsAAHwBCgAAfAEGAACAiQEBAAB8AQEAAIXcAQEAAICIAQIAAICIAQIAAICLAQEAAgAGAICLAQEAAIYAAQQAAICGAQUAAIY%2FAQEAAICIAQMAAIXUAQIA", "150-1-11, 124-1-10, 124-1-6, 137-1-1, 124-1-1, 1500-1-1, 136-1-2, 136-1-2, 139-1-1, 139-1-1, 1536-1-4, 134-1-5, 1599-1-1, 136-1-3, 1492-1-2");
+        testArmyCodeGenerationFile("gTAJdXNhcmlhZG5hGDIwMjUgQWRlcHRpY29uIEZpcmVmaWdodIEsAgEBAAoAgwkBBAAAgtUBBQAAgOsBCAAAgOsBCgAAgOsBCwAAgOYBBwAAgOYBCAAAhcoBAQAAgusBAgADhiIBAwACAQAFAIEAAQUAAoEBAQIAAIEBAQEAAILWAQEAAID0AQEA", "777-1-4, 725-1-5, 235-1-8, 235-1-10, 235-1-11, 230-1-7, 230-1-8, 1482-1-1, 747-1-2, 1570-1-3, 256-1-5, 257-1-2, 257-1-1, 726-1-1, 244-1-1");
+        testArmyCodeGenerationFile("gMwPaW52aW5jaWJsZS1hcm15DyBQYWVnaXMgTmV0bGlzdIEsAgEBAAoBgIABAQAAhdkBAgAAhOsBBAAAhzEBBAAAhzEBBAABgJ8BAQAAfwEIAACFpQECAACAjgEBAACAjgEBAAIBAAQAhPsBBAAAhNwBBAACgIwBAgAAgIkBAQA%3D", "128-1-1, 1497-1-2, 1259-1-4, 1841-1-4, 1841-1-4, 159-1-1, 127-1-8, 1445-1-2, 142-1-1, 142-1-1, 1275-1-4, 1244-1-4, 140-1-2, 137-1-1");
+        testArmyCodeGeneration("gZQPcmFtYWgtdGFza2ZvcmNlAIEsAQEABgGHOwEBAAACgTwBAgAAA4E%2BAQEAAASBPgEBAAAFgT4BAQAABjIBAQAA", "ArmyCodeData[sectorialId=404, sectorialName=ramah-taskforce, armyName=null, maxPoints=300, combatGroups={1=[1851-1-1, 316-1-2, 318-1-1, 318-1-1, 318-1-1, 50-1-1]}]");
+        testArmyCodeGeneration("ahpzdmFsYXJoZWltYS1zLXdpbnRlci1mb3JjZQEgewEBAQAJAAEBCgAAAQEFAAABAQYAAAEBCAAAAQEJAAABAQEAAAEBCQAAAQEBAAABAQcBAAAAAAAAAAEAAAAA", "ArmyCodeData[sectorialId=106, sectorialName=svalarheima-s-winter-force, armyName= , maxPoints=123, combatGroups={1=[1-1-10, 1-1-5, 1-1-6, 1-1-8, 1-1-9, 1-1-1, 1-1-9, 1-1-1, 1-1-7]}]");
+        testArmyCodeGeneration("gl0JbmV4dC13YXZlBU53IHYygMgCAQEACACHjwMBAAAAh48CAgABASZbeyJ0eXBlIjoic2tpbGwiLCJpZCI6MjgsImV4dHJhIjpbNl19XQCHjwEGAAEBclt7InR5cGUiOiJzdGF0Iiwic3RhdCI6Im1vdmUwIiwicSI6MTV9LHsidHlwZSI6InN0YXQiLCJzdGF0IjoibW92ZTEiLCJxIjoxMH0seyJ0eXBlIjoic2tpbGwiLCJpZCI6NDAsImV4dHJhIjpbNl19XQCHVAELAAAAh1QBAQAAAIH9AQMAAACHXwEBAAAAh5QBAgAAAgEAAgCHYQEBAAAAgf8BAQAA", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName=Nw v2, maxPoints=200, combatGroups={1=[1935-3-1, 1935-2-2-[[{\"type\":\"skill\",\"id\":28,\"extra\":[6]}]], 1935-1-6-[[{\"type\":\"stat\",\"stat\":\"move0\",\"q\":15},{\"type\":\"stat\",\"stat\":\"move1\",\"q\":10},{\"type\":\"skill\",\"id\":40,\"extra\":[6]}]], 1876-1-11, 1876-1-1, 509-1-3, 1887-1-1, 1940-1-2], 2=[1889-1-1, 511-1-1]}]");
+
+        testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQAEAIePAQYAAQFyW3sidHlwZSI6InN0YXQiLCJzdGF0IjoibW92ZTAiLCJxIjoxNX0seyJ0eXBlIjoic3RhdCIsInN0YXQiOiJtb3ZlMSIsInEiOjEwfSx7InR5cGUiOiJza2lsbCIsImlkIjo0MCwiZXh0cmEiOls2XX1dAIePAgIAAQEbW3sidHlwZSI6InNraWxsIiwiaWQiOjIxM31dAIePAwEAAQEbW3sidHlwZSI6IndlYXBvbiIsImlkIjo4MX1dAIeBAQMAAQIjW3sidHlwZSI6InN0YXQiLCJzdGF0IjoiYnMiLCJxIjoxfV0mW3sidHlwZSI6InNraWxsIiwiaWQiOjI4LCJleHRyYSI6WzZdfV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1935-1-6-[[{\"type\":\"stat\",\"stat\":\"move0\",\"q\":15},{\"type\":\"stat\",\"stat\":\"move1\",\"q\":10},{\"type\":\"skill\",\"id\":40,\"extra\":[6]}]], 1935-2-2-[[{\"type\":\"skill\",\"id\":213}]], 1935-3-1-[[{\"type\":\"weapon\",\"id\":81}]], 1921-1-3-[[{\"type\":\"stat\",\"stat\":\"bs\",\"q\":1}], [{\"type\":\"skill\",\"id\":28,\"extra\":[6]}]]]}]");
+
+        testArmyCodeGeneration("gl0JbmV4dC13YXZlASCBLAEBAQABAIeBAQcAAQIjW3sidHlwZSI6InN0YXQiLCJzdGF0IjoiYnMiLCJxIjoxfV0aW3sidHlwZSI6InNraWxsIiwiaWQiOjY3fV0%3D", "ArmyCodeData[sectorialId=605, sectorialName=next-wave, armyName= , maxPoints=300, combatGroups={1=[1921-1-7-[[{\"type\":\"stat\",\"stat\":\"bs\",\"q\":1}], [{\"type\":\"skill\",\"id\":67}]]]}]");
+
+       // testArmyCodeGenerationFile("glkNY29tYmluZWQtYXJteQxBY2hpbGxlcyAgdjKBLAIBAQAKAIdHAQEAAACCDwEBAAAAgg8BAQAAAIH4AQQAAACB%2BAEEAAAAhuMBBAAAAIMPAQkAAACB7QECAAAAhRMBAgAAAIH8AQMAAAIBAAYAhPsBBAAAAIH7AQYAAACHXgECAAAAh10BAwAAAIH%2FAQEAAACCFAEBAAA%3D", "");
+        testArmyCodeGenerationFile("gl0JbmV4dC13YXZlFUVzY2FsYXRpb24gMSAtIDIwMHB0c4DIAQEBAAoAgf0BAwAAAYdFAQYAAAKHRwEDAAADh1QBCwAABIdUAQEAAAWHVAEIAAAGgf8BAQAAB4IUAQEAAAiCFAEBAAAJgfwBAQAA", "509-1-3, 1861-1-6, 1863-1-3, 1876-1-11, 1876-1-1, 1876-1-8, 511-1-1, 532-1-1, 532-1-1, 508-1-1");
         //version 1, Subversion 0: "gS0HYXJpYWRuYQEggSwBAQEABQCHNAEBAACA5AEGAACA+AECAACEcAEGAACA/wEBAA==" "1844-1-1, 228-1-6, 248-1-2, 1136-1-6, 255-1-1"
-        testArmyCodeGenerationFile("gS0HYXJpYWRuYQEggSwBAQEABQCHNAEBAACA5AEGAACA+AECAACEcAEGAACA/wEBAA==","1844-1-1, 228-1-6, 248-1-2, 1136-1-6, 255-1-1" );
+        testArmyCodeGenerationFile("gS0HYXJpYWRuYQEggSwBAQEABQCHNAEBAACA5AEGAACA+AECAACEcAEGAACA/wEBAA==", "1844-1-1, 228-1-6, 248-1-2, 1136-1-6, 255-1-1");
 
         //version 1, Subversion 1
-        testArmyCodeGenerationFile("gr4Nc3RlZWwtcGhhbGFueA5TUCAyMDAgTWFjaGFvboDIAQEBAAYBgl8BAgACgmIBAgADgkwBBgAEgkwBAQAFglsBAwAGgloBAwA=","607-1-2, 610-1-2, 588-1-6, 588-1-1, 603-1-3, 602-1-3" );
+        testArmyCodeGenerationFile("gr4Nc3RlZWwtcGhhbGFueA5TUCAyMDAgTWFjaGFvboDIAQEBAAYBgl8BAgACgmIBAgADgkwBBgAEgkwBAQAFglsBAwAGgloBAwA=", "607-1-2, 610-1-2, 588-1-6, 588-1-1, 603-1-3, 602-1-3");
 
         //version 1, Subverion 3 gS0HYXJpYWRuYQpQb3dlcmhvdXNlgSwBAQEABQOA5wECAAAEhH4BAgAABYDuAQUAAAaEZgEHAAAHgQcBAgAA ArmyCodeData[sectorialId=301, sectorialName=ariadna, armyName=Powerhouse, maxPoints=300, combatGroups={1=[231-1-2, 1150-1-2, 238-1-5, 1126-1-7, 263-1-2]}]
     }
 
+    @ParameterizedTest
+    @MethodSource("freshCodes")
+    void freshCodes(String armyCode, String expectedArmyData) {
+        //    System.out.printf("   Arguments.of(\"%s\", \"%s\"),%n", armyCode, ArmyCodeLoader.mapArmyCode(armyCode).toString());
+        assertThat(ArmyCodeLoader.mapArmyCode(armyCode).toString()).isEqualTo(expectedArmyData);
+    }
 
 
 }
