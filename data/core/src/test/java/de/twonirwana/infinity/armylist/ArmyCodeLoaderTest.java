@@ -3,6 +3,7 @@ package de.twonirwana.infinity.armylist;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -204,6 +205,17 @@ class ArmyCodeLoaderTest {
                 .map(ArmyCodeLoader.CombatGroupMember::toString)
                 .collect(Collectors.joining(", "));
         assertThat(foundUnitIds).isEqualTo(expectedUnitIds);
+
+        assertThat(res.combatGroups().values().stream()
+                .flatMap(Collection::stream)
+                .map(ArmyCodeLoader.CombatGroupMember::modifier)
+                .flatMap(Collection::stream))
+                .allMatch(ArmyCodeLoader::canMapModifier);
+    }
+
+    @Test
+    void debug(){
+        testArmyCodeGenerationFile("gl0JbmV4dC13YXZlBU53IHYygMgCAQEACACHjwMBAAAAh48CAgABASZbeyJ0eXBlIjoic2tpbGwiLCJpZCI6MjgsImV4dHJhIjpbNl19XQCHjwEGAAEBclt7InR5cGUiOiJzdGF0Iiwic3RhdCI6Im1vdmUwIiwicSI6MTV9LHsidHlwZSI6InN0YXQiLCJzdGF0IjoibW92ZTEiLCJxIjoxMH0seyJ0eXBlIjoic2tpbGwiLCJpZCI6NDAsImV4dHJhIjpbNl19XQCHVAELAAAAh1QBAQAAAIH9AQMAAACHXwEBAAAAh5QBAgAAAgEAAgCHYQEBAAAAgf8BAQAA", "1935-3-1, 1935-2-2-[[{\"type\":\"skill\",\"id\":28,\"extra\":[6]}]], 1935-1-6-[[{\"type\":\"stat\",\"stat\":\"move0\",\"q\":15},{\"type\":\"stat\",\"stat\":\"move1\",\"q\":10},{\"type\":\"skill\",\"id\":40,\"extra\":[6]}]], 1876-1-11, 1876-1-1, 509-1-3, 1887-1-1, 1940-1-2, 1889-1-1, 511-1-1");
 
     }
 

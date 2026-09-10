@@ -251,11 +251,11 @@ public class WebApp {
             ctx.render("templates/table.html", model);
             return false;
         }
-        List<String> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
+        List<Database.ValidationError> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
         if (!missingArmyCodeUnits.isEmpty()) {
             registry.counter("infinity.missing.army.code.units").increment();
-            if (missingArmyCodeUnits.size() == 1 && missingArmyCodeUnits.getFirst().contains("UnitId: 1874")) {
-                //todo sacha produces currently log spam, remove in future
+            if (missingArmyCodeUnits.size() == 1 && missingArmyCodeUnits.getFirst().unitId() == 1874) {
+                //todo reduces current log spam, remove in future
                 log.debug("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
             } else {
                 log.warn("missing army code units: {} for {}", missingArmyCodeUnits, armyCode);
@@ -266,9 +266,16 @@ public class WebApp {
                 log.error(e.getMessage(), e);
             }
 
+            List<List<String>> table = Stream.concat(
+                    Stream.of(List.of("ID", "Name", "Error")),
+                    missingArmyCodeUnits.stream()
+                            .map(e -> List.of(e.unitId() + "-" + e.groupId() + "-" + e.optionId(), e.name(), e.error()))
+            ).toList();
+
+
             Map<String, Object> model = Map.of(
-                    "title", "Invalid IDs in Army Code",
-                    "list", missingArmyCodeUnits,
+                    "title", "Errors in Army Code",
+                    "list", table,
                     "message", "The following IDs from the army code: %s could not resolved. Most likely it is out of date. Try to generate a new army code new in Corvus Bellis Army Builder.".formatted(armyCode)
             );
             ctx.render("templates/table.html", model);

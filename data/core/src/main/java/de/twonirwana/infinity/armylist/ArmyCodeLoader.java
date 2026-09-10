@@ -2,17 +2,22 @@ package de.twonirwana.infinity.armylist;
 
 import com.google.common.annotations.VisibleForTesting;
 import de.twonirwana.infinity.ArmyList;
+import de.twonirwana.infinity.Database;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
+import de.twonirwana.infinity.model.specops.Item;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * # Army Codes
@@ -61,6 +66,8 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class ArmyCodeLoader {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static int readInt(ByteBuffer data) {
         byte firstByte = data.get();
@@ -148,7 +155,7 @@ public class ArmyCodeLoader {
             List<CombatGroupMember> match = getCombatGroupFromCodeV0(data)
                     .or(() -> getCombatGroupFromCodeV00(data))
                     .or(() -> getCombatGroupFromCodeV0L0E(data))
-                    .or(() -> getCombatGroupFromCodeV1_01SpecOps(data))
+                    .or(() -> getCombatGroupFromCodeV1_01SpecOps(data)) //need to be before getCombatGroupFromCodeV1_00
                     .or(() -> getCombatGroupFromCodeV1_00(data))
                     .or(() -> getCombatGroupFromCodeV1_000(data))
                     .or(() -> getCombatGroupFromCodeV1_0subVersionCounter(data))
@@ -163,7 +170,18 @@ public class ArmyCodeLoader {
         return new ArmyCodeData(sectorialId, fractionName, armyName, maxPoints, combatGroups);
     }
 
-    public static List<String> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
+    @VisibleForTesting
+    static boolean canMapModifier(String in) {
+        try {
+            objectMapper.readValue(in, new TypeReference<List<Item>>() {
+            });
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static List<Database.ValidationError> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
         ArmyCodeData armyCodeData;
         try {
             armyCodeData = mapArmyCode(armyCode);
@@ -175,19 +193,28 @@ public class ArmyCodeLoader {
         List<UnitOption> unitsForSectorial = dataLoader.getAllUnitsForSectorial(sectorial);
         List<UnitOption> allUnits = dataLoader.getAllUnits();
 
-
-        //todo validate modi
         return armyCodeData.combatGroups.values().stream()
                 .flatMap(Collection::stream)
-                .filter(m -> findUnitOptions(m, unitsForSectorial).size() != 1)
-                .map(c -> {
-                    Optional<String> unitName = allUnits.stream()
+                .flatMap(c -> {
+                    List<UnitOption> foundUnitOptions = findUnitOptions(c, unitsForSectorial);
+                    String unitName = allUnits.stream()
                             .filter(u -> u.getUnitId() == c.unitId())
                             .map(UnitOption::getUnitName)
-                            .findFirst();
-                    return unitName
-                            .map(s -> "SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d -> Unknown version of %s".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId(), s))
-                            .orElseGet(() -> "SectorialId: %d, UnitId: %d, GroupId: %d, OptionId: %d".formatted(armyCodeData.sectorialId, c.unitId(), c.groupId(), c.optionId()));
+                            .findFirst().orElse("");
+                    if (foundUnitOptions.isEmpty()) {
+                        return Stream.of(new Database.ValidationError(c.unitId(), c.groupId(), c.optionId(), unitName, "Unit option not found in sectorial"));
+                    }
+
+                    if (foundUnitOptions.size() > 1) {
+                        return Stream.of(new Database.ValidationError(c.unitId(), c.groupId(), c.optionId(), unitName, "Non unique id"));
+
+                    }
+                    for (String m : c.modifier()) {
+                        if (!canMapModifier(m)) {
+                            return Stream.of(new Database.ValidationError(c.unitId(), c.groupId(), c.optionId(), unitName, "Invalid modifier: " + m));
+                        }
+                    }
+                    return Stream.empty();
                 })
                 .toList();
     }
@@ -196,10 +223,9 @@ public class ArmyCodeLoader {
         return unitOptionList.stream()
                 .filter(uo -> uo.getUnitId() == combatGroupMember.unitId()
                         && uo.getGroupId() == combatGroupMember.groupId()
-                        && uo.getOptionId() == combatGroupMember.optionId)
+                        && uo.getOptionId() == combatGroupMember.optionId())
                 .toList();
     }
-
 
     //0 between groupMembers
     private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV0(ByteBuffer data) {
@@ -371,8 +397,6 @@ public class ArmyCodeLoader {
         int reinforcement = readInt(data);
         int combatGroupSize = readInt(data);
         int subVersion = readInt(data);
-        //todo validate subVersion
-        //System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
 
         List<CombatGroupMember> group = new ArrayList<>();
 
@@ -433,8 +457,6 @@ public class ArmyCodeLoader {
         int reinforcement = readInt(data);
         int combatGroupSize = readInt(data);
         int subVersion = readInt(data);
-        //todo validate subVersion
-        //System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
 
         List<CombatGroupMember> group = new ArrayList<>();
 
@@ -493,7 +515,6 @@ public class ArmyCodeLoader {
         return Optional.of(group);
     }
 
-
     //no 0 + subVersionCounter between groupMembers, no specOps
     private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_0subVersionCounter(ByteBuffer data) {
         int resetPosition = data.position();
@@ -506,8 +527,6 @@ public class ArmyCodeLoader {
         int reinforcement = readInt(data);
         int combatGroupSize = readInt(data);
         int subVersion = readInt(data);
-        //todo validate subVersion
-        //System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
 
         List<CombatGroupMember> group = new ArrayList<>();
         int counter = subVersion;
@@ -568,8 +587,6 @@ public class ArmyCodeLoader {
         int reinforcement = readInt(data);
         int combatGroupSize = readInt(data);
         int subVersion = readInt(data);
-        //todo validate subVersion
-        //System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
 
         List<CombatGroupMember> group = new ArrayList<>();
         int counter = subVersion;
@@ -640,8 +657,6 @@ public class ArmyCodeLoader {
         int reinforcement = readInt(data);
         int combatGroupSize = readInt(data);
         int subVersion = readInt(data);
-        //todo validate subVersion
-        //System.out.println("New Combat group: " + combatGroupId + " size: " + combatGroupSize + " version: " + version + " subVersion: " + subVersion + " reinforcement: " + reinforcement);
 
         List<CombatGroupMember> group = new ArrayList<>();
         for (int i = 0; i < combatGroupSize; i++) {
@@ -691,7 +706,6 @@ public class ArmyCodeLoader {
         }
         return Optional.of(group);
     }
-
 
     private static void debug(ByteBuffer data) {
         data.mark();

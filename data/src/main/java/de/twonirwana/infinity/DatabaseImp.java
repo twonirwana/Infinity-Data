@@ -83,7 +83,7 @@ public class DatabaseImp implements Database {
     }
 
     @Override
-    public List<String> validateArmyCodeUnits(String armyCode) {
+    public List<ValidationError> validateArmyCodeUnits(String armyCode) {
         return ArmyCodeLoader.missingUnitsInArmyCode(armyCode, loader);
     }
 
