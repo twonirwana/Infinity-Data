@@ -1,4 +1,4 @@
-package de.twonirwana.infinity.util;
+package de.twonirwana.infinity.tool;
 
 import com.google.common.io.Files;
 import de.twonirwana.infinity.Database;

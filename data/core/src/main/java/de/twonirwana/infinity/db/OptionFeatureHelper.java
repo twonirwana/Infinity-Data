@@ -19,7 +19,9 @@ public class OptionFeatureHelper {
                         u.getIsc(), u.getIscAbbr(), u.getUnitName(), u.getUnitOptionName(), u.getOptionName(),
                         u.getSlug(), u.getPrimaryUnit(), u.getAdditionalUnits(), u.getTotalCost(), u.getTotalSpecialWeaponCost(),
                         u.getNote(), u.isReinforcementUnit(),
-                        featureMap.getOrDefault(u.getPrimaryUnit().getProfiles().getFirst().getCombinedProfileId(), List.of())
+                        featureMap.getOrDefault(u.getPrimaryUnit().getProfiles().getFirst().getCombinedProfileId(), List.of()),
+                        u.getSpecOptsModifier(),
+                        u.getSpecBallOptions()
                 ))
                 .toList();
     }

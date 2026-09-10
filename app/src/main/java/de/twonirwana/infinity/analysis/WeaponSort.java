@@ -1,4 +1,4 @@
-package de.twonirwana.infinity.util;
+package de.twonirwana.infinity.analysis;
 
 import de.twonirwana.infinity.DatabaseImp;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
