@@ -35,14 +35,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 /**
  * Using Army Code:
- hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D
+ * hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D
  */
 @Testcontainers
 public class PlaywrightScreenshotTest {
@@ -147,7 +150,8 @@ public class PlaywrightScreenshotTest {
 
         BufferedImage expected = ImageIO.read(expectedFile);
         ImageComparisonResult result = new ImageComparison(expected, actual)
-                .setPixelToleranceLevel(0.1)
+                .setMinimalRectangleSize(5)
+                .setAllowingPercentOfDifferentPixels(0.001) //should be around 20px for 1920x1080
                 .setDifferenceRectangleColor(Color.BLUE)
                 .compareImages();
 
@@ -157,7 +161,12 @@ public class PlaywrightScreenshotTest {
             ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected" + ".png"));
         }
 
-        Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
+        Assertions.assertThat(result.getImageComparisonState())
+                .withFailMessage("difference: " + result.getDifferencePercent() + " in areas: " + Optional.ofNullable(result.getRectangles()).stream()
+                        .flatMap(Collection::stream)
+                        .map(r -> "x:" +r.getMinPoint().x +",y:" +r.getMinPoint().y + "-" + "x:" +r.getMaxPoint().x +",y:" +r.getMaxPoint().y + " h:" + r.getHeight() + " w:" + r.getWidth())
+                        .collect(Collectors.joining(", ")))
+                .isEqualTo(ImageComparisonState.MATCH);
     }
 
     @Test
