@@ -140,7 +140,7 @@ public class UnitPrintCard {
 
         final String name = createName(unitOption, trooper, profile);
 
-        final int maxLength = 48 - OPTION_FEATURE_DELIMITER.length() - (getIconFileNames(profile).size() * 4) - name.length();
+        final int maxLength = 48 - OPTION_FEATURE_DELIMITER.length() - (getIconFileNames(unitOption, profile).size() * 4) - name.length();
         return findNotToLongOptionFeatureName(optionFeatures, maxLength);
 
     }
@@ -199,7 +199,7 @@ public class UnitPrintCard {
         return in.trim();
     }
 
-    private static List<String> getIconFileNames(TrooperProfile profile) {
+    private static List<String> getIconFileNames(UnitOption unitOption, TrooperProfile profile) {
         List<String> iconFileNames = new ArrayList<>();
         if (profile.isHackable()) {
             iconFileNames.add("hackable.svg");
@@ -213,6 +213,7 @@ public class UnitPrintCard {
         if (profile.isPeripheral()) {
             iconFileNames.add("peripheral.svg");
         }
+
         profile.getOrders().stream()
                 .flatMap(o -> IntStream.range(0, o.getTotal())
                         .boxed()
@@ -226,6 +227,14 @@ public class UnitPrintCard {
                         case LIEUTENANT -> iconFileNames.add("lieutenant.svg");
                     }
                 });
+
+        unitOption.getSelectedSpecOpsOptions().stream()
+                .flatMap(f -> f.getModifiers().stream())
+                .filter(m -> m.getType() == Modifier.Type.skill)
+                .map(Modifier::getSkill)
+                .filter(s -> s.getId() == 213) //Tactical Awareness
+                .forEach(s -> iconFileNames.add("tactical.svg"));
+
 
         return iconFileNames;
     }
@@ -353,7 +362,7 @@ public class UnitPrintCard {
     }
 
     public List<String> getIconFileNames() {
-        return getIconFileNames(profile);
+        return getIconFileNames(unitOption, profile);
     }
 
     public List<Skill> getSkillWithModifier() {
