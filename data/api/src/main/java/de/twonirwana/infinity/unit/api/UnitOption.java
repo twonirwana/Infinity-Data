@@ -58,7 +58,6 @@ public class UnitOption {
     }
 
     public UnitOption copyWithSelectedOptions(@NonNull List<ModifierOption> selectedOptions) {
-        //todo deep copy
         return new UnitOption(sectorial, unitId, groupId, optionId, isc, iscAbbr, unitName, unitOptionName, optionName, slug, primaryUnit, additionalUnits, totalCost, totalSpecialWeaponCost, note, reinforcementUnit, optionFeatures, specOpsOptions, specBallOptions, selectedOptions);
     }
 }

@@ -227,7 +227,12 @@ public class ArmyCodeLoader {
                         if (!canMapModifier(m)) {
                             return Stream.of(new Database.ValidationError(c.unitId(), c.groupId(), c.optionId(), unitName, "Invalid modifier: " + m));
                         }
-                        //todo check if modifier match with options
+                        Item item = mapToItem(m);
+                        boolean found = foundUnitOptions.getFirst().getSelectedSpecOpsOptions().stream()
+                                .anyMatch(mo -> mo.getKey().equals(item.toKey()));
+                        if (!found) {
+                            return Stream.of(new Database.ValidationError(c.unitId(), c.groupId(), c.optionId(), unitName, "No option found for selected modifier: " + m));
+                        }
                     }
                     return Stream.empty();
                 })

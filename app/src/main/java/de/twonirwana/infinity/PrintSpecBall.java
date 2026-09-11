@@ -41,7 +41,7 @@ public class PrintSpecBall {
 
     private static String prettyModifier(Modifier modifier, boolean useInch) {
         return switch (modifier.getType()) {
-            case stat -> modifier.getStat().name() + ": " + modifier.getStatModifier(); //todo stats name //todo move
+            case stat -> modifier.getStat().name() + ": " + modifier.getStatModifier(); //todo stats name //todo move0/move1
             case weapon -> modifier.getWeapons().stream()
                     .map(w -> prettyWeaponName(w, useInch))
                     .distinct()
