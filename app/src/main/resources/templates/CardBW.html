@@ -203,13 +203,13 @@
                 <th>S</th>
             </tr>
             <tr>
-                <td th:text="${unitPrintCard.getMovement()}">0-0</td>
-                <td th:text="${unitPrintCard.getProfile().getCloseCombat()}">0</td>
-                <td th:text="${unitPrintCard.getProfile().getBallisticSkill()}">0</td>
-                <td th:text="${unitPrintCard.getProfile().getPhysique()}">0</td>
-                <td th:text="${unitPrintCard.getProfile().getWillpower()}">0</td>
-                <td th:text="${unitPrintCard.getProfile().getArmor()}">0</td>
-                <td th:text="${unitPrintCard.getProfile().getBioTechnologicalShield()}">0</td>
+                <td th:text="${unitPrintCard.getMove()}">0-0</td>
+                <td th:text="${unitPrintCard.getCc()}">0</td>
+                <td th:text="${unitPrintCard.getBs()}">0</td>
+                <td th:text="${unitPrintCard.getPh()}">0</td>
+                <td th:text="${unitPrintCard.getWip()}">0</td>
+                <td th:text="${unitPrintCard.getArm()}">0</td>
+                <td th:text="${unitPrintCard.getBts()}">0</td>
                 <td th:text="${unitPrintCard.getProfile().getWounds()}">0</td>
                 <td th:text="${unitPrintCard.getProfile().getSilhouette()}">0</td>
             </tr>
@@ -250,7 +250,7 @@
                             </div>
                         </div>
                     </td>
-                    <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard.getProfile(), weapon, printOptions)}"></td>
+                    <td th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard, weapon, printOptions)}"></td>
                     <td th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon, printOptions)}"></td>
                     <td th:text="${weapon.getAmmunition() != null ? weapon.getAmmunition().getName() : ''}"></td>
                 </tr>

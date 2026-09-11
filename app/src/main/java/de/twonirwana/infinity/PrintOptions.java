@@ -34,5 +34,4 @@ public class PrintOptions {
     boolean showAlwaysOptionFeatureInName;
     boolean showOptionFeatureInNameToDifferentiate;
     //todo showWeaponRange alternative range 0-8":+3 ...
-    //todo showWeaponTraits as line
 }

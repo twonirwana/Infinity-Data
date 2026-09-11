@@ -1,7 +1,10 @@
 package de.twonirwana.infinity;
 
 import com.google.common.base.Joiner;
-import de.twonirwana.infinity.unit.api.*;
+import de.twonirwana.infinity.unit.api.Equipment;
+import de.twonirwana.infinity.unit.api.ExtraValue;
+import de.twonirwana.infinity.unit.api.Skill;
+import de.twonirwana.infinity.unit.api.Weapon;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,7 +15,7 @@ import java.util.stream.Stream;
 public final class PrintUtils {
     public static final String CC_ATTACK_SKILL_NAME = "CC Attack";
     public static final String BS_ATTACK_SKILL_NAME = "BS Attack";
-    public static final Set<String> relevantWeaponSkillExtras = Set.of("Shock", "T2", "AP", "Continous Damage");
+    public static final Set<String> RELEVANT_WEAPON_SKILL_EXTRAS = Set.of("Shock", "T2", "AP", "Continous Damage");
     private static final Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
     private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*B");
     private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*SD");
@@ -26,7 +29,6 @@ public final class PrintUtils {
     private static final String MINUS_6_MODI = "-6";
     private static final String XVISOR_NAME = "X Visor";
     private static final String VIRAL_TRAIT = "Bioweapon (DA+SHOCK)";
-    private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L";
     private static final Pattern DEPLOYABLE_ARM = Pattern.compile("ARM=(\\d)");
     private static final Pattern DEPLOYABLE_BTS = Pattern.compile("BTS=(\\d)");
     private static final Pattern DEPLOYABLE_STR = Pattern.compile("STR=(\\d)");
@@ -77,18 +79,18 @@ public final class PrintUtils {
         return out;
     }
 
-    public static boolean skillIsMartialArt(Skill skill) {
-        return skill.getName().startsWith(MARTIAL_ARTS_SKILL_NAME_PREFIX);
+    public static String getSkillNameAndExtra(Skill skill, boolean useInch) {
+        String extraString = skill.getExtras().isEmpty() ? "" : " [%s]".formatted(skill.getExtras().stream()
+                .map(e -> prettyExtra(e, useInch))
+                .collect(Collectors.joining(", ")));
+        return "%s%s".formatted(skill.getName(), extraString);
     }
 
-    public static Optional<MartialArtLevel> getMartialArtLevel(TrooperProfile profile, Map<String, MartialArtLevel> allMartialArtLevels) {
-        return profile.getSkills().stream()
-                .filter(PrintUtils::skillIsMartialArt)
-                .map(Skill::getName)
-                .map(s -> s.replace(MARTIAL_ARTS_SKILL_NAME_PREFIX, ""))
-                .map(allMartialArtLevels::get)
-                .filter(Objects::nonNull)
-                .findFirst();
+    public static String getEquipmentNameAndExtra(Equipment equipment, boolean useInch) {
+        String extraString = equipment.getExtras().isEmpty() ? "" : " [%s]".formatted(equipment.getExtras().stream()
+                .map(e -> prettyExtra(e, useInch))
+                .collect(Collectors.joining(", ")));
+        return "%s%s".formatted(equipment.getName(), extraString);
     }
 
     private static String getExtraString(Weapon weapon, boolean useInch) {
@@ -118,7 +120,7 @@ public final class PrintUtils {
         String weaponSkill = getWeaponSkill(weapon);
         List<ExtraValue> weaponAndSkillExtra = Stream.concat(
                 weapon.getExtras().stream(),
-                unitPrintCard.getProfile().getSkills().stream()
+                unitPrintCard.getSkillWithModifier().stream()
                         .filter(s -> s.getName().equals(weaponSkill))
                         .flatMap(s -> s.getExtras().stream())
         ).toList();
@@ -153,21 +155,21 @@ public final class PrintUtils {
         return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra) + maBurstBonus;
     }
 
-    public static String getWeaponPsWithExtra(TrooperProfile trooperProfile, Weapon weapon, PrintOptions options) {
+    public static String getWeaponPsWithExtra(UnitPrintCard unitPrintCard, Weapon weapon, PrintOptions options) {
         if (weapon == null) {
             return "";
         }
         if (weapon.getProbabilityOfSurvival() == null ||
                 weapon.getProbabilityOfSurvival().equals("*") ||
                 weapon.getProbabilityOfSurvival().equals("-") ||
-                trooperProfile == null ||
+                unitPrintCard == null ||
                 options.isDisableApplyingSkillWeaponExtra()) {
             return weapon.getProbabilityOfSurvival();
         }
         String weaponSkill = getWeaponSkill(weapon);
         Optional<Integer> srExtra;
         if (isWeaponOrHasBsProperty(weapon)) { //only weapon or bs trait get skill extra
-            srExtra = trooperProfile.getSkills().stream()
+            srExtra = unitPrintCard.getSkillWithModifier().stream()
                     .filter(s -> s.getName().equals(weaponSkill))
                     .flatMap(s -> s.getExtras().stream())
                     .map(PrintUtils::toSrExtra)
@@ -197,29 +199,29 @@ public final class PrintUtils {
         return ps + "";
     }
 
-    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon, PrintOptions options) {
-        return getWeaponSavingRollWithExtra(trooperProfile, weapon, true, options);
+    public static String getWeaponSavingRollWithExtra(UnitPrintCard unitPrintCard, Weapon weapon, PrintOptions options) {
+        return getWeaponSavingRollWithExtra(unitPrintCard, weapon, true, options);
     }
 
 
-    public static String getWeaponSavingRollWithExtra(TrooperProfile trooperProfile, Weapon weapon, boolean applyViral, PrintOptions options) {
+    public static String getWeaponSavingRollWithExtra(UnitPrintCard unitPrintCard, Weapon weapon, boolean applyViral, PrintOptions options) {
         if (weapon == null) {
             return "";
         }
-        if (trooperProfile == null) {
+        if (unitPrintCard == null) {
             getSavingRoll(weapon, weapon.getProbabilityOfSurvival(), null, applyViral, options);
         }
-        String modifiedPs = getWeaponPsWithExtra(trooperProfile, weapon, options);
+        String modifiedPs = getWeaponPsWithExtra(unitPrintCard, weapon, options);
         if (weapon.getProbabilityOfSurvival() == null || weapon.getProbabilityOfSurvival().equals("*")) {
             return weapon.getProbabilityOfSurvival();
         } else if (weapon.getProbabilityOfSurvival().equals("-")) {
             if (weapon.getSavingAttribute().equals("-") || weapon.getSavingAttribute().isEmpty()) {
                 return weapon.getProbabilityOfSurvival();
             }
-            return getSavingRoll(weapon, null, trooperProfile, applyViral, options); //PARA weapons
+            return getSavingRoll(weapon, null, unitPrintCard, applyViral, options); //PARA weapons
         }
 
-        return getSavingRoll(weapon, modifiedPs, trooperProfile, applyViral, options);
+        return getSavingRoll(weapon, modifiedPs, unitPrintCard, applyViral, options);
     }
 
     public static String getCcRangeText(MartialArtLevel martialArtLevel) {
@@ -229,7 +231,7 @@ public final class PrintUtils {
         return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevel.getAttackerModi(), martialArtLevel.getOpponentModi());
     }
 
-    public static String getSavingRoll(Weapon weapon, String ps, TrooperProfile trooperProfile, boolean applyViral, PrintOptions printOptions) {
+    public static String getSavingRoll(Weapon weapon, String ps, UnitPrintCard unitPrintCard, boolean applyViral, PrintOptions printOptions) {
         final String psOp;
         if (ps == null || "-".equals(ps)) {
             psOp = "";
@@ -243,13 +245,13 @@ public final class PrintUtils {
             weaponExtraFromTrooperSkill = Set.of();
         } else {
             String weaponSkill = getWeaponSkill(weapon);
-            weaponExtraFromTrooperSkill = Optional.ofNullable(trooperProfile)
-                    .map(TrooperProfile::getSkills).orElse(List.of()).stream()
+            weaponExtraFromTrooperSkill = Optional.ofNullable(unitPrintCard)
+                    .map(UnitPrintCard::getSkillWithModifier).orElse(List.of()).stream()
                     .filter(s -> s.getName().equals(weaponSkill))
                     .flatMap(s -> s.getExtras().stream())
                     .map(ExtraValue::getText)
                     .filter(Objects::nonNull)
-                    .filter(relevantWeaponSkillExtras::contains)
+                    .filter(RELEVANT_WEAPON_SKILL_EXTRAS::contains)
                     .collect(Collectors.toSet());
         }
 
@@ -324,7 +326,7 @@ public final class PrintUtils {
         return weapon.getSavingNum();
     }
 
-    public static String getWeaponPropertiesString(TrooperProfile trooperProfile, Weapon weapon, PrintOptions printOptions) {
+    public static String getWeaponPropertiesString(UnitPrintCard unitPrintCard, Weapon weapon, PrintOptions printOptions) {
         List<String> traits = weapon.getProperties().stream()
                 .map(PrintUtils::stripTeardropSuffix)
                 .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
@@ -333,7 +335,7 @@ public final class PrintUtils {
                 .collect(Collectors.toList());
 
         if (printOptions.isShowSavingRoll() && weapon.getProperties().stream().anyMatch(VIRAL_TRAIT::equals)) {
-            traits.add("%s vs STR".formatted(getWeaponSavingRollWithExtra(trooperProfile, weapon, false, printOptions)));
+            traits.add("%s vs STR".formatted(getWeaponSavingRollWithExtra(unitPrintCard, weapon, false, printOptions)));
         }
         return Joiner.on(", ").join(traits);
     }
@@ -405,14 +407,14 @@ public final class PrintUtils {
         return findInString(SPECIAL_DIE_EXTRA_REGEX, extraValue.getText());
     }
 
-    public static String getRangeClassWithOptionalXVisor(TrooperProfile profile, String range, Map<String, String> rangeClassMap) {
+    public static String getRangeClassWithOptionalXVisor(UnitPrintCard unitPrintCard, String range, Map<String, String> rangeClassMap) {
         if (range == null) {
             return null;
         }
-        if (profile == null) {
+        if (unitPrintCard == null) {
             return getRangeClass(range, rangeClassMap);
         }
-        String updatedRange = applyXVisorToRangeModi(profile, range);
+        String updatedRange = applyXVisorToRangeModi(unitPrintCard, range);
         return rangeClassMap.getOrDefault(updatedRange, "");
     }
 
@@ -462,14 +464,14 @@ public final class PrintUtils {
                 .anyMatch(p -> p.contains("BS Weapon"));
     }
 
-    public static String applyXVisorToRangeModi(TrooperProfile profile, String rangeModi) {
+    public static String applyXVisorToRangeModi(UnitPrintCard unitPrintCard, String rangeModi) {
         if (rangeModi == null) {
             return null;
         }
-        if (profile == null) {
+        if (unitPrintCard == null) {
             return rangeModi;
         }
-        if (profile.getEquipment().stream().anyMatch(s -> XVISOR_NAME.equals(s.getName()))) {
+        if (unitPrintCard.getEquipmentsWithModifier().stream().anyMatch(s -> XVISOR_NAME.equals(s.getName()))) {
             if (rangeModi.equals(MINUS_3_MODI)) {
                 return "0*";
             } else if (rangeModi.equals(MINUS_6_MODI)) {
@@ -565,25 +567,15 @@ public final class PrintUtils {
         return hackingProgram.getName();
     }
 
-    public static List<PrintHackingProgram> getUsedHackingPrograms(PrintData printData) {
-        return printData.getUnitOptions().stream()
-                .flatMap(u -> u.getAllTrooper().stream())
-                .flatMap(t -> t.getProfiles().stream())
-                .flatMap(u -> getUnitHackingPrograms(u, printData.getAllHackingPrograms(), false).stream())
-                .distinct()
-                .sorted(Comparator.comparing(PrintHackingProgram::getName))
-                .toList();
-    }
 
-    public static List<PrintHackingProgram> getUnitHackingPrograms(TrooperProfile trooperProfile,
+    public static List<PrintHackingProgram> getUnitHackingPrograms(List<Equipment> equipment,
                                                                    List<HackingProgram> allHackingPrograms,
                                                                    boolean applyUnitModifier) {
         Set<Integer> hackingDeviceIds = allHackingPrograms.stream()
                 .flatMap(h -> Optional.ofNullable(h.getDeviceIds()).orElse(List.of()).stream())
                 .collect(Collectors.toSet());
 
-        Set<Equipment> unitHackingDevices = Stream.of(trooperProfile)
-                .flatMap(p -> p.getEquipment().stream())
+        Set<Equipment> unitHackingDevices = equipment.stream()
                 .filter(h -> hackingDeviceIds.contains(h.getId()))
                 .collect(Collectors.toSet());
 

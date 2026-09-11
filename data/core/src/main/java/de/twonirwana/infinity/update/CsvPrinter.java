@@ -11,10 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -35,7 +32,6 @@ public class CsvPrinter {
                 "CB Image", "CB Product", "Community Image"
         };
 
-
         try (Writer writer = new FileWriter(filePath);
              CSVPrinter csvPrinter = new CSVPrinter(writer,
                      CSVFormat.Builder.create().setDelimiter(';').setHeader(headers).get())) {
@@ -43,9 +39,18 @@ public class CsvPrinter {
             printableUnits.stream()
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
                     .filter(u -> !u.isMerc())
-                    .forEach(unitOption -> unitOption.getAllTrooper()
-                            .forEach(trooper -> trooper.getProfiles()
-                                    .forEach(profile -> printUnitOptionProfile(csvPrinter, unitOption, trooper, profile, customUnitImageFolder))));
+                    .flatMap(unitOption -> unitOption.getAllTrooper().stream()
+                            .flatMap(trooper -> trooper.getProfiles().stream()
+                                    .map(profile -> createLine(unitOption, trooper, profile, customUnitImageFolder))
+                            ))
+                    .distinct()
+                    .forEach(l -> {
+                        try {
+                            csvPrinter.printRecord(l);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
             csvPrinter.flush();
 
@@ -70,7 +75,7 @@ public class CsvPrinter {
         throw new RuntimeException("Type not implemented");
     }
 
-    private static void printUnitOptionProfile(CSVPrinter csvPrinter, UnitOption unitOption, Trooper trooper, TrooperProfile profile, String customUnitImageFolder) {
+    private static List<String> createLine(UnitOption unitOption, Trooper trooper, TrooperProfile profile, String customUnitImageFolder) {
         String skills = profile.getSkills().stream()
                 .map(CsvPrinter::getSkillNameAndExtra)
                 .collect(Collectors.joining(", "));
@@ -84,52 +89,47 @@ public class CsvPrinter {
                 .distinct()
                 .collect(Collectors.joining(", "));
         String optionFeature = isPrimary(unitOption, profile) ? toPrettyObjectFeature(unitOption.getOptionFeatures()) : "-";
-        try {
 
-            csvPrinter.printRecord(
-                    unitOption.getSectorial().getName(),
-                    unitOption.getCombinedId(),
-                    profile.getCombinedProfileId(),
-                    unitOption.getIsc(),
-                    unitOption.getIscAbbr(),
-                    trooper.getTrooperIsc(),
-                    unitOption.getUnitName(),
-                    getName(unitOption, trooper, profile),
-                    optionFeature,
-                    profile.getMovementInCm().stream()
-                            .map(DistanceUtil::toInch)
-                            .map(Objects::toString)
-                            .collect(Collectors.joining("-")),
-                    profile.getCloseCombat(),
-                    profile.getBallisticSkill(),
-                    profile.getPhysique(),
-                    profile.getWillpower(),
-                    profile.getArmor(),
-                    profile.getBioTechnologicalShield(),
-                    profile.getWounds(),
-                    profile.getSilhouette(),
-                    profile.getOrders().stream()
-                            .map(o -> "%s[%d]".formatted(o.getType(), o.getTotal()))
-                            .sorted()
-                            .collect(Collectors.joining(", ")),
-                    profile.getAvailability(),
-                    unitOption.getTotalCost(),
-                    unitOption.getTotalSpecialWeaponCost(),
-                    skills,
-                    equipment,
-                    getPrimaryWeapon(profile),
-                    weapons,
-                    String.join(", ", profile.getCharacteristics()),
-                    profile.getType(),
-                    trooper.getCategory(),
-                    String.join(", ", profile.getImageNames()),
-                    String.join(", ", profile.getProducts()),
-                    getCommunityImageName(profile, customUnitImageFolder)
-
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return List.of(
+                unitOption.getSectorial().getName(),
+                unitOption.getCombinedId(),
+                profile.getCombinedProfileId(),
+                Optional.ofNullable(unitOption.getIsc()).orElse(""),
+                Optional.ofNullable(unitOption.getIscAbbr()).orElse(""),
+                Optional.ofNullable(trooper.getTrooperIsc()).orElse(""),
+                unitOption.getUnitName(),
+                getName(unitOption, trooper, profile),
+                optionFeature,
+                profile.getMovementInCm().stream()
+                        .map(DistanceUtil::toInch)
+                        .map(Objects::toString)
+                        .collect(Collectors.joining("-")),
+                Optional.ofNullable(profile.getCloseCombat()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(profile.getBallisticSkill()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(profile.getPhysique()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(profile.getWillpower()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(profile.getArmor()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(profile.getBioTechnologicalShield()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(profile.getWounds()).map(Objects::toString).orElse(""),
+                Optional.of(profile.getSilhouette()).map(Objects::toString).orElse(""),
+                profile.getOrders().stream()
+                        .map(o -> "%s[%d]".formatted(o.getType(), o.getTotal()))
+                        .sorted()
+                        .collect(Collectors.joining(", ")),
+                Optional.of(profile.getAvailability()).map(Objects::toString).orElse(""),
+                Optional.of(unitOption.getTotalCost()).map(Objects::toString).orElse(""),
+                unitOption.getTotalSpecialWeaponCost(),
+                skills,
+                equipment,
+                getPrimaryWeapon(profile),
+                weapons,
+                String.join(", ", profile.getCharacteristics()),
+                Optional.ofNullable(profile.getType()).map(Objects::toString).orElse(""),
+                Optional.ofNullable(trooper.getCategory()).map(Objects::toString).orElse(""),
+                String.join(", ", profile.getImageNames()),
+                String.join(", ", profile.getProducts()),
+                Optional.ofNullable(getCommunityImageName(profile, customUnitImageFolder)).orElse("")
+        );
     }
 
     private static String toPrettyObjectFeature(List<OptionFeature> optionFeature) {

@@ -301,6 +301,17 @@
             text-align: center;
         }
 
+        /* specBall Fragment styles*/
+
+        .specBall th, .specBall td {
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .specBall-subTitle {
+            margin-left: 10px;
+        }
+
         /* Weapon Fragment styles*/
 
         .weapon th, .weapon td {
@@ -443,6 +454,11 @@
     <th:block
             th:replace="~{fragments/BootyWeapon :: bootyWeaponFragment()}">
     </th:block>
+    <div th:each="specball : ${specBalls}">
+        <th:block
+                th:replace="~{fragments/SpecBall :: specBallFragment(${specball})}">
+        </th:block>
+    </div>
     <th:block
             th:replace="~{fragments/ArmyList :: armyListFragment()}">
     </th:block>

@@ -5,7 +5,9 @@ import de.twonirwana.infinity.ArmyList;
 import de.twonirwana.infinity.Database;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
+import de.twonirwana.infinity.model.specops.Attribute;
 import de.twonirwana.infinity.model.specops.Item;
+import de.twonirwana.infinity.unit.api.ModifierOption;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -173,11 +175,23 @@ public class ArmyCodeLoader {
     @VisibleForTesting
     static boolean canMapModifier(String in) {
         try {
-            objectMapper.readValue(in, new TypeReference<List<Item>>() {
+            objectMapper.readValue(in, new TypeReference<List<Attribute>>() {
             });
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private static Item mapToItem(String in) {
+        try {
+            List<Attribute> attributes = objectMapper.readValue(in, new TypeReference<>() {
+            });
+            Item item = new Item();
+            item.setAttrs(attributes);
+            return item;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -213,6 +227,7 @@ public class ArmyCodeLoader {
                         if (!canMapModifier(m)) {
                             return Stream.of(new Database.ValidationError(c.unitId(), c.groupId(), c.optionId(), unitName, "Invalid modifier: " + m));
                         }
+                        //todo check if modifier match with options
                     }
                     return Stream.empty();
                 })
@@ -220,10 +235,26 @@ public class ArmyCodeLoader {
     }
 
     private static List<UnitOption> findUnitOptions(CombatGroupMember combatGroupMember, List<UnitOption> unitOptionList) {
-        return unitOptionList.stream()
+        List<UnitOption> units = unitOptionList.stream()
                 .filter(uo -> uo.getUnitId() == combatGroupMember.unitId()
                         && uo.getGroupId() == combatGroupMember.groupId()
                         && uo.getOptionId() == combatGroupMember.optionId())
+                .toList();
+        if (combatGroupMember.modifier().isEmpty()) {
+            return units;
+        }
+        return units.stream()
+                .map(u -> {
+                    Set<String> selectedOptionsKeys = combatGroupMember.modifier().stream()
+                            .map(ArmyCodeLoader::mapToItem)
+                            .map(Item::toKey)
+                            .collect(Collectors.toSet());
+                    List<ModifierOption> selected = u.getSpecOpsOptions().stream()
+                            .filter(m -> selectedOptionsKeys.contains(m.getKey()))
+                            .toList();
+
+                    return u.copyWithSelectedOptions(selected);
+                })
                 .toList();
     }
 
