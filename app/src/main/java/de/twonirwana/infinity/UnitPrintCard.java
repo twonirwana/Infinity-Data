@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 public class UnitPrintCard {
 
     private final static String OPTION_FEATURE_DELIMITER = " - ";
+    private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L";
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
@@ -38,8 +39,8 @@ public class UnitPrintCard {
                                 options.isUseInch(),
                                 options.getShowWeaponOfType(),
                                 options.isShowUnitImages() && options.getTemplate().supportImages,
-                                PrintUtils.getMartialArtLevel(p, martialArtLevelMap).orElse(null), combatGroup,
-                                PrintUtils.getUnitHackingPrograms(p, printData.getAllHackingPrograms(), true),
+                                getMartialArtLevel(unitOption, p, martialArtLevelMap).orElse(null), combatGroup,
+                                PrintUtils.getUnitHackingPrograms(getEquipmentsWithModifier(unitOption, p), printData.getAllHackingPrograms(), true),
                                 createNameAndAddon(unitOption, t, p,
                                         printData.getUnitOptions(),
                                         options.isShowAlwaysOptionFeatureInName(),
@@ -47,6 +48,20 @@ public class UnitPrintCard {
                         )
                 )
                 .toList();
+    }
+
+    private static Optional<MartialArtLevel> getMartialArtLevel(UnitOption unitOption, TrooperProfile trooperProfile, Map<String, MartialArtLevel> allMartialArtLevels) {
+        return combineSkillsWithModifier(unitOption, trooperProfile).stream()
+                .filter(UnitPrintCard::skillIsMartialArt)
+                .map(Skill::getName)
+                .map(s -> s.replace(MARTIAL_ARTS_SKILL_NAME_PREFIX, ""))
+                .map(allMartialArtLevels::get)
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private static boolean skillIsMartialArt(Skill skill) {
+        return skill.getName().startsWith(MARTIAL_ARTS_SKILL_NAME_PREFIX);
     }
 
     private static boolean notAppliedToWeapon(Skill skill) {
@@ -69,10 +84,10 @@ public class UnitPrintCard {
         if (PrintUtils.toSrExtra(extraValue).isPresent()) {
             return false;
         }
-        if (PrintUtils.relevantWeaponSkillExtras.contains(extraValue.getText())) {
+        if (PrintUtils.RELEVANT_WEAPON_SKILL_EXTRAS.contains(extraValue.getText())) {
             return false;
         }
-        if (PrintUtils.skillIsMartialArt(skill)) {
+        if (skillIsMartialArt(skill)) {
             return false;
         }
         return true;
@@ -154,7 +169,6 @@ public class UnitPrintCard {
             final String baseName = unitOption.getIscAbbr() == null ? trooper.getOptionName() : unitOption.getIscAbbr();
             final String shortUnitName = firstOfList(baseName);
             final String shortProfileName = firstOfList(profile.getName());
-
             if (shortProfileName.contains(shortUnitName)) {
                 name = shortProfileName;
             } else {
@@ -216,9 +230,45 @@ public class UnitPrintCard {
         return iconFileNames;
     }
 
+    private static List<Skill> combineSkillsWithModifier(UnitOption unitOption, TrooperProfile profile) {
+        return Stream.concat(
+                        unitOption.getSelectedSpecOpsOptions().stream()
+                                .flatMap(o -> o.getModifiers().stream())
+                                .map(Modifier::getSkill)
+                                .filter(Objects::nonNull),
+                        profile.getSkills().stream())
+                .sorted(Comparator.comparing(Skill::getName))
+                .toList();
+    }
+
+    private static List<Equipment> getEquipmentsWithModifier(UnitOption unitOption, TrooperProfile profile) {
+        return Stream.concat(
+                        unitOption.getSelectedSpecOpsOptions().stream()
+                                .flatMap(o -> o.getModifiers().stream())
+                                .map(Modifier::getEquipment)
+                                .filter(Objects::nonNull),
+                        profile.getEquipment().stream())
+                .sorted(Comparator.comparing(Equipment::getName))
+                .toList();
+    }
+
+    private static Optional<Integer> getNth(List<Integer> list, int index) {
+        if (list == null) {
+            return Optional.empty();
+        }
+        if (index >= list.size()) {
+            return Optional.empty();
+        }
+        return Optional.of(list.get(index));
+    }
+
     public List<Weapon> getWeapons() {
-        return profile.getWeapons().stream()
+        return Stream.concat(unitOption.getSelectedSpecOpsOptions().stream()
+                                .flatMap(m -> m.getModifiers().stream())
+                                .flatMap(f -> f.getWeapons().stream()),
+                        profile.getWeapons().stream())
                 .filter(w -> showWeaponOfType.contains(w.getType()))
+                .sorted(Comparator.comparing(Weapon::getName))
                 .toList();
     }
 
@@ -254,25 +304,48 @@ public class UnitPrintCard {
                 .collect(Collectors.joining(""));
     }
 
-    private String getSkillNameAndExtra(Skill skill) {
-        String extraString = skill.getExtras().isEmpty() ? "" : " [%s]".formatted(skill.getExtras().stream()
-                .map(e -> PrintUtils.prettyExtra(e, useInch))
-                .collect(Collectors.joining(", ")));
-        return "%s%s".formatted(skill.getName(), extraString);
+
+    private Optional<Integer> getStatModifier(Modifier.Stat stat) {
+        return unitOption.getSelectedSpecOpsOptions().stream()
+                .flatMap(m -> m.getModifiers().stream())
+                .filter(m -> m.getStat() == stat)
+                .map(Modifier::getStatModifier)
+                .findFirst();
     }
 
-    private String getEquipmentNameAndExtra(Equipment equipment) {
-        String extraString = equipment.getExtras().isEmpty() ? "" : " [%s]".formatted(equipment.getExtras().stream()
-                .map(e -> PrintUtils.prettyExtra(e, useInch))
-                .collect(Collectors.joining(", ")));
-        return "%s%s".formatted(equipment.getName(), extraString);
-    }
+    public String getMove() {
+        Integer move0 = getStatModifier(Modifier.Stat.move0).or(() -> getNth(profile.getMovementInCm(), 0)).orElse(null);
+        Integer move1 = getStatModifier(Modifier.Stat.move1).or(() -> getNth(profile.getMovementInCm(), 1)).orElse(null);
 
-    public String getMovement() {
-        return profile.getMovementInCm().stream()
+        return Stream.of(move0, move1)
+                .filter(Objects::nonNull)
                 .map(i -> DistanceUtil.convertString(i, useInch))
                 .map(Objects::toString)
                 .collect(Collectors.joining("-"));
+    }
+
+    public Integer getCc() {
+        return Optional.ofNullable(profile.getCloseCombat()).map(i -> i + getStatModifier(Modifier.Stat.cc).orElse(0)).orElse(null);
+    }
+
+    public Integer getBs() {
+        return Optional.ofNullable(profile.getBallisticSkill()).map(i -> i + getStatModifier(Modifier.Stat.bs).orElse(0)).orElse(null);
+    }
+
+    public Integer getPh() {
+        return Optional.ofNullable(profile.getPhysique()).map(i -> i + getStatModifier(Modifier.Stat.ph).orElse(0)).orElse(null);
+    }
+
+    public Integer getWip() {
+        return Optional.ofNullable(profile.getWillpower()).map(i -> i + getStatModifier(Modifier.Stat.wip).orElse(0)).orElse(null);
+    }
+
+    public Integer getArm() {
+        return Optional.ofNullable(profile.getArmor()).map(i -> i + getStatModifier(Modifier.Stat.arm).orElse(0)).orElse(null);
+    }
+
+    public Integer getBts() {
+        return Optional.ofNullable(profile.getBioTechnologicalShield()).map(i -> i + getStatModifier(Modifier.Stat.bts).orElse(0)).orElse(null);
     }
 
     public String getCombinedProfileId() {
@@ -283,10 +356,14 @@ public class UnitPrintCard {
         return getIconFileNames(profile);
     }
 
+    public List<Skill> getSkillWithModifier() {
+        return combineSkillsWithModifier(unitOption, profile);
+    }
+
     public String prettySkills(PrintOptions printOptions) {
-        return profile.getSkills().stream()
+        return getSkillWithModifier().stream()
                 .filter(skill -> printOptions.isDisableApplyingSkillWeaponExtra() || notAppliedToWeapon(skill))
-                .map(this::getSkillNameAndExtra)
+                .map(s -> PrintUtils.getSkillNameAndExtra(s, printOptions.isUseInch()))
                 .collect(Collectors.joining(", "));
     }
 
@@ -299,7 +376,13 @@ public class UnitPrintCard {
         return profile.getAvailability() + "";
     }
 
+    public List<Equipment> getEquipmentsWithModifier() {
+        return getEquipmentsWithModifier(unitOption, profile);
+    }
+
     public String prettyEquipments() {
-        return profile.getEquipment().stream().map(this::getEquipmentNameAndExtra).collect(Collectors.joining(", "));
+        return getEquipmentsWithModifier().stream()
+                .map(e -> PrintUtils.getEquipmentNameAndExtra(e, useInch))
+                .collect(Collectors.joining(", "));
     }
 }

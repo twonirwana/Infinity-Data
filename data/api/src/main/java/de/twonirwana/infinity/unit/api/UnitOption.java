@@ -35,8 +35,9 @@ public class UnitOption {
     String note;
     boolean reinforcementUnit;
     List<OptionFeature> optionFeatures;
-    List<ModifierOption> specOptsModifier;
+    List<ModifierOption> specOpsOptions;
     List<ModifierOption> specBallOptions;
+    List<ModifierOption> selectedSpecOpsOptions;
 
     public List<Trooper> getAllTrooper() {
         return Stream.concat(Stream.of(primaryUnit), additionalUnits.stream())
@@ -54,5 +55,9 @@ public class UnitOption {
 
     public String getCombinedId() {
         return "%d-%d-%d-%d".formatted(sectorial.getId(), unitId, groupId, optionId);
+    }
+
+    public UnitOption copyWithSelectedOptions(@NonNull List<ModifierOption> selectedOptions) {
+        return new UnitOption(sectorial, unitId, groupId, optionId, isc, iscAbbr, unitName, unitOptionName, optionName, slug, primaryUnit, additionalUnits, totalCost, totalSpecialWeaponCost, note, reinforcementUnit, optionFeatures, specOpsOptions, specBallOptions, selectedOptions);
     }
 }

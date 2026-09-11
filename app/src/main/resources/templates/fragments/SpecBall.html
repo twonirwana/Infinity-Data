@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+
+<div th:fragment="specBallFragment(specBall)">
+    <div class="card">
+        <div class="card-content">
+            <div class="card-header">
+                <h2 class="card-header-title">SpecBall</h2>
+            </div>
+
+            <h3 class="specBall-subTitle">Options</h3>
+            <table class="specBall">
+                <tbody>
+                <tr th:each="option : ${specBall.getOptions()}">
+                    <td th:text="${option.getId()}"></td>
+                    <td th:text="${option.getItem()}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h3 class="specBall-subTitle">Weapons Stats</h3>
+
+            <th:block
+                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${specBall.getWeapons()}, null, null)}">
+            </th:block>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

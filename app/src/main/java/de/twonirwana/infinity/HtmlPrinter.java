@@ -96,6 +96,14 @@ public class HtmlPrinter {
         this.templateEngine.setTemplateResolver(resolver);
     }
 
+    private static List<PrintHackingProgram> getUsedHackingPrograms(List<UnitPrintCard> unitPrintCards, PrintData data) {
+        return unitPrintCards.stream()
+                .flatMap(u -> PrintUtils.getUnitHackingPrograms(u.getEquipmentsWithModifier(), data.getAllHackingPrograms(), false).stream())
+                .distinct()
+                .sorted(Comparator.comparing(PrintHackingProgram::getName))
+                .toList();
+    }
+
     public void writeCards(@NonNull PrintData data,
                            @NonNull PrintContext printContext,
                            @NonNull PrintOptions options) {
@@ -148,7 +156,7 @@ public class HtmlPrinter {
 
         final List<UnitPrintCard> unitPrintCards = createUnitPrintCards(data, options);
 
-        List<PrintHackingProgram> usedHackingPrograms = options.isShowHackingProgramsCard() ? PrintUtils.getUsedHackingPrograms(data) : List.of();
+        List<PrintHackingProgram> usedHackingPrograms = options.isShowHackingProgramsCard() ? getUsedHackingPrograms(unitPrintCards, data) : List.of();
 
         final List<PrintHackingProgram> programsCard1;
         final List<PrintHackingProgram> programsCard2;
@@ -204,6 +212,12 @@ public class HtmlPrinter {
             allowedFireteams = null;
         }
 
+        List<PrintSpecBall> specBalls = unitPrintCards.stream()
+                .map(UnitPrintCard::getUnitOption)
+                .filter(u -> !u.getSpecBallOptions().isEmpty())
+                .map(o -> PrintSpecBall.of(o.getAdditionalUnits(), o.getSpecBallOptions(), options.isUseInch()))
+                .distinct()
+                .toList();
 
         Context context = new Context();
         context.setVariable("unitPrintCards", unitPrintCards);
@@ -230,6 +244,7 @@ public class HtmlPrinter {
         context.setVariable("cardHeightInMm", "%dmm".formatted(cardHeightInMm));
         context.setVariable("armyList", armyListUnits);
         context.setVariable("armyListTitel", armyListTitel);
+        context.setVariable("specBalls", specBalls);
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
         context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());

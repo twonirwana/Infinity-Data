@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <body>
 
-<div th:fragment="weaponTableFragment(weapons, unitProfile, martialArtsLevel)">
+<div th:fragment="weaponTableFragment(weapons, unitPrintCard, martialArtsLevel)">
     <div th:if="${weapons != null and not #lists.isEmpty(weapons)}">
         <table class="weapon">
             <thead>
@@ -38,20 +38,20 @@
                 </th:block>
 
                 <th:block th:if="${printUtils.getRangeTemplate(weapon) == null && !printUtils.isCC(weapon)}">
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo20cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo40cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo60cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo80cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo100cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo120cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
-                    <td th:text="${printUtils.applyXVisorToRangeModi(unitProfile, weapon.getUpTo240cmRangeModi())}"
-                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitProfile, weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo20cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo20cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo40cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo40cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo60cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo60cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo80cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo80cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo100cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo100cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo120cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo120cmRangeModi(), rangeModifierClassMap)}"></td>
+                    <td th:text="${printUtils.applyXVisorToRangeModi(unitPrintCard, weapon.getUpTo240cmRangeModi())}"
+                        th:class="${printUtils.getRangeClassWithOptionalXVisor(unitPrintCard, weapon.getUpTo240cmRangeModi(), rangeModifierClassMap)}"></td>
                 </th:block>
 
                 <td th:if="${printOptions.isShowWeaponSkill()}"
@@ -60,9 +60,9 @@
                 <td th:if="${printOptions.isShowBurst()}"
                     th:text="${printUtils.getWeaponBurstWithExtra(unitPrintCard, weapon, printOptions)}"></td>
                 <td class="weapon-padding" th:if="${printOptions.isShowSavingRoll()}"
-                    th:text="${printUtils.getWeaponSavingRollWithExtra(unitProfile, weapon, printOptions)}"></td>
+                    th:text="${printUtils.getWeaponSavingRollWithExtra(unitPrintCard, weapon, printOptions)}"></td>
                 <td th:if="${printOptions.isShowPs()}"
-                    th:text="${printUtils.getWeaponPsWithExtra(unitProfile, weapon, printOptions)}"></td>
+                    th:text="${printUtils.getWeaponPsWithExtra(unitPrintCard, weapon, printOptions)}"></td>
                 <td th:if="${printOptions.isShowAmmo()}"
                     th:text="${printUtils.getAmmo(weapon)}"></td>
                 <td th:if="${printOptions.isShowSaveAttribute()}"
@@ -72,7 +72,7 @@
 
                 <td class="weapon-table-traits"
                     th:if="${printOptions.isShowWeaponTraits()}"
-                    th:text="${printUtils.getWeaponPropertiesString(unitProfile, weapon, printOptions)}"></td>
+                    th:text="${printUtils.getWeaponPropertiesString(unitPrintCard, weapon, printOptions)}"></td>
             </tr>
 
             </tbody>

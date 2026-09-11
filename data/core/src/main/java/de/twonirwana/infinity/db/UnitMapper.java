@@ -17,7 +17,6 @@ import de.twonirwana.infinity.model.specops.Spectables;
 import de.twonirwana.infinity.model.unit.*;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -62,7 +61,6 @@ public class UnitMapper {
     //each database update should not throw the same warnings
     private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
     private static final Pattern TURRET_WEAPON_NAME_PATTERN = Pattern.compile("Armed Turret \\((.*)\\)");
-    private final static ObjectMapper objectMapper = new ObjectMapper();
 
     public static Map<Sectorial, List<UnitOption>> getUnits(Map<Sectorial, SectorialList> sectorialListMap,
                                                             Map<Sectorial, SectorialList> reenforcementListMap,
@@ -258,6 +256,28 @@ public class UnitMapper {
                     .toList());
 
         } else {
+            final List<Trooper> specBots;
+            if (unit.getSpectables() == null) {
+                specBots = List.of();
+            } else {
+                specBots = unit.getProfileGroups().stream()
+                        .flatMap(pg -> pg.getOptions().stream()
+                                .filter(ProfileOption::isDisabled)
+                                .map(o -> createTrooper(sectorial,
+                                        unit,
+                                        pg.getId(),
+                                        o.getId(),
+                                        pg,
+                                        pg.getProfiles(),
+                                        o,
+                                        weaponIdMap,
+                                        skillIdMap,
+                                        equipmentIdMap,
+                                        sectorialImage,
+                                        sectorialFilter))).toList();
+            }
+
+
             result.addAll(unit.getProfileGroups().stream()
                     .flatMap(pg -> pg.getOptions().stream()
                             .filter(po -> !po.isDisabled())
@@ -282,7 +302,7 @@ public class UnitMapper {
                                         .map(Spectables::getSpecball)
                                         .map(ig -> mapSpectables(ig, weaponIdMap, skillIdMap, equipmentIdMap, sectorialFilter.extraFilter()))
                                         .orElse(List.of());
-                                return createUnitOption(sectorial, unit, primaryTrooper, o, List.of(), null, o.getPoints(), o.getSwc(), reinforcement, specOpsModifier, specBall);
+                                return createUnitOption(sectorial, unit, primaryTrooper, o, specBots, null, o.getPoints(), o.getSwc(), reinforcement, specOpsModifier, specBall);
                             })).toList());
         }
         return result;
@@ -318,7 +338,8 @@ public class UnitMapper {
                 reinforcement,
                 List.of(),
                 specOpsModifier,
-                specBall
+                specBall,
+                List.of()
         );
     }
 
@@ -329,7 +350,7 @@ public class UnitMapper {
                                                       Map<Integer, ExtraValue> extraIdMap) {
         return itemGroup.getItems().stream()
                 .map(i -> new ModifierOption(
-                        objectMapper.writeValueAsString(i),
+                        i.toKey(),
                         i.getAttrs().stream()
                                 .map(a -> mapAttribute(a, weaponIdMap, skillIdMap, equipmentIdMap, extraIdMap))
                                 .toList()
@@ -366,8 +387,8 @@ public class UnitMapper {
             weapons = weaponIdMap.get(attribute.getId()).stream()
                     .map(w -> mapWeapon(w,
                             attribute.getQ(),
-                            extraValues,
-                            de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON.name(),
+                            w.getType().equals("WEAPON") ? extraValues : List.of(), //for some reason some deployable repeaters (blur spec ops) have ps6
+                            w.getType(),
                             null))
                     .toList();
             skill = null;

@@ -4,7 +4,7 @@
 
 <div th:fragment="unitFragment(unitPrintCard, showHackingProgram)">
     <div class="card" th:data-info="'combinedId:' + ${unitPrintCard.getCombinedProfileId()}">
-        <div class="card-content" >
+        <div class="card-content">
 
             <img th:if="${printOptions.isShowSectorialIcon() && printOptions.getTemplate().isSupportImages()}"
                  th:src="${unitPrintCard.getSectorialImageName()}"
@@ -33,7 +33,7 @@
                 </div>
             </div>
             <th:block
-                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getWeapons()}, ${unitPrintCard.getProfile()}, ${unitPrintCard.getMartialArtLevel()})}">
+                    th:replace="~{fragments/WeaponTable :: weaponTableFragment(${unitPrintCard.getWeapons()}, ${unitPrintCard}, ${unitPrintCard.getMartialArtLevel()})}">
             </th:block>
             <div th:if="${showHackingProgram}">
                 <th:block
