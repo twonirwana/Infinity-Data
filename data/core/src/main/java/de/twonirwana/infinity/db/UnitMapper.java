@@ -385,9 +385,10 @@ public class UnitMapper {
             stat = null;
             statModifier = null;
             weapons = weaponIdMap.get(attribute.getId()).stream()
+                    .filter(w -> "WEAPON" .equals(w.getType()))
                     .map(w -> mapWeapon(w,
                             attribute.getQ(),
-                            w.getType().equals("WEAPON") ? extraValues : List.of(), //for some reason some deployable repeaters (blur spec ops) have ps6
+                            extraValues,
                             w.getType(),
                             null))
                     .toList();
@@ -579,7 +580,7 @@ public class UnitMapper {
         if (type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON && Optional.ofNullable(weaponFilter.get(pi.getId()))
                 .map(Weapon::getName)
                 .map(s -> !s.contains("Armed Turret")).orElse(true)) {
-            String message = "No weapons found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
+            String message = "No weapons found for id %s for unit %s in %s" .formatted(pi.getId(), unit.getName(), factionName);
             if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                 UNIQUE_LOG_MESSAGES.add(message);
                 log.warn(message);
@@ -683,7 +684,7 @@ public class UnitMapper {
                     if (skillFilter.get(pi.getId()) != null) {
                         return Stream.of(skillFilter.get(pi.getId())).map(skill -> mapSkill(skill, pi.getQ(), extras));
                     }
-                    String message = "No skills found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
+                    String message = "No skills found for id %s for unit %s in %s" .formatted(pi.getId(), unit.getName(), factionName);
                     if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                         UNIQUE_LOG_MESSAGES.add(message);
                         log.error(message);
@@ -731,7 +732,7 @@ public class UnitMapper {
                     if (equibFilter.get(pi.getId()) != null) {
                         return Stream.of(equibFilter.get(pi.getId())).map(equip -> mapEquipment(equip, pi.getQ(), extras));
                     }
-                    String message = "No equipment found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
+                    String message = "No equipment found for id %s for unit %s in %s" .formatted(pi.getId(), unit.getName(), factionName);
                     if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                         UNIQUE_LOG_MESSAGES.add(message);
                         log.error(message);
@@ -965,7 +966,7 @@ public class UnitMapper {
         Map<Integer, String> typeFilter = sectorialList.getFilters().getType().stream().collect(Collectors.toMap(FilterItem::getId, FilterItem::getName));
         Map<Integer, String> peripheralFilter = sectorialList.getFilters().getPeripheral().stream().collect(Collectors.toMap(FilterItem::getId, FilterItem::getName));
         Map<Integer, ExtraValue> extraFilter = sectorialList.getFilters().getExtras().stream().collect(Collectors.toMap(FilterItem::getId, f -> {
-            if ("DISTANCE".equals(f.getType())) {
+            if ("DISTANCE" .equals(f.getType())) {
                 return new ExtraValue(f.getId(), null, ExtraValue.Type.Distance, Float.valueOf(f.getName()));
             }
             return new ExtraValue(f.getId(), f.getName(), ExtraValue.Type.Text, null);
@@ -1000,7 +1001,7 @@ public class UnitMapper {
                         .toList();
             }
             if (turrets.isEmpty()) {
-                String message = "Can't map turret with extras to weapon: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
+                String message = "Can't map turret with extras to weapon: %s in %s-%s" .formatted(extras, unit.getSlug(), unit.getId());
                 if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                     UNIQUE_LOG_MESSAGES.add(message);
                     log.error(message);
@@ -1008,7 +1009,7 @@ public class UnitMapper {
             }
             return turrets;
         } else {
-            String message = "Can't map turret with extras: %s in %s, using default".formatted(extras, unit.getSlug());
+            String message = "Can't map turret with extras: %s in %s, using default" .formatted(extras, unit.getSlug());
             if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                 UNIQUE_LOG_MESSAGES.add(message);
                 log.warn(message);
