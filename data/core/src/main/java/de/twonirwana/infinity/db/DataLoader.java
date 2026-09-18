@@ -28,9 +28,9 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.module.SimpleModule;
 
 import java.io.*;
 import java.net.URI;
@@ -48,6 +48,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static de.twonirwana.infinity.Database.CSV_DIFF_LIST_PATH;
+import static de.twonirwana.infinity.Database.CSV_LIST_PATH;
+
 @Getter
 @Slf4j
 public class DataLoader {
@@ -57,7 +60,7 @@ public class DataLoader {
     private static final String META_DATA_FILE_NAME = "metadata.json";
     private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
     private static final String ARCHIVE_FOLDER = "archive";
-    private static final String CSV_LIST_PATH = "out/csv/list/";
+
 
     private final static ObjectMapper objectMapper = JsonMapper.builder()
             .changeDefaultNullHandling(ignore -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
@@ -130,6 +133,7 @@ public class DataLoader {
 
         createFolderIfNotExists(customUnitImageFolder);
         createFolderIfNotExists(CSV_LIST_PATH);
+        createFolderIfNotExists(CSV_DIFF_LIST_PATH);
 
         final boolean updateNow = shouldUpdate(updateOption, new File(nextUpdateFile));
         if (updateNow) {
@@ -266,15 +270,24 @@ public class DataLoader {
 
         try {
             Path tempDir = Files.createTempDirectory("infinity-csv");
-            String fileName = DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode() + ".csv";
+            String baseFileName = DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode();
+            String fileName = baseFileName + ".csv";
             CsvPrinter.printList(tempDir.toAbsolutePath() + "/" + fileName, unitOptions, customUnitImageFolder);
             Path tempFile = tempDir.resolve(fileName);
             Optional<Path> latestExistingFile = getLatestCsvFile(Path.of(CSV_LIST_PATH));
             HashCode existingFileHash = getHashCode(latestExistingFile.map(Path::toFile).orElse(null));
             HashCode tempFileHas = getHashCode(tempFile.toFile());
             if (!Objects.equals(existingFileHash, tempFileHas)) {
-                Files.copy(tempFile, Path.of(CSV_LIST_PATH, fileName));
+                Path newFilePath = Path.of(CSV_LIST_PATH, fileName);
+                Files.copy(tempFile, newFilePath);
                 log.info("Saved updated unit csv to {}", fileName);
+                if (latestExistingFile.isPresent()) {
+                    List<String> csvDiffs = CsvPrinter.compareCsv(latestExistingFile.get(), newFilePath);
+                    csvDiffs.forEach(log::info);
+                    String oldFileBaseName = FilenameUtils.getBaseName(latestExistingFile.get().getFileName().toString());
+                    String diffFileName = oldFileBaseName + "_to_" + baseFileName + ".csv";
+                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH).resolve(diffFileName));
+                }
             } else {
                 log.info("Unit csv did not change");
             }
@@ -662,10 +675,6 @@ public class DataLoader {
                 .filter(u -> !u.isMerc())
                 .toList();
 
-    }
-
-    public String getAllUnitsCsvListFolder() {
-        return CSV_LIST_PATH;
     }
 
     public enum UpdateOption {

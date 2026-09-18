@@ -10,6 +10,7 @@ import io.avaje.config.Config;
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
 import io.javalin.rendering.template.JavalinThymeleaf;
@@ -104,7 +105,7 @@ public class WebApp {
                 Optional.ofNullable(WebApp.class.getResourceAsStream("/favicon.ico")).ifPresent(ctx::result);
             });
             startPage(config, registry);
-            downloadAllUnitsCsv(config, registry, Path.of(database.getAllUnitsCsvListFolder()));
+            downloadAllUnitsCsv(config, registry, Path.of(Database.CSV_LIST_PATH));
             //page that generates cards for the given parameter
             generateCardPage(config, startupTime, registry, contextPath, database, htmlPrinter);
             //page for a generated card set
@@ -114,6 +115,7 @@ public class WebApp {
             helpPage(config, registry);
             prometheusPage(config, registry);
             joinedAvaPage(config, registry, database);
+            csvFiles(config, registry);
         });
     }
 
@@ -129,14 +131,14 @@ public class WebApp {
             }
 
             try {
-
-                ctx.header("Content-Disposition", "attachment; filename=\"" + latestCsv.get().getFileName().toString() + "\"");
+                String filename = latestCsv.get().getFileName().toString();
+                ctx.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
                 ctx.contentType("text/csv");
 
                 InputStream fileStream = Files.newInputStream(latestCsv.get());
                 ctx.result(fileStream);
-                registry.counter("infinity.downloadCsv").increment();
-                log.info("All unit csv files have been downloaded.");
+                registry.counter("infinity.downloadCsv", Tags.of("file", filename)).increment();
+                log.info("Newest all unit csv file have been downloaded.");
 
             } catch (Exception e) {
                 log.error("Error serving file: {}", latestCsv, e);
@@ -544,6 +546,60 @@ public class WebApp {
             );
             ctx.render("templates/joinedAva.html", model);
         });
+    }
+
+    private static void csvFiles(JavalinConfig config,
+                                 PrometheusMeterRegistry registry) {
+        config.routes.get("/csv", ctx -> {
+            registry.counter("infinity.csv.page").increment();
+            ctx.render("templates/files.html", Map.of(
+                    "title", "Old Unit Lists and Changes",
+                    "files", getCsvFiles()));
+
+        });
+
+        config.routes.get("/csv/{filename}", ctx -> {
+            String filename = ctx.pathParam("filename");
+
+
+            // SECURITY: Ensure that no other files are downloaded
+            if (!getCsvFiles().contains(filename)) {
+                ctx.status(HttpStatus.FORBIDDEN).result("Access denied.");
+                return;
+            }
+
+            Optional<Path> file;
+            if (Files.exists(Path.of(Database.CSV_LIST_PATH).resolve(filename))) {
+                file = Optional.of(Path.of(Database.CSV_LIST_PATH).resolve(filename));
+            } else if (Files.exists(Path.of(Database.CSV_DIFF_LIST_PATH).resolve(filename))) {
+                file = Optional.of(Path.of(Database.CSV_DIFF_LIST_PATH).resolve(filename));
+            } else {
+                file = Optional.empty();
+            }
+
+
+            if (file.isPresent()) {
+                registry.counter("infinity.downloadCsv", Tags.of("file", filename)).increment();
+                log.info("{} have been downloaded.", filename);
+                ctx.header("Content-Disposition", "attachment; filename=\"" + file.get().getFileName() + "\"");
+                ctx.result(Files.newInputStream(file.get()));
+            } else {
+                ctx.status(HttpStatus.NOT_FOUND).result("File not found.");
+            }
+        });
+    }
+
+    private static List<String> getCsvFiles() {
+        try (Stream<Path> paths = Stream.concat(Files.list(Paths.get(Database.CSV_LIST_PATH)), Files.list(Paths.get(Database.CSV_DIFF_LIST_PATH)))) {
+            return paths
+                    .filter(Files::isRegularFile)
+                    .map(p -> p.getFileName().toString())
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            return List.of();
+        }
     }
 
     private static String getElementOnPosition(List<String> strings, int position) {

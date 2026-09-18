@@ -111,9 +111,4 @@ public class DatabaseImp implements Database {
     public FireteamChart getFireteamChart(Sectorial sectorial) {
         return loader.getSectorialFireteamCharts().get(sectorial);
     }
-
-    @Override
-    public String getAllUnitsCsvListFolder() {
-        return loader.getAllUnitsCsvListFolder();
-    }
 }

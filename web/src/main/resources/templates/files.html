@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Downloads</title>
+    <link rel="icon" type="image/x-icon" th:href="@{favicon.ico}">
+    <style>
+        :root {
+            --primary-color-glow: #00d4ff;
+            --primary-color-dark: #009ec4;
+            --dark-bg: #12151a;
+            --content-bg: rgba(20, 25, 30, 0.85);
+            --text-color: #e0e0e0;
+            --text-muted: #8899aa;
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Orbitron', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
+            color: var(--primary-color-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            color: var(--primary-color-glow);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7), 0 0 12px rgba(0, 212, 255, 0.4);
+            margin-bottom: 1.5em;
+        }
+
+        table {
+            border-collapse: collapse;
+            min-width: 400px;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+        }
+
+        a {
+            color: var(--primary-color-glow);
+            text-decoration: none;
+            display: block;
+        }
+
+        a:hover {
+            text-shadow: 0 0 8px rgba(0, 212, 255, 0.7);
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>
+    <span th:text="${title}">Title</span>
+</h1>
+
+<table th:if="${not #lists.isEmpty(files)}">
+    <tr th:each="file : ${files}">
+        <td>
+            <a th:href="@{/csv/{fname}(fname=${file})}" th:text="${file}">filename.ext</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
