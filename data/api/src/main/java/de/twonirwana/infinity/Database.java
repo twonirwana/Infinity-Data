@@ -8,6 +8,9 @@ import java.util.List;
 
 public interface Database {
 
+    String CSV_LIST_PATH = "out/csv/list/";
+    String CSV_DIFF_LIST_PATH = "out/csv/listDiff/";
+
     List<UnitOption> getAllUnitOptions();
 
     ArmyList getArmyListForArmyCode(String armyCode);
@@ -24,9 +27,6 @@ public interface Database {
 
     List<ValidationError> validateArmyCodeUnits(String armyCode);
 
-    record ValidationError(int unitId, int groupId, int optionId, @NonNull String name, @NonNull String error) {
-    }
-
     List<HackingProgram> getAllHackingPrograms();
 
     List<MartialArtLevel> getAllMartialArtLevels();
@@ -37,5 +37,6 @@ public interface Database {
 
     FireteamChart getFireteamChart(Sectorial sectorial);
 
-    String getAllUnitsCsvListFolder();
+    record ValidationError(int unitId, int groupId, int optionId, @NonNull String name, @NonNull String error) {
+    }
 }

@@ -7,34 +7,34 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
 public class CsvPrinter {
 
+    private static final String[] HEADER = {
+            "Sectorial", "Option ID", "Profile ID", "Ics", "Ics Abbreviation", "Profile Ics", "Unit Name", "Profile Name",
+            "Option Feature",
+            "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
+            "Points", "SWC",
+            "Skills", "Equipment", "Primary Weapon", "Weapons",
+            "Characteristics", "Type", "Category",
+            "CB Image", "CB Product", "Community Image"
+    };
     private static final Set<Weapon.Type> WEAPON_TYPES = Set.of(Weapon.Type.WEAPON, Weapon.Type.TURRET);
 
     public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder) {
 
-        String[] headers = {
-                "Sectorial", "Option ID", "Profile ID", "Ics", "Ics Abbreviation", "Profile Ics", "Unit Name", "Profile Name",
-                "Option Feature",
-                "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
-                "Points", "SWC",
-                "Skills", "Equipment", "Primary Weapon", "Weapons",
-                "Characteristics", "Type", "Category",
-                "CB Image", "CB Product", "Community Image"
-        };
-
         try (Writer writer = new FileWriter(filePath);
              CSVPrinter csvPrinter = new CSVPrinter(writer,
-                     CSVFormat.Builder.create().setDelimiter(';').setHeader(headers).get())) {
+                     CSVFormat.Builder.create().setDelimiter(';').setHeader(HEADER).get())) {
 
             printableUnits.stream()
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
@@ -231,6 +231,55 @@ public class CsvPrinter {
         } catch (NumberFormatException e) {
             return 1;
         }
+    }
+
+    public static List<String> compareCsv(Path oldFile, Path newFile) throws IOException {
+        Map<String, String> oldFileContent = optionIdLineMap(oldFile);
+        Map<String, String> newFileContent = optionIdLineMap(newFile);
+
+        List<String> diff = new ArrayList<>();
+
+        oldFileContent.keySet().stream().distinct().sorted()
+                .forEach(k -> {
+                    if (newFileContent.containsKey(k) && !oldFileContent.get(k).equals(newFileContent.get(k))) {
+                        diff.add("EDITED_OLD;" + oldFileContent.get(k));
+                        diff.add("EDITED_NEW;" + newFileContent.get(k));
+                    } else if (!newFileContent.containsKey(k)) {
+                        diff.add("REMOVED;" + oldFileContent.get(k));
+                    }
+
+                });
+        newFileContent.keySet().stream().distinct().sorted()
+                .forEach(k -> {
+                    if (!oldFileContent.containsKey(k)) {
+                        diff.add("ADDED;" + newFileContent.get(k));
+                    }
+                });
+        return diff;
+    }
+
+    private static Map<String, String> optionIdLineMap(Path file) throws IOException {
+        try (Stream<String> lines = Files.lines(file)) {
+            return lines.distinct().collect(Collectors.toMap(l ->
+                            //for example remotes can be in multiple profiles and therefore have multiple lines with different option ids,
+                            // [1] is the optionId and [2] the profileID
+                            l.split(";")[1] + ";" + l.split(";")[2],
+                    Function.identity()));
+        }
+    }
+
+    public static void saveDiffs(List<String> diffs, Path out) {
+        try {
+            FileWriter fileWriter = new FileWriter(out.toFile());
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            String header = "Change;" + String.join(";", List.of(HEADER));
+            printWriter.println(header);
+            diffs.forEach(printWriter::println);
+            printWriter.close();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+
     }
 }
 

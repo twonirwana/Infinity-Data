@@ -414,6 +414,7 @@
 
     <div class="allCsv">
         <a th:href="@{/downloadAllUnits}" target="_blank">Download all Units as CSV</a>
+        <a th:href="@{/csv}" target="_blank">(old/changes)</a>
     </div>
 
     <div class="avaChecker">
@@ -431,7 +432,7 @@
         <a href="mailto:contact@infinity.2nirwana.de">Contact</a>
         <span class="footer-separator">|</span>
         <span th:if="${!imprint.isEmpty()}">
-            <a href="imprint">Imprint</a>
+            <a th:href="@{/imprint}">Imprint</a>
             <span class="footer-separator">|</span>
         </span>
         <a href="https://github.com/twonirwana/Infinity-Data" target="_blank">Source Code</a>
