@@ -11,7 +11,7 @@ dependencies {
     implementation(project(":data:core"))
 
     implementation("org.slf4j:slf4j-api:2.0.19")
-    implementation("ch.qos.logback:logback-classic:1.6.3")
+    implementation("ch.qos.logback:logback-classic:1.6.4")
     compileOnly("org.projectlombok:lombok:1.18.48")
     annotationProcessor("org.projectlombok:lombok:1.18.48")
 
