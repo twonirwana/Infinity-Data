@@ -71,21 +71,6 @@ public class ArmyCodeLoader {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static int readInt(ByteBuffer data) {
-        byte firstByte = data.get();
-
-        // If the highest bit is 0, it's a standard positive byte (under 128)
-        if (firstByte >= 0) {
-            return firstByte;
-        }
-
-        // Otherwise, the first bit was 1.
-        // We clear that flag bit (firstByte & 0x7F), shift it up 8 spots,
-        // and combine it with the next byte.
-        byte secondByte = data.get();
-        return ((firstByte & 0x7F) << 8) | (secondByte & 0xFF);
-    }
-
     private static Integer tryReadInteger(ByteBuffer data) {
         if (!data.hasRemaining()) {
             return null;
@@ -136,35 +121,49 @@ public class ArmyCodeLoader {
 
         ByteBuffer data = ByteBuffer.wrap(decoded);
 
-        int sectorialId = readInt(data);
-        int factionStringLength = readInt(data);
-
+        Integer sectorialId = tryReadInteger(data);
+        if (sectorialId == null) {
+            throw new IllegalArgumentException("could not sectorialId");
+        }
+        Integer factionStringLength = tryReadInteger(data);
+        if (factionStringLength == null) {
+            throw new IllegalArgumentException("could not factionStringLength");
+        }
         String fractionName = readString(data, factionStringLength);
 
         // Get the army name, if set. The default army name is ' '.
-        int armyNameLength = readInt(data);
+        Integer armyNameLength = tryReadInteger(data);
+        if (armyNameLength == null) {
+            throw new IllegalArgumentException("could not armyNameLength");
+        }
         String armyName = null;
         if (armyNameLength > 0) {
             armyName = readString(data, armyNameLength);
         }
 
-        int maxPoints = readInt(data);
-
-        int combatGroupCount = readInt(data);
+        Integer maxPoints = tryReadInteger(data);
+        if (maxPoints == null) {
+            throw new IllegalArgumentException("could not maxPoints");
+        }
+        Integer combatGroupCount = tryReadInteger(data);
+        if (combatGroupCount == null) {
+            throw new IllegalArgumentException("could not combatGroupCount");
+        }
         Map<Integer, List<CombatGroupMember>> combatGroups = new HashMap<>();
         //readNumbersTillEnd(data);
+        //debug(data);
         for (int i = 1; i <= combatGroupCount; i++) {
             List<CombatGroupMember> match = getCombatGroupFromCodeV0(data)
                     .or(() -> getCombatGroupFromCodeV00(data))
                     .or(() -> getCombatGroupFromCodeV0L0E(data))
-                    .or(() -> getCombatGroupFromCodeV1_01SpecOps(data)) //need to be before getCombatGroupFromCodeV1_00
-                    .or(() -> getCombatGroupFromCodeV1_00(data))
-                    .or(() -> getCombatGroupFromCodeV1_000(data))
-                    .or(() -> getCombatGroupFromCodeV1_0subVersionCounter(data))
-                    .or(() -> getCombatGroupFromCodeV1_00subVersionCounter(data))
+                    .or(() -> getCombatGroupFromCodeV1_01SpecOps(data)) //need to be before getCombatGroupFromCodeV1_0X
+                    .or(() -> getCombatGroupFromCodeV1_0X(data))
+                    .or(() -> getCombatGroupFromCodeV1_0plus(data))
                     .orElse(null);
             if (match != null) {
                 combatGroups.put(i, match);
+            } else {
+                throw new IllegalArgumentException("Could not read any units from: " + armyCode);
             }
 
         }
@@ -263,44 +262,68 @@ public class ArmyCodeLoader {
                 .toList();
     }
 
+    private static Optional<CombatGroupMember> tryReadingCombatGroupMemberWithoutSpecOps(ByteBuffer data) {
+        final Integer unitId = tryReadInteger(data);
+        if (unitId == null) {
+            return Optional.empty();
+        }
+        final Integer groupId = tryReadInteger(data);
+        if (groupId == null) {
+            return Optional.empty();
+        }
+        final Integer optionId = tryReadInteger(data);
+        if (optionId == null) {
+            return Optional.empty();
+        }
+        // System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
+        return Optional.of(new CombatGroupMember(
+                unitId,
+                groupId,
+                optionId,
+                List.of()
+        ));
+    }
+
     //0 between groupMembers
     private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV0(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 0) {
+        final int resetPosition = data.position();
+        Integer groupNumber = tryReadInteger(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
+        if (groupNumber == null) {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int combatGroupSize = readInt(data);
+        Integer version = tryReadInteger(data);
+        if (version == null || version != 0) {
+            data.position(resetPosition);
+            return Optional.empty();
+        }
+        Integer combatGroupSize = tryReadInteger(data);
+        if (combatGroupSize == null) {
+            data.position(resetPosition);
+            return Optional.empty();
+        }
         List<CombatGroupMember> group = new ArrayList<>();
 
         for (int i = 0; i < combatGroupSize; i++) {
-            int fillerCounter = readInt(data);
-            if (fillerCounter != i + 1) {
+            Integer fillerCounter = tryReadInteger(data);
+            if (fillerCounter == null || fillerCounter != i + 1) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
 
-            CombatGroupMember combatGroupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-            // System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
+            Optional<CombatGroupMember> combatGroupMember = tryReadingCombatGroupMemberWithoutSpecOps(data);
+            if (combatGroupMember.isEmpty()) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
+            group.add(combatGroupMember.get());
 
-            int fillerZero = readInt(data);
-            if (fillerZero != 0) {
+            Integer fillerZero = tryReadInteger(data);
+            if (fillerZero == null || fillerZero != 0) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
 
-            combatGroupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(combatGroupMember);
         }
         if (group.size() != combatGroupSize) {
             data.position(resetPosition);
@@ -316,47 +339,50 @@ public class ArmyCodeLoader {
 
     //leading counter, 00 between groupMembers
     private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV00(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 0) {
+        final int resetPosition = data.position();
+        Integer groupNumber = tryReadInteger(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
+        if (groupNumber == null) {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int combatGroupSize = readInt(data);
+
+        Integer version = tryReadInteger(data);
+        if (version == null || version != 0) {
+            data.position(resetPosition);
+            return Optional.empty();
+        }
+        Integer combatGroupSize = tryReadInteger(data);
+        if (combatGroupSize == null) {
+            data.position(resetPosition);
+            return Optional.empty();
+        }
         List<CombatGroupMember> group = new ArrayList<>();
 
         for (int i = 0; i < combatGroupSize; i++) {
-            int fillerCounter = readInt(data);
-            if (fillerCounter != i + 1) {
+            Integer fillerCounter = tryReadInteger(data);
+            if (fillerCounter == null || fillerCounter != i + 1) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
 
-            CombatGroupMember combatGroupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-            // System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
-
-            int fillerZero = readInt(data);
-            if (fillerZero != 0) {
+            Optional<CombatGroupMember> combatGroupMember = tryReadingCombatGroupMemberWithoutSpecOps(data);
+            if (combatGroupMember.isEmpty()) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
-            int fillerZero2 = readInt(data);
-            if (fillerZero2 != 0) {
+            group.add(combatGroupMember.get());
+
+            Integer fillerZero = tryReadInteger(data);
+            if (fillerZero == null || fillerZero != 0) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
+            Integer fillerZero2 = tryReadInteger(data);
+            if (fillerZero2 == null || fillerZero2 != 0) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
 
-            combatGroupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(combatGroupMember);
         }
         if (group.size() != combatGroupSize) {
             data.position(resetPosition);
@@ -372,42 +398,45 @@ public class ArmyCodeLoader {
 
     //leading 0, 0 between groupMembers
     private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV0L0E(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 0) {
+        final int resetPosition = data.position();
+        Integer groupNumber = tryReadInteger(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
+        if (groupNumber == null) {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int combatGroupSize = readInt(data);
+
+        Integer version = tryReadInteger(data);
+        if (version == null || version != 0) {
+            data.position(resetPosition);
+            return Optional.empty();
+        }
+        Integer combatGroupSize = tryReadInteger(data);
+        if (combatGroupSize == null) {
+            data.position(resetPosition);
+            return Optional.empty();
+        }
+
         List<CombatGroupMember> group = new ArrayList<>();
 
         for (int i = 0; i < combatGroupSize; i++) {
-            int fillerCounter = readInt(data);
-            if (fillerCounter != 0) {
+            Integer fillerCounter = tryReadInteger(data);
+            if (fillerCounter == null || fillerCounter != 0) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
 
-            CombatGroupMember combatGroupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-            // System.out.println("UnitId: " + unitId + "-" + groupId + "-" + optionId);
-
-            int fillerZero = readInt(data);
-            if (fillerZero != 0) {
+            Optional<CombatGroupMember> combatGroupMember = tryReadingCombatGroupMemberWithoutSpecOps(data);
+            if (combatGroupMember.isEmpty()) {
                 data.position(resetPosition);
                 return Optional.empty();
             }
+            group.add(combatGroupMember.get());
 
-            combatGroupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(combatGroupMember);
+            Integer fillerZero = tryReadInteger(data);
+            if (fillerZero == null || fillerZero != 0) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
         }
         if (group.size() != combatGroupSize) {
             data.position(resetPosition);
@@ -421,40 +450,55 @@ public class ArmyCodeLoader {
         return Optional.of(group);
     }
 
-    //no counter, 00 between groupMembers, no specOps
-    private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_00(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 1) {
+    private static Optional<GroupInfoV1> tryReadingGroupInfoV1(ByteBuffer data) {
+        Integer groupNumber = tryReadInteger(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
+        if (groupNumber == null) {
+            return Optional.empty();
+        }
+        Integer version = tryReadInteger(data);
+        if (version == null || version != 1) {
+            return Optional.empty();
+        }
+        Integer reinforcement = tryReadInteger(data);
+        if (reinforcement == null) {
+            return Optional.empty();
+        }
+        Integer combatGroupSize = tryReadInteger(data);
+        if (combatGroupSize == null) {
+            return Optional.empty();
+        }
+        Integer subVersion = tryReadInteger(data);
+        if (subVersion == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new GroupInfoV1(groupNumber, combatGroupSize, version, reinforcement, subVersion));
+    }
+
+    //no counter, 0 and a number between groupMembers, no specOps
+    private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_0X(ByteBuffer data) {
+        final int resetPosition = data.position();
+        Optional<GroupInfoV1> groupInfo = tryReadingGroupInfoV1(data);
+        if (groupInfo.isEmpty()) {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int reinforcement = readInt(data);
-        int combatGroupSize = readInt(data);
-        int subVersion = readInt(data);
+        int combatGroupSize = groupInfo.get().groupSize();
 
         List<CombatGroupMember> group = new ArrayList<>();
 
         for (int i = 0; i < combatGroupSize; i++) {
 
-            CombatGroupMember groupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-
-            groupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(groupMember);
+            Optional<CombatGroupMember> combatGroupMember = tryReadingCombatGroupMemberWithoutSpecOps(data);
+            if (combatGroupMember.isEmpty()) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
+            group.add(combatGroupMember.get());
 
             //not behind the last in the group
             if (i < combatGroupSize - 1) {
-                int memberFillerZero1 = readInt(data);
-                if (memberFillerZero1 != 0) {
+                Integer memberFillerZero1 = tryReadInteger(data);
+                if (memberFillerZero1 == null || memberFillerZero1 != 0) {
                     data.position(resetPosition);
                     return Optional.empty();
                 }
@@ -473,61 +517,38 @@ public class ArmyCodeLoader {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int inBetweenGroupZeroOrOne = readInt(data);
-        if (!Set.of(0, 1).contains(inBetweenGroupZeroOrOne)) {
+        Integer inBetweenGroupZeroOrOne = tryReadInteger(data);
+        if (inBetweenGroupZeroOrOne == null || !Set.of(0, 1).contains(inBetweenGroupZeroOrOne)) {
             data.position(resetPosition);
             return Optional.empty();
         }
         return Optional.of(group);
     }
 
-    //no counter, 000 between groupMembers, no specOps
-    private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_000(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 1) {
+    //no counter, one or more 0 between groupMembers, no specOps
+    private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_0plus(ByteBuffer data) {
+        final int resetPosition = data.position();
+        Optional<GroupInfoV1> groupInfo = tryReadingGroupInfoV1(data);
+        if (groupInfo.isEmpty()) {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int reinforcement = readInt(data);
-        int combatGroupSize = readInt(data);
-        int subVersion = readInt(data);
+        int combatGroupSize = groupInfo.get().groupSize();
 
         List<CombatGroupMember> group = new ArrayList<>();
 
         for (int i = 0; i < combatGroupSize; i++) {
 
-            CombatGroupMember groupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-
-            groupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(groupMember);
+            Optional<CombatGroupMember> combatGroupMember = tryReadingCombatGroupMemberWithoutSpecOps(data);
+            if (combatGroupMember.isEmpty()) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
+            group.add(combatGroupMember.get());
 
             //not behind the last in the group
             if (i < combatGroupSize - 1) {
-                int memberFillerZero1 = readInt(data);
-                if (memberFillerZero1 != 0) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-                int memberFillerZero2 = readInt(data);
-                if (memberFillerZero2 != 0) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-                int memberFillerZero3 = readInt(data);
-                if (memberFillerZero3 != 0) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
+                readZeros(data);
             }
         }
         if (group.size() != combatGroupSize) {
@@ -538,169 +559,47 @@ public class ArmyCodeLoader {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int inBetweenGroupZero = readInt(data);
-        if (inBetweenGroupZero != 0) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        int inBetweenGroupZero2 = readInt(data);
-        if (inBetweenGroupZero2 != 0) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
+        readZeros(data);
         return Optional.of(group);
     }
 
-    //no 0 + subVersionCounter between groupMembers, no specOps
-    private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_0subVersionCounter(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 1) {
-            data.position(resetPosition);
-            return Optional.empty();
+    private static void readZeros(ByteBuffer data) {
+        int position = data.position();
+        while (Optional.ofNullable(tryReadInteger(data)).map(i -> i == 0).orElse(false)) {
+            position = data.position();
         }
-        int reinforcement = readInt(data);
-        int combatGroupSize = readInt(data);
-        int subVersion = readInt(data);
-
-        List<CombatGroupMember> group = new ArrayList<>();
-        int counter = subVersion;
-        for (int i = 0; i < combatGroupSize; i++) {
-
-            CombatGroupMember groupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-
-            groupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(groupMember);
-            counter++;
-            //not behind the last in the group
-            if (i < combatGroupSize - 1) {
-                int memberFillerZero1 = readInt(data);
-                if (memberFillerZero1 != 0) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-                int memberFillerCounter = readInt(data);
-                if (memberFillerCounter != counter) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-            }
-        }
-        if (group.size() != combatGroupSize) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        if (group.stream().anyMatch(m -> m.unitId() == 0)) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        int inBetweenGroupZero = readInt(data);
-        if (inBetweenGroupZero != 0) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        return Optional.of(group);
-    }
-
-    //no 00 + subVersionCounter between groupMembers, no specOps
-    private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_00subVersionCounter(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 1) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        int reinforcement = readInt(data);
-        int combatGroupSize = readInt(data);
-        int subVersion = readInt(data);
-
-        List<CombatGroupMember> group = new ArrayList<>();
-        int counter = subVersion;
-        for (int i = 0; i < combatGroupSize; i++) {
-
-            CombatGroupMember groupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
-
-            groupMember = new CombatGroupMember(
-                    unitId,
-                    groupId,
-                    optionId,
-                    List.of()
-            );
-            group.add(groupMember);
-            counter++;
-            //not behind the last in the group
-            if (i < combatGroupSize - 1) {
-                int memberFillerZero1 = readInt(data);
-                if (memberFillerZero1 != 0) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-                int memberFillerZero2 = readInt(data);
-                if (memberFillerZero2 != 0) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-                int memberFillerCounter = readInt(data);
-                if (memberFillerCounter != counter) {
-                    data.position(resetPosition);
-                    return Optional.empty();
-                }
-            }
-        }
-        if (group.size() != combatGroupSize) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        if (group.stream().anyMatch(m -> m.unitId() == 0)) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        int inBetweenGroupZero = readInt(data);
-        if (inBetweenGroupZero != 0) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        int inBetweenGroupZero2 = readInt(data);
-        if (inBetweenGroupZero2 != 0) {
-            data.position(resetPosition);
-            return Optional.empty();
-        }
-        return Optional.of(group);
+        data.position(position);
     }
 
     //specOps with leading 01
     private static Optional<List<CombatGroupMember>> getCombatGroupFromCodeV1_01SpecOps(ByteBuffer data) {
-        int resetPosition = data.position();
-        int groupNumber = readInt(data); //the number of the group, can be different from the group count (most likely groups in the middle where removed)
-        int version = readInt(data);
-        if (version != 1) {
+        final int resetPosition = data.position();
+
+        Optional<GroupInfoV1> groupInfo = tryReadingGroupInfoV1(data);
+        if (groupInfo.isEmpty()) {
             data.position(resetPosition);
             return Optional.empty();
         }
-        int reinforcement = readInt(data);
-        int combatGroupSize = readInt(data);
-        int subVersion = readInt(data);
+        int combatGroupSize = groupInfo.get().groupSize();
 
         List<CombatGroupMember> group = new ArrayList<>();
         for (int i = 0; i < combatGroupSize; i++) {
-
             CombatGroupMember groupMember;
-            final int unitId = readInt(data);
-            final int groupId = readInt(data);
-            final int optionId = readInt(data);
+            final Integer unitId = tryReadInteger(data);
+            if (unitId == null) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
+            final Integer groupId = tryReadInteger(data);
+            if (groupId == null) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
+            final Integer optionId = tryReadInteger(data);
+            if (optionId == null) {
+                data.position(resetPosition);
+                return Optional.empty();
+            }
 
             Integer zero = tryReadInteger(data);
             if (zero == null || zero != 0) {
@@ -725,8 +624,8 @@ public class ArmyCodeLoader {
             group.add(groupMember);
             //not behind the last in the group
             if (i < combatGroupSize - 1) {
-                int memberFillerZero1 = readInt(data);
-                if (memberFillerZero1 != 0) {
+                Integer filler = tryReadInteger(data);//zero or counter, sometimes random number
+                if (filler == null) {
                     data.position(resetPosition);
                     return Optional.empty();
                 }
@@ -762,10 +661,10 @@ public class ArmyCodeLoader {
     }
 
     private static void readNumbersTillEnd(ByteBuffer data) {
-        int resetPosition = data.position();
+        final int resetPosition = data.position();
         StringBuilder out = new StringBuilder();
         while (data.hasRemaining()) {
-            out.append(readInt(data));
+            out.append(tryReadInteger(data));
             out.append("-");
         }
         data.position(resetPosition);
@@ -797,9 +696,15 @@ public class ArmyCodeLoader {
     private static Optional<List<String>> readMod(ByteBuffer data) {
         List<String> modifier = new ArrayList<>();
         try {
-            int numberOfModi = readInt(data);
+            Integer numberOfModi = tryReadInteger(data);
+            if (numberOfModi == null) {
+                return Optional.empty();
+            }
             for (int i = 0; i < numberOfModi; i++) {
-                int modiLength = readInt(data);
+                Integer modiLength = tryReadInteger(data);
+                if (modiLength == null) {
+                    return Optional.empty();
+                }
                 String m = readString(data, modiLength);
                 if (!m.contains("type")) {
                     return Optional.empty();
@@ -810,6 +715,9 @@ public class ArmyCodeLoader {
             return Optional.empty();
         }
         return Optional.of(modifier);
+    }
+
+    private record GroupInfoV1(int groupNumber, int groupSize, int version, int reinforcement, int subVersion) {
     }
 
     public record CombatGroupMember(
