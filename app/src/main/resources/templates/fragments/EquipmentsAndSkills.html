@@ -5,10 +5,10 @@
 <div class="max-meight" th:fragment="equipmentsAndSkills(unitPrintCard)">
     <div class="equipments-and-skills-column">
         <div class="text-background">
-            <b th:utext="#{unit.equipment}">Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
+            <b th:utext="|#{unit.equipment}:|">Equipment:</b> <span th:text="${unitPrintCard.prettyEquipments()}"></span>
         </div>
         <div class="text-background">
-            <b th:utext="#{unit.skills}">Skills:</b> <span th:text="${unitPrintCard.prettySkills(printOptions)}"></span>
+            <b th:utext="|#{unit.skills}:|">Skills:</b> <span th:text="${unitPrintCard.prettySkills(printOptions)}"></span>
         </div>
     </div>
 </div>

@@ -668,7 +668,6 @@ public class WebApp {
                 .filter(l -> l.getCode().equals(value))
                 .findFirst();
         if (language.isEmpty()) {
-            log.error("Language not found: {}", value);
             return Language.English;
         }
         registry.counter("infinity.language", Tags.of("lang", language.get().getCode())).increment();

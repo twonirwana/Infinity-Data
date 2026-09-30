@@ -91,12 +91,24 @@ public class DatabaseImp implements Database {
 
     @Override
     public List<HackingProgram> getAllHackingPrograms(Language language) {
-        return loader.getAllHackingProgramsEn();
+        if (language == Language.English) {
+            return loader.getAllHackingProgramsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getAllHackingProgramsEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
     public List<MartialArtLevel> getAllMartialArtLevels(Language language) {
-        return loader.getAllMartialArtLevelsEn();
+        if (language == Language.English) {
+            return loader.getAllMartialArtLevelsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getAllMartialArtLevelsEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override

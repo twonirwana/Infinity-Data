@@ -156,7 +156,7 @@ public class HtmlPrinterTest {
         ));
         TrooperProfile trooperProfile = new TrooperProfile(sectorial, 1, 2, 3, 4, "name", List.of(10, 10), 10, 10, 10, 10, 3, 3, 2, false, 2, "notes", "type", 3, weapons, skills, equipments, List.of(new Characteristic(1, "char1"), new Characteristic(2, "char2")), "logo.png", List.of("image.png"), List.of("box 1"), List.of(new Order(Order.Type.REGULAR, 0, 1)));
         Trooper trooper = new Trooper(sectorial, 1, 2, 3, "optionName", "category", "0.5", 20, List.of(trooperProfile), List.of(), "note", "groupNote", "trooperIsc");
-        martialArtLevels = List.of(new MartialArtLevel("-3", "-", "+3", "3", "+1SD"));
+        martialArtLevels = List.of(new MartialArtLevel(1, 101, "-3", "-", "+3", "3", "+1SD"));
         List<ModifierOption> modifierOptions = List.of(new ModifierOption("key", List.of(new Modifier(Modifier.Type.stat, List.of(), null, null, Modifier.Stat.bs, 1))));
         unitOption = new UnitOption(sectorial, 1, 2, 3, "isc", "iscAbbr", "unitName", "optionName", "slug", "unitOptionName",
                 trooper, List.of(), 20, "0.5", "note", false, List.of(new OptionFeature("Gun", "+1SD", OptionFeature.FeatureType.Weapon, true, 3)), modifierOptions, modifierOptions, modifierOptions);

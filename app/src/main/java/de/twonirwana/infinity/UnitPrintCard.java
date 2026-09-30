@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public class UnitPrintCard {
 
     private final static String OPTION_FEATURE_DELIMITER = " - ";
-    private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L"; //todo spanish
+    private static final Set<Integer> MA_SKILL_IDS = Set.of(19, 20, 21, 22, 23);
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
@@ -30,8 +30,8 @@ public class UnitPrintCard {
                                                      PrintData printData,
                                                      PrintOptions options,
                                                      Integer combatGroup) {
-        Map<String, MartialArtLevel> martialArtLevelMap = printData.getAllMartialArtLevels().stream()
-                .collect(Collectors.toMap(MartialArtLevel::getName, Function.identity()));
+        Map<Integer, MartialArtLevel> martialArtLevelMap = printData.getAllMartialArtLevels().stream()
+                .collect(Collectors.toMap(MartialArtLevel::getSkillId, Function.identity()));
         return unitOption.getAllTrooper().stream()
                 .flatMap(t -> t.getProfiles().stream().map(p -> new UnitPrintCard(unitOption,
                                 t,
@@ -50,47 +50,12 @@ public class UnitPrintCard {
                 .toList();
     }
 
-    private static Optional<MartialArtLevel> getMartialArtLevel(UnitOption unitOption, TrooperProfile trooperProfile, Map<String, MartialArtLevel> allMartialArtLevels) {
+    private static Optional<MartialArtLevel> getMartialArtLevel(UnitOption unitOption, TrooperProfile trooperProfile, Map<Integer, MartialArtLevel> allMartialArtLevels) {
         return combineSkillsWithModifier(unitOption, trooperProfile).stream()
-                .filter(UnitPrintCard::skillIsMartialArt)
-                .map(Skill::getName)
-                .map(s -> s.replace(MARTIAL_ARTS_SKILL_NAME_PREFIX, ""))
+                .map(Skill::getId)
                 .map(allMartialArtLevels::get)
                 .filter(Objects::nonNull)
                 .findFirst();
-    }
-
-    private static boolean skillIsMartialArt(Skill skill) {
-        return skill.getName().startsWith(MARTIAL_ARTS_SKILL_NAME_PREFIX);
-    }
-
-    private static boolean notAppliedToWeapon(Skill skill) {
-        if (!Set.of(PrintUtils.BS_ATTACK_SKILL_NAME, PrintUtils.CC_ATTACK_SKILL_NAME).contains(skill.getName())) {
-            return true;
-        }
-        if (skill.getExtras().size() != 1) {
-            return true;
-        }
-        ExtraValue extraValue = skill.getExtras().getFirst();
-        if (PrintUtils.toSpecialDieExtra(extraValue).isPresent()) {
-            return false;
-        }
-        if (PrintUtils.toBurstExtra(extraValue).isPresent()) {
-            return false;
-        }
-        if (PrintUtils.toPsExtra(extraValue).isPresent()) {
-            return false;
-        }
-        if (PrintUtils.toSrExtra(extraValue).isPresent()) {
-            return false;
-        }
-        if (PrintUtils.RELEVANT_WEAPON_SKILL_EXTRAS.contains(extraValue.getText())) {
-            return false;
-        }
-        if (skillIsMartialArt(skill)) {
-            return false;
-        }
-        return true;
     }
 
     private static String createNameAndAddon(UnitOption unitOption,
@@ -220,7 +185,6 @@ public class UnitPrintCard {
                         .map(_ -> o.getType()))
                 .forEach(orderType -> {
                     switch (orderType) {
-                        //todo spanish missing symbols
                         case REGULAR -> iconFileNames.add("regular.svg");
                         case IRREGULAR -> iconFileNames.add("irregular.svg");
                         case IMPETUOUS -> iconFileNames.add("impetuous.svg");
@@ -272,6 +236,35 @@ public class UnitPrintCard {
         return Optional.of(list.get(index));
     }
 
+    private boolean notAppliedToWeapon(Skill skill) {
+        if (!Set.of(PrintUtils.BS_ATTACK_SKILL_ID, PrintUtils.CC_ATTACK_SKILL_ID).contains(skill.getId())) {
+            return true;
+        }
+        if (skill.getExtras().size() != 1) {
+            return true;
+        }
+        ExtraValue extraValue = skill.getExtras().getFirst();
+        if (PrintUtils.toSpecialDieExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.toBurstExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.toPsExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.toSrExtra(extraValue).isPresent()) {
+            return false;
+        }
+        if (PrintUtils.RELEVANT_WEAPON_SKILL_EXTRA_IDS.contains(extraValue.getId())) {
+            return false;
+        }
+        if (MA_SKILL_IDS.contains(skill.getId())) {
+            return false;
+        }
+        return true;
+    }
+
     public List<Weapon> getWeapons() {
         return Stream.concat(unitOption.getSelectedSpecOpsOptions().stream()
                                 .flatMap(m -> m.getModifiers().stream())
@@ -308,7 +301,8 @@ public class UnitPrintCard {
         return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
                 .filter(n -> !Strings.isNullOrEmpty(n))
                 .map(s -> s.replace("\n", ""))
-                .map(s -> s.replace("NOTE:", "")) //todo spanish
+                .map(s -> s.replace("NOTE:", "")) //english
+                .map(s -> s.replace("NOTA:", "")) //spanish
                 .map(String::trim)
                 .distinct()
                 .collect(Collectors.joining(""));

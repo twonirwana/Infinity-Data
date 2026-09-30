@@ -177,8 +177,8 @@ public class HtmlPrinter {
         int cardWidthInMm = options.getTemplate().dimensionFunction.apply(format).cardWidthInMm();
         int cardHeightInMm = options.getTemplate().dimensionFunction.apply(format).cardHeightInMm();
 
-        boolean hasBooty = hasAnySkill(data.getUnitOptions(), "Booty"); //todo spanish
-        boolean hasMetaChemistry = hasAnySkill(data.getUnitOptions(), "MetaChemistry"); //todo spanish
+        boolean hasBooty = hasAnySkill(data.getUnitOptions(), 25);
+        boolean hasMetaChemistry = hasAnySkill(data.getUnitOptions(), 55);
         final Map<String, List<UnitCost>> armyListUnits;
         final String armyListTitel;
         if (data.getArmyList() != null) {
@@ -303,12 +303,12 @@ public class HtmlPrinter {
 
     }
 
-    private boolean hasAnySkill(List<UnitOption> unitOptions, String skillName) {
+    private boolean hasAnySkill(List<UnitOption> unitOptions, int id) {
         return unitOptions.stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .flatMap(s -> s.getSkills().stream())
-                .anyMatch(s -> skillName.equals(s.getName()));
+                .anyMatch(s -> id == s.getId());
     }
 
     private List<PrintDoubleTable> mapToPrintMetaChemistry(List<MetaChemistryRoll> metaChemistryRolls) {

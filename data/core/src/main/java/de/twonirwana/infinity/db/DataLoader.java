@@ -42,6 +42,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -96,6 +97,13 @@ public class DataLoader {
             "regular.svg",
             "tactical.svg"
     );
+    private static final Map<Integer, Integer> MARTIAL_ARTS_LEVEL_2_SKILL_ID = Map.of(
+            1, 19,
+            2, 20,
+            3, 21,
+            4, 22,
+            5, 23
+    );
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptionsEn;
     private final Map<Sectorial, List<UnitOption>> sectorialUnitOptionsEs;
     private final Map<Sectorial, FireteamChart> sectorialFireteamChartsEn;
@@ -128,7 +136,6 @@ public class DataLoader {
         sectorialLogosFolder = logosFolder + "/sectorial";
         unitImageFolder = this.resourcesFolder + "/image/unit/";
         customUnitImageFolder = this.resourcesFolder + "/image/customUnit/";
-        //  metaDataFilePath = this.resourcesFolder + "/" + META_DATA_FILE_NAME;
         sectorialFolder = this.resourcesFolder + "/sectorialList/";
         imageDataFolder = this.resourcesFolder + "/sectorialImageData/";
         imageDataFileFormat = imageDataFolder + "/sectorialImage%d-%s.json";
@@ -298,7 +305,7 @@ public class DataLoader {
                     csvDiffs.forEach(log::info);
                     String oldFileBaseName = FilenameUtils.getBaseName(latestExistingFile.get().getFileName().toString());
                     String diffFileName = oldFileBaseName + "_to_" + baseFileName + ".csv";
-                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH).resolve(diffFileName));
+                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(diffFileName));
                 }
             } else {
                 log.info("Unit csv did not change");
@@ -398,8 +405,12 @@ public class DataLoader {
     }
 
     private static List<MartialArtLevel> mapMartialArt(Metadata metadata) {
+        AtomicInteger atomicInteger = new AtomicInteger(1);
         return metadata.getMartialArts().stream()
-                .map(m -> new MartialArtLevel(m.getOpponent(), m.getDamage(), m.getAttack(), m.getName(), m.getBurst()))
+                .map(m -> {
+                    int lvl = atomicInteger.getAndIncrement();
+                    return new MartialArtLevel(lvl, MARTIAL_ARTS_LEVEL_2_SKILL_ID.get(lvl), m.getOpponent(), m.getDamage(), m.getAttack(), m.getName(), m.getBurst());
+                })
                 .toList();
     }
 
@@ -410,12 +421,21 @@ public class DataLoader {
     }
 
     private static List<BootyRoll> mapBootyRolls(Metadata metadata) {
-        Map<String, List<Weapon>> weaponNameMap = metadata.getWeapons().stream()
+        Map<Integer, List<Weapon>> weaponNameMap = metadata.getWeapons().stream()
                 .map(w -> UnitMapper.mapWeapon(w, null, List.of(), w.getType(), null))
-                .collect(Collectors.groupingBy(Weapon::getName));
-
+                .collect(Collectors.groupingBy(Weapon::getId));
+        Map<String, Integer> bootyWeaponMapping = Map.of(
+                "5-6", 44,
+                "7-8", 11,
+                "10", 8,
+                "11", 216,
+                "13", 68,
+                "14", 9,
+                "16", 41,
+                "17", 36,
+                "20", 2);
         return metadata.getBooty().stream()
-                .map(t -> new BootyRoll(t.getId(), t.getName(), t.getValue(), weaponNameMap.getOrDefault(t.getValue(), List.of())))
+                .map(t -> new BootyRoll(t.getId(), t.getName(), t.getValue(), weaponNameMap.getOrDefault(bootyWeaponMapping.get(t.getName()), List.of())))
                 .toList();
     }
 
@@ -680,7 +700,7 @@ public class DataLoader {
     }
 
     public List<UnitOption> getAllUnitsEn() {
-        return sectorialUnitOptionsEs.values().stream()
+        return sectorialUnitOptionsEn.values().stream()
                 .flatMap(Collection::stream)
                 .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .distinct()
@@ -689,7 +709,7 @@ public class DataLoader {
     }
 
     public List<UnitOption> getAllUnitsEs() {
-        return sectorialUnitOptionsEn.values().stream()
+        return sectorialUnitOptionsEs.values().stream()
                 .flatMap(Collection::stream)
                 .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .distinct()
@@ -702,7 +722,7 @@ public class DataLoader {
     }
 
     public List<Sectorial> getAllSectorialIdsEs() {
-        return sectorialUnitOptionsEn.keySet().stream().sorted(Comparator.comparing(Sectorial::getId)).toList();
+        return sectorialUnitOptionsEs.keySet().stream().sorted(Comparator.comparing(Sectorial::getId)).toList();
     }
 
 
