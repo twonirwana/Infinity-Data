@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class PrintUtils {
+    //todo spanish
+
     public static final String CC_ATTACK_SKILL_NAME = "CC Attack";
     public static final String BS_ATTACK_SKILL_NAME = "BS Attack";
     public static final Set<String> RELEVANT_WEAPON_SKILL_EXTRAS = Set.of("Shock", "T2", "AP", "Continous Damage");

@@ -16,7 +16,7 @@ public class CheckJoinedAvailability {
         AtomicInteger count = new AtomicInteger(0);
 
         List<ArmyCodeUnit> armyCodeUnits = armyCodes.stream().flatMap(ac -> {
-            ArmyList al = database.getArmyListForArmyCode(ac);
+            ArmyList al = database.getArmyListForArmyCode(ac, Language.English); //todo multi language?
             int armyIndex = count.incrementAndGet();
             return al.getCombatGroups().values().stream().flatMap(Collection::stream).map(u -> new ArmyCodeUnit(new Army(ac, al.getArmyName(), armyIndex), new Unit(u.getSectorial().getId(),
                     u.getUnitId(),

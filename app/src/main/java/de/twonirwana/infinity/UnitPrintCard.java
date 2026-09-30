@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public class UnitPrintCard {
 
     private final static String OPTION_FEATURE_DELIMITER = " - ";
-    private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L";
+    private static final String MARTIAL_ARTS_SKILL_NAME_PREFIX = "Martial Arts L"; //todo spanish
     UnitOption unitOption;
     Trooper trooper;
     TrooperProfile profile;
@@ -220,6 +220,7 @@ public class UnitPrintCard {
                         .map(_ -> o.getType()))
                 .forEach(orderType -> {
                     switch (orderType) {
+                        //todo spanish missing symbols
                         case REGULAR -> iconFileNames.add("regular.svg");
                         case IRREGULAR -> iconFileNames.add("irregular.svg");
                         case IMPETUOUS -> iconFileNames.add("impetuous.svg");
@@ -307,7 +308,7 @@ public class UnitPrintCard {
         return Stream.of(unitOption.getNote(), trooper.getNotes(), trooper.getGroupNote(), profile.getNotes())
                 .filter(n -> !Strings.isNullOrEmpty(n))
                 .map(s -> s.replace("\n", ""))
-                .map(s -> s.replace("NOTE:", ""))
+                .map(s -> s.replace("NOTE:", "")) //todo spanish
                 .map(String::trim)
                 .distinct()
                 .collect(Collectors.joining(""));

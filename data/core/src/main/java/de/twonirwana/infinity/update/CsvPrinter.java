@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class CsvPrinter {
 
+    //todo spanish
     private static final String[] HEADER = {
             "Sectorial", "Option ID", "Profile ID", "Ics", "Ics Abbreviation", "Profile Ics", "Unit Name", "Profile Name",
             "Option Feature",
@@ -123,7 +124,7 @@ public class CsvPrinter {
                 equipment,
                 getPrimaryWeapon(profile),
                 weapons,
-                String.join(", ", profile.getCharacteristics()),
+                profile.getCharacteristics().stream().map(Characteristic::getName).collect(Collectors.joining(", ")),
                 Optional.ofNullable(profile.getType()).map(Objects::toString).orElse(""),
                 Optional.ofNullable(trooper.getCategory()).map(Objects::toString).orElse(""),
                 String.join(", ", profile.getImageNames()),

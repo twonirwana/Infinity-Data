@@ -82,7 +82,7 @@ public class OptionFeatureHelper {
             return List.of();
         }
 
-        Set<String> IGNORE_SKILL = Set.of(
+        Set<String> IGNORE_SKILL = Set.of( //todo spanish
                 "BS Attack",
                 "CC Attack"
                 //todo hacker?
@@ -120,7 +120,7 @@ public class OptionFeatureHelper {
         if (all.size() == 1) {
             return List.of();
         }
-        Set<String> IGNORE_EQUIBMENT = Set.of("GizmoKit", "MediKit");
+        Set<String> IGNORE_EQUIBMENT = Set.of("GizmoKit", "MediKit"); //todo spanish
         Function<Equipment, Boolean> filter = e -> !IGNORE_EQUIBMENT.contains(e.getName());
 
         return mostUnique(
@@ -148,7 +148,7 @@ public class OptionFeatureHelper {
         if (all.size() == 1) {
             return List.of();
         }
-        Set<String> IGNORE_WEAPONS = Set.of("Suppressive Fire Mode Weapon", "MediKit", "GizmoKit", "Dazer", "Deployable Repeater");
+        Set<String> IGNORE_WEAPONS = Set.of("Suppressive Fire Mode Weapon", "MediKit", "GizmoKit", "Dazer", "Deployable Repeater"); //todo spansish
 
         Function<Weapon, Boolean> filter = weapon -> !IGNORE_WEAPONS.contains(weapon.getName());
 

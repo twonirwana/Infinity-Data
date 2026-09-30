@@ -3,13 +3,12 @@ package de.twonirwana.infinity.unit.api;
 import lombok.Value;
 
 @Value
-public class Ammunition implements Comparable<Ammunition> {
+public class Characteristic implements Comparable<Characteristic> {
     int id;
     String name;
-    String wiki;
 
     @Override
-    public int compareTo(Ammunition o) {
+    public int compareTo(Characteristic o) {
         return Integer.compare(id, o.id);
     }
 }

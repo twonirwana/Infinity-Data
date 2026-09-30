@@ -31,7 +31,7 @@ public class PrintHackingProgram {
     public String getSkillType() {
         return hackingProgram.getSkillType().stream()
                 .map(s -> {
-                    if ("entire order".equals(s)) {
+                    if ("entire order".equals(s)) { //todo spanish?
                         return "long";
                     }
                     return s;
@@ -41,8 +41,8 @@ public class PrintHackingProgram {
 
     public String getDeviceNames() {
         return hackingProgram.getDeviceNames().stream()
-                .map(s -> s.replace(" Hacking Device", ""))
-                .map(s -> s.replace(" Device", ""))
+                .map(s -> s.replace(" Hacking Device", "")) //todo spanish
+                .map(s -> s.replace(" Device", "")) //todo spanish
                 .collect(Collectors.joining(", "));
     }
 
@@ -58,7 +58,7 @@ public class PrintHackingProgram {
         if (hackingProgram.getTarget().isEmpty()) {
             return description;
         }
-        return "%s, Targets: %s".formatted(description, String.join(", ", hackingProgram.getTarget()));
+        return "%s, Targets: %s".formatted(description, String.join(", ", hackingProgram.getTarget())); //todo spanish
     }
 
 }

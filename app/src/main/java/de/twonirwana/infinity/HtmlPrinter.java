@@ -94,6 +94,8 @@ public class HtmlPrinter {
 
         this.templateEngine = new TemplateEngine();
         this.templateEngine.setTemplateResolver(resolver);
+        GlobalMessageResolver messageResolver = new GlobalMessageResolver("messages");
+        this.templateEngine.addMessageResolver(messageResolver);
     }
 
     private static List<PrintHackingProgram> getUsedHackingPrograms(List<UnitPrintCard> unitPrintCards, PrintData data) {
@@ -175,8 +177,8 @@ public class HtmlPrinter {
         int cardWidthInMm = options.getTemplate().dimensionFunction.apply(format).cardWidthInMm();
         int cardHeightInMm = options.getTemplate().dimensionFunction.apply(format).cardHeightInMm();
 
-        boolean hasBooty = hasAnySkill(data.getUnitOptions(), "Booty");
-        boolean hasMetaChemistry = hasAnySkill(data.getUnitOptions(), "MetaChemistry");
+        boolean hasBooty = hasAnySkill(data.getUnitOptions(), "Booty"); //todo spanish
+        boolean hasMetaChemistry = hasAnySkill(data.getUnitOptions(), "MetaChemistry"); //todo spanish
         final Map<String, List<UnitCost>> armyListUnits;
         final String armyListTitel;
         if (data.getArmyList() != null) {
@@ -193,7 +195,7 @@ public class HtmlPrinter {
                             .map(ArmyList::getSectorial)
                             .map(Sectorial::getName))
                     .orElse(data.getArmyList().getSectorialName());
-            armyListTitel = "Army List: %s - %dpts".formatted(armyName, data.getArmyList().getMaxPoints());
+            armyListTitel = "Army List: %s - %dpts".formatted(armyName, data.getArmyList().getMaxPoints()); //todo spanish
         } else {
             armyListUnits = Map.of();
             armyListTitel = "";
@@ -205,8 +207,8 @@ public class HtmlPrinter {
             fireteams = data.getFireteamChart().getTeams().stream()
                     .map(PrintFireteam::fromFireteamChartTeam)
                     .toList();
-            String duoCount = data.getFireteamChart().getDuoCount() == 256 ? "Unlimited" : String.valueOf(data.getFireteamChart().getDuoCount());
-            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, data.getFireteamChart().getHarisCount(), data.getFireteamChart().getCoreCount());
+            String duoCount = data.getFireteamChart().getDuoCount() == 256 ? "Unlimited" : String.valueOf(data.getFireteamChart().getDuoCount()); //todo spanish
+            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, data.getFireteamChart().getHarisCount(), data.getFireteamChart().getCoreCount()); //todo spanish
         } else {
             fireteams = null;
             allowedFireteams = null;
@@ -248,7 +250,7 @@ public class HtmlPrinter {
         context.setVariable("fireteams", fireteams);
         context.setVariable("allowedFireteams", allowedFireteams);
         context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
-
+        context.setLocale(options.getLanguage().getLocale());
         String savePath = "%s/%s.html".formatted(outputPath, printContext.getFileName());
         try (FileWriter writer = new FileWriter(savePath)) {
             templateEngine.process(options.getTemplate().fileName, context, writer);
@@ -285,13 +287,13 @@ public class HtmlPrinter {
                 .flatMap(w -> {
                     if (!Strings.isNullOrEmpty(w.getProfile())) {
                         return Stream.of(PrintUtils.weaponProfile2Deployable(w));
-                    } else if (w.getName().endsWith("Mine") && !w.getName().equals("Chest Mine")) {
+                    } else if (w.getName().endsWith("Mine") && !w.getName().equals("Chest Mine")) { //todo spanish
                         String traits = PrintUtils.cleanupDeployableWeaponTraits(w.getProperties());
                         return Stream.of(Deployable.of(w.getName(), "-", "-", w, "0", "0", "1", "0", traits));
-                    } else if (w.getName().contains("Armed Turret")) {
-                        return Stream.of(Deployable.of("Armed Turret", "5", "10", null, "2", "3", "1", "2", "360 Visor, Total Reaction"));
-                    } else if (w.getName().equals("Pitcher")) {
-                        return Stream.of(Deployable.of("Pitcher Repeater", "-", "-", w, "0", "0", "1", "1", ""));
+                    } else if (w.getName().contains("Armed Turret")) { //todo spanish
+                        return Stream.of(Deployable.of("Armed Turret", "5", "10", null, "2", "3", "1", "2", "360 Visor, Total Reaction")); //todo spanish
+                    } else if (w.getName().equals("Pitcher")) { //todo spanish
+                        return Stream.of(Deployable.of("Pitcher Repeater", "-", "-", w, "0", "0", "1", "1", "")); //todo spanish
                     }
                     return Stream.empty();
                 })

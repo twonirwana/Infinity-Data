@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
     <meta charset="UTF-8">
-    <title>Trooper Card Generator</title>
+    <title th:text="#{app.title}">Trooper Card Generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" th:href="@{favicon.ico}">
@@ -31,6 +31,37 @@
             margin: 0;
             padding: 2em;
             box-sizing: border-box;
+            position: relative;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border: 1px solid var(--primary-color-dark);
+            border-radius: 4px;
+        }
+
+        .lang-switch a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .lang-switch a:hover,
+        .lang-switch a.active {
+            color: var(--primary-color-glow);
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+        }
+
+        .lang-separator {
+            color: var(--primary-color-dark);
         }
 
         h1 {
@@ -118,7 +149,6 @@
             padding-right: 40px;
         }
 
-        /* --- NEW STYLES FOR ADVANCED SECTION --- */
         details {
             width: 100%;
             margin-bottom: 1.5em;
@@ -144,8 +174,6 @@
         .details-content {
             padding-top: 1.5em;
         }
-
-        /* --------------------------------------- */
 
         button {
             font-family: var(--font-display), sans-serif;
@@ -268,183 +296,186 @@
 </head>
 <body>
 
+<div class="lang-switch">
+    <a th:href="@{''(lang='en')}" th:classappend="${#locale.language == 'en'} ? 'active' : ''">EN</a>
+    <span class="lang-separator">|</span>
+    <a th:href="@{''(lang='es')}" th:classappend="${#locale.language == 'es'} ? 'active' : ''">ES</a>
+</div>
+
 <div class="form-container">
-    <h1>Trooper Card Generator</h1>
+    <h1 th:text="#{app.title}">Trooper Card Generator</h1>
     <form action="#" th:action="@{/generate}" method="get" target="_blank">
 
-        <label for="armyData">Army Code or Option IDs:</label>
+        <input type="hidden" name="lang" th:value="${#locale.language}" />
+        <label for="armyData" th:text="#{form.army.label}">Army Code or Option IDs:</label>
         <input type="text" id="armyData" name="armyData" required
-               placeholder="Enter Army Code OR comma-separated Option IDs...">
+               th:placeholder="#{form.army.placeholder}">
 
-        <label for="style-selector">Select Card Style:</label>
+        <label for="style-selector" th:text="#{form.style.label}">Select Card Style:</label>
         <div class="select-wrapper">
             <select id="style-selector" name="style">
-                <option value="a4_image" selected>Color and image - one per Page</option>
-                <option value="c6onA4_image">Color and image - 6 on one page</option>
-                <option value="a4_overview">Overview List</option>
-                <option value="card_bw">Black and white - playing card (legacy and no options)</option>
+                <option value="a4_image" selected th:text="#{style.a4_image}">Color and image - one per Page</option>
+                <option value="c6onA4_image" th:text="#{style.c6onA4_image}">Color and image - 6 on one page</option>
+                <option value="a4_overview" th:text="#{style.a4_overview}">Overview List</option>
+                <option value="card_bw" th:text="#{style.card_bw}">Black and white - playing card (legacy and no options)</option>
             </select>
         </div>
 
         <details>
-            <summary>Advanced Options</summary>
+            <summary th:text="#{adv.summary}">Advanced Options</summary>
 
             <div class="details-content">
-
                 <div class="checkbox-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="useCm" value="true">
-                        <span class="checkbox-custom"></span>
-                        Use cm instead of inch
+                        <input type="checkbox" name="useCm" value="true" th:checked="${#locale.language == 'es'}">                        <span class="checkbox-custom"></span>
+                        <span th:text="#{adv.useCm}">Use cm instead of inch</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="useLetterInsteadA4" value="true">
                         <span class="checkbox-custom"></span>
-                        Use Letter format instead of A4
+                        <span th:text="#{adv.useLetter}">Use Letter format instead of A4</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showSectorialIcon" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Sectorial Icon in the background
+                        <span th:text="#{adv.showSectorial}">Show Sectorial Icon in the background</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showUnitIcon" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Unit Icon
+                        <span th:text="#{adv.showUnitIcon}">Show Unit Icon</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showUnitImages" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Unit Images
+                        <span th:text="#{adv.showUnitImages}">Show Unit Images</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="reduceColor" value="true">
                         <span class="checkbox-custom"></span>
-                        Reduced color (better for black and white printers)
+                        <span th:text="#{adv.reduceColor}">Reduced color (better for black and white printers)</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="distinctUnits" value="true">
                         <span class="checkbox-custom"></span>
-                        Remove duplicate units (removes also combat group number)
+                        <span th:text="#{adv.distinctUnits}">Remove duplicate units (removes also combat group number)</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showAlwaysOptionFeatureInName" value="true">
                         <span class="checkbox-custom"></span>
-                        Always, if space allows, append unique skills/weapons/equipment of the option to the unit's
-                        name.
+                        <span th:text="#{adv.showAlwaysOption}">Always append unique skills/weapons...</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showOptionFeatureInNameToDifferentiate" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        If there are multiple options of the same unit and if space allows, append unique
-                        skills/weapons/equipment of the option to the unit's name.
+                        <span th:text="#{adv.showOptionFeature}">If there are multiple options, append...</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showCombatGroupNumber" value="true">
                         <span class="checkbox-custom"></span>
-                        Show Combat Group number
+                        <span th:text="#{adv.showCombatGroup}">Show Combat Group number</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showEquipmentWeapons" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Equipment Weapons (e.g. Medkit ...)
+                        <span th:text="#{adv.showEquipment}">Show Equipment Weapons</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showSkillWeapon" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Skill Weapon (e.g. Forward Observer ...)
+                        <span th:text="#{adv.showSkillWeapon}">Show Skill Weapon</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showHackingPrograms" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Card with Hacking Programs
+                        <span th:text="#{adv.showHacking}">Show Card with Hacking Programs</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showWeaponSkill" value="true">
                         <span class="checkbox-custom"></span>
-                        Show Weapon Skill column
+                        <span th:text="#{adv.showWeaponSkillCol}">Show Weapon Skill column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showBurst" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Burst column
+                        <span th:text="#{adv.showBurst}">Show Burst column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showSavingRoll" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Saving Roll column
+                        <span th:text="#{adv.showSavingRoll}">Show Saving Roll column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showAmmo" value="true">
                         <span class="checkbox-custom"></span>
-                        Show Ammo column
+                        <span th:text="#{adv.showAmmo}">Show Ammo column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showPs" value="true">
                         <span class="checkbox-custom"></span>
-                        Show PS column
+                        <span th:text="#{adv.showPs}">Show PS column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showSaveAttribute" value="true">
                         <span class="checkbox-custom"></span>
-                        Show Saving Attribute column
+                        <span th:text="#{adv.showSaveAttribute}">Show Saving Attribute column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showNumberOfSaveRolls" value="true">
                         <span class="checkbox-custom"></span>
-                        Show Number Saving Rolls column
+                        <span th:text="#{adv.showNumberSaveRolls}">Show Number Saving Rolls column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="showWeaponTraits" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Show Weapon Traits column
+                        <span th:text="#{adv.showWeaponTraits}">Show Weapon Traits column</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="applyingSkillWeaponExtra" value="true" checked>
                         <span class="checkbox-custom"></span>
-                        Apply Weapon Skill Modifier (Burst, SR ...) to weapons and remove from skill list
+                        <span th:text="#{adv.applyingSkillWeapon}">Apply Weapon Skill Modifier...</span>
                     </label>
 
                 </div>
             </div>
         </details>
 
-        <button type="submit">Generate and View Cards</button>
+        <button type="submit" th:text="#{btn.generate}">Generate and View Cards</button>
     </form>
 
     <div class="allCsv">
-        <a th:href="@{/downloadAllUnits}" target="_blank">Download all Units as CSV</a>
-        <a th:href="@{/csv}" target="_blank">(old/changes)</a>
+        <a th:href="@{/downloadAllUnits}" target="_blank" th:text="#{link.downloadAll}">Download all Units as CSV</a>
+        <a th:href="@{/csv}" target="_blank" th:text="#{link.oldChanges}">(old/changes)</a>
     </div>
 
     <div class="avaChecker">
-        <a th:href="@{/joinedAva}" target="_blank">Joined Army List AVA Checker</a>
+        <a th:href="@{/joinedAva}" target="_blank" th:text="#{link.avaChecker}">Joined Army List AVA Checker</a>
     </div>
 
     <div class="help">
-        <a th:href="@{/help}" target="_blank">Help</a>
+        <a th:href="@{/help}" target="_blank" th:text="#{link.help}">Help</a>
     </div>
 
 </div>
 
 <footer>
     <div>
-        <a href="mailto:contact@infinity.2nirwana.de">Contact</a>
+        <a href="mailto:contact@infinity.2nirwana.de" th:text="#{footer.contact}">Contact</a>
         <span class="footer-separator">|</span>
         <span th:if="${!imprint.isEmpty()}">
-            <a th:href="@{/imprint}">Imprint</a>
+            <a th:href="@{/imprint}" th:text="#{footer.imprint}">Imprint</a>
             <span class="footer-separator">|</span>
         </span>
-        <a href="https://github.com/twonirwana/Infinity-Data" target="_blank">Source Code</a>
+        <a href="https://github.com/twonirwana/Infinity-Data" target="_blank" th:text="#{footer.source}">Source Code</a>
     </div>
     <div style="margin-top: 1em; font-size: 0.9em;">
-        <p style="margin: 0;">Special thanks to the following contributors for helping with the images:</p>
+        <p style="margin: 0;" th:text="#{footer.thanks}">Special thanks to the following contributors for helping with the images:</p>
         <p style="margin: 0.25em 0 0 0;" th:if="${contributors != null and !contributors.isEmpty()}">
             <th:block th:each="contributor, iterStat : ${contributors}">
                 <b th:text="${contributor}">ContributorName</b>
                 <th:block th:switch="${iterStat.size - iterStat.count}">
                     <th:block th:case="0">!</th:block>
-                    <th:block th:case="1"> and</th:block>
+                    <th:block th:case="1" th:text="#{footer.and}"> and</th:block>
                     <th:block th:case="*">,</th:block>
                 </th:block>
             </th:block>

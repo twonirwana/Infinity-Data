@@ -50,37 +50,40 @@ public class ManualHtmlPrinterTest {
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
-        for (UnitOption unitOption : db.getAllUnitOptions()) {
-            unitOptionMap.put(unitOption.getCombinedId(), unitOption);
+        for (Language language : Language.values()) {
+            for (UnitOption unitOption : db.getAllUnitOptions(language)) {
+                unitOptionMap.put(unitOption.getCombinedId(), unitOption);
 
-            for (boolean booleanOption : new boolean[]{true, false}) {
+                for (boolean booleanOption : new boolean[]{true, false}) {
 
-                for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                    PrintOptions options = new PrintOptions(
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET),
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            template,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption
-                    );
-                    testData.add(Arguments.of(unitOption.getCombinedId(), options));
+                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                        PrintOptions options = new PrintOptions(
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                Set.of(Weapon.Type.WEAPON, Weapon.Type.EQUIPMENT, Weapon.Type.SKILL, Weapon.Type.TURRET),
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                template,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                language
+                        );
+                        testData.add(Arguments.of(unitOption.getCombinedId(), options));
+                    }
                 }
             }
         }
@@ -94,7 +97,7 @@ public class ManualHtmlPrinterTest {
                   PrintOptions options) throws IOException {
         UnitOption unitOption = unitOptionMap.get(unitOptionId);
 
-        PrintData data = PrintData.of(db, List.of(unitOption), null, null);
+        PrintData data = PrintData.of(db, List.of(unitOption), null, null, options.getLanguage());
         fileName = unitOption.getOptionName() + ".html";
 
         PrintContext context = PrintContext.of(fileName, "out/html/card/", "out/html/card/image/");

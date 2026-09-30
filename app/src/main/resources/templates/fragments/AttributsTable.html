@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <body>
 
 <div class="flex" th:fragment="attributsFragment(unitPrintCard)">
@@ -10,16 +10,17 @@
     <table class="attribut">
         <thead>
         <tr>
-            <th>MOV</th>
-            <th>CC</th>
-            <th>BS</th>
-            <th>PH</th>
-            <th>WIP</th>
-            <th>ARM</th>
-            <th>BTS</th>
-            <th th:text="${unitPrintCard.getProfile().isStructure() ? 'STR' : 'VITA'}">Wounds
+            <th th:utext="#{attributs.table.header.MOV}">MOV</th>
+            <th th:utext="#{attributs.table.header.CC}">CC</th>
+            <th th:utext="#{attributs.table.header.BS}">BS</th>
+            <th th:utext="#{attributs.table.header.PH}">PH</th>
+            <th th:utext="#{attributs.table.header.WIP}">WIP</th>
+            <th th:utext="#{attributs.table.header.ARM}">ARM</th>
+            <th th:utext="#{attributs.table.header.BTS}">BTS</th>
+            <th th:text="${unitPrintCard.getProfile().isStructure()} ? #{attributs.table.header.STR} : #{attributs.table.header.VITA}">
+                Wounds
             </th>
-            <th>S</th>
+            <th th:utext="#{attributs.table.header.S}">S</th>
         </tr>
         </thead>
         <tbody>

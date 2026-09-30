@@ -37,35 +37,38 @@ public class HtmlPrinterTest {
 
     private static Stream<Arguments> generateTestData() {
         List<Arguments> testData = new ArrayList<>();
-        for (boolean booleanOption : new boolean[]{true, false}) {
-            for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
+        for (Language language : Language.values()) {
+            for (boolean booleanOption : new boolean[]{true, false}) {
+                for (Set<Weapon.Type> weaponOption : WEAPON_TYPE_OPTIONS) {
 
-                for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
-                    PrintOptions options = new PrintOptions(
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            weaponOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            template,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption,
-                            booleanOption
-                    );
-                    testData.add(Arguments.of(options));
+                    for (HtmlPrinter.Template template : HtmlPrinter.Template.values()) {
+                        PrintOptions options = new PrintOptions(
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                weaponOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                template,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                booleanOption,
+                                language
+                        );
+                        testData.add(Arguments.of(options));
+                    }
                 }
             }
         }
@@ -151,7 +154,7 @@ public class HtmlPrinterTest {
                 new ExtraValue(3, "extra distance", ExtraValue.Type.Distance, 10f)
         )
         ));
-        TrooperProfile trooperProfile = new TrooperProfile(sectorial, 1, 2, 3, 4, "name", List.of(10, 10), 10, 10, 10, 10, 3, 3, 2, false, 2, "notes", "type", 3, weapons, skills, equipments, List.of("char1", "char2"), "logo.png", List.of("image.png"), List.of("box 1"), List.of(new Order(Order.Type.REGULAR, 0, 1)));
+        TrooperProfile trooperProfile = new TrooperProfile(sectorial, 1, 2, 3, 4, "name", List.of(10, 10), 10, 10, 10, 10, 3, 3, 2, false, 2, "notes", "type", 3, weapons, skills, equipments, List.of(new Characteristic(1, "char1"), new Characteristic(2, "char2")), "logo.png", List.of("image.png"), List.of("box 1"), List.of(new Order(Order.Type.REGULAR, 0, 1)));
         Trooper trooper = new Trooper(sectorial, 1, 2, 3, "optionName", "category", "0.5", 20, List.of(trooperProfile), List.of(), "note", "groupNote", "trooperIsc");
         martialArtLevels = List.of(new MartialArtLevel("-3", "-", "+3", "3", "+1SD"));
         List<ModifierOption> modifierOptions = List.of(new ModifierOption("key", List.of(new Modifier(Modifier.Type.stat, List.of(), null, null, Modifier.Stat.bs, 1))));
