@@ -142,6 +142,11 @@ public class PlaywrightScreenshotTest {
 
         String fileName = browser.browserType().name() + "_" + template.name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
+
+        checkScreenshot(actualImageBytes, expectedFile, fileName);
+    }
+
+    private void checkScreenshot(byte[] actualImageBytes, File expectedFile, String fileName) throws IOException {
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {
             ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
@@ -164,7 +169,7 @@ public class PlaywrightScreenshotTest {
         Assertions.assertThat(result.getImageComparisonState())
                 .withFailMessage("difference: " + result.getDifferencePercent() + " in areas: " + Optional.ofNullable(result.getRectangles()).stream()
                         .flatMap(Collection::stream)
-                        .map(r -> "x:" +r.getMinPoint().x +",y:" +r.getMinPoint().y + "-" + "x:" +r.getMaxPoint().x +",y:" +r.getMaxPoint().y + " h:" + r.getHeight() + " w:" + r.getWidth())
+                        .map(r -> "x:" + r.getMinPoint().x + ",y:" + r.getMinPoint().y + "-" + "x:" + r.getMaxPoint().x + ",y:" + r.getMaxPoint().y + " h:" + r.getHeight() + " w:" + r.getWidth())
                         .collect(Collectors.joining(", ")))
                 .isEqualTo(ImageComparisonState.MATCH);
     }
@@ -191,25 +196,9 @@ public class PlaywrightScreenshotTest {
 
         String fileName = "by_id_" + browser.browserType().name() + "_" + templateName;
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
-        BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
-        if (!expectedFile.exists()) {
-            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
-            Assertions.fail();
-        }
 
-        BufferedImage expected = ImageIO.read(expectedFile);
-        ImageComparisonResult result = new ImageComparison(expected, actual)
-                .setPixelToleranceLevel(0.1)
-                .setDifferenceRectangleColor(Color.BLUE)
-                .compareImages();
+        checkScreenshot(actualImageBytes, expectedFile, fileName);
 
-
-        if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
-            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected" + ".png"));
-        }
-
-        Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
     }
 
     @Test
@@ -231,26 +220,10 @@ public class PlaywrightScreenshotTest {
 
         String fileName = "joined_ava_" + browser.browserType().name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
-        BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
-        if (!expectedFile.exists()) {
-            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
-            Assertions.fail();
-        }
-
-        BufferedImage expected = ImageIO.read(expectedFile);
-        ImageComparisonResult result = new ImageComparison(expected, actual)
-                .setPixelToleranceLevel(0.1)
-                .setDifferenceRectangleColor(Color.BLUE)
-                .compareImages();
-
-
-        if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-            ImageIO.write(result.getResult(), "png", new File(RESULT_FOLDER + fileName + "_diff_" + TEST_ID + ".png"));
-            ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected" + ".png"));
-        }
-
-        Assertions.assertThat(result.getImageComparisonState()).isEqualTo(ImageComparisonState.MATCH);
+        checkScreenshot(actualImageBytes, expectedFile, fileName);
     }
+
+    //todo spanish version
 
     @AfterEach
     void closeContext() {
