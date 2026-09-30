@@ -605,7 +605,7 @@ public final class PrintUtils {
 
         Optional<Integer> srExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toSrExtra)
+                .map(PrintUtils::toSrExtra) //todo need own or extendsion
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -613,7 +613,7 @@ public final class PrintUtils {
 
         Optional<Integer> psExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toPsExtra)
+                .map(PrintUtils::toPsExtra)//todo need own or extendsion
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -634,6 +634,7 @@ public final class PrintUtils {
         List<String> allHackingNames = allHackingPrograms.stream().map(HackingProgram::getName).toList();
         if (allHackingNames.stream().noneMatch(h -> extraValue.getText().contains(h)) && (
                 //must be a value modifier, not something else like a firewall upgrade
+                //todo need own or extendsion
                 toPsExtra(extraValue).isPresent() || toBurstExtra(extraValue).isPresent() || toSrExtra(extraValue).isPresent() || toSpecialDieExtra(extraValue).isPresent()
         )) {
             //general bonus
@@ -648,7 +649,7 @@ public final class PrintUtils {
         }
 
         List<String> burstExtra = extraValues.stream()
-                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms)) //todo need own or extendsion
                 .map(PrintUtils::toBurstExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -656,7 +657,7 @@ public final class PrintUtils {
                 .toList();
 
         List<String> sdExtra = extraValues.stream()
-                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms)) //todo need own or extendsion
                 .map(PrintUtils::toSpecialDieExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -670,10 +671,10 @@ public final class PrintUtils {
 
         List<String> extras = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .filter(e -> toPsExtra(e).isEmpty())
-                .filter(e -> toSrExtra(e).isEmpty())
-                .filter(e -> toBurstExtra(e).isEmpty())
-                .filter(e -> toSpecialDieExtra(e).isEmpty())
+                .filter(e -> toPsExtra(e).isEmpty()) //todo need own or extendsion
+                .filter(e -> toSrExtra(e).isEmpty()) //todo need own or extendsion
+                .filter(e -> toBurstExtra(e).isEmpty()) //todo need own or extendsion
+                .filter(e -> toSpecialDieExtra(e).isEmpty()) //todo need own or extendsion
                 .flatMap(e -> toBracketValue(e).stream())
                 .sorted()
                 .toList();
