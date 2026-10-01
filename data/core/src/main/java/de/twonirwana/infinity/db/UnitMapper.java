@@ -548,10 +548,10 @@ public class UnitMapper {
                 return mapTurrets(unit, weapons, weaponIdMap.values().stream().flatMap(Collection::stream).toList(), extras).stream()
                         .map(weapon -> {
                             final String overwriteName;
-                            if (!weapon.getName().contains("Armed Turret")) { //todo spanish
-                                overwriteName = "Armed Turret";
-                            } else {
+                            if (weapon.getName().contains("Armed Turret") || weapon.getName().contains("Torreta Artillada")) {
                                 overwriteName = null;
+                            } else {
+                                overwriteName = "Armed Turret";
                             }
                             return mapWeapon(weapon, pi.getQ(), extras, de.twonirwana.infinity.unit.api.Weapon.Type.TURRET.name(), overwriteName);
                         })
@@ -613,11 +613,11 @@ public class UnitMapper {
         final de.twonirwana.infinity.unit.api.Weapon.Type type = de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType);
 
         final de.twonirwana.infinity.unit.api.Weapon.Skill weaponSkill;
-        if (weapon.getProperties() != null && weapon.getProperties().contains("CC")) { //todo spanish
+        if (weapon.getProperties() != null && weapon.getProperties().contains("CC")) { //same in spanish
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.CC;
-        } else if (weapon.getProperties() != null && weapon.getProperties().contains("BS Weapon (PH)")) { //todo spanish
+        } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (PH)") || weapon.getProperties().contains("Arma CD (FIS)"))) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.PH;
-        } else if (weapon.getProperties() != null && weapon.getProperties().contains("BS Weapon (WIP)")) { //todo spanish
+        } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (WIP)")|| weapon.getProperties().contains("Arma CD (VOL)"))) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.WIP;
         } else {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.BS;
@@ -981,11 +981,16 @@ public class UnitMapper {
     private static List<Weapon> mapTurrets(Unit unit, List<Weapon> turretWeapons, List<Weapon> allWeapons, List<ExtraValue> extras) {
         Map<String, String> extra2WeaponModeNameMapping = ImmutableMap.<String, String>builder()
                 .putAll(turretWeapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
-                .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle") //todo spanish
+                .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle")
                 .put("Combi R.", "Combi Rifle")
+                .put("F. Combi", "Fusil Combi")
                 .put("AP Marksman Rifle", "Marksman Rifle")
+                .put("F. de Precisión AP", "Fusil de Precisión")
+                .put("F. Precisión", "Fusil de Precisión")
                 .put("Thunderbolt (AP)", "Thunderbolt")
+                .put("F. Lanzaadhesivo", "Fusil Lanzaadhesivo")
                 .put("Plasma Carabine", "Plasma Carbine")
+                .put("Carabina de Plasma", "Carabina de Plasma")
                 .build();
         Optional<ExtraValue> turretTypeExtra = extras.stream()
                 .filter(e -> e.getType() == ExtraValue.Type.Text)

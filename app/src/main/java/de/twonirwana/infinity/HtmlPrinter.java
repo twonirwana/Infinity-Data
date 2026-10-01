@@ -81,6 +81,15 @@ public class HtmlPrinter {
     private final static int A4_SHORT = 210; //mm
     private final static int LETTER_LONG = 279; //mm
     private final static int LETTER_SHORT = 216; //mm
+    private static final Set<Integer> MINE_IDS = Set.of(
+            199, //AP Mine
+            174, //Cybermine
+            197, //E/M Mine
+            62, //Monofilament Mine
+            220, //PARA Mine
+            196, //Shock Mine
+            63 //Viral Mine
+    );
     private final TemplateEngine templateEngine;
     private final Supplier<LocalDateTime> currentTimeSupplier;
 
@@ -182,9 +191,10 @@ public class HtmlPrinter {
         final Map<String, List<UnitCost>> armyListUnits;
         final String armyListTitel;
         if (data.getArmyList() != null) {
+            String groupName = options.getLanguage() == Language.Spanish ? "Grupo" : "Group";
             armyListUnits = data.getArmyList().getCombatGroups().entrySet().stream()
-                    .collect(Collectors.toMap(e -> "Group: " + e.getKey(), e -> e.getValue().stream()
-                            .map(UnitCost::fromUnitOption)
+                    .collect(Collectors.toMap(e -> "%s: %d".formatted(groupName, e.getKey()), e -> e.getValue().stream()
+                            .map(u -> UnitCost.fromUnitOption(u, options.getLanguage()))
                             .toList()
                     ));
             String armyName = Optional.of(data.getArmyList())
@@ -195,7 +205,8 @@ public class HtmlPrinter {
                             .map(ArmyList::getSectorial)
                             .map(Sectorial::getName))
                     .orElse(data.getArmyList().getSectorialName());
-            armyListTitel = "Army List: %s - %dpts".formatted(armyName, data.getArmyList().getMaxPoints()); //todo spanish
+            String listName = options.getLanguage() == Language.Spanish ? "Lista" : "List";
+            armyListTitel = "Army %s: %s - %dpts".formatted(listName, armyName, data.getArmyList().getMaxPoints());
         } else {
             armyListUnits = Map.of();
             armyListTitel = "";
@@ -207,8 +218,9 @@ public class HtmlPrinter {
             fireteams = data.getFireteamChart().getTeams().stream()
                     .map(PrintFireteam::fromFireteamChartTeam)
                     .toList();
-            String duoCount = data.getFireteamChart().getDuoCount() == 256 ? "Unlimited" : String.valueOf(data.getFireteamChart().getDuoCount()); //todo spanish
-            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, data.getFireteamChart().getHarisCount(), data.getFireteamChart().getCoreCount()); //todo spanish
+            String unlimitedName = options.getLanguage() == Language.Spanish ? "Ilimitado" : "Unlimited";
+            String duoCount = data.getFireteamChart().getDuoCount() == 256 ? unlimitedName : String.valueOf(data.getFireteamChart().getDuoCount());
+            allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, data.getFireteamChart().getHarisCount(), data.getFireteamChart().getCoreCount());
         } else {
             fireteams = null;
             allowedFireteams = null;
@@ -237,7 +249,7 @@ public class HtmlPrinter {
         context.setVariable("printUtils", new PrintUtils()); //better accessable in the templates
         context.setVariable("programs1", programsCard1);
         context.setVariable("programs2", programsCard2);
-        context.setVariable("deployables", getDeployable(unitPrintCards));
+        context.setVariable("deployables", getDeployable(unitPrintCards, options.getLanguage()));
         context.setVariable("metaChemistry", hasMetaChemistry ? mapToPrintMetaChemistry(data.getAllMetaChemistryRolls()) : List.of());
         context.setVariable("bootyRolls", hasBooty ? mapToPrintBootyRoll(data.getAllBootyRolls()) : List.of());
         context.setVariable("bootyWeapons", hasBooty ? mapBootyWeapons(data.getAllBootyRolls()) : List.of());
@@ -281,19 +293,23 @@ public class HtmlPrinter {
         }
     }
 
-    private List<Deployable> getDeployable(List<UnitPrintCard> unitPrintCards) {
+    private List<Deployable> getDeployable(List<UnitPrintCard> unitPrintCards, Language language) {
         return unitPrintCards.stream()
                 .flatMap(e -> e.getWeapons().stream())
                 .flatMap(w -> {
                     if (!Strings.isNullOrEmpty(w.getProfile())) {
                         return Stream.of(PrintUtils.weaponProfile2Deployable(w));
-                    } else if (w.getName().endsWith("Mine") && !w.getName().equals("Chest Mine")) { //todo spanish
+                    } else if (MINE_IDS.contains(w.getId())) {
                         String traits = PrintUtils.cleanupDeployableWeaponTraits(w.getProperties());
                         return Stream.of(Deployable.of(w.getName(), "-", "-", w, "0", "0", "1", "0", traits));
-                    } else if (w.getName().contains("Armed Turret")) { //todo spanish
-                        return Stream.of(Deployable.of("Armed Turret", "5", "10", null, "2", "3", "1", "2", "360 Visor, Total Reaction")); //todo spanish
-                    } else if (w.getName().equals("Pitcher")) { //todo spanish
-                        return Stream.of(Deployable.of("Pitcher Repeater", "-", "-", w, "0", "0", "1", "1", "")); //todo spanish
+                    } else if (w.getName().contains("Torreta Artillada")||w.getName().contains("Armed Turret") ) { //not all turrets the same Id
+                        String armedTurretName = language == Language.Spanish ? "Torreta Artillada" : "Armed Turret";
+                        String armedTurretSkills = language == Language.Spanish ? "Visor 360, Reacción Total" : "Visor 360, Total Reaction";
+                        return Stream.of(Deployable.of(armedTurretName, "5", "10", null, "2", "3", "1", "2", armedTurretSkills));
+                    } else if (w.getId() == 154) { //Pitcher
+
+                        String pitcherRepeaterName = language == Language.Spanish ? "Pitcher Repetidor" : "Pitcher Repeater";
+                        return Stream.of(Deployable.of(pitcherRepeaterName, "-", "-", w, "0", "0", "1", "1", ""));
                     }
                     return Stream.empty();
                 })

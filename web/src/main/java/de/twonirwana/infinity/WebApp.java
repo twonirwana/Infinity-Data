@@ -499,7 +499,7 @@ public class WebApp {
                 registry.counter("infinity.joined.ava.submitted").increment();
                 log.info("Showed joined AVA Check result for: {}", armyCodeList);
 
-                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database, Language.English)); //todo spanish version?
+                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database, Language.English));
                 if (anyInvalid) {
                     return;
                 }

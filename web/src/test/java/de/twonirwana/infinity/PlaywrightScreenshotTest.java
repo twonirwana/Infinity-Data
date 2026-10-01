@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -103,7 +104,7 @@ public class PlaywrightScreenshotTest {
         playwright.close();
     }
 
-    private static Stream<Arguments> generateTestData() {
+    private static Stream<Arguments> generateTestBrowserTemplateData() {
         return Arrays.stream(BrowserTyp.values())
                 .flatMap(b -> Arrays.stream(HtmlPrinter.Template.values())
                         .map(t -> Arguments.of(b, t)));
@@ -121,7 +122,7 @@ public class PlaywrightScreenshotTest {
     }
 
     @ParameterizedTest
-    @MethodSource("generateTestData")
+    @MethodSource("generateTestBrowserTemplateData")
     void testBrowserAndTemplate(BrowserTyp browserType, HtmlPrinter.Template template) throws IOException {
         Browser browser = fromType(browserType);
         context = browser.newContext(new Browser.NewContextOptions()
@@ -141,6 +142,33 @@ public class PlaywrightScreenshotTest {
                 .setFullPage(true));
 
         String fileName = browser.browserType().name() + "_" + template.name();
+        File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
+
+        checkScreenshot(actualImageBytes, expectedFile, fileName);
+    }
+
+    @ParameterizedTest
+    @EnumSource(HtmlPrinter.Template.class)
+    void testSpanishTemplate(HtmlPrinter.Template template) throws IOException {
+        Browser browser = chromium;
+        context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080));
+        page = context.newPage();
+        page.navigate(baseUrl);
+        page.waitForLoadState();
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("ES").setExact(true)).click();
+        assertThat(page.locator("body")).isVisible();
+        page.getByLabel("Seleccionar Estilo de Carta:").selectOption(template.name());
+        page.getByLabel("Código de Ejército o IDs de Opciones:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
+
+
+        Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generar y Ver Cartas")).click());
+
+        newPage.waitForLoadState();
+        byte[] actualImageBytes = newPage.screenshot(new Page.ScreenshotOptions()
+                .setFullPage(true));
+
+        String fileName = browser.browserType().name() + "_" + template.name() + "_es";
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
         checkScreenshot(actualImageBytes, expectedFile, fileName);
@@ -222,8 +250,6 @@ public class PlaywrightScreenshotTest {
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
         checkScreenshot(actualImageBytes, expectedFile, fileName);
     }
-
-    //todo spanish version
 
     @AfterEach
     void closeContext() {

@@ -23,11 +23,11 @@
         </div>
 
         <div class="army-code">
-            <span><b>Army Code:</b> </span>
+            <span><b th:text="#{army.list.code}">Army Code:</b> </span>
             <span th:text="${armyCode}"> code </span>
         </div>
 
-        <div class="army-list-footer" th:text="'Cards created on: ' + ${currentDate}">
+        <div class="army-list-footer"  th:text="|#{army.list.cards.created} ${currentDate}|">
             Cards created on: YYYY-MM-DD
         </div>
 

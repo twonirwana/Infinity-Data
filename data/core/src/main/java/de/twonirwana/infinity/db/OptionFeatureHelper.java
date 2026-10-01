@@ -82,12 +82,12 @@ public class OptionFeatureHelper {
             return List.of();
         }
 
-        Set<String> IGNORE_SKILL = Set.of( //todo spanish
-                "BS Attack",
-                "CC Attack"
+        Set<Integer> IGNORE_SKILL = Set.of(
+                201, // "BS Attack",
+                240 //"CC Attack"
                 //todo hacker?
         );
-        Function<Skill, Boolean> filter = e -> !IGNORE_SKILL.contains(e.getName());
+        Function<Skill, Boolean> filter = e -> !IGNORE_SKILL.contains(e.getId());
         return mostUnique(
                 allPrimaryUnitProfileValues(TrooperProfile::getSkills, filter).apply(current),
                 all.stream().map(u -> allPrimaryUnitProfileValues(TrooperProfile::getSkills, filter).apply(u)).toList(),
@@ -120,8 +120,11 @@ public class OptionFeatureHelper {
         if (all.size() == 1) {
             return List.of();
         }
-        Set<String> IGNORE_EQUIBMENT = Set.of("GizmoKit", "MediKit"); //todo spanish
-        Function<Equipment, Boolean> filter = e -> !IGNORE_EQUIBMENT.contains(e.getName());
+        Set<Integer> IGNORE_EQUIBMENT = Set.of(
+                237, //"GizmoKit"
+                106  // "MediKit")
+        );
+        Function<Equipment, Boolean> filter = e -> !IGNORE_EQUIBMENT.contains(e.getId());
 
         return mostUnique(
                 allPrimaryUnitProfileValues(TrooperProfile::getEquipment, filter).apply(current),
@@ -148,9 +151,15 @@ public class OptionFeatureHelper {
         if (all.size() == 1) {
             return List.of();
         }
-        Set<String> IGNORE_WEAPONS = Set.of("Suppressive Fire Mode Weapon", "MediKit", "GizmoKit", "Dazer", "Deployable Repeater"); //todo spansish
+        Set<Integer> IGNORE_WEAPONS = Set.of(
+                127,//   "Suppressive Fire Mode Weapon",
+                106,// "MediKit",
+                237,// "GizmoKit",
+                243,//"Dazer",
+                111  //"Deployable Repeater"
+        );
 
-        Function<Weapon, Boolean> filter = weapon -> !IGNORE_WEAPONS.contains(weapon.getName());
+        Function<Weapon, Boolean> filter = weapon -> !IGNORE_WEAPONS.contains(weapon.getId());
 
         return mostUnique(
                 allPrimaryUnitProfileValues(TrooperProfile::getWeapons, filter).apply(current),

@@ -52,16 +52,38 @@ public final class PrintUtils {
             303, // PS=6
             309 // PS=7
     );
+    private static final Set<Integer> HACKING_PS_EXTRA_IDS = Set.of(
+            343, // UPGRADE: Trinity (PS=5)
+            363,// UPGRADE: Carbonite (PS=6)
+            373 //UPGRADE: Total Control (PS=3)
+    );
     private static final Set<Integer> BURST_EXTRA_IDS = Set.of(
             8, // +1B
             256 // +2B
     );
+    private static final Set<Integer> HACKING_BURST_EXTRA_IDS = Set.of(
+            269, //UPGRADE: Oblivion (+1B)
+            278, // UPGRADE: Total Control (+1B)
+            285, // UPGRADE: Carbonite (+1 B)
+            290 // UPGRADE: Trinity (+1B)
+    );
     private static final Set<Integer> SD_EXTRA_IDS = Set.of(
             308 // +1SD
+    );
+    private static final Set<Integer> HACKING_SD_EXTRA_IDS = Set.of(
+            378, // UPGRADE: Trinity (+1SD)
+            383// UPGRADE: Carbonite (+1SD)
     );
     private static final Set<Integer> SR_EXTRA_IDS = Set.of(
             305, //SR-1
             337 //SR-2
+    );
+    private static final Set<Integer> HACKING_SR_EXTRA_IDS = Set.of(
+            314, // UPGRADE: Total Control (SR-2)
+            331, // UPGRADE: Carbonite (SR-2)
+            339, // UPGRADE: Trinity (SR-1)
+            344, //UPGRADE: SR-1
+            352 //UPGRADE: Trinity (SR-2)
     );
     private static final Pattern EQUAL_EXTRA_REGEX = Pattern.compile("=(\\d)");
     private static final Pattern PLUS_EXTRA_REGEX = Pattern.compile("\\+(\\d)");
@@ -485,12 +507,27 @@ public final class PrintUtils {
         return Optional.empty();
     }
 
+    static Optional<String> toHackingSrExtra(ExtraValue extraValue) {
+        if (HACKING_SR_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(MINUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
     static Optional<String> toBracketValue(ExtraValue extraValue) {
         return findInString(BRACKET_REGEX, extraValue.getText());
     }
 
     static Optional<String> toPsExtra(ExtraValue extraValue) {
         if (PS_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(EQUAL_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
+
+    static Optional<String> toHackingPsExtra(ExtraValue extraValue) {
+        if (HACKING_PS_EXTRA_IDS.contains(extraValue.getId())) {
             return findInString(EQUAL_EXTRA_REGEX, extraValue.getText());
         }
         return Optional.empty();
@@ -514,8 +551,22 @@ public final class PrintUtils {
         return Optional.empty();
     }
 
+    static Optional<String> toHackingBurstExtra(ExtraValue extraValue) {
+        if (HACKING_BURST_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
     static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
         if (SD_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> toHackingSpecialDieExtra(ExtraValue extraValue) {
+        if (HACKING_SD_EXTRA_IDS.contains(extraValue.getId())) {
             return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
         }
         return Optional.empty();
@@ -605,7 +656,7 @@ public final class PrintUtils {
 
         Optional<Integer> srExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toSrExtra) //todo need own or extendsion
+                .map(PrintUtils::toHackingSrExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -613,7 +664,7 @@ public final class PrintUtils {
 
         Optional<Integer> psExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toPsExtra)//todo need own or extendsion
+                .map(PrintUtils::toHackingPsExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -634,8 +685,10 @@ public final class PrintUtils {
         List<String> allHackingNames = allHackingPrograms.stream().map(HackingProgram::getName).toList();
         if (allHackingNames.stream().noneMatch(h -> extraValue.getText().contains(h)) && (
                 //must be a value modifier, not something else like a firewall upgrade
-                //todo need own or extendsion
-                toPsExtra(extraValue).isPresent() || toBurstExtra(extraValue).isPresent() || toSrExtra(extraValue).isPresent() || toSpecialDieExtra(extraValue).isPresent()
+                toHackingPsExtra(extraValue).isPresent() ||
+                        toHackingBurstExtra(extraValue).isPresent() ||
+                        toHackingSrExtra(extraValue).isPresent() ||
+                        toHackingSpecialDieExtra(extraValue).isPresent()
         )) {
             //general bonus
             return true;
@@ -649,16 +702,16 @@ public final class PrintUtils {
         }
 
         List<String> burstExtra = extraValues.stream()
-                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms)) //todo need own or extendsion
-                .map(PrintUtils::toBurstExtra)
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .map(PrintUtils::toHackingBurstExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(s -> "+" + s)
                 .toList();
 
         List<String> sdExtra = extraValues.stream()
-                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms)) //todo need own or extendsion
-                .map(PrintUtils::toSpecialDieExtra)
+                .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
+                .map(PrintUtils::toHackingSpecialDieExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map("+%sSD"::formatted)
@@ -671,10 +724,10 @@ public final class PrintUtils {
 
         List<String> extras = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .filter(e -> toPsExtra(e).isEmpty()) //todo need own or extendsion
-                .filter(e -> toSrExtra(e).isEmpty()) //todo need own or extendsion
-                .filter(e -> toBurstExtra(e).isEmpty()) //todo need own or extendsion
-                .filter(e -> toSpecialDieExtra(e).isEmpty()) //todo need own or extendsion
+                .filter(e -> toHackingPsExtra(e).isEmpty())
+                .filter(e -> toHackingSrExtra(e).isEmpty())
+                .filter(e -> toHackingBurstExtra(e).isEmpty())
+                .filter(e -> toHackingSpecialDieExtra(e).isEmpty())
                 .flatMap(e -> toBracketValue(e).stream())
                 .sorted()
                 .toList();
