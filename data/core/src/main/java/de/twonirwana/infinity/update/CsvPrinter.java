@@ -2,6 +2,7 @@ package de.twonirwana.infinity.update;
 
 import com.google.common.base.Strings;
 import de.twonirwana.infinity.DistanceUtil;
+import de.twonirwana.infinity.Language;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -19,23 +20,31 @@ import java.util.stream.Stream;
 @Slf4j
 public class CsvPrinter {
 
-    //todo spanish
-    private static final String[] HEADER = {
+    private static final String[] HEADER_EN = {
             "Sectorial", "Option ID", "Profile ID", "Ics", "Ics Abbreviation", "Profile Ics", "Unit Name", "Profile Name",
             "Option Feature",
             "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
-            "Points", "SWC",
+            "C", "SWC",
             "Skills", "Equipment", "Primary Weapon", "Weapons",
             "Characteristics", "Type", "Category",
             "CB Image", "CB Product", "Community Image"
     };
+    private static final String[] HEADER_ES = {
+            "Sectorial", "Option ID", "Profile ID", "Ics", "Abreviatura de Ics", "Perfil Ics", "Nombre de la unidad", "Nombre del perfil",
+            "Característica opcional",
+            "MOV", "CC", "CD", "FIS", "VOL", "BLI", "PB", "VITA", "Silueta", "Órdenes", "Disp",
+            "C", "CAP",
+            "Habilidades", "Equipo", "Arma principal", "Armaamento",
+            "Características", "Tipo", "Categoría",
+            "Imagen de CB", "CB Producto", "Imagen de la comunidad"
+    };
     private static final Set<Weapon.Type> WEAPON_TYPES = Set.of(Weapon.Type.WEAPON, Weapon.Type.TURRET);
 
-    public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder) {
+    public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder, Language language) {
+        String[] header = language == Language.Spanish ? HEADER_ES : HEADER_EN;
 
         try (Writer writer = new FileWriter(filePath);
-             CSVPrinter csvPrinter = new CSVPrinter(writer,
-                     CSVFormat.Builder.create().setDelimiter(';').setHeader(HEADER).get())) {
+             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.Builder.create().setDelimiter(';').setHeader(header).get())) {
 
             printableUnits.stream()
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
@@ -269,12 +278,14 @@ public class CsvPrinter {
         }
     }
 
-    public static void saveDiffs(List<String> diffs, Path out) {
+    public static void saveDiffs(List<String> diffs, Path out, Language language) {
+        String[] header = language == Language.Spanish ? HEADER_ES : HEADER_EN;
+
         try {
             FileWriter fileWriter = new FileWriter(out.toFile());
             PrintWriter printWriter = new PrintWriter(fileWriter);
-            String header = "Change;" + String.join(";", List.of(HEADER));
-            printWriter.println(header);
+            String change_header = "Change;" + String.join(";", List.of(header));
+            printWriter.println(change_header);
             diffs.forEach(printWriter::println);
             printWriter.close();
         } catch (IOException e) {

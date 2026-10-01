@@ -17,7 +17,7 @@
         }
 
         body {
-            font-family: var(--font-body);
+            font-family: var(--font-body), sans-serif;;
             background-color: var(--dark-bg);
             background-image: radial-gradient(ellipse at center, rgba(40, 50, 60, 0.8) 0%, var(--dark-bg) 70%);
             color: var(--primary-color-dark);
@@ -28,7 +28,7 @@
         }
 
         h1 {
-            font-family: var(--font-display);
+            font-family: var(--font-display), sans-serif;;
             color: var(--primary-color-glow);
             text-align: center;
             text-transform: uppercase;
@@ -68,7 +68,7 @@
 <table th:if="${not #lists.isEmpty(files)}">
     <tr th:each="file : ${files}">
         <td>
-            <a th:href="@{/csv/{fname}(fname=${file})}" th:text="${file}">filename.ext</a>
+            <a th:href="@{/csv/{fname}(fname=${file}, lang=${#locale.language})}" th:text="${file}">filename.ext</a>
         </td>
     </tr>
 </table>

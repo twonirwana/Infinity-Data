@@ -116,7 +116,7 @@ public class WebApp {
                 Optional.ofNullable(WebApp.class.getResourceAsStream("/favicon.ico")).ifPresent(ctx::result);
             });
             startPage(config, registry);
-            downloadAllUnitsCsv(config, registry, Path.of(Database.CSV_LIST_PATH.formatted(Language.English.getCode()))); //todo switch
+            downloadAllUnitsCsv(config, registry);
             //page that generates cards for the given parameter
             generateCardPage(config, startupTime, registry, contextPath, database, htmlPrinter);
             //page for a generated card set
@@ -130,10 +130,10 @@ public class WebApp {
         });
     }
 
-    private static void downloadAllUnitsCsv(JavalinConfig config, PrometheusMeterRegistry registry, Path allUnitsCsvListFolder) {
+    private static void downloadAllUnitsCsv(JavalinConfig config, PrometheusMeterRegistry registry) {
         config.routes.get("/downloadAllUnits", ctx -> {
-
-            Optional<Path> latestCsv = getLatestCsvFile(allUnitsCsvListFolder);
+            Language language = getLanguage(ctx, registry);
+            Optional<Path> latestCsv = getLatestCsvFile(Path.of(Database.CSV_LIST_PATH.formatted(language.getCode())));
 
             if (latestCsv.isEmpty() || !Files.exists(latestCsv.get()) || !Files.isRegularFile(latestCsv.get())) {
                 log.error("Attempted to download missing file: {}", latestCsv);
@@ -564,28 +564,32 @@ public class WebApp {
     private static void csvFiles(JavalinConfig config,
                                  PrometheusMeterRegistry registry) {
         config.routes.get("/csv", ctx -> {
+            Language language = getLanguage(ctx, registry);
+            setLocale(ctx, registry);
+
             registry.counter("infinity.csv.page").increment();
             ctx.render("templates/files.html", Map.of(
                     "title", "Old Unit Lists and Changes",
-                    "files", getCsvFiles()));
+                    "files", getCsvFiles(language)));
 
         });
 
         config.routes.get("/csv/{filename}", ctx -> {
             String filename = ctx.pathParam("filename");
-
+            Language language = getLanguage(ctx, registry);
 
             // SECURITY: Ensure that no other files are downloaded
-            if (!getCsvFiles().contains(filename)) {
+            if (!getCsvFiles(language).contains(filename)) {
                 ctx.status(HttpStatus.FORBIDDEN).result("Access denied.");
                 return;
             }
 
+
             Optional<Path> file;
-            if (Files.exists(Path.of(Database.CSV_LIST_PATH.formatted(Language.English.getCode())).resolve(filename))) { //todo language switch
-                file = Optional.of(Path.of(Database.CSV_LIST_PATH.formatted(Language.English.getCode())).resolve(filename));
-            } else if (Files.exists(Path.of(Database.CSV_DIFF_LIST_PATH.formatted(Language.English.getCode())).resolve(filename))) {
-                file = Optional.of(Path.of(Database.CSV_DIFF_LIST_PATH.formatted(Language.English.getCode())).resolve(filename));
+            if (Files.exists(Path.of(Database.CSV_LIST_PATH.formatted(language.getCode())).resolve(filename))) {
+                file = Optional.of(Path.of(Database.CSV_LIST_PATH.formatted(language.getCode())).resolve(filename));
+            } else if (Files.exists(Path.of(Database.CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(filename))) {
+                file = Optional.of(Path.of(Database.CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(filename));
             } else {
                 file = Optional.empty();
             }
@@ -602,10 +606,10 @@ public class WebApp {
         });
     }
 
-    private static List<String> getCsvFiles() {
+    private static List<String> getCsvFiles(Language language) {
         try (Stream<Path> paths = Stream.concat(
-                Files.list(Paths.get(Database.CSV_LIST_PATH.formatted(Language.English.getCode()))), //todo language switch
-                Files.list(Paths.get(Database.CSV_DIFF_LIST_PATH.formatted(Language.English.getCode()))))) {
+                Files.list(Paths.get(Database.CSV_LIST_PATH.formatted(language.getCode()))),
+                Files.list(Paths.get(Database.CSV_DIFF_LIST_PATH.formatted(language.getCode()))))) {
             return paths
                     .filter(Files::isRegularFile)
                     .map(p -> p.getFileName().toString())

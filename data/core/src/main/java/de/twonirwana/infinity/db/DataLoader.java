@@ -291,7 +291,7 @@ public class DataLoader {
             Path tempDir = Files.createTempDirectory("infinity-csv");
             String baseFileName = DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + language.getCode() + "_" + unitOptions.toString().hashCode();
             String fileName = baseFileName + ".csv";
-            CsvPrinter.printList(tempDir.toAbsolutePath() + "/" + fileName, unitOptions, customUnitImageFolder);
+            CsvPrinter.printList(tempDir.toAbsolutePath() + "/" + fileName, unitOptions, customUnitImageFolder, language);
             Path tempFile = tempDir.resolve(fileName);
             Optional<Path> latestExistingFile = getLatestCsvFile(Path.of(CSV_LIST_PATH.formatted(language.getCode())));
             HashCode existingFileHash = getHashCode(latestExistingFile.map(Path::toFile).orElse(null));
@@ -305,7 +305,7 @@ public class DataLoader {
                     csvDiffs.forEach(log::info);
                     String oldFileBaseName = FilenameUtils.getBaseName(latestExistingFile.get().getFileName().toString());
                     String diffFileName = oldFileBaseName + "_to_" + baseFileName + ".csv";
-                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(diffFileName));
+                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(diffFileName), language);
                 }
             } else {
                 log.info("Unit csv did not change");

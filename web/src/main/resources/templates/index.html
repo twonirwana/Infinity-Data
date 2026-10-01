@@ -444,8 +444,8 @@
     </form>
 
     <div class="allCsv">
-        <a th:href="@{/downloadAllUnits}" target="_blank" th:text="#{link.downloadAll}">Download all Units as CSV</a>
-        <a th:href="@{/csv}" target="_blank" th:text="#{link.oldChanges}">(old/changes)</a>
+        <a th:href="@{/downloadAllUnits(lang=${#locale.language})}" target="_blank" th:text="#{link.downloadAll}">Download all Units as CSV</a>
+        <a th:href="@{/csv(lang=${#locale.language})}" target="_blank" th:text="#{link.oldChanges}">(old/changes)</a>
     </div>
 
     <div class="avaChecker">
