@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <body>
 
 <div th:fragment="hackingProgramsTableFragment(programs, showDeviceColumn, shortTableHeader)">
@@ -7,13 +7,13 @@
         <table class="hacking">
             <thead>
             <tr>
-                <th>Name</th>
-                <th th:if="${showDeviceColumn}">Device</th>
-                <th th:text="${shortTableHeader ? 'A/O Mod' : 'Attack/Opp. Mod'}">A/O Mod</th>
-                <th>B</th>
-                <th>PS</th>
-                <th>Skill Type</th>
-                <th>Description</th>
+                <th th:utext="#{hacking.table.header.program.name}">Name</th>
+                <th th:if="${showDeviceColumn}" th:utext="#{hacking.table.header.program.device}">Device</th>
+                <th th:text="${shortTableHeader} ? #{hacking.table.header.program.modShort} : #{hacking.table.header.program.modLong}">A/O Mod</th>
+                <th th:utext="#{weapon.table.header.weapon.burst}">B</th>
+                <th th:utext="#{weapon.table.header.weapon.ps}">PS</th>
+                <th th:utext="#{hacking.table.header.program.skill.type}">Skill Type</th>
+                <th th:utext="#{hacking.table.header.program.description}">Description</th>
             </tr>
             </thead>
             <tbody>

@@ -20,14 +20,14 @@ public class PrintData {
     ArmyList armyList;
     String armyCode;
 
-    public static PrintData of(Database db, List<UnitOption> unitOptions, ArmyList armyList, String armyCode) {
+    public static PrintData of(Database db, List<UnitOption> unitOptions, ArmyList armyList, String armyCode, Language language) {
         return new PrintData(
                 unitOptions,
-                db.getAllHackingPrograms(),
-                db.getAllMartialArtLevels(),
-                db.getAllBootyRolls(),
-                db.getAllMetaChemistryRolls(),
-                Optional.ofNullable(armyList).map(a -> db.getFireteamChart(a.getSectorial())).orElse(null),
+                db.getAllHackingPrograms(language),
+                db.getAllMartialArtLevels(language),
+                db.getAllBootyRolls(language),
+                db.getAllMetaChemistryRolls(language),
+                Optional.ofNullable(armyList).map(a -> db.getFireteamChart(a.getSectorial(), language)).orElse(null),
                 armyList,
                 armyCode
         );

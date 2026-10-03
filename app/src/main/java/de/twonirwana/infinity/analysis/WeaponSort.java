@@ -1,6 +1,7 @@
 package de.twonirwana.infinity.analysis;
 
 import de.twonirwana.infinity.DatabaseImp;
+import de.twonirwana.infinity.Language;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 import de.twonirwana.infinity.unit.api.Weapon;
 
@@ -26,7 +27,7 @@ public class WeaponSort {
     }
 
     void main() {
-        DatabaseImp.createTimedUpdate(null).getAllUnitOptions().stream()
+        DatabaseImp.createTimedUpdate(null).getAllUnitOptions(Language.English).stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .flatMap(profile -> profile.getWeapons().stream().map(w -> new UnitAndWeapon(profile, w)))

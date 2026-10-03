@@ -42,6 +42,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,11 +55,11 @@ import static de.twonirwana.infinity.Database.CSV_LIST_PATH;
 @Getter
 @Slf4j
 public class DataLoader {
-    private final static String FACTION_URL_FORMAT = "https://api.corvusbelli.com/army/units/en/%s";
-    private static final String META_DATA_URL = "https://api.corvusbelli.com/army/infinity/en/metadata";
-    private static final String UNIT_IMAGE_URL = "https://api.corvusbelli.com/army/units/en/%d/miniatures";
-    private static final String META_DATA_FILE_NAME = "metadata.json";
-    private static final String SECTORIAL_FILE_FORMAT = "%d-%s.json";
+    private final static String FACTION_URL_FORMAT = "https://api.corvusbelli.com/army/units/%s/%s";
+    private static final String META_DATA_URL = "https://api.corvusbelli.com/army/infinity/%s/metadata";
+    private static final String UNIT_IMAGE_URL = "https://api.corvusbelli.com/army/units/en/%d/miniatures"; //Spanish version not needed
+    private static final String META_DATA_FILE_NAME = "metadata_%s.json";
+    private static final String SECTORIAL_FILE_FORMAT = "%d-%s-%s.json";
     private static final String ARCHIVE_FOLDER = "archive";
 
 
@@ -84,6 +85,7 @@ public class DataLoader {
             1199 //Hayabusa
     );
     private static final String IMAGES_ICONS_FOLDER = "/images/icons/";
+
     private static final List<String> ICON_FILE_NAMES = List.of(
             "cube.svg",
             "cube-2.svg",
@@ -95,20 +97,33 @@ public class DataLoader {
             "regular.svg",
             "tactical.svg"
     );
-    private final Map<Sectorial, List<UnitOption>> sectorialUnitOptions;
-    private final Map<Sectorial, FireteamChart> sectorialFireteamCharts;
-    private final Map<Integer, Sectorial> sectorialIdMap;
-    private final List<HackingProgram> allHackingPrograms;
-    private final List<MartialArtLevel> allMartialArtLevels;
-    private final List<MetaChemistryRoll> metaChemistry;
-    private final List<BootyRoll> bootyRolls;
+    private static final Map<Integer, Integer> MARTIAL_ARTS_LEVEL_2_SKILL_ID = Map.of(
+            1, 19,
+            2, 20,
+            3, 21,
+            4, 22,
+            5, 23
+    );
+    private final Map<Sectorial, List<UnitOption>> sectorialUnitOptionsEn;
+    private final Map<Sectorial, List<UnitOption>> sectorialUnitOptionsEs;
+    private final Map<Sectorial, FireteamChart> sectorialFireteamChartsEn;
+    private final Map<Sectorial, FireteamChart> sectorialFireteamChartsEs;
+    private final Map<Integer, Sectorial> sectorialIdMapEn;
+    private final Map<Integer, Sectorial> sectorialIdMapEs;
+    private final List<HackingProgram> allHackingProgramsEn;
+    private final List<HackingProgram> allHackingProgramsEs;
+    private final List<MartialArtLevel> allMartialArtLevelsEn;
+    private final List<MartialArtLevel> allMartialArtLevelsEs;
+    private final List<MetaChemistryRoll> metaChemistryEn;
+    private final List<MetaChemistryRoll> metaChemistryEs;
+    private final List<BootyRoll> bootyRollsEn;
+    private final List<BootyRoll> bootyRollsEs;
     private final String logosFolder;
     private final String resourcesFolder;
     private final String unitLogosFolder;
     private final String sectorialLogosFolder;
     private final String unitImageFolder;
     private final String customUnitImageFolder;
-    private final String metaDataFilePath;
     private final String sectorialFolder;
     private final String imageDataFolder;
     private final String imageDataFileFormat;
@@ -121,7 +136,6 @@ public class DataLoader {
         sectorialLogosFolder = logosFolder + "/sectorial";
         unitImageFolder = this.resourcesFolder + "/image/unit/";
         customUnitImageFolder = this.resourcesFolder + "/image/customUnit/";
-        metaDataFilePath = this.resourcesFolder + "/" + META_DATA_FILE_NAME;
         sectorialFolder = this.resourcesFolder + "/sectorialList/";
         imageDataFolder = this.resourcesFolder + "/sectorialImageData/";
         imageDataFileFormat = imageDataFolder + "/sectorialImage%d-%s.json";
@@ -132,16 +146,73 @@ public class DataLoader {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
         createFolderIfNotExists(customUnitImageFolder);
-        createFolderIfNotExists(CSV_LIST_PATH);
-        createFolderIfNotExists(CSV_DIFF_LIST_PATH);
+        for (Language language : Language.values()) {
+            createFolderIfNotExists(CSV_LIST_PATH.formatted(language.getCode()));
+            createFolderIfNotExists(CSV_DIFF_LIST_PATH.formatted(language.getCode()));
+        }
+
 
         final boolean updateNow = shouldUpdate(updateOption, new File(nextUpdateFile));
         if (updateNow) {
             log.info("update all files");
         }
-        Metadata metadata = loadMetadata(updateNow);
+        Metadata metadataEn = loadMetadata(updateNow, Language.English);
+        Metadata metadataEs = loadMetadata(updateNow, Language.Spanish);
 
-        sectorialIdMap = metadata.getFactions().stream()
+        sectorialIdMapEn = getSectorialIdMap(metadataEn);
+        sectorialIdMapEs = getSectorialIdMap(metadataEs);
+        Map<Sectorial, SectorialList> sectorialListMapEn = sectorialIdMapEn.values().stream()
+                .collect(Collectors.toMap(Function.identity(), s -> loadSectorial(s.getId(), s.getSlug(), updateNow, Language.English)));
+        Map<Sectorial, SectorialList> sectorialListMapEs = sectorialIdMapEs.values().stream()
+                .collect(Collectors.toMap(Function.identity(), s -> loadSectorial(s.getId(), s.getSlug(), updateNow, Language.Spanish)));
+
+        Map<Sectorial, SectorialList> reenforcementListMapEn = getReenforcementListMap(sectorialListMapEn, Language.English, updateNow);
+        Map<Sectorial, SectorialList> reenforcementListMapEs = getReenforcementListMap(sectorialListMapEs, Language.Spanish, updateNow);
+
+        //only english should be enough for images
+        sectorialIdMapEn.values().forEach(s -> downloadImageDataFile(s, updateNow));
+
+        Map<Integer, SectorialImage> sectorialImageMap = sectorialIdMapEn.values().stream()
+                .filter(s -> Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())).toFile().exists())
+                .collect(Collectors.toMap(Sectorial::getId, s -> deserializeSectorialImage(Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())))));
+
+        if (updateNow) {
+            downloadAllUnitImage(sectorialImageMap);
+            downloadAllUnitLogos(sectorialListMapEn.values().stream()
+                    .flatMap(u -> u.getUnits().stream())
+                    .flatMap(u -> u.getProfileGroups().stream())
+                    .flatMap(g -> g.getProfiles().stream())
+                    .map(Profile::getLogo)
+                    .collect(Collectors.toSet())
+            );
+            downloadAllSectorialLogos(metadataEn.getFactions().stream().map(Faction::getLogo).collect(Collectors.toSet()));
+        }
+        sectorialUnitOptionsEn = UnitMapper.getUnits(sectorialListMapEn, reenforcementListMapEn, metadataEn, sectorialImageMap);
+        sectorialUnitOptionsEs = UnitMapper.getUnits(sectorialListMapEs, reenforcementListMapEs, metadataEs, sectorialImageMap);
+
+        allHackingProgramsEn = mapHackingPrograms(metadataEn);
+        allHackingProgramsEs = mapHackingPrograms(metadataEs);
+
+        allMartialArtLevelsEn = mapMartialArt(metadataEn);
+        allMartialArtLevelsEs = mapMartialArt(metadataEs);
+
+        bootyRollsEn = mapBootyRolls(metadataEn);
+        bootyRollsEs = mapBootyRolls(metadataEs);
+
+        metaChemistryEn = mapChemistryRolls(metadataEn);
+        metaChemistryEs = mapChemistryRolls(metadataEs);
+
+        sectorialFireteamChartsEn = mapFireteamChat(sectorialListMapEn);
+        sectorialFireteamChartsEs = mapFireteamChat(sectorialListMapEs);
+
+        copyAllImagesToOutputFolder(imageOutputFolder);
+
+        updateCsvIfChanged(getAllUnitsEn(), customUnitImageFolder, Language.English);
+        updateCsvIfChanged(getAllUnitsEs(), customUnitImageFolder, Language.Spanish);
+    }
+
+    private static Map<Integer, Sectorial> getSectorialIdMap(Metadata metadata) {
+        return metadata.getFactions().stream()
                 .sorted(Comparator.comparingInt(Faction::getId))
                 .filter(f -> f.getId() != 901) // NA2 doesn't have a vanilla option
                 .map(f -> new Sectorial(f.getId(),
@@ -151,58 +222,6 @@ public class DataLoader {
                         f.isDiscontinued(),
                         Utils.getFileNameFromUrl(f.getLogo())))
                 .collect(Collectors.toMap(Sectorial::getId, Function.identity()));
-        Map<Sectorial, SectorialList> sectorialListMap = sectorialIdMap.values().stream()
-                .collect(Collectors.toMap(Function.identity(), s -> loadSectorial(s.getId(), s.getSlug(), updateNow)));
-
-        Map<Sectorial, SectorialList> reenforcementListMap = sectorialListMap.entrySet().stream()
-                .flatMap(e -> {
-                    if (e.getValue().getReinforcements() != null) {
-                        return Stream.of(e);
-                    } else {
-                        String message = "reinforcements not found in %d - %s".formatted(e.getKey().getId(), e.getKey().getSlug());
-                        if (!UNIQUE_LOG_MESSAGES.contains(message)) {
-                            UNIQUE_LOG_MESSAGES.add(message);
-                            log.warn(message);
-                        }
-                        return Stream.empty();
-                    }
-                })
-                .collect(Collectors.toMap(Map.Entry::getKey, e ->
-                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", updateNow)));
-
-
-        sectorialIdMap.values().forEach(s -> downloadImageDataFile(s, updateNow));
-
-
-        Map<Sectorial, SectorialImage> sectorialImageMap = sectorialIdMap.values().stream()
-                .filter(s -> Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())).toFile().exists())
-                .collect(Collectors.toMap(Function.identity(), s -> deserializeSectorialImage(Paths.get(imageDataFileFormat.formatted(s.getId(), s.getSlug())))));
-        if (updateNow) {
-            downloadAllUnitImage(sectorialImageMap);
-            downloadAllUnitLogos(sectorialListMap.values().stream()
-                    .flatMap(u -> u.getUnits().stream())
-                    .flatMap(u -> u.getProfileGroups().stream())
-                    .flatMap(g -> g.getProfiles().stream())
-                    .map(Profile::getLogo)
-                    .collect(Collectors.toSet())
-            );
-            downloadAllSectorialLogos(metadata.getFactions().stream().map(Faction::getLogo).collect(Collectors.toSet()));
-        }
-        sectorialUnitOptions = UnitMapper.getUnits(sectorialListMap, reenforcementListMap, metadata, sectorialImageMap);
-
-        allHackingPrograms = mapHackingPrograms(metadata);
-
-        allMartialArtLevels = mapMartialArt(metadata);
-
-        bootyRolls = mapBootyRolls(metadata);
-
-        metaChemistry = mapChemistryRolls(metadata);
-
-        sectorialFireteamCharts = mapFireteamChat(sectorialListMap);
-
-        copyAllImagesToOutputFolder(imageOutputFolder);
-
-        updateCsvIfChanged(getAllUnits(), customUnitImageFolder);
     }
 
     private static void copyStandardIcons(String outPath) {
@@ -259,7 +278,7 @@ public class DataLoader {
         return !Objects.equals(sourceHash, targetHash);
     }
 
-    private static void updateCsvIfChanged(List<UnitOption> allUnits, String customUnitImageFolder) {
+    private static void updateCsvIfChanged(List<UnitOption> allUnits, String customUnitImageFolder, Language language) {
         List<UnitOption> unitOptions = allUnits.stream()
                 .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .filter(u -> !u.isMerc())
@@ -270,15 +289,15 @@ public class DataLoader {
 
         try {
             Path tempDir = Files.createTempDirectory("infinity-csv");
-            String baseFileName = DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + unitOptions.toString().hashCode();
+            String baseFileName = DATE_TIME_FORMATTER.format(LocalDateTime.now()) + "_" + language.getCode() + "_" + unitOptions.toString().hashCode();
             String fileName = baseFileName + ".csv";
-            CsvPrinter.printList(tempDir.toAbsolutePath() + "/" + fileName, unitOptions, customUnitImageFolder);
+            CsvPrinter.printList(tempDir.toAbsolutePath() + "/" + fileName, unitOptions, customUnitImageFolder, language);
             Path tempFile = tempDir.resolve(fileName);
-            Optional<Path> latestExistingFile = getLatestCsvFile(Path.of(CSV_LIST_PATH));
+            Optional<Path> latestExistingFile = getLatestCsvFile(Path.of(CSV_LIST_PATH.formatted(language.getCode())));
             HashCode existingFileHash = getHashCode(latestExistingFile.map(Path::toFile).orElse(null));
             HashCode tempFileHas = getHashCode(tempFile.toFile());
             if (!Objects.equals(existingFileHash, tempFileHas)) {
-                Path newFilePath = Path.of(CSV_LIST_PATH, fileName);
+                Path newFilePath = Path.of(CSV_LIST_PATH.formatted(language.getCode()), fileName);
                 Files.copy(tempFile, newFilePath);
                 log.info("Saved updated unit csv to {}", fileName);
                 if (latestExistingFile.isPresent()) {
@@ -286,7 +305,7 @@ public class DataLoader {
                     csvDiffs.forEach(log::info);
                     String oldFileBaseName = FilenameUtils.getBaseName(latestExistingFile.get().getFileName().toString());
                     String diffFileName = oldFileBaseName + "_to_" + baseFileName + ".csv";
-                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH).resolve(diffFileName));
+                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(diffFileName), language);
                 }
             } else {
                 log.info("Unit csv did not change");
@@ -386,8 +405,12 @@ public class DataLoader {
     }
 
     private static List<MartialArtLevel> mapMartialArt(Metadata metadata) {
+        AtomicInteger atomicInteger = new AtomicInteger(1);
         return metadata.getMartialArts().stream()
-                .map(m -> new MartialArtLevel(m.getOpponent(), m.getDamage(), m.getAttack(), m.getName(), m.getBurst()))
+                .map(m -> {
+                    int lvl = atomicInteger.getAndIncrement();
+                    return new MartialArtLevel(lvl, MARTIAL_ARTS_LEVEL_2_SKILL_ID.get(lvl), m.getOpponent(), m.getDamage(), m.getAttack(), m.getName(), m.getBurst());
+                })
                 .toList();
     }
 
@@ -398,22 +421,21 @@ public class DataLoader {
     }
 
     private static List<BootyRoll> mapBootyRolls(Metadata metadata) {
-        Map<String, List<Weapon>> weaponNameMap = metadata.getWeapons().stream()
+        Map<Integer, List<Weapon>> weaponNameMap = metadata.getWeapons().stream()
                 .map(w -> UnitMapper.mapWeapon(w, null, List.of(), w.getType(), null))
-                .collect(Collectors.groupingBy(Weapon::getName));
-        Map<String, List<Weapon>> bootyWeaponMapping = Map.of(
-                "5-6", weaponNameMap.get("Grenades"),
-                "7-8", weaponNameMap.get("DA CC Weapon"),
-                "10", weaponNameMap.get("EXP CC Weapon"),
-                "11", weaponNameMap.get("Adhesive Launcher Rifle"),
-                "13", weaponNameMap.get("Panzerfaust"),
-                "14", weaponNameMap.get("Monofilament CC Weapon"),
-                "16", weaponNameMap.get("MULTI Rifle"),
-                "17", weaponNameMap.get("MULTI Sniper Rifle"),
-                "20", weaponNameMap.get("Heavy Machine Gun"));
-
+                .collect(Collectors.groupingBy(Weapon::getId));
+        Map<String, Integer> bootyWeaponMapping = Map.of(
+                "5-6", 44,
+                "7-8", 11,
+                "10", 8,
+                "11", 216,
+                "13", 68,
+                "14", 9,
+                "16", 41,
+                "17", 36,
+                "20", 2);
         return metadata.getBooty().stream()
-                .map(t -> new BootyRoll(t.getId(), t.getName(), t.getValue(), bootyWeaponMapping.getOrDefault(t.getName(), List.of())))
+                .map(t -> new BootyRoll(t.getId(), t.getName(), t.getValue(), weaponNameMap.getOrDefault(bootyWeaponMapping.get(t.getName()), List.of())))
                 .toList();
     }
 
@@ -555,6 +577,25 @@ public class DataLoader {
         }
     }
 
+    private Map<Sectorial, SectorialList> getReenforcementListMap(Map<Sectorial, SectorialList> sectorialListMap, Language language, boolean updateNow) {
+        return sectorialListMap.entrySet().stream()
+                .flatMap(e -> {
+                    if (e.getValue().getReinforcements() != null) {
+                        return Stream.of(e);
+                    } else {
+                        String message = "reinforcements not found in %d - %s".formatted(e.getKey().getId(), e.getKey().getSlug());
+                        if (!UNIQUE_LOG_MESSAGES.contains(message)) {
+                            UNIQUE_LOG_MESSAGES.add(message);
+                            log.warn(message);
+                        }
+                        return Stream.empty();
+                    }
+                })
+                .collect(Collectors.toMap(Map.Entry::getKey, e ->
+                        loadSectorial(e.getValue().getReinforcements(), e.getKey().getSlug() + "_ref", updateNow, language)));
+
+    }
+
     private void copyAllImagesToOutputFolder(String imageOutputFolder) {
         if (imageOutputFolder == null) {
             return;
@@ -569,7 +610,7 @@ public class DataLoader {
 
     private void cropAndCopyCbFiles(String imageOutputFolder) {
         AtomicLong counter = new AtomicLong(0);
-        getAllUnits().stream()
+        getAllUnitsEn().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .distinct()
@@ -600,12 +641,12 @@ public class DataLoader {
         }
     }
 
-    private SectorialList loadSectorial(int id, String name, boolean forceUpdate) {
+    private SectorialList loadSectorial(int id, String name, boolean forceUpdate, Language language) {
         createFolderIfNotExists(sectorialFolder);
-        Path path = Paths.get(sectorialFolder, SECTORIAL_FILE_FORMAT.formatted(id, name));
+        Path path = Paths.get(sectorialFolder, SECTORIAL_FILE_FORMAT.formatted(id, language.getCode(), name));
         if (!path.toFile().exists() || forceUpdate) {
             try {
-                Optional<BufferedInputStream> in = getStreamForURL(FACTION_URL_FORMAT.formatted(id));
+                Optional<BufferedInputStream> in = getStreamForURL(FACTION_URL_FORMAT.formatted(language.getCode(), id));
                 if (in.isPresent()) {
                     savePrettyJson(in.get(), path);
                 }
@@ -617,11 +658,11 @@ public class DataLoader {
         return deserializeSectorialList(path);
     }
 
-    private Metadata loadMetadata(boolean forceUpdate) throws IOException {
+    private Metadata loadMetadata(boolean forceUpdate, Language language) throws IOException {
         createFolderIfNotExists(resourcesFolder);
-        Path path = Paths.get(metaDataFilePath);
+        Path path = Paths.get(resourcesFolder + "/" + META_DATA_FILE_NAME.formatted(language.getCode()));
         if (!path.toFile().exists() || forceUpdate) {
-            Optional<BufferedInputStream> metaDataInput = getStreamForURL(META_DATA_URL);
+            Optional<BufferedInputStream> metaDataInput = getStreamForURL(META_DATA_URL.formatted(language.getCode()));
             if (metaDataInput.isPresent()) {
                 savePrettyJson(metaDataInput.get(), path);
             }
@@ -634,7 +675,7 @@ public class DataLoader {
         logoUrls.forEach(logo -> downloadFileInFolder(logo, sectorialLogosFolder));
     }
 
-    private void downloadAllUnitImage(Map<Sectorial, SectorialImage> sectorialImageMap) {
+    private void downloadAllUnitImage(Map<Integer, SectorialImage> sectorialImageMap) {
         createFolderIfNotExists(unitImageFolder);
         sectorialImageMap.values().stream()
                 .flatMap(i -> i.getUnits().stream())
@@ -650,12 +691,16 @@ public class DataLoader {
         logoUrls.forEach(logo -> downloadFileInFolder(logo, unitLogosFolder));
     }
 
-    public List<UnitOption> getAllUnitsForSectorial(Sectorial sectorial) {
-        return sectorialUnitOptions.get(sectorial);
+    public List<UnitOption> getAllUnitsForSectorialEn(Sectorial sectorial) {
+        return sectorialUnitOptionsEn.get(sectorial);
     }
 
-    public List<UnitOption> getAllUnits() {
-        return sectorialUnitOptions.values().stream()
+    public List<UnitOption> getAllUnitsForSectorialEs(Sectorial sectorial) {
+        return sectorialUnitOptionsEs.get(sectorial);
+    }
+
+    public List<UnitOption> getAllUnitsEn() {
+        return sectorialUnitOptionsEn.values().stream()
                 .flatMap(Collection::stream)
                 .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .distinct()
@@ -663,19 +708,23 @@ public class DataLoader {
                 .toList();
     }
 
-    public List<Sectorial> getAllSectorialIds() {
-        return sectorialUnitOptions.keySet().stream().sorted(Comparator.comparing(Sectorial::getId)).toList();
-    }
-
-    public List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial) {
-        return sectorialUnitOptions.get(sectorial).stream()
+    public List<UnitOption> getAllUnitsEs() {
+        return sectorialUnitOptionsEs.values().stream()
+                .flatMap(Collection::stream)
                 .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .distinct()
                 .sorted(Comparator.comparing(UnitOption::getCombinedId))
-                .filter(u -> !u.isMerc())
                 .toList();
-
     }
+
+    public List<Sectorial> getAllSectorialIdsEn() {
+        return sectorialUnitOptionsEn.keySet().stream().sorted(Comparator.comparing(Sectorial::getId)).toList();
+    }
+
+    public List<Sectorial> getAllSectorialIdsEs() {
+        return sectorialUnitOptionsEs.keySet().stream().sorted(Comparator.comparing(Sectorial::getId)).toList();
+    }
+
 
     public enum UpdateOption {
         FORCE_UPDATE,

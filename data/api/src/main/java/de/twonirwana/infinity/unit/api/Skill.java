@@ -6,7 +6,7 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class Skill {
+public class Skill implements Comparable<Skill> {
     int id;
     String name;
     String wiki;
@@ -15,4 +15,8 @@ public class Skill {
     @NonNull
     List<ExtraValue> extras;
 
+    @Override
+    public int compareTo(Skill o) {
+        return Integer.compare(id, o.id);
+    }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <body>
 
 <div th:fragment="bootyRollFragment()">
@@ -7,15 +7,15 @@
         <div class="card-content">
 
             <div class="card-header">
-                <h2 class="card-header-title">Booty</h2>
+                <h2 class="card-header-title" th:text="#{booty.title}">Booty</h2>
             </div>
             <table class="booty">
                 <thead>
                 <tr>
-                    <th>Roll</th>
-                    <th>Bonus</th>
-                    <th>Roll</th>
-                    <th>Bonus</th>
+                    <th th:text="#{table.roll}">Roll</th>
+                    <th th:text="#{table.bonus}">Bonus</th>
+                    <th th:text="#{table.roll}">Roll</th>
+                    <th th:text="#{table.bonus}">Bonus</th>
                 </tr>
                 </thead>
                 <tbody>

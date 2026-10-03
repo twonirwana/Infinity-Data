@@ -1,5 +1,9 @@
-package de.twonirwana.infinity;
+package de.twonirwana.infinity.tool;
 
+import de.twonirwana.infinity.Database;
+import de.twonirwana.infinity.DatabaseImp;
+import de.twonirwana.infinity.Language;
+import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -22,7 +26,7 @@ public class AvailabilityPrinter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        List<Sectorial> avaIn = db.getAllSectorials().stream()
+        List<Sectorial> avaIn = db.getAllSectorials(Language.English).stream()
                 .filter(s -> s.getParentId() == 601)
                 .toList();
 
@@ -30,7 +34,7 @@ public class AvailabilityPrinter {
 
         try (Writer writer = new FileWriter("out/csv/ava.csv"); CSVPrinter csvPrinter = new CSVPrinter(writer,
                 CSVFormat.Builder.create().setDelimiter(';').setHeader(headers).get())) {
-            db.getAllUnitOptions().stream()
+            db.getAllUnitOptions(Language.English).stream()
                     .filter(u -> !u.isMerc())
                     .filter(u -> !u.isReinforcementUnit())
                     .filter(u -> avaIn.contains(u.getSectorial()))

@@ -47,10 +47,10 @@ public class ManualPlaywrightScreenshotTest {
     static final long TEST_ID = System.currentTimeMillis();
     static final int PLAYWRIGHT_PORT = 3000;
     @Container
-    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.61.0-noble")
+    static GenericContainer<?> playwrightContainer = new GenericContainer<>("mcr.microsoft.com/playwright:v1.63.0-noble")
             .withExposedPorts(PLAYWRIGHT_PORT)
             .withAccessToHost(true)
-            .withCommand("/bin/bash", "-c", "npx -y playwright@1.61.0 run-server --port 3000 --host 0.0.0.0")
+            .withCommand("/bin/bash", "-c", "npx -y playwright@1.63.0 run-server --port 3000 --host 0.0.0.0")
             .waitingFor(Wait.forLogMessage(".*Listening on.*", 1));
     static Playwright playwright;
     static Browser chromium;
@@ -102,7 +102,7 @@ public class ManualPlaywrightScreenshotTest {
                 List.of("gr8Kb3BlcmF0aW9ucwpKQSBCZXN0IG9mgSwBAQEAAgCCVQEBAACCVQIBAA%3D%3D", "Posthumans_703"),
                 List.of("gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D", "manyWeapons"),
                 List.of("glsKc2hhc3Zhc3RpaQEggSwBAQEABACFEwEBAACC5QEBAACB9gEIAACB9gEIAA%3D%3D", "allProgamms"),
-                List.of("gloFbW9yYXQBIIEsAQEBAAIAh1IBAQAAgvQBAgA%3D", "bootyAndMetaChemistry"),
+                List.of("glkNY29tYmluZWQtYXJteQEggSwBAQEAAgCC9AEBAAAAhIgBAQAA", "bootyAndMetaChemistry"),
                 List.of("glkNY29tYmluZWQtYXJteQEggSwCAQEACgCDxQECAACGJAECAACF6QEDAACFEwEBAACDDwEDAACB8QEHAACB7wEGAACG5AEEAACCCwEEAACB8gEJAAIBAAEAguUBAQA%3D", "allCAHacker"),
                 List.of("ZQpwYW5vY2VhbmlhASCBLAIBAQABAIcMAQEAAgEAAQCHDAEBAA%3D%3D", "panO"),
                 List.of("gMkHeXUtamluZwEggSwCAQEAAQCHMQEBAAIBAAEAhy4BAgA%3D", "yuJing"),

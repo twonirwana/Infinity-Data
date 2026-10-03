@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <head>
 
     <title th:text="${listName}">list name</title>
@@ -449,10 +449,10 @@
     </th:block>
 </div>
 <th:block
-        th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs1},'Hacking Programs 1')}">
+        th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs1}, #{hacking.card.1.title})}">
 </th:block>
 <th:block
-        th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs2},'Hacking Programs 2')}">
+        th:replace="~{fragments/HackingCard :: hackingProgramsFragment(${programs2}, #{hacking.card.2.title})}">
 </th:block>
 <th:block
         th:replace="~{fragments/Deployables :: deployablesFragment()}">

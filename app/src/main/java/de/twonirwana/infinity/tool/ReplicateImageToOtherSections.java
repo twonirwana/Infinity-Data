@@ -3,6 +3,7 @@ package de.twonirwana.infinity.tool;
 import com.google.common.io.Files;
 import de.twonirwana.infinity.Database;
 import de.twonirwana.infinity.DatabaseImp;
+import de.twonirwana.infinity.Language;
 import de.twonirwana.infinity.unit.api.TrooperProfile;
 
 import java.io.File;
@@ -16,7 +17,7 @@ public class ReplicateImageToOtherSections {
 
     static void main() throws IOException {
         Database db = DatabaseImp.createTimedUpdate("out/html/card/image/");
-        List<TrooperProfile> allProfiles = db.getAllUnitOptions().stream()
+        List<TrooperProfile> allProfiles = db.getAllUnitOptions(Language.English).stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .toList();

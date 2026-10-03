@@ -13,41 +13,128 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class PrintUtils {
-    public static final String CC_ATTACK_SKILL_NAME = "CC Attack";
-    public static final String BS_ATTACK_SKILL_NAME = "BS Attack";
-    public static final Set<String> RELEVANT_WEAPON_SKILL_EXTRAS = Set.of("Shock", "T2", "AP", "Continous Damage");
-    private static final Pattern PS_EXTRA_REGEX = Pattern.compile("PS=(\\d)");
-    private static final Pattern BURST_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*B");
-    private static final Pattern SPECIAL_DIE_EXTRA_REGEX = Pattern.compile("\\+(\\d)\\s*SD");
-    private static final Pattern SURVIVAL_RATE_EXTRA_REGEX = Pattern.compile("SR\\s*-(\\d)");
+
+    public static final int CC_ATTACK_SKILL_ID = 240;
+    public static final int BS_ATTACK_SKILL_ID = 201;
+    public static final Set<Integer> RELEVANT_WEAPON_SKILL_EXTRA_IDS = Set.of(
+            30, //Shock
+            39, //Viral
+            249, //AP
+            294, //T2
+            292 //Continous Damage
+    );
+    private static final Set<Integer> T2_AMMO = Set.of(
+            18, //T2
+            40 //AP+T2
+    );
+    private static final Set<Integer> EM_AMMO = Set.of(
+            5, //N+E/M
+            12, //E/M2 unused?
+            14, //E/M
+            19 //N+EM
+    );
+    private static final Set<Integer> SHOCK_AMMO = Set.of(
+            8, //SHOCK
+            30, //AP+Shock
+            38 //"DA + Shock"
+    );
+    private static final Set<Integer> AP_AMMO = Set.of(
+            3, //AP
+            10, //AP+DA
+            13, //AP+Exp
+            30, //AP+Shock
+            40 //AP+T2
+    );
+    private static final Set<Integer> PS_EXTRA_IDS = Set.of(
+            316, // PS=3
+            311, // PS=4
+            302, // PS=5
+            303, // PS=6
+            309 // PS=7
+    );
+    private static final Set<Integer> HACKING_PS_EXTRA_IDS = Set.of(
+            343, // UPGRADE: Trinity (PS=5)
+            363,// UPGRADE: Carbonite (PS=6)
+            373 //UPGRADE: Total Control (PS=3)
+    );
+    private static final Set<Integer> BURST_EXTRA_IDS = Set.of(
+            8, // +1B
+            256 // +2B
+    );
+    private static final Set<Integer> HACKING_BURST_EXTRA_IDS = Set.of(
+            269, //UPGRADE: Oblivion (+1B)
+            278, // UPGRADE: Total Control (+1B)
+            285, // UPGRADE: Carbonite (+1 B)
+            290 // UPGRADE: Trinity (+1B)
+    );
+    private static final Set<Integer> SD_EXTRA_IDS = Set.of(
+            308 // +1SD
+    );
+    private static final Set<Integer> HACKING_SD_EXTRA_IDS = Set.of(
+            378, // UPGRADE: Trinity (+1SD)
+            383// UPGRADE: Carbonite (+1SD)
+    );
+    private static final Set<Integer> SR_EXTRA_IDS = Set.of(
+            305, //SR-1
+            337 //SR-2
+    );
+    private static final Set<Integer> HACKING_SR_EXTRA_IDS = Set.of(
+            314, // UPGRADE: Total Control (SR-2)
+            331, // UPGRADE: Carbonite (SR-2)
+            339, // UPGRADE: Trinity (SR-1)
+            344, //UPGRADE: SR-1
+            352 //UPGRADE: Trinity (SR-2)
+    );
+    private static final Pattern EQUAL_EXTRA_REGEX = Pattern.compile("=(\\d)");
+    private static final Pattern PLUS_EXTRA_REGEX = Pattern.compile("\\+(\\d)");
+    private static final Pattern MINUS_EXTRA_REGEX = Pattern.compile("-(\\d)");
     private static final Pattern BRACKET_REGEX = Pattern.compile("\\((.+)\\)");
-    private static final String SMALL_SUFFIX = " (Small Teardrop)";
-    private static final String LARGE_SUFFIX = " (Large Teardrop)";
+    private static final String SMALL_SUFFIX_EN = " (Small Teardrop)";
+    private static final String LARGE_SUFFIX_EN = " (Large Teardrop)";
+    private static final String SMALL_SUFFIX_ES = " (Lágrima Pequeña)";
+    private static final String LARGE_SUFFIX_ES = " (Lágrima Grande)";
     private static final Set<String> REMOVE_WEAPON_TRAITS = Set.of("[***]", "[**]", "[*]");
-    private static final String CC_PROPERTY = "CC";
+    private static final String CC_PROPERTY = "CC"; //english and spanish are the same
     private static final String MINUS_3_MODI = "-3";
     private static final String MINUS_6_MODI = "-6";
-    private static final String XVISOR_NAME = "X Visor";
-    private static final String VIRAL_TRAIT = "Bioweapon (DA+SHOCK)";
-    private static final Pattern DEPLOYABLE_ARM = Pattern.compile("ARM=(\\d)");
-    private static final Pattern DEPLOYABLE_BTS = Pattern.compile("BTS=(\\d)");
-    private static final Pattern DEPLOYABLE_STR = Pattern.compile("STR=(\\d)");
-    private static final Pattern DEPLOYABLE_S = Pattern.compile(" S=(\\d)");
+    private static final int XVISOR_ID = 117;
+    private static final String VIRAL_TRAIT_EN = "Bioweapon (DA+SHOCK)";
+    private static final String VIRAL_TRAIT_ES = "Bioarma (DA+SHOCK)";
+    private static final Pattern DEPLOYABLE_ARM_EN = Pattern.compile("ARM=(\\d)");
+    private static final Pattern DEPLOYABLE_ARM_ES = Pattern.compile("PB=(\\d)");
+    private static final Pattern DEPLOYABLE_BTS_EN = Pattern.compile("BTS=(\\d)");
+    private static final Pattern DEPLOYABLE_BTS_ES = Pattern.compile("BLI=(\\d)");
+    private static final Pattern DEPLOYABLE_STR_EN = Pattern.compile("STR=(\\d)");
+    private static final Pattern DEPLOYABLE_STR_ES = Pattern.compile("EST=(\\d)");
+    private static final Pattern DEPLOYABLE_S_EN = Pattern.compile(" S=(\\d)");
+    private static final Pattern DEPLOYABLE_S_ES = Pattern.compile(" S=(\\d)");
     private final static Set<String> IRRELEVANT_DEPLOAYBLE_TRAITS = Set.of(
             "Disposable (3)",
             "Disposable (2)",
             "Disposable (1)",
+            "Desechable (3)",
+            "Desechable (2)",
+            "Desechable (1)",
             "Deployable",
+            "Posicionable",
             "[*]",
             "[**]",
             "[***]"
     );
 
     public static Deployable weaponProfile2Deployable(Weapon weapon) {
-        String arm = findInString(DEPLOYABLE_ARM, weapon.getProfile()).orElse("-");
-        String bts = findInString(DEPLOYABLE_BTS, weapon.getProfile()).orElse("-");
-        String str = findInString(DEPLOYABLE_STR, weapon.getProfile()).orElse("-");
-        String s = findInString(DEPLOYABLE_S, weapon.getProfile()).orElse("-");
+        String arm = findInString(DEPLOYABLE_ARM_EN, weapon.getProfile())
+                .or(() -> findInString(DEPLOYABLE_ARM_ES, weapon.getProfile()))
+                .orElse("-");
+        String bts = findInString(DEPLOYABLE_BTS_EN, weapon.getProfile())
+                .or(() -> findInString(DEPLOYABLE_BTS_ES, weapon.getProfile()))
+                .orElse("-");
+        String str = findInString(DEPLOYABLE_STR_EN, weapon.getProfile())
+                .or(() -> findInString(DEPLOYABLE_STR_ES, weapon.getProfile()))
+                .orElse("-");
+        String s = findInString(DEPLOYABLE_S_EN, weapon.getProfile())
+                .or(() -> findInString(DEPLOYABLE_S_ES, weapon.getProfile()))
+                .orElse("-");
         return Deployable.of(weapon.getName(), "-", "-", weapon, arm, bts, str, s, String.join(",", cleanupDeployableWeaponTraits(weapon.getProperties())));
     }
 
@@ -59,13 +146,20 @@ public final class PrintUtils {
         if ("Suppressive Fire Mode Weapon".equals(weapon.getName())) {
             return "Suppressive Fire";
         }
+        if ("Arma en Fuego de Supresión".equals(weapon.getName())) {
+            return "Fuego de cobertura";
+        }
+
         String out;
-        if (weapon.getMode() != null && !weapon.getName().contains("Turret")) { //turret has the turret kind in mode and extra
+        if (weapon.getMode() != null && weapon.getId() != 226) { //226 == turrets and turret has the turret kind in mode and extra
             out = "%s [%s]".formatted(weapon.getName(), weapon.getMode()
                     .replace("Anti-Material", weapon.getAmmunition().getName())
                     .replace("Anti-materiel", weapon.getAmmunition().getName())
                     .replace("Anti-Materiel", weapon.getAmmunition().getName())
-                    .replace(" Mode", ""));
+                    .replace(" Mode", "")
+                    .replace("Antimaterial", weapon.getAmmunition().getName()) //spanish
+                    .replace("Modo ", "") //spanish
+            );
         } else {
             out = weapon.getName();
         }
@@ -106,8 +200,8 @@ public final class PrintUtils {
         return weapon.getSkill().name();
     }
 
-    private static String getWeaponSkill(Weapon weapon) {
-        return Weapon.Skill.CC == weapon.getSkill() ? CC_ATTACK_SKILL_NAME : BS_ATTACK_SKILL_NAME;
+    private static int getWeaponSkill(Weapon weapon) {
+        return Weapon.Skill.CC == weapon.getSkill() ? CC_ATTACK_SKILL_ID : BS_ATTACK_SKILL_ID;
     }
 
     public static String getWeaponBurstWithExtra(UnitPrintCard unitPrintCard, Weapon weapon, PrintOptions options) {
@@ -117,11 +211,11 @@ public final class PrintUtils {
         if (unitPrintCard == null || !isWeaponOrHasBsProperty(weapon) || options.isDisableApplyingSkillWeaponExtra()) {
             return weapon.getBurst();
         }
-        String weaponSkill = getWeaponSkill(weapon);
+        int weaponSkillId = getWeaponSkill(weapon);
         List<ExtraValue> weaponAndSkillExtra = Stream.concat(
                 weapon.getExtras().stream(),
                 unitPrintCard.getSkillWithModifier().stream()
-                        .filter(s -> s.getName().equals(weaponSkill))
+                        .filter(s -> s.getId() == weaponSkillId)
                         .flatMap(s -> s.getExtras().stream())
         ).toList();
         final List<String> burstExtra;
@@ -136,11 +230,13 @@ public final class PrintUtils {
                     .toList();
         }
 
+        String sdNameInLanguage = AppI18n.getMessage("sd.dice", options.getLanguage());
+
         List<String> sdExtra = weaponAndSkillExtra.stream()
                 .map(PrintUtils::toSpecialDieExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .map("+%sSD"::formatted)
+                .map(n -> "+%s%s".formatted(n, sdNameInLanguage))
                 .toList();
 
         String maBurstBonus = "";
@@ -149,7 +245,9 @@ public final class PrintUtils {
                 && !"0".equals(unitPrintCard.getMartialArtLevel().getBurst())) {
             maBurstBonus = unitPrintCard.getMartialArtLevel().getBurst()
                     .replace("B, ", "")
-                    .replace("B", "");
+                    .replace("R, ", "")
+                    .replace("B", "")
+                    .replace("R", "");
         }
 
         return weapon.getBurst() + Joiner.on("").join(burstExtra) + Joiner.on("").join(sdExtra) + maBurstBonus;
@@ -166,11 +264,11 @@ public final class PrintUtils {
                 options.isDisableApplyingSkillWeaponExtra()) {
             return weapon.getProbabilityOfSurvival();
         }
-        String weaponSkill = getWeaponSkill(weapon);
+        int weaponSkillId = getWeaponSkill(weapon);
         Optional<Integer> srExtra;
         if (isWeaponOrHasBsProperty(weapon)) { //only weapon or bs trait get skill extra
             srExtra = unitPrintCard.getSkillWithModifier().stream()
-                    .filter(s -> s.getName().equals(weaponSkill))
+                    .filter(s -> s.getId() == weaponSkillId)
                     .flatMap(s -> s.getExtras().stream())
                     .map(PrintUtils::toSrExtra)
                     .filter(Optional::isPresent)
@@ -228,7 +326,7 @@ public final class PrintUtils {
         if (martialArtLevel == null) {
             return "CC";
         }
-        return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevel.getAttackerModi(), martialArtLevel.getOpponentModi());
+        return "CC [MA Att./Opp: %s/%s]".formatted(martialArtLevel.getAttackerModi(), martialArtLevel.getOpponentModi()); //todo spanish?
     }
 
     public static String getSavingRoll(Weapon weapon, String ps, UnitPrintCard unitPrintCard, boolean applyViral, PrintOptions printOptions) {
@@ -238,50 +336,64 @@ public final class PrintUtils {
         } else {
             psOp = ps + "+";
         }
-        final Set<String> weaponExtraFromTrooperSkill;
+        final Set<Integer> weaponExtraIdsFromTrooperSkill;
         if (weapon.getProperties().contains("Deployable") ||
+                weapon.getProperties().contains("Posicionable") ||
                 hasNonCCWeaponHasNoRange(weapon) ||//mines and d-charge
                 printOptions.isDisableApplyingSkillWeaponExtra()) {
-            weaponExtraFromTrooperSkill = Set.of();
+            weaponExtraIdsFromTrooperSkill = Set.of();
         } else {
-            String weaponSkill = getWeaponSkill(weapon);
-            weaponExtraFromTrooperSkill = Optional.ofNullable(unitPrintCard)
+            int weaponSkillId = getWeaponSkill(weapon);
+            weaponExtraIdsFromTrooperSkill = Optional.ofNullable(unitPrintCard)
                     .map(UnitPrintCard::getSkillWithModifier).orElse(List.of()).stream()
-                    .filter(s -> s.getName().equals(weaponSkill))
+                    .filter(s -> s.getId() == weaponSkillId)
                     .flatMap(s -> s.getExtras().stream())
-                    .map(ExtraValue::getText)
-                    .filter(Objects::nonNull)
-                    .filter(RELEVANT_WEAPON_SKILL_EXTRAS::contains)
+                    .map(ExtraValue::getId)
+                    .filter(RELEVANT_WEAPON_SKILL_EXTRA_IDS::contains)
                     .collect(Collectors.toSet());
         }
 
         List<String> extraList = new ArrayList<>();
-        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("T2")) || weaponExtraFromTrooperSkill.contains("T2")) {
-            extraList.add("T2");
+        if ((weapon.getAmmunition() != null && T2_AMMO.contains(weapon.getAmmunition().getId()))
+                || weaponExtraIdsFromTrooperSkill.contains(294)) {
+            extraList.add("T2");  //spanish and english are the same
         }
-        if (weapon.getProperties().contains("Continous Damage") || weaponExtraFromTrooperSkill.contains("Continous Damage")) {
-            extraList.add("C");
+        if (weapon.getProperties().contains("Continous Damage") ||
+                weapon.getProperties().contains("Daño Contínuo") ||
+                weaponExtraIdsFromTrooperSkill.contains(292)) {
+            extraList.add("C");  //todo check if good in spanish?
         }
-        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("Shock")) || weaponExtraFromTrooperSkill.contains("Shock") ||
-                (weapon.getProperties().contains(VIRAL_TRAIT) && applyViral)) {
-            extraList.add("S");
+        if ((weapon.getAmmunition() != null && SHOCK_AMMO.contains(weapon.getAmmunition().getId())) ||
+                weaponExtraIdsFromTrooperSkill.contains(30) ||
+                (weapon.getProperties().contains(VIRAL_TRAIT_EN) && applyViral) ||
+                (weapon.getProperties().contains(VIRAL_TRAIT_ES) && applyViral) ||
+                (weaponExtraIdsFromTrooperSkill.contains(39) && applyViral) || //viral extra
+                (weapon.getAmmunition() != null && weapon.getAmmunition().getId() == 11 && applyViral) //viral ammo
+        ) {
+            extraList.add("S"); //spanish and english are the same
         }
-        if ((weapon.getAmmunition() != null && weapon.getAmmunition().getName().contains("E/M"))) {
-            extraList.add("E");
+        if ((weapon.getAmmunition() != null && EM_AMMO.contains(weapon.getAmmunition().getId()))) { //currently no extra for EM
+            extraList.add("E"); //spanish and english are the same
         }
 
         String saving = weapon.getSavingAttribute();
-        if (weaponExtraFromTrooperSkill.contains("AP")) {
+        if (weaponExtraIdsFromTrooperSkill.contains(249) || //AP
+                (weapon.getAmmunition() != null && AP_AMMO.contains(weapon.getAmmunition().getId()))
+        ) {
             if ("BTS".equals(saving)) {
                 saving = "BTS/2";
             } else if ("ARM".equals(saving)) {
                 saving = "ARM/2";
+            } else if ("PB".equals(saving)) { //bts spanish
+                saving = "PB/2";
+            } else if ("BLI".equals(saving)) { //arm spanish
+                saving = "BLI/2";
             }
         }
-        String extraString = extraList.isEmpty() ? "" : " " + Joiner.on(" ").join(extraList);
+        String extraString = extraList.isEmpty() ? "" : " " + extraList.stream().distinct().collect(Collectors.joining(" "));
 
         final String savingNumber;
-        if (weapon.getProperties().contains(VIRAL_TRAIT) && applyViral) {
+        if ((weapon.getProperties().contains(VIRAL_TRAIT_EN) || weapon.getProperties().contains(VIRAL_TRAIT_ES)) && applyViral) {
             savingNumber = "2";
         } else {
             savingNumber = weapon.getSavingNum();
@@ -306,7 +418,7 @@ public final class PrintUtils {
         if (weapon == null || weapon.getAmmunition() == null) {
             return "";
         }
-        if (weapon.getProperties().stream().anyMatch(VIRAL_TRAIT::equals)) {
+        if (weapon.getProperties().stream().anyMatch(p -> VIRAL_TRAIT_EN.equals(p) || VIRAL_TRAIT_ES.equals(p))) {
             return "BIO/%s".formatted(weapon.getAmmunition().getName());
         }
         return weapon.getAmmunition().getName();
@@ -331,11 +443,16 @@ public final class PrintUtils {
                 .map(PrintUtils::stripTeardropSuffix)
                 .filter(s -> !REMOVE_WEAPON_TRAITS.contains(s))
                 .filter(s -> !CC_PROPERTY.equals(s)) //shown in range
-                .filter(s -> !VIRAL_TRAIT.equals(s) || !printOptions.isShowSavingRoll())
+                .filter(s -> !VIRAL_TRAIT_EN.equals(s) || !printOptions.isShowSavingRoll())
+                .filter(s -> !VIRAL_TRAIT_ES.equals(s) || !printOptions.isShowSavingRoll())
                 .collect(Collectors.toList());
 
-        if (printOptions.isShowSavingRoll() && weapon.getProperties().stream().anyMatch(VIRAL_TRAIT::equals)) {
+        if (printOptions.isShowSavingRoll() && weapon.getProperties().stream().anyMatch(VIRAL_TRAIT_EN::equals)) {
             traits.add("%s vs STR".formatted(getWeaponSavingRollWithExtra(unitPrintCard, weapon, false, printOptions)));
+        }
+
+        if (printOptions.isShowSavingRoll() && weapon.getProperties().stream().anyMatch(VIRAL_TRAIT_ES::equals)) {
+            traits.add("%s vs EST".formatted(getWeaponSavingRollWithExtra(unitPrintCard, weapon, false, printOptions)));
         }
         return Joiner.on(", ").join(traits);
     }
@@ -344,10 +461,14 @@ public final class PrintUtils {
         if (input == null) {
             return null;
         }
-        if (input.endsWith(SMALL_SUFFIX)) {
-            return input.substring(0, input.length() - SMALL_SUFFIX.length());
-        } else if (input.endsWith(LARGE_SUFFIX)) {
-            return input.substring(0, input.length() - LARGE_SUFFIX.length());
+        if (input.endsWith(SMALL_SUFFIX_EN)) {
+            return input.substring(0, input.length() - SMALL_SUFFIX_EN.length());
+        } else if (input.endsWith(LARGE_SUFFIX_EN)) {
+            return input.substring(0, input.length() - LARGE_SUFFIX_EN.length());
+        } else if (input.endsWith(SMALL_SUFFIX_ES)) {
+            return input.substring(0, input.length() - SMALL_SUFFIX_ES.length());
+        } else if (input.endsWith(LARGE_SUFFIX_ES)) {
+            return input.substring(0, input.length() - LARGE_SUFFIX_ES.length());
         }
         return input;
     }
@@ -356,10 +477,14 @@ public final class PrintUtils {
         if (input == null) {
             return null;
         }
-        if (input.endsWith(SMALL_SUFFIX)) {
+        if (input.endsWith(SMALL_SUFFIX_EN)) {
             return "Small Teardrop";
-        } else if (input.endsWith(LARGE_SUFFIX)) {
+        } else if (input.endsWith(LARGE_SUFFIX_EN)) {
             return "Large Teardrop";
+        } else if (input.endsWith(SMALL_SUFFIX_ES)) {
+            return "Lágrima Pequeña";
+        } else if (input.endsWith(LARGE_SUFFIX_ES)) {
+            return "Lágrima Grande";
         }
         return null;
     }
@@ -377,7 +502,17 @@ public final class PrintUtils {
     }
 
     static Optional<String> toSrExtra(ExtraValue extraValue) {
-        return findInString(SURVIVAL_RATE_EXTRA_REGEX, extraValue.getText());
+        if (SR_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(MINUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> toHackingSrExtra(ExtraValue extraValue) {
+        if (HACKING_SR_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(MINUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
     }
 
     static Optional<String> toBracketValue(ExtraValue extraValue) {
@@ -385,7 +520,18 @@ public final class PrintUtils {
     }
 
     static Optional<String> toPsExtra(ExtraValue extraValue) {
-        return findInString(PS_EXTRA_REGEX, extraValue.getText());
+        if (PS_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(EQUAL_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
+
+    static Optional<String> toHackingPsExtra(ExtraValue extraValue) {
+        if (HACKING_PS_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(EQUAL_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
     }
 
     private static Optional<String> findInString(Pattern pattern, String input) {
@@ -400,11 +546,31 @@ public final class PrintUtils {
     }
 
     static Optional<String> toBurstExtra(ExtraValue extraValue) {
-        return findInString(BURST_EXTRA_REGEX, extraValue.getText());
+        if (BURST_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> toHackingBurstExtra(ExtraValue extraValue) {
+        if (HACKING_BURST_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
     }
 
     static Optional<String> toSpecialDieExtra(ExtraValue extraValue) {
-        return findInString(SPECIAL_DIE_EXTRA_REGEX, extraValue.getText());
+        if (SD_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
+    }
+
+    static Optional<String> toHackingSpecialDieExtra(ExtraValue extraValue) {
+        if (HACKING_SD_EXTRA_IDS.contains(extraValue.getId())) {
+            return findInString(PLUS_EXTRA_REGEX, extraValue.getText());
+        }
+        return Optional.empty();
     }
 
     public static String getRangeClassWithOptionalXVisor(UnitPrintCard unitPrintCard, String range, Map<String, String> rangeClassMap) {
@@ -457,11 +623,14 @@ public final class PrintUtils {
         if (weapon.getProperties().contains("Deployable")) {
             return false;
         }
+        if (weapon.getProperties().contains("Posicionable")) {
+            return false;
+        }
         if (weapon.getType() == Weapon.Type.WEAPON && !hasNonCCWeaponHasNoRange(weapon)) { //d-charge has no range
             return true;
         }
         return weapon.getProperties().stream()
-                .anyMatch(p -> p.contains("BS Weapon"));
+                .anyMatch(p -> p.contains("BS Weapon") || p.contains("Arma CD"));
     }
 
     public static String applyXVisorToRangeModi(UnitPrintCard unitPrintCard, String rangeModi) {
@@ -471,7 +640,7 @@ public final class PrintUtils {
         if (unitPrintCard == null) {
             return rangeModi;
         }
-        if (unitPrintCard.getEquipmentsWithModifier().stream().anyMatch(s -> XVISOR_NAME.equals(s.getName()))) {
+        if (unitPrintCard.getEquipmentsWithModifier().stream().anyMatch(s -> s.getId() == XVISOR_ID)) {
             if (rangeModi.equals(MINUS_3_MODI)) {
                 return "0*";
             } else if (rangeModi.equals(MINUS_6_MODI)) {
@@ -488,7 +657,7 @@ public final class PrintUtils {
 
         Optional<Integer> srExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toSrExtra)
+                .map(PrintUtils::toHackingSrExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -496,7 +665,7 @@ public final class PrintUtils {
 
         Optional<Integer> psExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toPsExtra)
+                .map(PrintUtils::toHackingPsExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Integer::parseInt)
@@ -517,7 +686,10 @@ public final class PrintUtils {
         List<String> allHackingNames = allHackingPrograms.stream().map(HackingProgram::getName).toList();
         if (allHackingNames.stream().noneMatch(h -> extraValue.getText().contains(h)) && (
                 //must be a value modifier, not something else like a firewall upgrade
-                toPsExtra(extraValue).isPresent() || toBurstExtra(extraValue).isPresent() || toSrExtra(extraValue).isPresent() || toSpecialDieExtra(extraValue).isPresent()
+                toHackingPsExtra(extraValue).isPresent() ||
+                        toHackingBurstExtra(extraValue).isPresent() ||
+                        toHackingSrExtra(extraValue).isPresent() ||
+                        toHackingSpecialDieExtra(extraValue).isPresent()
         )) {
             //general bonus
             return true;
@@ -532,7 +704,7 @@ public final class PrintUtils {
 
         List<String> burstExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toBurstExtra)
+                .map(PrintUtils::toHackingBurstExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(s -> "+" + s)
@@ -540,7 +712,7 @@ public final class PrintUtils {
 
         List<String> sdExtra = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .map(PrintUtils::toSpecialDieExtra)
+                .map(PrintUtils::toHackingSpecialDieExtra)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map("+%sSD"::formatted)
@@ -553,10 +725,10 @@ public final class PrintUtils {
 
         List<String> extras = extraValues.stream()
                 .filter(s -> isExtraApplicable(s, hackingProgram, allHackingPrograms))
-                .filter(e -> toPsExtra(e).isEmpty())
-                .filter(e -> toSrExtra(e).isEmpty())
-                .filter(e -> toBurstExtra(e).isEmpty())
-                .filter(e -> toSpecialDieExtra(e).isEmpty())
+                .filter(e -> toHackingPsExtra(e).isEmpty())
+                .filter(e -> toHackingSrExtra(e).isEmpty())
+                .filter(e -> toHackingBurstExtra(e).isEmpty())
+                .filter(e -> toHackingSpecialDieExtra(e).isEmpty())
                 .flatMap(e -> toBracketValue(e).stream())
                 .sorted()
                 .toList();
@@ -626,6 +798,8 @@ public final class PrintUtils {
     }
 
     public static boolean isCC(Weapon weapon) {
-        return "CC Mode".equals(weapon.getMode()) || weapon.getProperties().contains("CC");
+        return "CC Mode".equals(weapon.getMode()) ||
+                "Modo CC".equals(weapon.getMode()) ||
+                weapon.getProperties().contains("CC");
     }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <body>
 
 <div th:fragment="deployablesFragment()">
@@ -7,27 +7,27 @@
         <div class="card-content">
 
             <div class="card-header">
-                <h2 class="card-header-title">Deployable Profiles</h2>
+                <h2 class="card-header-title" th:text="#{deployable.profiles.title}">Deployable Profiles</h2>
             </div>
             <table class="weapon">
                 <thead>
                 <tr>
-                    <th>Name</th>
+                    <th th:utext="#{deployable.table.header.weapon.name}">Name</th>
                     <th>CC</th>
                     <th>BS</th>
 
-                    <th class="weapon-padding" th:if="${printOptions.isShowBurst()}">B</th>
-                    <th class="weapon-padding" th:if="${printOptions.isShowSavingRoll()}">Saving Roll</th>
-                    <th th:if="${printOptions.isShowPs()}">PS</th>
-                    <th th:if="${printOptions.isShowAmmo()}">Ammo</th>
-                    <th th:if="${printOptions.isShowSaveAttribute()}">Save<br>Attr.</th>
-                    <th th:if="${printOptions.isShowNumberOfSaveRolls()}">Save<br>Rolls</th>
+                    <th class="weapon-padding" th:if="${printOptions.isShowBurst()}" th:utext="#{weapon.table.header.weapon.burst}">B</th>
+                    <th class="weapon-padding" th:if="${printOptions.isShowSavingRoll()}" th:utext="#{weapon.table.header.weapon.saving.roll}">Saving Roll</th>
+                    <th th:if="${printOptions.isShowPs()}" th:utext="#{weapon.table.header.weapon.ps}">PS</th>
+                    <th th:if="${printOptions.isShowAmmo()}" th:utext="#{weapon.table.header.weapon.ammunition}">Ammo</th>
+                    <th th:if="${printOptions.isShowSaveAttribute()}" th:utext="#{weapon.table.header.weapon.saving.attribute}">Save<br>Attr.</th>
+                    <th th:if="${printOptions.isShowNumberOfSaveRolls()}" th:utext="#{weapon.table.header.weapon.saving.number}">Save<br>Rolls</th>
 
-                    <th>ARM</th>
-                    <th>BTS</th>
-                    <th>STR</th>
-                    <th>S</th>
-                    <th>Traits</th>
+                    <th th:utext="#{attributs.table.header.ARM}">ARM</th>
+                    <th th:utext="#{attributs.table.header.BTS}">BTS</th>
+                    <th th:utext="#{attributs.table.header.STR}">STR</th>
+                    <th th:utext="#{attributs.table.header.S}">S</th>
+                    <th th:utext="#{weapon.table.header.weapon.traits}">Traits</th>
                 </tr>
                 </thead>
                 <tbody>

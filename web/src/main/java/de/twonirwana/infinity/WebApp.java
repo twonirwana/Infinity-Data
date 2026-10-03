@@ -13,7 +13,6 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.micrometer.MicrometerPlugin;
-import io.javalin.rendering.template.JavalinThymeleaf;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.Tags;
@@ -29,6 +28,9 @@ import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +91,15 @@ public class WebApp {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         final AtomicReference<ScheduledFuture<?>> scheduledFuture = new AtomicReference<>(setUpdateScheduler(executorService, null, database, registry));
         Config.onChange("db.refreshIntervalSec", _ -> scheduledFuture.set(setUpdateScheduler(executorService, scheduledFuture.get(), database, registry)));
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+
+        resolver.setSuffix(".html");
+        resolver.setTemplateMode(TemplateMode.HTML);
+        resolver.setCharacterEncoding("UTF-8");
+
+        TemplateEngine templateEngine = new TemplateEngine();
+        templateEngine.setTemplateResolver(resolver);
+        templateEngine.addMessageResolver(new GlobalMessageResolver("messages"));
 
         return Javalin.create(config -> {
             config.staticFiles.add(staticFileConfig -> {
@@ -97,7 +108,8 @@ public class WebApp {
                         staticFileConfig.location = Location.EXTERNAL;
                     }
             );
-            config.fileRenderer(new JavalinThymeleaf());
+            config.fileRenderer(new LocalizedThymeleafRenderer(templateEngine));
+
             config.router.contextPath = contextPath;
             config.registerPlugin(micrometerPlugin);
             config.routes.get("/favicon.ico", ctx -> {
@@ -105,7 +117,7 @@ public class WebApp {
                 Optional.ofNullable(WebApp.class.getResourceAsStream("/favicon.ico")).ifPresent(ctx::result);
             });
             startPage(config, registry);
-            downloadAllUnitsCsv(config, registry, Path.of(Database.CSV_LIST_PATH));
+            downloadAllUnitsCsv(config, registry);
             //page that generates cards for the given parameter
             generateCardPage(config, startupTime, registry, contextPath, database, htmlPrinter);
             //page for a generated card set
@@ -119,10 +131,10 @@ public class WebApp {
         });
     }
 
-    private static void downloadAllUnitsCsv(JavalinConfig config, PrometheusMeterRegistry registry, Path allUnitsCsvListFolder) {
+    private static void downloadAllUnitsCsv(JavalinConfig config, PrometheusMeterRegistry registry) {
         config.routes.get("/downloadAllUnits", ctx -> {
-
-            Optional<Path> latestCsv = getLatestCsvFile(allUnitsCsvListFolder);
+            Language language = getLanguage(ctx, registry);
+            Optional<Path> latestCsv = getLatestCsvFile(Path.of(Database.CSV_LIST_PATH.formatted(language.getCode())));
 
             if (latestCsv.isEmpty() || !Files.exists(latestCsv.get()) || !Files.isRegularFile(latestCsv.get())) {
                 log.error("Attempted to download missing file: {}", latestCsv);
@@ -188,6 +200,7 @@ public class WebApp {
 
     private static void helpPage(JavalinConfig config, PrometheusMeterRegistry registry) {
         config.routes.get("/help", ctx -> {
+            setLocale(ctx, registry);
             registry.counter("infinity.help").increment();
             ctx.render("templates/help.html");
         });
@@ -235,7 +248,8 @@ public class WebApp {
     private static boolean checkArmyCodes(Context ctx,
                                           PrometheusMeterRegistry registry,
                                           String armyCode,
-                                          Database database) {
+                                          Database database,
+                                          Language language) {
         boolean canDecode = database.canDecodeArmyCode(armyCode);
         if (!canDecode) {
             registry.counter("infinity.invalid.army.code").increment();
@@ -246,14 +260,14 @@ public class WebApp {
                 log.error(e.getMessage(), e);
             }
             Map<String, Object> model = Map.of(
-                    "title", "Invalid Army Code Format",
+                    "title", WebI18n.getMessage("invalid.army.code.title", language),
                     "list", List.of(),
-                    "message", "The army code: %s has an invalid format. Try to copy it again.".formatted(armyCode)
+                    "message", WebI18n.getMessage("invalid.army.code.message", language, armyCode)
             );
             ctx.render("templates/table.html", model);
             return false;
         }
-        List<Database.ValidationError> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode);
+        List<Database.ValidationError> missingArmyCodeUnits = database.validateArmyCodeUnits(armyCode, language);
         if (!missingArmyCodeUnits.isEmpty()) {
             registry.counter("infinity.missing.army.code.units").increment();
             if (missingArmyCodeUnits.size() == 1 && missingArmyCodeUnits.getFirst().unitId() == 1874) {
@@ -276,9 +290,9 @@ public class WebApp {
 
 
             Map<String, Object> model = Map.of(
-                    "title", "Errors in Army Code",
+                    "title", WebI18n.getMessage("error.army.code.title", language),
                     "list", table,
-                    "message", "The following IDs from the army code: %s could not resolved. Most likely it is out of date. Try to generate a new army code new in Corvus Bellis Army Builder.".formatted(armyCode)
+                    "message", WebI18n.getMessage("error.army.code.message", language, armyCode)
             );
             ctx.render("templates/table.html", model);
             return false;
@@ -336,7 +350,8 @@ public class WebApp {
                     getCheckboxValue(ctx, "showWeaponTraits"),
                     getCheckboxValue(ctx, "showCombatGroupNumber"),
                     getCheckboxValue(ctx, "showAlwaysOptionFeatureInName"),
-                    getCheckboxValue(ctx, "showOptionFeatureInNameToDifferentiate")
+                    getCheckboxValue(ctx, "showOptionFeatureInNameToDifferentiate"),
+                    getLanguage(ctx, registry)
             );
             final List<UnitOption> generated;
             if (unitIds.isEmpty()) {
@@ -358,7 +373,8 @@ public class WebApp {
                         "disableApplyingSkillWeaponExtra", String.valueOf(options.isDisableApplyingSkillWeaponExtra()),
                         "showAmmo", String.valueOf(options.isShowAmmo()),
                         "showPs", String.valueOf(options.isShowPs()),
-                        "showSavingRoll", String.valueOf(options.isShowSavingRoll())
+                        "showSavingRoll", String.valueOf(options.isShowSavingRoll()),
+                        "lang", options.getLanguage().getCode()
                 ).increment();
             }
 
@@ -394,12 +410,12 @@ public class WebApp {
 
         try {
             Stopwatch stopwatch = Stopwatch.createStarted();
-            boolean isValid = checkArmyCodes(ctx, registry, armyCode, database);
+            boolean isValid = checkArmyCodes(ctx, registry, armyCode, database, options.getLanguage());
             if (!isValid) {
                 return List.of();
             }
 
-            ArmyList al = database.getArmyListForArmyCode(armyCode);
+            ArmyList al = database.getArmyListForArmyCode(armyCode, options.getLanguage());
             if (!ARMY_CODES.contains(armyCode)) {
                 ARMY_CODES.add(armyCode);
                 registry.counter("infinity.unique.army.code", Tags.of("sectorial", al.getSectorial().getSlug())).increment();
@@ -409,7 +425,7 @@ public class WebApp {
                     .flatMap(k -> al.getCombatGroups().get(k).stream())
                     .toList();
 
-            PrintData data = PrintData.of(database, armyListOptions, al, armyCode);
+            PrintData data = PrintData.of(database, armyListOptions, al, armyCode, options.getLanguage());
 
             PrintContext context = PrintContext.of(fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
 
@@ -442,7 +458,7 @@ public class WebApp {
         try {
             Stopwatch stopwatch = Stopwatch.createStarted();
 
-            Map<String, UnitOption> unitOptionById = database.getAllUnitOptions().stream()
+            Map<String, UnitOption> unitOptionById = database.getAllUnitOptions(options.getLanguage()).stream()
                     .collect(Collectors.toMap(UnitOption::getCombinedId, Function.identity()));
             List<UnitOption> unitOptions = unitOptionIds.stream()
                     .map(unitOptionById::get)
@@ -451,7 +467,7 @@ public class WebApp {
 
             String unitIdsHash = HashUtil.hash128Bit(unitOptions.stream().map(UnitOption::getCombinedId).collect(Collectors.joining(",")));
             String fileName = getFileName(unitIdsHash, startupTime, options);
-            PrintData data = PrintData.of(database, unitOptions, null, null);
+            PrintData data = PrintData.of(database, unitOptions, null, null, options.getLanguage());
 
             PrintContext context = PrintContext.of(fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
 
@@ -473,6 +489,9 @@ public class WebApp {
 
         config.routes.get("/joinedAva", ctx -> {
 
+            Language language = getLanguage(ctx, registry);
+            setLocale(ctx, registry);
+
             List<String> armyCodeList = getArmyCodes(ctx.queryParam("input1"),
                     ctx.queryParam("input2"),
                     ctx.queryParam("input3"));
@@ -486,12 +505,12 @@ public class WebApp {
                 registry.counter("infinity.joined.ava.submitted").increment();
                 log.info("Showed joined AVA Check result for: {}", armyCodeList);
 
-                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database));
+                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database, language));
                 if (anyInvalid) {
                     return;
                 }
 
-                List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database);
+                List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database, language);
                 Map<CheckJoinedAvailability.Unit, List<CheckJoinedAvailability.ArmyUnitCount>> unitMap = armyUnitCount.stream().collect(Collectors.groupingBy(CheckJoinedAvailability.ArmyUnitCount::unit));
 
                 List<CheckJoinedAvailability.Army> armies = armyUnitCount.stream()
@@ -502,8 +521,8 @@ public class WebApp {
 
                 rows = new ArrayList<>();
                 header = armies.stream().map(a -> a.armyCodeIndex() + ": " + a.armyName()).collect(Collectors.toList());
-                header.addFirst("Unit Name");
-                header.addFirst("Unit Id");
+                header.addFirst(WebI18n.getMessage("unit.name", language));
+                header.addFirst(WebI18n.getMessage("unit.id", language));
                 unitMap.entrySet().stream()
                         .sorted(Comparator.comparing(e -> e.getKey().getSectorialUnitId()))
                         .forEach(e -> {
@@ -551,28 +570,32 @@ public class WebApp {
     private static void csvFiles(JavalinConfig config,
                                  PrometheusMeterRegistry registry) {
         config.routes.get("/csv", ctx -> {
+            Language language = getLanguage(ctx, registry);
+            setLocale(ctx, registry);
+
             registry.counter("infinity.csv.page").increment();
             ctx.render("templates/files.html", Map.of(
                     "title", "Old Unit Lists and Changes",
-                    "files", getCsvFiles()));
+                    "files", getCsvFiles(language)));
 
         });
 
         config.routes.get("/csv/{filename}", ctx -> {
             String filename = ctx.pathParam("filename");
-
+            Language language = getLanguage(ctx, registry);
 
             // SECURITY: Ensure that no other files are downloaded
-            if (!getCsvFiles().contains(filename)) {
+            if (!getCsvFiles(language).contains(filename)) {
                 ctx.status(HttpStatus.FORBIDDEN).result("Access denied.");
                 return;
             }
 
+
             Optional<Path> file;
-            if (Files.exists(Path.of(Database.CSV_LIST_PATH).resolve(filename))) {
-                file = Optional.of(Path.of(Database.CSV_LIST_PATH).resolve(filename));
-            } else if (Files.exists(Path.of(Database.CSV_DIFF_LIST_PATH).resolve(filename))) {
-                file = Optional.of(Path.of(Database.CSV_DIFF_LIST_PATH).resolve(filename));
+            if (Files.exists(Path.of(Database.CSV_LIST_PATH.formatted(language.getCode())).resolve(filename))) {
+                file = Optional.of(Path.of(Database.CSV_LIST_PATH.formatted(language.getCode())).resolve(filename));
+            } else if (Files.exists(Path.of(Database.CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(filename))) {
+                file = Optional.of(Path.of(Database.CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(filename));
             } else {
                 file = Optional.empty();
             }
@@ -589,8 +612,10 @@ public class WebApp {
         });
     }
 
-    private static List<String> getCsvFiles() {
-        try (Stream<Path> paths = Stream.concat(Files.list(Paths.get(Database.CSV_LIST_PATH)), Files.list(Paths.get(Database.CSV_DIFF_LIST_PATH)))) {
+    private static List<String> getCsvFiles(Language language) {
+        try (Stream<Path> paths = Stream.concat(
+                Files.list(Paths.get(Database.CSV_LIST_PATH.formatted(language.getCode()))),
+                Files.list(Paths.get(Database.CSV_DIFF_LIST_PATH.formatted(language.getCode()))))) {
             return paths
                     .filter(Files::isRegularFile)
                     .map(p -> p.getFileName().toString())
@@ -622,9 +647,10 @@ public class WebApp {
                                       long startupTime,
                                       PrintOptions options) {
         String printOptionHash = HashUtil.hash128Bit(options.toString());
-        return "%s-%s-%s".formatted(startupTime,
+        return "%s-%s-%s-%s".formatted(startupTime,
                 armyCodeHash,
-                printOptionHash
+                printOptionHash,
+                options.getLanguage().getCode()
         );
 
     }
@@ -647,9 +673,28 @@ public class WebApp {
         return "true".equals(value);
     }
 
+    private static Language getLanguage(Context ctx, PrometheusMeterRegistry registry) {
+        String value = ctx.queryParam("lang");
+        Optional<Language> language = Arrays.stream(Language.values())
+                .filter(l -> l.getCode().equals(value))
+                .findFirst();
+        if (language.isEmpty()) {
+            return Language.English;
+        }
+        registry.counter("infinity.language", Tags.of("lang", language.get().getCode())).increment();
+
+        return language.get();
+    }
+
+    private static void setLocale(Context ctx, PrometheusMeterRegistry registry) {
+        Locale locale = getLanguage(ctx, registry).getLocale();
+        ctx.attribute("locale", locale);
+    }
+
     private static void startPage(JavalinConfig config, PrometheusMeterRegistry registry) {
         config.routes.get("/", ctx -> {
             registry.counter("infinity.base.called").increment();
+            setLocale(ctx, registry);
             Map<String, Object> model = Map.of(
                     "contributors", List.of(Config.get("website.contributors", "").split(",")),
                     "imprint", Config.get("website.imprint", "")

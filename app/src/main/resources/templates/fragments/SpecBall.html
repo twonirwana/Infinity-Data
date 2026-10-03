@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <body>
 
 <div th:fragment="specBallFragment(specBall)">
@@ -9,7 +9,7 @@
                 <h2 class="card-header-title">SpecBall</h2>
             </div>
 
-            <h3 class="specBall-subTitle">Options</h3>
+            <h3 class="specBall-subTitle" th:text="#{specball.options}">Options</h3>
             <table class="specBall">
                 <tbody>
                 <tr th:each="option : ${specBall.getOptions()}">
@@ -19,7 +19,7 @@
                 </tbody>
             </table>
 
-            <h3 class="specBall-subTitle">Weapons Stats</h3>
+            <h3 class="specBall-subTitle" th:text="#{specball.weapon.stats}">Weapons Stats</h3>
 
             <th:block
                     th:replace="~{fragments/WeaponTable :: weaponTableFragment(${specBall.getWeapons()}, null, null)}">

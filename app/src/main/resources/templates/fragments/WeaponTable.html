@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
 <body>
 
 <div th:fragment="weaponTableFragment(weapons, unitPrintCard, martialArtsLevel)">
@@ -7,7 +7,7 @@
         <table class="weapon">
             <thead>
             <tr>
-                <th>Weapon Name</th>
+                <th th:utext="#{weapon.table.header.weapon.name}">Weapon Name</th>
                 <th th:text="${printUtils.get20cmRangeName(printOptions.isUseInch())}">20</th>
                 <th th:text="${printUtils.get40cmRangeName(printOptions.isUseInch())}">40</th>
                 <th th:text="${printUtils.get60cmRangeName(printOptions.isUseInch())}">60</th>
@@ -15,14 +15,14 @@
                 <th th:text="${printUtils.get100cmRangeName(printOptions.isUseInch())}">100</th>
                 <th th:text="${printUtils.get120cmRangeName(printOptions.isUseInch())}">120</th>
                 <th th:text="${printUtils.get240cmRangeName(printOptions.isUseInch())}">240cm</th>
-                <th th:if="${printOptions.isShowWeaponSkill()}">Skill</th>
-                <th class="weapon-padding" th:if="${printOptions.isShowBurst()}">B</th>
-                <th class="weapon-padding" th:if="${printOptions.isShowSavingRoll()}">Saving Roll</th>
-                <th th:if="${printOptions.isShowPs()}">PS</th>
-                <th th:if="${printOptions.isShowAmmo()}">Ammo</th>
-                <th th:if="${printOptions.isShowSaveAttribute()}">Save<br>Attr.</th>
-                <th th:if="${printOptions.isShowNumberOfSaveRolls()}">Save<br>Rolls</th>
-                <th th:if="${printOptions.isShowWeaponTraits()}">Traits</th>
+                <th th:if="${printOptions.isShowWeaponSkill()}" th:utext="#{weapon.table.header.weapon.skill}">Skill</th>
+                <th class="weapon-padding" th:if="${printOptions.isShowBurst()}" th:utext="#{weapon.table.header.weapon.burst}" >B</th>
+                <th class="weapon-padding" th:if="${printOptions.isShowSavingRoll()}" th:utext="#{weapon.table.header.weapon.saving.roll}">Saving Roll</th>
+                <th th:if="${printOptions.isShowPs()}" th:utext="#{weapon.table.header.weapon.ps}">PS</th>
+                <th th:if="${printOptions.isShowAmmo()}" th:utext="#{weapon.table.header.weapon.ammunition}">Ammo</th>
+                <th th:if="${printOptions.isShowSaveAttribute()}" th:utext="#{weapon.table.header.weapon.saving.attribute}">Save<br>Attr.</th>
+                <th th:if="${printOptions.isShowNumberOfSaveRolls()}" th:utext="#{weapon.table.header.weapon.saving.number}">Save<br>Rolls</th>
+                <th th:if="${printOptions.isShowWeaponTraits()}" th:utext="#{weapon.table.header.weapon.traits}">Traits</th>
             </tr>
             </thead>
             <tbody>

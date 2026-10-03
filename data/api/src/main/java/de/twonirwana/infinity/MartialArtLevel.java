@@ -4,6 +4,8 @@ import lombok.Value;
 
 @Value
 public class MartialArtLevel {
+    int level;
+    int skillId;
     String opponentModi;
     String damage;
     String attackerModi;

@@ -11,16 +11,16 @@ public class CheckJoinedAvailability {
 
     public static final Army ALL_ARMIES = new Army("-", "all", 0);
 
-    public static List<ArmyUnitCount> checkArmyCodeForJoinedAvailability(List<String> armyCodes, Database database) {
+    public static List<ArmyUnitCount> checkArmyCodeForJoinedAvailability(List<String> armyCodes, Database database, Language language) {
 
         AtomicInteger count = new AtomicInteger(0);
 
         List<ArmyCodeUnit> armyCodeUnits = armyCodes.stream().flatMap(ac -> {
-            ArmyList al = database.getArmyListForArmyCode(ac);
+            ArmyList al = database.getArmyListForArmyCode(ac,language);
             int armyIndex = count.incrementAndGet();
             return al.getCombatGroups().values().stream().flatMap(Collection::stream).map(u -> new ArmyCodeUnit(new Army(ac, al.getArmyName(), armyIndex), new Unit(u.getSectorial().getId(),
                     u.getUnitId(),
-                    u.getPrimaryUnit().getTrooperIsc(),
+                    u.getPrimaryUnit().getOptionName(),
                     u.getPrimaryUnit().getProfiles().getFirst().getAvailability())));
         }).toList();
 

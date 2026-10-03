@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="icon" type="image/x-icon" th:href="@{favicon.ico}">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
-    <title>FAQ – Infinity Card Generator</title>
+    <title th:text="#{faq.title}">FAQ – Infinity Card Generator</title>
 
     <style>
         :root {
@@ -120,183 +120,157 @@
             text-decoration: underline;
         }
 
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border: 1px solid var(--primary-color-dark);
+            border-radius: 4px;
+        }
+
+        .lang-switch a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .lang-switch a:hover,
+        .lang-switch a.active {
+            color: var(--primary-color-glow);
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
+        }
+
+        .lang-separator {
+            color: var(--primary-color-dark);
+        }
     </style>
 </head>
 <body>
 
+<div class="lang-switch">
+    <a th:href="@{''(lang='en')}" th:classappend="${#locale.language == 'en'} ? 'active' : ''">EN</a>
+    <span class="lang-separator">|</span>
+    <a th:href="@{''(lang='es')}" th:classappend="${#locale.language == 'es'} ? 'active' : ''">ES</a>
+</div>
+
 <div class="container">
-    <h1>Frequently Asked Questions</h1>
+    <h1 th:text="#{faq.heading}">Frequently Asked Questions</h1>
 
     <details>
-        <summary>What is the Trooper Card Generator?</summary>
+        <summary th:text="#{faq.q1.question}">What is the Trooper Card Generator?</summary>
         <div class="faq-answer">
-            <p>The Trooper Card Generator is a fan-made tool for the <a href="https://infinityuniverse.com/en"
-                                                                        target="_blank">Infinity</a> tabletop game by
-                Corvus Belli.</p>
-            <p>It converts an army code from the official <a href="https://infinityuniverse.com/army/infinity"
-                                                             target="_blank">Infinity Army</a> builder into printable
-                trooper cards with unit stats and profiles.</p>
+            <p th:utext="#{faq.q1.answer.p1}"></p>
+            <p th:utext="#{faq.q1.answer.p2}"></p>
         </div>
     </details>
 
     <details>
-        <summary>Why can’t I print multiple cards on one page?</summary>
+        <summary th:text="#{faq.q2.question}">Why can’t I print multiple cards on one page?</summary>
         <div class="faq-answer">
-            <p>This is usually a printer issue. Try generating the cards as a 9-to-1 PDF first, then print the PDF from
-                your system’s print dialog with the option scale fit page </p>
-            <p>Try multiple layouts and browser, sometimes Firefox is better than Chrome.</p>
+            <p th:utext="#{faq.q2.answer.p1}"></p>
+            <p th:utext="#{faq.q2.answer.p2}"></p>
         </div>
     </details>
 
     <details>
-        <summary>How do I get my army code?</summary>
+        <summary th:text="#{faq.q3.question}">How do I get my army code?</summary>
         <div class="faq-answer">
-            <p>After creating your list in the <a href="https://infinityuniverse.com/army/infinity" target="_blank">Infinity
-                Army</a> builder, click “Generate Army Code”. You can then copy and paste that code into the Card
-                Generator.</p>
+            <p th:utext="#{faq.q3.answer.p1}"></p>
         </div>
     </details>
 
     <details>
-        <summary>What’s the difference between the card styles?</summary>
+        <summary th:text="#{faq.q4.question}">What’s the difference between the card styles?</summary>
         <div class="faq-answer">
-            <p>Two card styles are available:</p>
+            <p th:utext="#{faq.q4.answer.p1}"></p>
             <ul>
-                <li><strong>Color and image - DIN-A4:</strong> Full-color cards with unit artwork in the size of a A4
-                    sheet.
-                    Can be shrunk by printing multiple on one page. Optimal for four or nine cards on a single A4 sheet.
-                </li>
-                <li><strong>Color and image - DIN-A4:</strong> Full-color cards with unit artwork in the dimension so
-                    six can be printed on a single A4 sheet.
-                </li>
-                <li><strong>Overview List - DIN-A4:</strong> A compact army list without image, designed to print
-                    on A4 sheet.
-                </li>
-                <li><strong>Color and image - DIN-A7:</strong> Full-color cards with unit artwork, designed to print
-                    nine cards per A4 sheet.
-                </li>
-                <li><strong>Color and image - US Letter:</strong> Full-color cards with unit artwork in the size of a US
-                    Letter sheet. Can be shrunk by printing multiple on one page.
-                </li>
-                <li><strong>Black and white - playing card:</strong> Minimalist, ink-friendly cards sized at 59 × 91 mm
-                    (standard playing card size). Not all options work with this style.
-                </li>
+                <li th:utext="#{faq.q4.answer.li1}"></li>
+                <li th:utext="#{faq.q4.answer.li2}"></li>
+                <li th:utext="#{faq.q4.answer.li3}"></li>
+                <li th:utext="#{faq.q4.answer.li4}"></li>
+                <li th:utext="#{faq.q4.answer.li5}"></li>
+                <li th:utext="#{faq.q4.answer.li6}"></li>
             </ul>
         </div>
     </details>
 
     <details>
-        <summary>What does the “Unit Filter” do?</summary>
+        <summary th:text="#{faq.q5.question}">What does the “Unit Filter” do?</summary>
         <div class="faq-answer">
-            <p>Use the “Distinct Units” option to generate only one card per unique trooper profile. The “No Filter”
-                option creates a card for every trooper in your list, even if they are identical.</p>
+            <p th:utext="#{faq.q5.answer.p1}"></p>
         </div>
     </details>
 
     <details>
-        <summary>Can I use my own images for the units?</summary>
+        <summary th:text="#{faq.q6.question}">Can I use my own images for the units?</summary>
         <div class="faq-answer">
-
-            <p>Yes, this is possible using this workaround:</p>
+            <p th:utext="#{faq.q6.answer.p1}"></p>
             <ol>
-                <li>
-                    <strong>Save the page:</strong> Create your cards as you normally would. Once you are on the final
-                    Results page, save the entire page to your computer. To do this, right-click anywhere on the page
-                    and select <em>Save as...</em> (or use the shortcut <kbd>Ctrl</kbd> + <kbd>S</kbd> / <kbd>Cmd</kbd>
-                    + <kbd>S</kbd>). Make sure to choose "Webpage, Complete" as the format.
-                </li>
-                <li>
-                    <strong>Open the image folder:</strong> Your browser will now download an HTML file and
-                    automatically create an accompanying folder in the same location (usually bearing the same name as
-                    the file). This folder contains all the images used on the page.
-                </li>
-                <li>
-                    <strong>Replace the images:</strong> Open that folder and locate the unit images you want to change.
-                    Simply replace them with your own custom images. <strong>Important:</strong> Ensure that your new
-                    images have exactly the same file name and file extension as the original images you are.
-                    Even cards that have currently no image reference an image file with there Profile ID
-                    (see the csv export or the HTML code for it)
-                </li>
-                <li>
-                    <strong>Finish up:</strong> Finally, open the downloaded local HTML file in your browser. Your cards
-                    will now load with your custom images, and you can print them out or save them as a PDF just like
-                    before.
-                </li>
+                <li th:utext="#{faq.q6.answer.li1}"></li>
+                <li th:utext="#{faq.q6.answer.li2}"></li>
+                <li th:utext="#{faq.q6.answer.li3}"></li>
+                <li th:utext="#{faq.q6.answer.li4}"></li>
             </ol>
         </div>
     </details>
 
     <details>
-        <summary>Why are some images missing?</summary>
+        <summary th:text="#{faq.q7.question}">Why are some images missing?</summary>
         <div class="faq-answer">
-            <p>Currently Corvus Belli only provides images for certain unit profiles. The community is working to add
-                images for
-                all troopers. If you’d like to help, please <a href="mailto:contact@infinity.2nirwana.de">contact me</a>.
-            </p>
+            <p th:utext="#{faq.q7.answer.p1}"></p>
         </div>
     </details>
 
     <details>
-        <summary>Why is there a * next to some PS or Range MOD values in the weapon table?</summary>
+        <summary th:text="#{faq.q8.question}">Why is there a * next to some PS or Range MOD values in the weapon
+            table?
+        </summary>
         <div class="faq-answer">
-            <p>The asterisk (*) indicates that modifiers from skills, equipment or profile have altered the weapon’s
-                default
-                value.</p>
+            <p th:utext="#{faq.q8.answer.p1}"></p>
         </div>
     </details>
 
     <details>
-        <summary>What means the C, E or S at the end of a saving roll expression?</summary>
+        <summary th:text="#{faq.q9.question}">What means the C, E or S at the end of a saving roll expression?</summary>
         <div class="faq-answer">
-            <p>C means the weapons does Continous Damage, E that the weapon does E/M damage and S that the weapon does
-                Shock damage</p>
+            <p th:utext="#{faq.q9.answer.p1}"></p>
         </div>
     </details>
 
     <details>
-        <summary>Why do I get an error message for my army code?</summary>
+        <summary th:text="#{faq.q10.question}">Why do I get an error message for my army code?</summary>
         <div class="faq-answer">
-            <p>Your army code might be incomplete or outdated. When Corvus Belli updates their data, older codes can
-                become invalid.</p>
-            <p>First, check if your code still works in the <a href="https://infinityuniverse.com/army/infinity"
-                                                               target="_blank">Infinity Army</a> tool. If it does, the
-                issue might be a bug—please <a href="mailto:contact@infinity.2nirwana.de">email me</a> or <a
-                        href="https://github.com/twonirwana/Infinity-Data/issues" target="_blank">open an issue</a> on
-                GitHub.</p>
+            <p th:utext="#{faq.q10.answer.p1}"></p>
+            <p th:utext="#{faq.q10.answer.p2}"></p>
         </div>
     </details>
 
     <details>
-        <summary>Why is the layout broken for one specific trooper?</summary>
+        <summary th:text="#{faq.q11.question}">Why is the layout broken for one specific trooper?</summary>
         <div class="faq-answer">
-            <p>Some unit profiles have unusual or too much data and that can cause layout issues.
-                Try the different options for this trooper to find the best printable option. Sometimes you need to
-                remove the image to get all weapons.
-            </p>
-            <p>Please <a
-                    href="mailto:contact@infinity.2nirwana.de">email me</a> or <a
-                    href="https://github.com/twonirwana/Infinity-Data/issues" target="_blank">open an issue</a> on
-                GitHub so I can improve the formatting.</p>
+            <p th:utext="#{faq.q11.answer.p1}"></p>
+            <p th:utext="#{faq.q11.answer.p2}"></p>
         </div>
     </details>
 
     <details>
-        <summary>How can I request a new feature?</summary>
+        <summary th:text="#{faq.q12.question}">How can I request a new feature?</summary>
         <div class="faq-answer">
-            <p>You can <a href="mailto:contact@infinity.2nirwana.de">email me</a> directly or <a
-                    href="https://github.com/twonirwana/Infinity-Data/issues" target="_blank">create an issue</a> on
-                GitHub to suggest new features or improvements.</p>
+            <p th:utext="#{faq.q12.answer.p1}"></p>
         </div>
     </details>
 
     <details>
-        <summary>This is great! How can I help?</summary>
+        <summary th:text="#{faq.q13.question}">This is great! How can I help?</summary>
         <div class="faq-answer">
-            <p>Contributions are always welcome — especially from those experienced in HTML/CSS design or graphic
-                layout. Help is also needed to gather images for missing troopers.</p>
-            <p>To contribute, <a href="mailto:contact@infinity.2nirwana.de">send me an email</a> or <a
-                    href="https://github.com/twonirwana/Infinity-Data/pulls" target="_blank">submit a pull request</a>
-                on GitHub.</p>
+            <p th:utext="#{faq.q13.answer.p1}"></p>
+            <p th:utext="#{faq.q13.answer.p2}"></p>
         </div>
     </details>
 
