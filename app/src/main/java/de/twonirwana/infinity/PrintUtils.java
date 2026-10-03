@@ -230,7 +230,8 @@ public final class PrintUtils {
                     .toList();
         }
 
-        String sdNameInLanguage = options.getLanguage() == Language.Spanish ? "DE" : "SD";
+        String sdNameInLanguage = AppI18n.getMessage("sd.dice", options.getLanguage());
+
         List<String> sdExtra = weaponAndSkillExtra.stream()
                 .map(PrintUtils::toSpecialDieExtra)
                 .filter(Optional::isPresent)

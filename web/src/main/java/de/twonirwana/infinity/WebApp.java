@@ -99,6 +99,7 @@ public class WebApp {
 
         TemplateEngine templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(resolver);
+        templateEngine.addMessageResolver(new GlobalMessageResolver("messages"));
 
         return Javalin.create(config -> {
             config.staticFiles.add(staticFileConfig -> {
@@ -199,6 +200,7 @@ public class WebApp {
 
     private static void helpPage(JavalinConfig config, PrometheusMeterRegistry registry) {
         config.routes.get("/help", ctx -> {
+            setLocale(ctx, registry);
             registry.counter("infinity.help").increment();
             ctx.render("templates/help.html");
         });
@@ -258,9 +260,9 @@ public class WebApp {
                 log.error(e.getMessage(), e);
             }
             Map<String, Object> model = Map.of(
-                    "title", "Invalid Army Code Format",
+                    "title", WebI18n.getMessage("invalid.army.code.title", language),
                     "list", List.of(),
-                    "message", "The army code: %s has an invalid format. Try to copy it again.".formatted(armyCode)
+                    "message", WebI18n.getMessage("invalid.army.code.message", language, armyCode)
             );
             ctx.render("templates/table.html", model);
             return false;
@@ -288,9 +290,9 @@ public class WebApp {
 
 
             Map<String, Object> model = Map.of(
-                    "title", "Errors in Army Code",
+                    "title", WebI18n.getMessage("error.army.code.title", language),
                     "list", table,
-                    "message", "The following IDs from the army code: %s could not resolved. Most likely it is out of date. Try to generate a new army code new in Corvus Bellis Army Builder.".formatted(armyCode)
+                    "message", WebI18n.getMessage("error.army.code.message", language, armyCode)
             );
             ctx.render("templates/table.html", model);
             return false;
@@ -371,7 +373,8 @@ public class WebApp {
                         "disableApplyingSkillWeaponExtra", String.valueOf(options.isDisableApplyingSkillWeaponExtra()),
                         "showAmmo", String.valueOf(options.isShowAmmo()),
                         "showPs", String.valueOf(options.isShowPs()),
-                        "showSavingRoll", String.valueOf(options.isShowSavingRoll())
+                        "showSavingRoll", String.valueOf(options.isShowSavingRoll()),
+                        "lang", options.getLanguage().getCode()
                 ).increment();
             }
 
@@ -486,6 +489,9 @@ public class WebApp {
 
         config.routes.get("/joinedAva", ctx -> {
 
+            Language language = getLanguage(ctx, registry);
+            setLocale(ctx, registry);
+
             List<String> armyCodeList = getArmyCodes(ctx.queryParam("input1"),
                     ctx.queryParam("input2"),
                     ctx.queryParam("input3"));
@@ -499,12 +505,12 @@ public class WebApp {
                 registry.counter("infinity.joined.ava.submitted").increment();
                 log.info("Showed joined AVA Check result for: {}", armyCodeList);
 
-                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database, Language.English));
+                boolean anyInvalid = armyCodeList.stream().anyMatch(a -> !checkArmyCodes(ctx, registry, a, database, language));
                 if (anyInvalid) {
                     return;
                 }
 
-                List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database);
+                List<CheckJoinedAvailability.ArmyUnitCount> armyUnitCount = CheckJoinedAvailability.checkArmyCodeForJoinedAvailability(armyCodeList, database, language);
                 Map<CheckJoinedAvailability.Unit, List<CheckJoinedAvailability.ArmyUnitCount>> unitMap = armyUnitCount.stream().collect(Collectors.groupingBy(CheckJoinedAvailability.ArmyUnitCount::unit));
 
                 List<CheckJoinedAvailability.Army> armies = armyUnitCount.stream()
@@ -515,8 +521,8 @@ public class WebApp {
 
                 rows = new ArrayList<>();
                 header = armies.stream().map(a -> a.armyCodeIndex() + ": " + a.armyName()).collect(Collectors.toList());
-                header.addFirst("Unit Name");
-                header.addFirst("Unit Id");
+                header.addFirst(WebI18n.getMessage("unit.name", language));
+                header.addFirst(WebI18n.getMessage("unit.id", language));
                 unitMap.entrySet().stream()
                         .sorted(Comparator.comparing(e -> e.getKey().getSectorialUnitId()))
                         .forEach(e -> {
@@ -641,9 +647,10 @@ public class WebApp {
                                       long startupTime,
                                       PrintOptions options) {
         String printOptionHash = HashUtil.hash128Bit(options.toString());
-        return "%s-%s-%s".formatted(startupTime,
+        return "%s-%s-%s-%s".formatted(startupTime,
                 armyCodeHash,
-                printOptionHash
+                printOptionHash,
+                options.getLanguage().getCode()
         );
 
     }

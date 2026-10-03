@@ -103,7 +103,7 @@ public class HtmlPrinter {
 
         this.templateEngine = new TemplateEngine();
         this.templateEngine.setTemplateResolver(resolver);
-        GlobalMessageResolver messageResolver = new GlobalMessageResolver("messages");
+        GlobalMessageResolver messageResolver = new GlobalMessageResolver("appMessages");
         this.templateEngine.addMessageResolver(messageResolver);
     }
 
@@ -191,7 +191,7 @@ public class HtmlPrinter {
         final Map<String, List<UnitCost>> armyListUnits;
         final String armyListTitel;
         if (data.getArmyList() != null) {
-            String groupName = options.getLanguage() == Language.Spanish ? "Grupo" : "Group";
+            String groupName = AppI18n.getMessage("card.army.list.combat.group", options.getLanguage());
             armyListUnits = data.getArmyList().getCombatGroups().entrySet().stream()
                     .collect(Collectors.toMap(e -> "%s: %d".formatted(groupName, e.getKey()), e -> e.getValue().stream()
                             .map(u -> UnitCost.fromUnitOption(u, options.getLanguage()))
@@ -205,7 +205,8 @@ public class HtmlPrinter {
                             .map(ArmyList::getSectorial)
                             .map(Sectorial::getName))
                     .orElse(data.getArmyList().getSectorialName());
-            String listName = options.getLanguage() == Language.Spanish ? "Lista" : "List";
+            String listName = AppI18n.getMessage("card.army.list.title.list", options.getLanguage());
+
             armyListTitel = "Army %s: %s - %dpts".formatted(listName, armyName, data.getArmyList().getMaxPoints());
         } else {
             armyListUnits = Map.of();
@@ -218,7 +219,8 @@ public class HtmlPrinter {
             fireteams = data.getFireteamChart().getTeams().stream()
                     .map(PrintFireteam::fromFireteamChartTeam)
                     .toList();
-            String unlimitedName = options.getLanguage() == Language.Spanish ? "Ilimitado" : "Unlimited";
+            String unlimitedName = AppI18n.getMessage("card.fireteam.unlimited", options.getLanguage());
+
             String duoCount = data.getFireteamChart().getDuoCount() == 256 ? unlimitedName : String.valueOf(data.getFireteamChart().getDuoCount());
             allowedFireteams = "Duo: %s, Haris: %d, Core: %d".formatted(duoCount, data.getFireteamChart().getHarisCount(), data.getFireteamChart().getCoreCount());
         } else {
@@ -302,13 +304,12 @@ public class HtmlPrinter {
                     } else if (MINE_IDS.contains(w.getId())) {
                         String traits = PrintUtils.cleanupDeployableWeaponTraits(w.getProperties());
                         return Stream.of(Deployable.of(w.getName(), "-", "-", w, "0", "0", "1", "0", traits));
-                    } else if (w.getName().contains("Torreta Artillada")||w.getName().contains("Armed Turret") ) { //not all turrets the same Id
-                        String armedTurretName = language == Language.Spanish ? "Torreta Artillada" : "Armed Turret";
-                        String armedTurretSkills = language == Language.Spanish ? "Visor 360, Reacción Total" : "Visor 360, Total Reaction";
+                    } else if (w.getName().contains("Torreta Artillada") || w.getName().contains("Armed Turret")) { //not all turrets the same Id
+                        String armedTurretName = AppI18n.getMessage("armed.turret", language);
+                        String armedTurretSkills = AppI18n.getMessage("armed.turret.skills", language);
                         return Stream.of(Deployable.of(armedTurretName, "5", "10", null, "2", "3", "1", "2", armedTurretSkills));
                     } else if (w.getId() == 154) { //Pitcher
-
-                        String pitcherRepeaterName = language == Language.Spanish ? "Pitcher Repetidor" : "Pitcher Repeater";
+                        String pitcherRepeaterName = AppI18n.getMessage("pitcher.repeater", language);
                         return Stream.of(Deployable.of(pitcherRepeaterName, "-", "-", w, "0", "0", "1", "1", ""));
                     }
                     return Stream.empty();

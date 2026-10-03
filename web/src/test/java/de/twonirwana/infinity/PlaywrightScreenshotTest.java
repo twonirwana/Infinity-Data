@@ -200,6 +200,12 @@ public class PlaywrightScreenshotTest {
                         .map(r -> "x:" + r.getMinPoint().x + ",y:" + r.getMinPoint().y + "-" + "x:" + r.getMaxPoint().x + ",y:" + r.getMaxPoint().y + " h:" + r.getHeight() + " w:" + r.getWidth())
                         .collect(Collectors.joining(", ")))
                 .isEqualTo(ImageComparisonState.MATCH);
+
+
+        Assertions.assertThat(playwrightContainer.getLogs())
+                .as("No missing translations")
+                .isNotNull()
+                .doesNotContain("Missing I18n for key:");
     }
 
     @Test

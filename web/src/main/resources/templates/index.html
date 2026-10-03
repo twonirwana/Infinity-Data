@@ -449,11 +449,11 @@
     </div>
 
     <div class="avaChecker">
-        <a th:href="@{/joinedAva}" target="_blank" th:text="#{link.avaChecker}">Joined Army List AVA Checker</a>
+        <a th:href="@{/joinedAva(lang=${#locale.language})}" target="_blank" th:text="#{link.avaChecker}">Joined Army List AVA Checker</a>
     </div>
 
     <div class="help">
-        <a th:href="@{/help}" target="_blank" th:text="#{link.help}">Help</a>
+        <a th:href="@{/help(lang=${#locale.language})}" target="_blank" th:text="#{link.help}">Help</a>
     </div>
 
 </div>
