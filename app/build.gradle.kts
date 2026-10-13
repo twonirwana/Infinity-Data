@@ -18,9 +18,9 @@ dependencies {
     implementation("com.google.guava:guava:33.7.2-jre")
     implementation("org.thymeleaf:thymeleaf:3.1.5.RELEASE")
 
-    implementation("com.twelvemonkeys.imageio:imageio-core:3.15.2")
-    implementation("com.twelvemonkeys.imageio:imageio-metadata:3.15.2")
-    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.2")
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.15.3")
+    implementation("com.twelvemonkeys.imageio:imageio-metadata:3.15.3")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.3")
 
     testImplementation(project(":data:core"))
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
