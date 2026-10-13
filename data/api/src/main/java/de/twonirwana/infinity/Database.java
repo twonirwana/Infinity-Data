@@ -8,34 +8,30 @@ import java.util.List;
 
 public interface Database {
 
-    String CSV_LIST_PATH = "out/csv/list/";
-    String CSV_DIFF_LIST_PATH = "out/csv/listDiff/";
+    String CSV_LIST_PATH = "out/csv/%s/list/";
+    String CSV_DIFF_LIST_PATH = "out/csv/%s/listDiff/";
 
-    List<UnitOption> getAllUnitOptions();
+    List<UnitOption> getAllUnitOptions(Language language);
 
-    ArmyList getArmyListForArmyCode(String armyCode);
+    ArmyList getArmyListForArmyCode(String armyCode, Language language);
 
-    List<Sectorial> getAllSectorials();
-
-    List<UnitOption> getAllUnitsForSectorial(Sectorial sectorial);
-
-    List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial);
+    List<Sectorial> getAllSectorials(Language language);
 
     void updateData(String imageOutputFolder);
 
     boolean canDecodeArmyCode(String armyCode);
 
-    List<ValidationError> validateArmyCodeUnits(String armyCode);
+    List<ValidationError> validateArmyCodeUnits(String armyCode, Language language);
 
-    List<HackingProgram> getAllHackingPrograms();
+    List<HackingProgram> getAllHackingPrograms(Language language);
 
-    List<MartialArtLevel> getAllMartialArtLevels();
+    List<MartialArtLevel> getAllMartialArtLevels(Language language);
 
-    List<BootyRoll> getAllBootyRolls();
+    List<BootyRoll> getAllBootyRolls(Language language);
 
-    List<MetaChemistryRoll> getAllMetaChemistryRolls();
+    List<MetaChemistryRoll> getAllMetaChemistryRolls(Language language);
 
-    FireteamChart getFireteamChart(Sectorial sectorial);
+    FireteamChart getFireteamChart(Sectorial sectorial, Language language);
 
     record ValidationError(int unitId, int groupId, int optionId, @NonNull String name, @NonNull String error) {
     }

@@ -33,5 +33,7 @@ public class PrintOptions {
     boolean showCombatGroupNumber;
     boolean showAlwaysOptionFeatureInName;
     boolean showOptionFeatureInNameToDifferentiate;
+    @NonNull
+    Language language;
     //todo showWeaponRange alternative range 0-8":+3 ...
 }

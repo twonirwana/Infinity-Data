@@ -3,6 +3,7 @@ package de.twonirwana.infinity.armylist;
 import com.google.common.annotations.VisibleForTesting;
 import de.twonirwana.infinity.ArmyList;
 import de.twonirwana.infinity.Database;
+import de.twonirwana.infinity.Language;
 import de.twonirwana.infinity.Sectorial;
 import de.twonirwana.infinity.db.DataLoader;
 import de.twonirwana.infinity.model.specops.Attribute;
@@ -92,19 +93,31 @@ public class ArmyCodeLoader {
         return ((firstByte & 0x7F) << 8) | (secondByte & 0xFF);
     }
 
-    public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
+    public static ArmyList fromArmyCode(final String armyCode, DataLoader dataLoader, Language language) throws IllegalArgumentException {
         ArmyCodeData armyCodeData;
         try {
             armyCodeData = mapArmyCode(armyCode);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
-        Sectorial sectorial = dataLoader.getSectorialIdMap().get(armyCodeData.sectorialId);
-        List<UnitOption> unitOptionList = dataLoader.getAllUnitsForSectorial(sectorial);
+        final List<UnitOption> unitOptionList;
+        final Sectorial sectorialApiId;
+        if (language == Language.English) {
+            Sectorial sectorial = dataLoader.getSectorialIdMapEn().get(armyCodeData.sectorialId);
+            unitOptionList = dataLoader.getAllUnitsForSectorialEn(sectorial);
+            sectorialApiId = dataLoader.getAllSectorialIdsEn().stream()
+                    .filter(s -> s.getId() == armyCodeData.sectorialId)
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Could not find sectorial with id %d for %s".formatted(armyCodeData.sectorialId, armyCode)));
+        } else if (language == Language.Spanish) {
+            Sectorial sectorial = dataLoader.getSectorialIdMapEs().get(armyCodeData.sectorialId);
+            unitOptionList = dataLoader.getAllUnitsForSectorialEs(sectorial);
+            sectorialApiId = dataLoader.getAllSectorialIdsEs().stream()
+                    .filter(s -> s.getId() == armyCodeData.sectorialId)
+                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Could not find sectorial with id %d for %s".formatted(armyCodeData.sectorialId, armyCode)));
+        } else {
+            throw new IllegalArgumentException("Unsupported language " + language);
+        }
 
-        Sectorial sectorialApiId = dataLoader.getAllSectorialIds().stream()
-                .filter(s -> s.getId() == armyCodeData.sectorialId)
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("Could not find sectorial with id %d for %s".formatted(armyCodeData.sectorialId, armyCode)));
         Map<Integer, List<UnitOption>> combatGroups = armyCodeData.combatGroups.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().stream()
                         .flatMap(m -> findUnitOptions(m, unitOptionList).stream())
@@ -194,7 +207,7 @@ public class ArmyCodeLoader {
         }
     }
 
-    public static List<Database.ValidationError> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader) throws IllegalArgumentException {
+    public static List<Database.ValidationError> missingUnitsInArmyCode(final String armyCode, DataLoader dataLoader, Language language) throws IllegalArgumentException {
         ArmyCodeData armyCodeData;
         try {
             armyCodeData = mapArmyCode(armyCode);
@@ -202,9 +215,19 @@ public class ArmyCodeLoader {
             throw new IllegalArgumentException(e);
         }
 
-        Sectorial sectorial = dataLoader.getSectorialIdMap().get(armyCodeData.sectorialId);
-        List<UnitOption> unitsForSectorial = dataLoader.getAllUnitsForSectorial(sectorial);
-        List<UnitOption> allUnits = dataLoader.getAllUnits();
+        final List<UnitOption> unitsForSectorial;
+        final List<UnitOption> allUnits;
+        if (language == Language.English) {
+            allUnits = dataLoader.getAllUnitsEn();
+            Sectorial sectorial = dataLoader.getSectorialIdMapEn().get(armyCodeData.sectorialId);
+            unitsForSectorial = dataLoader.getAllUnitsForSectorialEn(sectorial);
+        } else if (language == Language.Spanish) {
+            allUnits = dataLoader.getAllUnitsEs();
+            Sectorial sectorial = dataLoader.getSectorialIdMapEs().get(armyCodeData.sectorialId);
+            unitsForSectorial = dataLoader.getAllUnitsForSectorialEs(sectorial);
+        } else {
+            throw new IllegalArgumentException("Unsupported language " + language);
+        }
 
         return armyCodeData.combatGroups.values().stream()
                 .flatMap(Collection::stream)

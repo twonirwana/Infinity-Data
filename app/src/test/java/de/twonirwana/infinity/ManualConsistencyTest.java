@@ -25,7 +25,7 @@ public class ManualConsistencyTest {
 
     @Test
     void testSectorials() {
-        List<Sectorial> res = db.getAllSectorials();
+        List<Sectorial> res = db.getAllSectorials(Language.English);
 
         assertThat(res.stream().map(Sectorial::getId)).containsExactly(101, 102, 103, 104, 105, 106, 107, 199, 201, 202, 204, 205, 299, 301, 302, 303, 304, 305, 306, 399, 401, 402, 403, 404, 499, 501, 502, 503, 504, 599, 601, 602, 603, 604, 605, 699, 701, 702, 703, 799, 801, 899, 902, 904, 905, 908, 909, 998, 999, 1001, 1002, 1003, 1099, 1101, 1102, 1103, 1199);
         assertThat(res.stream().map(Sectorial::getSlug)).containsExactly("panoceania",
@@ -89,7 +89,7 @@ public class ManualConsistencyTest {
 
     @Test
     void uniqueIds() {
-        Map<String, List<UnitOption>> res = db.getAllUnitOptions().stream()
+        Map<String, List<UnitOption>> res = db.getAllUnitOptions(Language.English).stream()
                 .collect(Collectors.groupingBy(UnitOption::getCombinedId));
 
         assertThat(res.entrySet().stream()).noneMatch(e -> e.getValue().size() > 1);
@@ -97,7 +97,7 @@ public class ManualConsistencyTest {
 
     @Test
     void unitCount() {
-        List<UnitOption> res = db.getAllUnitOptions();
+        List<UnitOption> res = db.getAllUnitOptions(Language.English);
         List<Trooper> troopers = res.stream().flatMap(o -> o.getAllTrooper().stream()).toList();
         List<TrooperProfile> trooperProfiles = troopers.stream().flatMap(t -> t.getProfiles().stream()).toList();
         long unitIdCount = res.stream().map(UnitOption::getUnitId).distinct().count();

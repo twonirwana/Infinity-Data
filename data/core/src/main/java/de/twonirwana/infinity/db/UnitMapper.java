@@ -59,13 +59,15 @@ import java.util.stream.Stream;
 @Slf4j
 public class UnitMapper {
     //each database update should not throw the same warnings
-    private final static Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
-    private static final Pattern TURRET_WEAPON_NAME_PATTERN = Pattern.compile("Armed Turret \\((.*)\\)");
+    private static final Set<String> UNIQUE_LOG_MESSAGES = new ConcurrentSkipListSet<>();
+    private static final Pattern TURRET_WEAPON_NAME_PATTERN = Pattern.compile("(Armed Turret|Torreta Artillada) \\((.*)\\)");
+    private static final Set<String> SUPPRESSION_FIRE_TRAIS = Set.of("Fuego de Supresión", "Suppressive Fire");
+    private static final Set<String> TURRET_NAMES = Set.of("Torreta Artillada", "Armed Turret");
 
     public static Map<Sectorial, List<UnitOption>> getUnits(Map<Sectorial, SectorialList> sectorialListMap,
                                                             Map<Sectorial, SectorialList> reenforcementListMap,
                                                             Metadata metadata,
-                                                            Map<Sectorial, SectorialImage> sectorialImageMap) {
+                                                            Map<Integer, SectorialImage> sectorialImageMap) {
         Map<Integer, List<Weapon>> weaponIdMap = metadata.getWeapons().stream()
                 .collect(Collectors.groupingBy(Weapon::getId));
         Map<Integer, Skill> skillIdMap = metadata.getSkills().stream().collect(Collectors.toMap(Skill::getId, Function.identity()));
@@ -90,7 +92,7 @@ public class UnitMapper {
                                                                       Map<Integer, List<Weapon>> weaponIdMap,
                                                                       Map<Integer, Skill> skillIdMap,
                                                                       Map<Integer, Equipment> equipmentIdMap,
-                                                                      Map<Sectorial, SectorialImage> sectorialImageMap,
+                                                                      Map<Integer, SectorialImage> sectorialImageMap,
                                                                       Map<Sectorial, SectorialList> reenforcementListMap) {
         return Stream.concat(sectorialList.getUnits().stream()
                                 .flatMap(u -> getUnitOption(sectorial,
@@ -98,7 +100,7 @@ public class UnitMapper {
                                         weaponIdMap,
                                         skillIdMap,
                                         equipmentIdMap,
-                                        sectorialImageMap.get(sectorial),
+                                        sectorialImageMap.get(sectorial.getId()),
                                         getSectorialFilter(sectorialList),
                                         false).stream()),
                         reenforcementListMap.containsKey(sectorial) ? reenforcementListMap.get(sectorial).getUnits().stream()
@@ -107,7 +109,7 @@ public class UnitMapper {
                                         weaponIdMap,
                                         skillIdMap,
                                         equipmentIdMap,
-                                        sectorialImageMap.get(sectorial), //todo is this correct?
+                                        sectorialImageMap.get(sectorial.getId()), //todo is this correct?
                                         getSectorialFilter(reenforcementListMap.get(sectorial)),
                                         true
                                 ).stream())
@@ -385,7 +387,7 @@ public class UnitMapper {
             stat = null;
             statModifier = null;
             weapons = weaponIdMap.get(attribute.getId()).stream()
-                    .filter(w -> "WEAPON" .equals(w.getType()))
+                    .filter(w -> "WEAPON".equals(w.getType()))
                     .map(w -> mapWeapon(w,
                             attribute.getQ(),
                             extraValues,
@@ -505,7 +507,7 @@ public class UnitMapper {
         allProfileWeapons.addAll(turretWeapons);
 
         //add supressive fire mode if a weapon has this trait
-        if (allProfileWeapons.stream().anyMatch(w -> w.getProperties().contains("Suppressive Fire"))) {
+        if (allProfileWeapons.stream().flatMap(w -> w.getProperties().stream()).anyMatch(SUPPRESSION_FIRE_TRAIS::contains)) {
             allProfileWeapons.addAll(weaponIdMap.get(127).stream()
                     .map(w -> mapWeapon(w, null, List.of(), de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON.name(), null))
                     .toList());
@@ -546,10 +548,10 @@ public class UnitMapper {
                 return mapTurrets(unit, weapons, weaponIdMap.values().stream().flatMap(Collection::stream).toList(), extras).stream()
                         .map(weapon -> {
                             final String overwriteName;
-                            if (!weapon.getName().contains("Armed Turret")) {
-                                overwriteName = "Armed Turret";
-                            } else {
+                            if (weapon.getName().contains("Armed Turret") || weapon.getName().contains("Torreta Artillada")) {
                                 overwriteName = null;
+                            } else {
+                                overwriteName = "Armed Turret";
                             }
                             return mapWeapon(weapon, pi.getQ(), extras, de.twonirwana.infinity.unit.api.Weapon.Type.TURRET.name(), overwriteName);
                         })
@@ -569,18 +571,21 @@ public class UnitMapper {
         if (weaponFilter.get(pi.getId()) != null) { //only weapons and turrets in weapon filters
 
             Weapon extraWeapon = weaponFilter.get(pi.getId());
-            if (extraWeapon.getName().contains("Armed Turret") && type == de.twonirwana.infinity.unit.api.Weapon.Type.TURRET) {
+            if (TURRET_NAMES.stream().anyMatch(n -> extraWeapon.getName().contains(n)) &&
+                    type == de.twonirwana.infinity.unit.api.Weapon.Type.TURRET) {
                 Weapon turret = mapFilterTurret2Weapon(extraWeapon, weaponIdMap.values().stream().flatMap(Collection::stream).toList());
                 return List.of(mapWeapon(turret, pi.getQ(), extras, type.name(), extraWeapon.getName()));
-            } else if (!extraWeapon.getName().contains("Armed Turret") && type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON) {
+            } else if (TURRET_NAMES.stream().noneMatch(n -> extraWeapon.getName().contains(n)) &&
+                    type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON) {
                 return List.of(mapWeapon(extraWeapon, pi.getQ(), extras, type.name(), null));
             }
 
         }
         if (type == de.twonirwana.infinity.unit.api.Weapon.Type.WEAPON && Optional.ofNullable(weaponFilter.get(pi.getId()))
                 .map(Weapon::getName)
-                .map(s -> !s.contains("Armed Turret")).orElse(true)) {
-            String message = "No weapons found for id %s for unit %s in %s" .formatted(pi.getId(), unit.getName(), factionName);
+                .map(s -> TURRET_NAMES.stream().noneMatch(s::contains))
+                .orElse(true)) {
+            String message = "No weapons found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
             if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                 UNIQUE_LOG_MESSAGES.add(message);
                 log.warn(message);
@@ -592,7 +597,7 @@ public class UnitMapper {
     private static Weapon mapFilterTurret2Weapon(Weapon extraTurret, Collection<Weapon> allWeapons) {
         Matcher matcher = TURRET_WEAPON_NAME_PATTERN.matcher(extraTurret.getName());
         if (matcher.find()) {
-            String turretWeaponName = matcher.group(1).replace(".", "");
+            String turretWeaponName = matcher.group(2).replace(".", "");
             return allWeapons.stream()
                     .filter(w -> w.getName().contains(turretWeaponName))
                     .findFirst()
@@ -608,11 +613,11 @@ public class UnitMapper {
         final de.twonirwana.infinity.unit.api.Weapon.Type type = de.twonirwana.infinity.unit.api.Weapon.Type.valueOf(weaponType);
 
         final de.twonirwana.infinity.unit.api.Weapon.Skill weaponSkill;
-        if (weapon.getProperties() != null && weapon.getProperties().contains("CC")) {
+        if (weapon.getProperties() != null && weapon.getProperties().contains("CC")) { //same in spanish
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.CC;
-        } else if (weapon.getProperties() != null && weapon.getProperties().contains("BS Weapon (PH)")) {
+        } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (PH)") || weapon.getProperties().contains("Arma CD (FIS)"))) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.PH;
-        } else if (weapon.getProperties() != null && weapon.getProperties().contains("BS Weapon (WIP)")) {
+        } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (WIP)")|| weapon.getProperties().contains("Arma CD (VOL)"))) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.WIP;
         } else {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.BS;
@@ -684,7 +689,7 @@ public class UnitMapper {
                     if (skillFilter.get(pi.getId()) != null) {
                         return Stream.of(skillFilter.get(pi.getId())).map(skill -> mapSkill(skill, pi.getQ(), extras));
                     }
-                    String message = "No skills found for id %s for unit %s in %s" .formatted(pi.getId(), unit.getName(), factionName);
+                    String message = "No skills found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
                     if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                         UNIQUE_LOG_MESSAGES.add(message);
                         log.error(message);
@@ -732,7 +737,7 @@ public class UnitMapper {
                     if (equibFilter.get(pi.getId()) != null) {
                         return Stream.of(equibFilter.get(pi.getId())).map(equip -> mapEquipment(equip, pi.getQ(), extras));
                     }
-                    String message = "No equipment found for id %s for unit %s in %s" .formatted(pi.getId(), unit.getName(), factionName);
+                    String message = "No equipment found for id %s for unit %s in %s".formatted(pi.getId(), unit.getName(), factionName);
                     if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                         UNIQUE_LOG_MESSAGES.add(message);
                         log.error(message);
@@ -798,7 +803,7 @@ public class UnitMapper {
                 equipmentIdMap,
                 sectorial.getName());
         String type = sectorialFilter.typeFilter().get(profile.getType());
-        List<String> characteristics = getUnitCharacteristics(profileOption, profile, sectorialFilter.characteristicsFilter());
+        List<Characteristic> characteristics = getUnitCharacteristics(profileOption, profile, sectorialFilter.characteristicsFilter());
 
         List<ImgOption> imgOptions = sectorialImage.getUnits().stream()
                 .filter(u -> u.getId() == unit.getId())
@@ -909,13 +914,12 @@ public class UnitMapper {
         );
     }
 
-    private static List<String> getUnitCharacteristics(ProfileOption profileOption, Profile profile, Map<Integer, String> characteristicsFilter) {
+    private static List<Characteristic> getUnitCharacteristics(ProfileOption profileOption, Profile profile, Map<Integer, String> characteristicsFilter) {
         return Stream.concat(
                         profileOption.getChars().stream(),
                         profile.getChars().stream())
                 .filter(Objects::nonNull)
-                .map(characteristicsFilter::get)
-                .filter(Objects::nonNull)
+                .map(i -> new Characteristic(i, characteristicsFilter.get(i)))
                 .sorted()
                 .toList();
     }
@@ -966,7 +970,7 @@ public class UnitMapper {
         Map<Integer, String> typeFilter = sectorialList.getFilters().getType().stream().collect(Collectors.toMap(FilterItem::getId, FilterItem::getName));
         Map<Integer, String> peripheralFilter = sectorialList.getFilters().getPeripheral().stream().collect(Collectors.toMap(FilterItem::getId, FilterItem::getName));
         Map<Integer, ExtraValue> extraFilter = sectorialList.getFilters().getExtras().stream().collect(Collectors.toMap(FilterItem::getId, f -> {
-            if ("DISTANCE" .equals(f.getType())) {
+            if ("DISTANCE".equals(f.getType())) {
                 return new ExtraValue(f.getId(), null, ExtraValue.Type.Distance, Float.valueOf(f.getName()));
             }
             return new ExtraValue(f.getId(), f.getName(), ExtraValue.Type.Text, null);
@@ -979,9 +983,14 @@ public class UnitMapper {
                 .putAll(turretWeapons.stream().filter(s -> !Strings.isNullOrEmpty(s.getMode())).collect(Collectors.toMap(Weapon::getMode, Weapon::getMode)))
                 .put("Ad. Launcher Rifle", "Adhesive Launcher Rifle")
                 .put("Combi R.", "Combi Rifle")
+                .put("F. Combi", "Fusil Combi")
                 .put("AP Marksman Rifle", "Marksman Rifle")
+                .put("F. de Precisión AP", "Fusil de Precisión")
+                .put("F. Precisión", "Fusil de Precisión")
                 .put("Thunderbolt (AP)", "Thunderbolt")
+                .put("F. Lanzaadhesivo", "Fusil Lanzaadhesivo")
                 .put("Plasma Carabine", "Plasma Carbine")
+                .put("Carabina de Plasma", "Carabina de Plasma")
                 .build();
         Optional<ExtraValue> turretTypeExtra = extras.stream()
                 .filter(e -> e.getType() == ExtraValue.Type.Text)
@@ -1001,7 +1010,7 @@ public class UnitMapper {
                         .toList();
             }
             if (turrets.isEmpty()) {
-                String message = "Can't map turret with extras to weapon: %s in %s-%s" .formatted(extras, unit.getSlug(), unit.getId());
+                String message = "Can't map turret with extras to weapon: %s in %s-%s".formatted(extras, unit.getSlug(), unit.getId());
                 if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                     UNIQUE_LOG_MESSAGES.add(message);
                     log.error(message);
@@ -1009,7 +1018,7 @@ public class UnitMapper {
             }
             return turrets;
         } else {
-            String message = "Can't map turret with extras: %s in %s, using default" .formatted(extras, unit.getSlug());
+            String message = "Can't map turret with extras: %s in %s, using default".formatted(extras, unit.getSlug());
             if (!UNIQUE_LOG_MESSAGES.contains(message)) {
                 UNIQUE_LOG_MESSAGES.add(message);
                 log.warn(message);

@@ -15,7 +15,7 @@ public class ExportCBImages {
         String cbFilesPathToConvert = "out/cb/";
         DataLoader dataLoader = new DataLoader(DataLoader.UpdateOption.TIMED_UPDATE, null, fileOutPath);
 
-        dataLoader.getAllUnits().stream()
+        dataLoader.getAllUnitsEn().stream()
                 .flatMap(u -> u.getAllTrooper().stream())
                 .flatMap(t -> t.getProfiles().stream())
                 .forEach(p -> {

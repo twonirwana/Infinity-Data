@@ -12,11 +12,11 @@ import java.util.Objects;
  */
 @Value
 public class TrooperProfile {
-    private static final String HACKABLE_CHARACTERISTIC = "hackable";
-    private static final String PERIPHERAL_CHARACTERISTIC = "peripheral";
-    private static final String LIEUTENANT_SKILL = "lieutenant";
-    private final static String CUBE_CHARACTERISTIC = "cube";
-    private final static String CUBE2_CHARACTERISTIC = "cube 2.0";
+    private static final int HACKABLE_CHARACTERISTIC = 21;
+    private static final int PERIPHERAL_CHARACTERISTIC = 27;
+    private static final int LIEUTENANT_SKILL = 119;
+    private final static int CUBE_CHARACTERISTIC = 1;
+    private final static int CUBE2_CHARACTERISTIC = 20;
     Sectorial sectorial;
     int unitId;
     int groupId;
@@ -47,7 +47,7 @@ public class TrooperProfile {
     @NonNull
     List<Equipment> equipment;
     @NonNull
-    List<String> characteristics;
+    List<Characteristic> characteristics;
     String logo;
     @NonNull
     List<String> imageNames;
@@ -63,40 +63,36 @@ public class TrooperProfile {
     public boolean isHackable() {
         return characteristics.stream()
                 .filter(Objects::nonNull)
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .anyMatch(HACKABLE_CHARACTERISTIC::equals);
+                .map(Characteristic::getId)
+                .anyMatch(i -> i == HACKABLE_CHARACTERISTIC);
     }
 
     public boolean hasCube() {
         return characteristics.stream()
                 .filter(Objects::nonNull)
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .anyMatch(CUBE_CHARACTERISTIC::equals);
+                .map(Characteristic::getId)
+                .anyMatch(i -> i == CUBE_CHARACTERISTIC);
     }
 
     public boolean hasCube2() {
         return characteristics.stream()
                 .filter(Objects::nonNull)
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .anyMatch(CUBE2_CHARACTERISTIC::equals);
+                .map(Characteristic::getId)
+                .anyMatch(i -> i == CUBE2_CHARACTERISTIC);
     }
 
     public boolean isLieutenant() {
         return skills.stream()
                 .filter(Objects::nonNull)
-                .map(Skill::getName)
-                .anyMatch(LIEUTENANT_SKILL::equals);
+                .map(Skill::getId)
+                .anyMatch(i -> i == LIEUTENANT_SKILL);
     }
 
     public boolean isPeripheral() {
         return characteristics.stream()
                 .filter(Objects::nonNull)
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .anyMatch(PERIPHERAL_CHARACTERISTIC::equals);
+                .map(Characteristic::getId)
+                .anyMatch(i -> i == PERIPHERAL_CHARACTERISTIC);
     }
 
 }

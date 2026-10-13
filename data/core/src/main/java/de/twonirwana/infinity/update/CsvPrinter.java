@@ -2,6 +2,8 @@ package de.twonirwana.infinity.update;
 
 import com.google.common.base.Strings;
 import de.twonirwana.infinity.DistanceUtil;
+import de.twonirwana.infinity.DataI18n;
+import de.twonirwana.infinity.Language;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -19,22 +21,28 @@ import java.util.stream.Stream;
 @Slf4j
 public class CsvPrinter {
 
-    private static final String[] HEADER = {
-            "Sectorial", "Option ID", "Profile ID", "Ics", "Ics Abbreviation", "Profile Ics", "Unit Name", "Profile Name",
-            "Option Feature",
-            "MOV", "CC", "BS", "PH", "WIP", "ARM", "BTS", "Wounds", "Silhouette", "Orders", "AVA",
-            "Points", "SWC",
-            "Skills", "Equipment", "Primary Weapon", "Weapons",
-            "Characteristics", "Type", "Category",
-            "CB Image", "CB Product", "Community Image"
+    private static final String[] HEADER_KEYS = {
+            "csv.header.sectorial", "csv.header.option.id", "csv.header.profile.id", "csv.header.ics",
+            "csv.header.ics.abbreviation", "csv.header.profile.ics", "csv.header.unit.name", "csv.header.profile.name",
+            "csv.header.option.feature", "csv.header.mov", "csv.header.cc", "csv.header.bs", "csv.header.ph",
+            "csv.header.wip", "csv.header.arm", "csv.header.bts", "csv.header.wounds", "csv.header.silhouette",
+            "csv.header.orders", "csv.header.ava", "csv.header.c", "csv.header.swc", "csv.header.skills",
+            "csv.header.equipment", "csv.header.primary.weapon", "csv.header.weapons", "csv.header.characteristics",
+            "csv.header.type", "csv.header.category", "csv.header.cb.image", "csv.header.cb.product", "csv.header.community.image"
     };
     private static final Set<Weapon.Type> WEAPON_TYPES = Set.of(Weapon.Type.WEAPON, Weapon.Type.TURRET);
 
-    public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder) {
+    public static String[] getHeaders(Language language) {
+        return Arrays.stream(HEADER_KEYS)
+                .map(k -> DataI18n.getMessage(k, language))
+                .toArray(String[]::new);
+    }
+
+    public static void printList(String filePath, List<UnitOption> printableUnits, String customUnitImageFolder, Language language) {
+        String[] header = getHeaders(language);
 
         try (Writer writer = new FileWriter(filePath);
-             CSVPrinter csvPrinter = new CSVPrinter(writer,
-                     CSVFormat.Builder.create().setDelimiter(';').setHeader(HEADER).get())) {
+             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.Builder.create().setDelimiter(';').setHeader(header).get())) {
 
             printableUnits.stream()
                     .sorted(Comparator.comparing(UnitOption::getCombinedId))
@@ -123,7 +131,7 @@ public class CsvPrinter {
                 equipment,
                 getPrimaryWeapon(profile),
                 weapons,
-                String.join(", ", profile.getCharacteristics()),
+                profile.getCharacteristics().stream().map(Characteristic::getName).collect(Collectors.joining(", ")),
                 Optional.ofNullable(profile.getType()).map(Objects::toString).orElse(""),
                 Optional.ofNullable(trooper.getCategory()).map(Objects::toString).orElse(""),
                 String.join(", ", profile.getImageNames()),
@@ -268,12 +276,14 @@ public class CsvPrinter {
         }
     }
 
-    public static void saveDiffs(List<String> diffs, Path out) {
+    public static void saveDiffs(List<String> diffs, Path out, Language language) {
+        String[] header = getHeaders(language);
+
         try {
             FileWriter fileWriter = new FileWriter(out.toFile());
             PrintWriter printWriter = new PrintWriter(fileWriter);
-            String header = "Change;" + String.join(";", List.of(HEADER));
-            printWriter.println(header);
+            String change_header = "Change;" + String.join(";", List.of(header));
+            printWriter.println(change_header);
             diffs.forEach(printWriter::println);
             printWriter.close();
         } catch (IOException e) {

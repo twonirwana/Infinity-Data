@@ -36,28 +36,30 @@ public class DatabaseImp implements Database {
     }
 
     @Override
-    public List<UnitOption> getAllUnitOptions() {
-        return loader.getAllUnits();
+    public List<UnitOption> getAllUnitOptions(Language language) {
+        if (language == Language.English) {
+            return loader.getAllUnitsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getAllUnitsEn();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
-    public ArmyList getArmyListForArmyCode(String armyCode) {
-        return ArmyCodeLoader.fromArmyCode(armyCode, loader);
+    public ArmyList getArmyListForArmyCode(String armyCode, Language language) {
+        return ArmyCodeLoader.fromArmyCode(armyCode, loader, language);
     }
 
     @Override
-    public List<Sectorial> getAllSectorials() {
-        return loader.getAllSectorialIds();
-    }
-
-    @Override
-    public List<UnitOption> getAllUnitsForSectorial(Sectorial sectorial) {
-        return loader.getAllUnitsForSectorial(sectorial);
-    }
-
-    @Override
-    public List<UnitOption> getAllUnitsForSectorialWithoutMercs(Sectorial sectorial) {
-        return loader.getAllUnitsForSectorialWithoutMercs(sectorial);
+    public List<Sectorial> getAllSectorials(Language language) {
+        if (language == Language.English) {
+            return loader.getAllSectorialIdsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getAllSectorialIdsEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
@@ -83,32 +85,62 @@ public class DatabaseImp implements Database {
     }
 
     @Override
-    public List<ValidationError> validateArmyCodeUnits(String armyCode) {
-        return ArmyCodeLoader.missingUnitsInArmyCode(armyCode, loader);
+    public List<ValidationError> validateArmyCodeUnits(String armyCode, Language language) {
+        return ArmyCodeLoader.missingUnitsInArmyCode(armyCode, loader, language);
     }
 
     @Override
-    public List<HackingProgram> getAllHackingPrograms() {
-        return loader.getAllHackingPrograms();
+    public List<HackingProgram> getAllHackingPrograms(Language language) {
+        if (language == Language.English) {
+            return loader.getAllHackingProgramsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getAllHackingProgramsEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
-    public List<MartialArtLevel> getAllMartialArtLevels() {
-        return loader.getAllMartialArtLevels();
+    public List<MartialArtLevel> getAllMartialArtLevels(Language language) {
+        if (language == Language.English) {
+            return loader.getAllMartialArtLevelsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getAllMartialArtLevelsEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
-    public List<BootyRoll> getAllBootyRolls() {
-        return loader.getBootyRolls();
+    public List<BootyRoll> getAllBootyRolls(Language language) {
+        if (language == Language.English) {
+            return loader.getBootyRollsEn();
+        } else if (language == Language.Spanish) {
+            return loader.getBootyRollsEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
-    public List<MetaChemistryRoll> getAllMetaChemistryRolls() {
-        return loader.getMetaChemistry();
+    public List<MetaChemistryRoll> getAllMetaChemistryRolls(Language language) {
+        if (language == Language.English) {
+            return loader.getMetaChemistryEn();
+        } else if (language == Language.Spanish) {
+            return loader.getMetaChemistryEs();
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 
     @Override
-    public FireteamChart getFireteamChart(Sectorial sectorial) {
-        return loader.getSectorialFireteamCharts().get(sectorial);
+    public FireteamChart getFireteamChart(Sectorial sectorial, Language language) {
+        if (language == Language.English) {
+            return loader.getSectorialFireteamChartsEn().get(sectorial);
+        } else if (language == Language.Spanish) {
+            return loader.getSectorialFireteamChartsEs().get(sectorial);
+        } else {
+            throw new IllegalArgumentException("Language not supported: " + language);
+        }
     }
 }

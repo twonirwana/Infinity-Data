@@ -1,10 +1,7 @@
 package de.twonirwana.infinity.analysis;
 
 import com.google.common.base.Strings;
-import de.twonirwana.infinity.ArmyList;
-import de.twonirwana.infinity.Database;
-import de.twonirwana.infinity.DatabaseImp;
-import de.twonirwana.infinity.Sectorial;
+import de.twonirwana.infinity.*;
 import de.twonirwana.infinity.unit.api.OptionFeature;
 import de.twonirwana.infinity.unit.api.Order;
 import de.twonirwana.infinity.unit.api.UnitOption;
@@ -28,7 +25,7 @@ public class ArmyCodeAnalysis {
                 .map(s -> s.split(";")[1])
                 .distinct()
                 .filter(database::canDecodeArmyCode)
-                .map(database::getArmyListForArmyCode)
+                .map(a -> database.getArmyListForArmyCode(a, Language.English))
                 .filter(a -> a.getTotalCost() > 290 && a.getTotalCost() <= 300)
                 .filter(a -> a.getCombatGroups().values().stream()
                         .flatMap(Collection::stream)
@@ -42,7 +39,7 @@ public class ArmyCodeAnalysis {
                 .stream()
                 .sorted(Comparator.comparing(e -> e.getKey().getId()))
                 //.filter(e -> e.getKey().getParentId() == 601)
-               // .filter(e -> e.getKey().getId() == 602)
+                // .filter(e -> e.getKey().getId() == 602)
                 .forEach(entry -> {
                     System.out.println(entry.getKey().getName() + ": " + entry.getValue().size());
                     double rOrder = entry.getValue().stream()

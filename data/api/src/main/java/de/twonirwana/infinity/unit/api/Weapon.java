@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value
-public class Weapon {
+public class Weapon implements Comparable<Weapon> {
     private static final List<Integer> RANGES_LIST = List.of(20, 40, 60, 80, 100, 120, 240);
     int id;
     Skill skill;
@@ -81,6 +81,11 @@ public class Weapon {
             }
         }
         return ranges;
+    }
+
+    @Override
+    public int compareTo(Weapon o) {
+        return Integer.compare(id, o.id);
     }
 
 

@@ -11,7 +11,7 @@ class PrintUtilsTest {
 
     @Test
     void toPsExtra_matches() {
-        Optional<String> res = PrintUtils.toPsExtra(new ExtraValue(1, "PS=4", ExtraValue.Type.Text, null));
+        Optional<String> res = PrintUtils.toPsExtra(new ExtraValue(302, "PS=4", ExtraValue.Type.Text, null));
         assertThat(res).contains("4");
     }
 
@@ -23,7 +23,7 @@ class PrintUtilsTest {
 
     @Test
     void toBurstExtra_matches() {
-        Optional<String> res = PrintUtils.toBurstExtra(new ExtraValue(1, "+2B", ExtraValue.Type.Text, null));
+        Optional<String> res = PrintUtils.toBurstExtra(new ExtraValue(8, "+2B", ExtraValue.Type.Text, null));
         assertThat(res).contains("2");
     }
 
