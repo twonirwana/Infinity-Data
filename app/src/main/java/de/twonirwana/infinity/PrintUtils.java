@@ -147,7 +147,7 @@ public final class PrintUtils {
             return "Suppressive Fire";
         }
         if ("Arma en Fuego de Supresión".equals(weapon.getName())) {
-            return "Fuego de cobertura";
+            return "Fuego de Supresión";
         }
 
         String out;
