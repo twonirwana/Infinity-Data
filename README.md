@@ -40,4 +40,6 @@ print them from your browser to pdf or on paper by selecting 9 on one-page optio
 Contributions of any kind are welcome, especially if someone has experience in HTML layout and wants to help make the
 cards look nicer.
 
+Thanks to [rogmed](https://github.com/rogmed) for help with the Spanish translation
+
 Based on [Infinity-Army-Tools](https://github.com/cwoac/Infinity-Army-Tools)
