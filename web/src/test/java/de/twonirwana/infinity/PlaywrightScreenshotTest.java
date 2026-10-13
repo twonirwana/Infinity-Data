@@ -162,7 +162,7 @@ public class PlaywrightScreenshotTest {
         page.getByLabel("Código de Ejército o IDs de Opciones:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
 
 
-        Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generar y Ver Cartas")).click());
+        Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generar y Ver Tarjetas")).click());
 
         newPage.waitForLoadState();
         byte[] actualImageBytes = newPage.screenshot(new Page.ScreenshotOptions()
