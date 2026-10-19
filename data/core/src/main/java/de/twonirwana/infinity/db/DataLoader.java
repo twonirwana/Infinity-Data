@@ -284,7 +284,7 @@ public class DataLoader {
                 .filter(u -> !u.isMerc())
                 .filter(u -> !u.isReinforcementUnit())
                 .distinct()
-                .sorted(Comparator.comparing(UnitOption::getCombinedId))
+                .sorted()
                 .toList();
 
         try {
@@ -704,7 +704,7 @@ public class DataLoader {
                 .flatMap(Collection::stream)
                 .filter(u -> !NOT_PLAYABLE_SECTORIAL_IDS.contains(u.getSectorial().getId()))
                 .distinct()
-                .sorted(Comparator.comparing(UnitOption::getCombinedId))
+                .sorted()
                 .toList();
     }
 

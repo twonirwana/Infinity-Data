@@ -4,6 +4,7 @@ import de.twonirwana.infinity.Sectorial;
 import lombok.NonNull;
 import lombok.Value;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -11,7 +12,13 @@ import java.util.stream.Stream;
  * A specific unit option, with all its troopers
  */
 @Value
-public class UnitOption {
+public class UnitOption implements Comparable<UnitOption> {
+    private static final Comparator<UnitOption> COMPARATOR = Comparator
+            .comparingInt((UnitOption u) -> u.getSectorial().getId())
+            .thenComparingInt(UnitOption::getUnitId)
+            .thenComparingInt(UnitOption::getGroupId)
+            .thenComparingInt(UnitOption::getOptionId);
+
     Sectorial sectorial;
     int unitId;
     int groupId;
@@ -23,15 +30,12 @@ public class UnitOption {
     String unitOptionName;
     String optionName;
     String slug;
-
     Trooper primaryUnit;
-
     @NonNull
     List<Trooper> additionalUnits;
     int totalCost;
-    String totalSpecialWeaponCost;
     //todo ggf list of faction where the unit is also aka Unit.factions
-
+    String totalSpecialWeaponCost;
     String note;
     boolean reinforcementUnit;
     List<OptionFeature> optionFeatures;
@@ -59,5 +63,10 @@ public class UnitOption {
 
     public UnitOption copyWithSelectedOptions(@NonNull List<ModifierOption> selectedOptions) {
         return new UnitOption(sectorial, unitId, groupId, optionId, isc, iscAbbr, unitName, unitOptionName, optionName, slug, primaryUnit, additionalUnits, totalCost, totalSpecialWeaponCost, note, reinforcementUnit, optionFeatures, specOpsOptions, specBallOptions, selectedOptions);
+    }
+
+    @Override
+    public int compareTo(@NonNull UnitOption o) {
+        return COMPARATOR.compare(this, o);
     }
 }

@@ -45,7 +45,7 @@ public class CsvPrinter {
              CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.Builder.create().setDelimiter(';').setHeader(header).get())) {
 
             printableUnits.stream()
-                    .sorted(Comparator.comparing(UnitOption::getCombinedId))
+                    .sorted()
                     .filter(u -> !u.isMerc())
                     .flatMap(unitOption -> unitOption.getAllTrooper().stream()
                             .flatMap(trooper -> trooper.getProfiles().stream()
