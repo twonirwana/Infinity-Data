@@ -132,7 +132,7 @@ public class PlaywrightScreenshotTest {
         page.waitForLoadState();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Select Card Style:").selectOption(template.name());
-        page.getByLabel("Army Code or Option IDs:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
+        page.getByLabel("Army Code, Sectorial or Option IDs:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
 
 
         Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());
@@ -159,7 +159,7 @@ public class PlaywrightScreenshotTest {
         page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("ES").setExact(true)).click();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Seleccionar Estilo de Carta:").selectOption(template.name());
-        page.getByLabel("Código de Ejército o IDs de Opciones:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
+        page.getByLabel("Código de Ejército, Sectorial o IDs de Opciones:").fill("hE4Mc2hpbmRlbmJ1dGFpASCBLAIBAQAKAISIAQEAAIcaAQIAAIU1AQQAAIdSAQEAAIcZAQQAAICeAQEAAIcdAQUAAICnAQMAAIcbAQMAAIccAQMAAgEABgCHHwECAACG%2FAEBAACGIQEFAACAoQEBAACA4AGC5QAAgJ4BBAA%3D");
 
 
         Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generar y Ver Tarjetas")).click());
@@ -219,7 +219,7 @@ public class PlaywrightScreenshotTest {
         assertThat(page.locator("body")).isVisible();
         String templateName = HtmlPrinter.Template.a4_image.name();
         page.getByLabel("Select Card Style:").selectOption(templateName);
-        page.getByLabel("Army Code or Option IDs:").fill("1102-1160-1-1,999-999-999-999,abc-da,1102-1818-1-2,1102-1818-1-2,1102-1788-1-1,1102-1569-1-5");
+        page.getByLabel("Army Code, Sectorial or Option IDs:").fill("1102-1160-1-1,999-999-999-999,abc-da,1102-1818-1-2,1102-1818-1-2,1102-1788-1-1,1102-1569-1-5");
 
 
         Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());
@@ -233,6 +233,32 @@ public class PlaywrightScreenshotTest {
 
         checkScreenshot(actualImageBytes, expectedFile, fileName);
 
+    }
+
+    @Test
+    void testBySectorial() throws IOException {
+        Browser browser = chromium;
+        context = browser.newContext(new Browser.NewContextOptions()
+                .setViewportSize(1920, 1080));
+        page = context.newPage();
+        page.navigate(baseUrl);
+        page.waitForLoadState();
+        assertThat(page.locator("body")).isVisible();
+        String templateName = HtmlPrinter.Template.a4_overview.name();
+        page.getByLabel("Select Card Style:").selectOption(templateName);
+        page.getByLabel("Army Code, Sectorial or Option IDs:").fill("shindenbutai");
+
+
+        Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());
+
+        newPage.waitForLoadState();
+        byte[] actualImageBytes = newPage.screenshot(new Page.ScreenshotOptions()
+                .setFullPage(true));
+
+        String fileName = "by_sectorial_" + browser.browserType().name() + "_" + templateName;
+        File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
+
+        checkScreenshot(actualImageBytes, expectedFile, fileName);
     }
 
     @Test

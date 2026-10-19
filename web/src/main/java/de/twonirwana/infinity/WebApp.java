@@ -325,6 +325,11 @@ public class WebApp {
                 ctx.status(400).html("Invalid style: " + styleKey);
                 return;
             }
+            final Language language = getLanguage(ctx, registry);
+
+            Optional<Sectorial> sectorial = database.getAllSectorials(language).stream()
+                    .filter(s -> s.getName().equalsIgnoreCase(armyData) || s.getSlug().equalsIgnoreCase(armyData))
+                    .findFirst();
 
             List<String> unitIds = combinedIdMatcher(armyData);
 
@@ -351,15 +356,22 @@ public class WebApp {
                     getCheckboxValue(ctx, "showCombatGroupNumber"),
                     getCheckboxValue(ctx, "showAlwaysOptionFeatureInName"),
                     getCheckboxValue(ctx, "showOptionFeatureInNameToDifferentiate"),
-                    getLanguage(ctx, registry)
+                    language
             );
             final List<UnitOption> generated;
-            if (unitIds.isEmpty()) {
+            final CardListType cardListType;
+            if (sectorial.isPresent()) {
+                generated = printSectorial(ctx, startupTime, registry, contextPath,
+                        database, htmlPrinter, sectorial.get(), options);
+                cardListType = CardListType.SECTORIAL;
+            } else if (unitIds.isEmpty()) {
                 generated = printArmyCode(ctx, startupTime, registry, contextPath,
                         database, htmlPrinter, armyData, options);
+                cardListType = CardListType.ARMY_CODE;
             } else {
                 generated = printUnitOptionIds(ctx, startupTime, registry, contextPath,
                         database, htmlPrinter, unitIds, options);
+                cardListType = CardListType.UNIT_IDS;
             }
 
             if (!generated.isEmpty()) {
@@ -374,7 +386,8 @@ public class WebApp {
                         "showAmmo", String.valueOf(options.isShowAmmo()),
                         "showPs", String.valueOf(options.isShowPs()),
                         "showSavingRoll", String.valueOf(options.isShowSavingRoll()),
-                        "lang", options.getLanguage().getCode()
+                        "lang", options.getLanguage().getCode(),
+                        "type", cardListType.name()
                 ).increment();
             }
 
@@ -456,8 +469,16 @@ public class WebApp {
                                                        PrintOptions options) {
 
         try {
-            Stopwatch stopwatch = Stopwatch.createStarted();
+            String unitIdsHash = HashUtil.hash128Bit(String.join(",", unitOptionIds));
+            String fileName = getFileName(unitIdsHash, startupTime, options);
+            if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
+                log.debug("unitIds already exists: {} -> {}", unitOptionIds, fileName);
+                registry.counter("infinity.generate.existing").increment();
+                ctx.redirect(contextPath + "view/" + fileName);
+                return List.of();
+            }
 
+            Stopwatch stopwatch = Stopwatch.createStarted();
             Map<String, UnitOption> unitOptionById = database.getAllUnitOptions(options.getLanguage()).stream()
                     .collect(Collectors.toMap(UnitOption::getCombinedId, Function.identity()));
             List<UnitOption> unitOptions = unitOptionIds.stream()
@@ -465,8 +486,7 @@ public class WebApp {
                     .filter(Objects::nonNull)
                     .toList();
 
-            String unitIdsHash = HashUtil.hash128Bit(unitOptions.stream().map(UnitOption::getCombinedId).collect(Collectors.joining(",")));
-            String fileName = getFileName(unitIdsHash, startupTime, options);
+
             PrintData data = PrintData.of(database, unitOptions, null, null, options.getLanguage());
 
             PrintContext context = PrintContext.of(fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
@@ -479,6 +499,48 @@ public class WebApp {
             return unitOptions;
         } catch (Exception e) {
             ctx.status(400).html("Error read unitOptionIds: " + unitOptionIds);
+            return List.of();
+        }
+    }
+
+    private static List<UnitOption> printSectorial(Context ctx,
+                                                   final long startupTime,
+                                                   PrometheusMeterRegistry registry,
+                                                   String contextPath,
+                                                   Database database,
+                                                   HtmlPrinter htmlPrinter,
+                                                   Sectorial sectorial,
+                                                   PrintOptions options) {
+
+        try {
+            String fileName = getFileName(sectorial.getId() + "_" + sectorial.getSlug(), startupTime, options);
+
+            if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
+                log.debug("sectorial already exists: {} -> {}", sectorial.getSlug(), fileName);
+                registry.counter("infinity.generate.existing").increment();
+                ctx.redirect(contextPath + "view/" + fileName);
+                return List.of();
+            }
+            Stopwatch stopwatch = Stopwatch.createStarted();
+
+            List<UnitOption> unitOptions = database.getAllUnitOptions(options.getLanguage()).stream()
+                    .filter(u -> u.getSectorial().equals(sectorial))
+                    .filter(u -> !u.isMerc())
+                    .filter(u -> !u.isReinforcementUnit())
+                    .toList();
+
+            PrintData data = PrintData.of(database, unitOptions, null, null, options.getLanguage());
+
+            PrintContext context = PrintContext.of(fileName, CARD_FOLDER, CARD_IMAGE_FOLDER);
+
+            htmlPrinter.writeCards(data, context, options);
+            log.info("Created cards for sectorial: {} ; {} -> {}", unitOptions.getFirst().getSectorial().getSlug(), sectorial.getName(), fileName);
+
+            metricsTimer("infinity.generate.sectorial.new", stopwatch.elapsed(), registry);
+            ctx.redirect(contextPath + "view/" + fileName);
+            return unitOptions;
+        } catch (Exception e) {
+            ctx.status(400).html("Error read unitOptionIds: " + sectorial.getName());
             return List.of();
         }
     }
@@ -745,5 +807,11 @@ public class WebApp {
                 .publishPercentileHistogram(true)
                 .register(registry)
                 .record(duration);
+    }
+
+    private enum CardListType {
+        ARMY_CODE,
+        UNIT_IDS,
+        SECTORIAL
     }
 }
