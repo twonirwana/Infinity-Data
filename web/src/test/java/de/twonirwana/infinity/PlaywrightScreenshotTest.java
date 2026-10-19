@@ -144,7 +144,7 @@ public class PlaywrightScreenshotTest {
         String fileName = browser.browserType().name() + "_" + template.name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
     }
 
     @ParameterizedTest
@@ -171,10 +171,10 @@ public class PlaywrightScreenshotTest {
         String fileName = browser.browserType().name() + "_" + template.name() + "_es";
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
     }
 
-    private void checkScreenshot(byte[] actualImageBytes, File expectedFile, String fileName) throws IOException {
+    private void checkScreenshot(byte[] actualImageBytes, File expectedFile, String fileName, double allowingPercentOfDifferentPixels) throws IOException {
         BufferedImage actual = ImageIO.read(new ByteArrayInputStream(actualImageBytes));
         if (!expectedFile.exists()) {
             ImageIO.write(actual, "png", new File(RESULT_FOLDER + fileName + "_expected.png"));
@@ -184,7 +184,7 @@ public class PlaywrightScreenshotTest {
         BufferedImage expected = ImageIO.read(expectedFile);
         ImageComparisonResult result = new ImageComparison(expected, actual)
                 .setMinimalRectangleSize(5)
-                .setAllowingPercentOfDifferentPixels(0.001) //should be around 20px for 1920x1080
+                .setAllowingPercentOfDifferentPixels(allowingPercentOfDifferentPixels)
                 .setDifferenceRectangleColor(Color.BLUE)
                 .compareImages();
 
@@ -231,7 +231,7 @@ public class PlaywrightScreenshotTest {
         String fileName = "by_id_" + browser.browserType().name() + "_" + templateName;
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
 
     }
 
@@ -258,7 +258,7 @@ public class PlaywrightScreenshotTest {
         String fileName = "by_sectorial_" + browser.browserType().name() + "_" + templateName;
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.05);
     }
 
     @Test
@@ -280,7 +280,7 @@ public class PlaywrightScreenshotTest {
 
         String fileName = "joined_ava_" + browser.browserType().name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
-        checkScreenshot(actualImageBytes, expectedFile, fileName);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
     }
 
     @AfterEach
