@@ -302,10 +302,12 @@ public class DataLoader {
                 log.info("Saved updated unit csv to {}", fileName);
                 if (latestExistingFile.isPresent()) {
                     List<String> csvDiffs = CsvPrinter.compareCsv(latestExistingFile.get(), newFilePath);
-                    csvDiffs.forEach(log::info);
-                    String oldFileBaseName = FilenameUtils.getBaseName(latestExistingFile.get().getFileName().toString());
-                    String diffFileName = oldFileBaseName + "_to_" + baseFileName + ".csv";
-                    CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(diffFileName), language);
+                    if (!csvDiffs.isEmpty()) {
+                        csvDiffs.forEach(log::info);
+                        String oldFileBaseName = FilenameUtils.getBaseName(latestExistingFile.get().getFileName().toString());
+                        String diffFileName = oldFileBaseName + "_to_" + baseFileName + ".csv";
+                        CsvPrinter.saveDiffs(csvDiffs, Path.of(CSV_DIFF_LIST_PATH.formatted(language.getCode())).resolve(diffFileName), language);
+                    }
                 }
             } else {
                 log.info("Unit csv did not change");
