@@ -144,7 +144,7 @@ public class PlaywrightScreenshotTest {
         String fileName = browser.browserType().name() + "_" + template.name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.01);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
     }
 
     @ParameterizedTest
@@ -171,7 +171,7 @@ public class PlaywrightScreenshotTest {
         String fileName = browser.browserType().name() + "_" + template.name() + "_es";
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.01);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
     }
 
     private void checkScreenshot(byte[] actualImageBytes, File expectedFile, String fileName, double allowingPercentOfDifferentPixels) throws IOException {
@@ -231,7 +231,7 @@ public class PlaywrightScreenshotTest {
         String fileName = "by_id_" + browser.browserType().name() + "_" + templateName;
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
 
-        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.01);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
 
     }
 
@@ -280,7 +280,7 @@ public class PlaywrightScreenshotTest {
 
         String fileName = "joined_ava_" + browser.browserType().name();
         File expectedFile = new File("playwright/expected/" + fileName + "_expected.png");
-        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.01);
+        checkScreenshot(actualImageBytes, expectedFile, fileName, 0.001);
     }
 
     @AfterEach
