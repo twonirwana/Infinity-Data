@@ -27,38 +27,37 @@ import java.util.stream.Stream;
 @Slf4j
 public class HtmlPrinter {
 
-    //sed -n '/perfil_nombre\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors.txt
     private static final Map<Integer, String> SECTORIAL_COLORS = ImmutableMap.<Integer, String>builder()
-            .put(100, "#00b0f2")
-            .put(200, "#ff9000")
-            .put(300, "#007d27")
-            .put(400, "#e6da9b") //black header color
-            .put(500, "#ce181f")
-            .put(600, "#400b5f")
-            .put(700, "#afa7bc") //black header color
+            .put(100, "#009fe4")
+            .put(200, "#f1861d")
+            .put(300, "#14883a")
+            .put(400, "#f2e0b3") //black header color
+            .put(500, "#e30a14")
+            .put(600, "#7d4390")
+            .put(700, "#5458a1") //black header color
             .put(800, "#3b3b3b")
-            .put(900, "#728868")
-            .put(1000, "#005470")
-            .put(1100, "#a6112b")
+            .put(900, "#77b8a1")
+            .put(1000, "#2e2560")
+            .put(1100, "#e3f2f1") //black header color
             .build();
-    //sed -n '/perfil_habs\.facc_/ { N; s/.*facc_\([0-9]\+\).*background-color:\([^;}\s]\+\).*/\1 \2/p }' styles.css >> colors2nd.txt
     private static final Map<Integer, String> SECTORIAL_2ND_COLORS = ImmutableMap.<Integer, String>builder()
-            .put(100, "#006a91")
-            .put(200, "#995600")
-            .put(300, "#005825")
-            .put(400, "#8a835d")
-            .put(500, "#7c0e13")
-            .put(600, "#260739")
-            .put(700, "#696471")
-            .put(800, "#252525")
-            .put(900, "#44523e")
-            .put(1000, "#e7b128")//o12 need to be extracted with hand, the regex doesn't get it
-            .put(1100, "#757575")
+            .put(100, "#004665")
+            .put(200, "#864708")
+            .put(300, "#04190b")
+            .put(400, "#cf9e23")
+            .put(500, "#690509")
+            .put(600, "#311b39")
+            .put(700, "#282a4d")
+            .put(800, "#222")
+            .put(900, "#3c7360")
+            .put(1000, "#1c173b")
+            .put(1100, "#4ca49e")
             .build();
     //default is white but for this two colors not good readable
     private static final Map<Integer, String> HEADER_TEXT_COLOR = Map.of(
             400, "black",
-            700, "black"
+            700, "black",
+            1100, "black"
     );
     private static final Map<String, String> RANGE_CLASS_MAP = Map.of(
             "0", "range-0",

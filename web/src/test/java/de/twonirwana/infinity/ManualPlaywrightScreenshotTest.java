@@ -136,7 +136,7 @@ public class ManualPlaywrightScreenshotTest {
         page.waitForLoadState();
         assertThat(page.locator("body")).isVisible();
         page.getByLabel("Select Card Style:").selectOption(template.name());
-        page.getByLabel("Army Code or Option IDs:").fill(armyCode);
+        page.getByLabel("Army Code, Sectorial or Option IDs:").fill(armyCode);
 
 
         Page newPage = page.waitForPopup(() -> page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Generate and View Cards")).click());

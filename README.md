@@ -9,13 +9,13 @@ The default implementation creates the cards in the A4 ratio, so 9 cards can be 
 
 The cards for the army code:
 
-``hE0DanNhASCBLAIBAQAIAICQAQMAAICQAQQAAICTAQUAAIcZAQEAAIb%2FAQEAAIcZAQYAAICeAQIAAICeAQEAAgEABwCHHQEBAACHHAEDAACD6gEBAACApAECAACHIQECAACA3wEBAACAmAECAA%3D%3D``
+``gl0JbmV4dC13YXZlCk5leHQgV2F2ZSCBLAEBAQAIAIdHAQUAAACHOgEEAAAAh0UBBgAAAIdDAQEAAACHRAECAAAAh1QBCAAAAIdcAQIAAACHXgECAAA%3D``
 
 look like this:
 
 ![img.png](img.png)
 
-or as pdf: [JSA-inch.pdf](JSA-inch.pdf)
+or as pdf: [nextWave.pdf](nextWave.pdf)
 
 ## Overview
 
