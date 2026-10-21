@@ -327,9 +327,11 @@ public class WebApp {
             }
             final Language language = getLanguage(ctx, registry);
 
-            Optional<Sectorial> sectorial = database.getAllSectorials(language).stream()
-                    .filter(s -> s.getName().equalsIgnoreCase(armyData) || s.getSlug().equalsIgnoreCase(armyData))
-                    .findFirst();
+            final String lowCaseInput = armyData.toLowerCase().trim();
+
+            List<Sectorial> sectorial = database.getAllSectorials(language).stream()
+                    .filter(s -> s.getName().toLowerCase().contains(lowCaseInput) || s.getSlug().toLowerCase().contains(lowCaseInput))
+                    .toList();
 
             List<String> unitIds = combinedIdMatcher(armyData);
 
@@ -360,9 +362,19 @@ public class WebApp {
             );
             final List<UnitOption> generated;
             final CardListType cardListType;
-            if (sectorial.isPresent()) {
-                generated = printSectorial(ctx, startupTime, registry, contextPath,
-                        database, htmlPrinter, sectorial.get(), options);
+            if (!sectorial.isEmpty()) {
+                if (sectorial.size() > 1) {
+                    Map<String, Object> model = Map.of(
+                            "title", WebI18n.getMessage("non.unique.sectorial.title", language),
+                            "list", sectorial.stream().map(Sectorial::getName).toList(),
+                            "message", WebI18n.getMessage("non.unique.sectorial.message", language, armyData)
+                    );
+                    ctx.render("templates/table.html", model);
+                    generated = List.of();
+                } else {
+                    generated = printSectorial(ctx, startupTime, registry, contextPath,
+                            database, htmlPrinter, sectorial.getFirst(), options);
+                }
                 cardListType = CardListType.SECTORIAL;
             } else if (unitIds.isEmpty()) {
                 generated = printArmyCode(ctx, startupTime, registry, contextPath,
