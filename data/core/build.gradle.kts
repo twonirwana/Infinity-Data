@@ -22,9 +22,9 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.14.1")
     implementation("org.sejda.imageio:webp-imageio:0.1.6")
 
-    implementation("tools.jackson.core:jackson-core:3.2.3")
+    implementation("tools.jackson.core:jackson-core:3.2.4")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
-    implementation("tools.jackson.core:jackson-databind:3.2.3")
+    implementation("tools.jackson.core:jackson-databind:3.2.4")
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
