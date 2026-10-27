@@ -27,7 +27,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("com.microsoft.playwright:playwright:1.63.0")
+    testImplementation("com.microsoft.playwright:playwright:1.64.0")
     testImplementation("com.github.romankh3:image-comparison:4.4.0")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.testcontainers:testcontainers:2.0.5")
