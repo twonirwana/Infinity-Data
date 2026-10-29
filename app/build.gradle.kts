@@ -11,7 +11,7 @@ dependencies {
     implementation("org.apache.commons:commons-text:1.15.0")
 
     implementation("org.slf4j:slf4j-api:2.0.20")
-    implementation("ch.qos.logback:logback-classic:1.6.5")
+    implementation("ch.qos.logback:logback-classic:1.6.6")
     implementation("org.apache.commons:commons-csv:1.14.1")
     compileOnly("org.projectlombok:lombok:1.18.48")
     annotationProcessor("org.projectlombok:lombok:1.18.48")
