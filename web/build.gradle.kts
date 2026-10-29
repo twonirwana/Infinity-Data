@@ -17,7 +17,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":app"))
     implementation("org.slf4j:slf4j-api:2.0.20")
-    implementation("ch.qos.logback:logback-classic:1.6.5")
+    implementation("ch.qos.logback:logback-classic:1.6.6")
     compileOnly("org.projectlombok:lombok:1.18.48")
     annotationProcessor("org.projectlombok:lombok:1.18.48")
     implementation("com.google.guava:guava:33.7.2-jre")
