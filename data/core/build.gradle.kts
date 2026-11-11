@@ -24,7 +24,7 @@ dependencies {
 
     implementation("tools.jackson.core:jackson-core:3.3.0")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.23")
-    implementation("tools.jackson.core:jackson-databind:3.2.4")
+    implementation("tools.jackson.core:jackson-databind:3.3.0")
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
