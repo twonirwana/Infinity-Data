@@ -23,7 +23,7 @@ dependencies {
     implementation("org.sejda.imageio:webp-imageio:0.1.6")
 
     implementation("tools.jackson.core:jackson-core:3.2.4")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.23")
     implementation("tools.jackson.core:jackson-databind:3.2.4")
 
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
