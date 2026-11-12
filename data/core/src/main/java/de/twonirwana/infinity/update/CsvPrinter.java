@@ -1,8 +1,8 @@
 package de.twonirwana.infinity.update;
 
 import com.google.common.base.Strings;
-import de.twonirwana.infinity.DistanceUtil;
 import de.twonirwana.infinity.DataI18n;
+import de.twonirwana.infinity.DistanceUtil;
 import de.twonirwana.infinity.Language;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +126,7 @@ public class CsvPrinter {
                         .collect(Collectors.joining(", ")),
                 Optional.of(profile.getAvailability()).map(Objects::toString).orElse(""),
                 Optional.of(unitOption.getTotalCost()).map(Objects::toString).orElse(""),
-                unitOption.getTotalSpecialWeaponCost(),
+                unitOption.getTotalSpecialWeaponCost() + "",
                 skills,
                 equipment,
                 getPrimaryWeapon(profile),
@@ -286,6 +286,7 @@ public class CsvPrinter {
             printWriter.println(change_header);
             diffs.forEach(printWriter::println);
             printWriter.close();
+            log.info("Wrote diff to {}", out);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

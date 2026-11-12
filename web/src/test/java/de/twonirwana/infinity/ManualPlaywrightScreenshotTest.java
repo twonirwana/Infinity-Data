@@ -100,6 +100,7 @@ public class ManualPlaywrightScreenshotTest {
                 List.of("gfgIdHVuZ3Vza2EBIIEsAQEBAAMAhEMAAQAAhEMAAgAAhEMAAwA%3D", "Zondnautica_1091"),
                 List.of("gZEJaGFxcWlzbGFtASCBLAEBAQADAIF8AAEAAIF8AAIAAIF8AAMA", "Sacreface_380"),
                 List.of("gr8Kb3BlcmF0aW9ucwpKQSBCZXN0IG9mgSwBAQEAAgCCVQEBAACCVQIBAA%3D%3D", "Posthumans_703"),
+                List.of("gfYKY29ycmVnaWRvciRTdXJmYWNlIERpdmlzaW9uIEJvcmluZyBCYXNlbGluZSBJR0yBLAEBAQAIAIdoAQgAAACHaAEBAAAAh2gBAgAAAIdoAQgAAACHaAEJAAAAh2gDAQAAAIdoAwIAAACHaAMDAAA%3D", "Coyotes_1896"),
                 List.of("gS0HYXJpYWRuYQEggSwBAQEAAgCA6QEHAACEZwGQLAA%3D", "manyWeapons"),
                 List.of("glsKc2hhc3Zhc3RpaQEggSwBAQEABACFEwEBAACC5QEBAACB9gEIAACB9gEIAA%3D%3D", "allProgamms"),
                 List.of("glkNY29tYmluZWQtYXJteQEggSwBAQEAAgCC9AEBAAAAhIgBAQAA", "bootyAndMetaChemistry"),

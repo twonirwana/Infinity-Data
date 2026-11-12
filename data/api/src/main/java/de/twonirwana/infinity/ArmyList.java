@@ -3,6 +3,7 @@ package de.twonirwana.infinity;
 import de.twonirwana.infinity.unit.api.UnitOption;
 import lombok.Value;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,5 +21,12 @@ public class ArmyList {
                 .flatMap(Collection::stream)
                 .mapToInt(UnitOption::getTotalCost)
                 .sum();
+    }
+
+    public BigDecimal getTotalSwcCost() {
+        return combatGroups.values().stream()
+                .flatMap(Collection::stream)
+                .map(UnitOption::getTotalSpecialWeaponCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
