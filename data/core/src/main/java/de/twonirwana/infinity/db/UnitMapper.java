@@ -17,7 +17,9 @@ import de.twonirwana.infinity.model.specops.Spectables;
 import de.twonirwana.infinity.model.unit.*;
 import de.twonirwana.infinity.unit.api.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Function;
@@ -193,18 +195,18 @@ public class UnitMapper {
                     .toList());
         }
 
-        boolean hasIncludes = unit.getProfileGroups().stream()
-                .flatMap(p -> Stream.concat(
+        List<ProfileGroup> groupWithIncludes = unit.getProfileGroups().stream()
+                .filter(p -> Stream.concat(
                         //anaconda has includes in the profile
                         p.getProfiles().stream()
                                 .flatMap(pf -> pf.getIncludes().stream()),
                         p.getOptions().stream()
                                 .filter(o -> !o.isDisabled())
                                 .flatMap(pf -> pf.getIncludes().stream())
-                )).findAny().isPresent();
+                ).findAny().isPresent())
+                .toList();
 
-        if (hasIncludes) {
-            ProfileGroup primaryProfileGroup = unit.getProfileGroups().getFirst();
+        for (ProfileGroup primaryProfileGroup : groupWithIncludes) {
             result.addAll(primaryProfileGroup.getOptions().stream()
                     .filter(po -> !po.isDisabled())
                     .map(profileOption -> {
@@ -256,8 +258,28 @@ public class UnitMapper {
 
                     })
                     .toList());
+        }
 
-        } else {
+        Set<Integer> includesGroupIds = unit.getProfileGroups().stream()
+                .flatMap(p -> Stream.concat(
+                        //anaconda has includes in the profile
+                        p.getProfiles().stream()
+                                .flatMap(pf -> pf.getIncludes().stream()),
+                        p.getOptions().stream()
+                                .filter(o -> !o.isDisabled())
+                                .flatMap(pf -> pf.getIncludes().stream())
+                ))
+                .map(ProfileInclude::getGroup)
+                .collect(Collectors.toSet());
+
+
+        List<ProfileGroup> groupWithoutIncludes = unit.getProfileGroups().stream()
+                .filter(g -> !groupWithIncludes.contains(g))
+                .filter(g -> !includesGroupIds.contains(g.getId()))  //also not an include itself
+                .toList();
+
+
+        if (!groupWithoutIncludes.isEmpty()) {
             final List<Trooper> specBots;
             if (unit.getSpectables() == null) {
                 specBots = List.of();
@@ -280,7 +302,7 @@ public class UnitMapper {
             }
 
 
-            result.addAll(unit.getProfileGroups().stream()
+            result.addAll(groupWithoutIncludes.stream()
                     .flatMap(pg -> pg.getOptions().stream()
                             .filter(po -> !po.isDisabled())
                             .map(o -> {
@@ -335,7 +357,7 @@ public class UnitMapper {
                 trooper,
                 additionalTroopers,
                 totalCost,
-                totalSwc,
+                mapSwcCost(totalSwc),
                 unit.getNotes(),
                 reinforcement,
                 List.of(),
@@ -343,6 +365,23 @@ public class UnitMapper {
                 specBall,
                 List.of()
         );
+    }
+
+    private static BigDecimal mapSwcCost(String swc) {
+        if (StringUtils.isBlank(swc) || "-".equals(swc)) {
+            return BigDecimal.ZERO;
+        }
+        if (swc.startsWith("+")) {
+            return new BigDecimal(swc.substring(1)).negate();
+        } else {
+            try {
+                return new BigDecimal(swc);
+            } catch (NumberFormatException e) {
+                log.error("swc in unknown format: {}", swc);
+                return BigDecimal.ZERO;
+            }
+        }
+
     }
 
     private static List<ModifierOption> mapSpectables(ItemGroup itemGroup,
@@ -617,7 +656,7 @@ public class UnitMapper {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.CC;
         } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (PH)") || weapon.getProperties().contains("Arma CD (FIS)"))) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.PH;
-        } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (WIP)")|| weapon.getProperties().contains("Arma CD (VOL)"))) {
+        } else if (weapon.getProperties() != null && (weapon.getProperties().contains("BS Weapon (WIP)") || weapon.getProperties().contains("Arma CD (VOL)"))) {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.WIP;
         } else {
             weaponSkill = de.twonirwana.infinity.unit.api.Weapon.Skill.BS;
@@ -904,7 +943,7 @@ public class UnitMapper {
                 optionId,
                 profileOption.getName(),
                 category,
-                profileOption.getSwc(),
+                mapSwcCost(profileOption.getSwc()),
                 profileOption.getPoints(),
                 trooperProfiles,
                 peripheral,

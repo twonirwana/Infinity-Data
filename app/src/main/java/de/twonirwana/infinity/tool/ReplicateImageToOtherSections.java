@@ -11,9 +11,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ReplicateImageToOtherSections {
+
+    private static final Pattern FILE_PATTERN = Pattern.compile("^\\d+-\\d+-\\d+-\\d+-\\d+\\.png$");
 
     static void main() throws IOException {
         Database db = DatabaseImp.createTimedUpdate("out/html/card/image/");
@@ -23,6 +26,9 @@ public class ReplicateImageToOtherSections {
                 .toList();
 
         String out = "";
+        if(!out.endsWith("\\")){
+            out = out + "\\";
+        }
         if (!java.nio.file.Files.exists(Path.of(out))) {
             try {
                 java.nio.file.Files.createDirectories(Path.of(out));
@@ -31,10 +37,15 @@ public class ReplicateImageToOtherSections {
             }
         }
 
-        File inputFolder = new File("");
+        File inputFolder = new File(out);
 
         for (File file : inputFolder.listFiles()) {
             String fileName = file.getName();
+
+            if (!isValidFilename(fileName)) {
+                throw new RuntimeException("Invalid file name: " + fileName);
+            }
+
             String id = fileName.substring(fileName.indexOf("-") + 1, fileName.length() - 4);
             int sectorialId = Integer.parseInt(fileName.substring(0, fileName.indexOf("-")));
 
@@ -50,6 +61,13 @@ public class ReplicateImageToOtherSections {
 
             }
         }
+    }
+
+    public static boolean isValidFilename(String filename) {
+        if (filename == null) {
+            return false;
+        }
+        return FILE_PATTERN.matcher(filename).matches();
     }
 
     private static String combinedIdWithoutSectorial(TrooperProfile trooperProfile) {

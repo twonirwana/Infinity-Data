@@ -4,6 +4,7 @@ import de.twonirwana.infinity.Sectorial;
 import lombok.NonNull;
 import lombok.Value;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -20,7 +21,7 @@ public class Trooper {
 
     String category;
 
-    String specialWeaponCost;
+    BigDecimal specialWeaponCost;
     int cost;
 
     //some troopers with transformation etc have mutlipe profiles

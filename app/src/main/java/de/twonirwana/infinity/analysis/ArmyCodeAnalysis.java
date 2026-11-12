@@ -39,7 +39,7 @@ public class ArmyCodeAnalysis {
                 .stream()
                 .sorted(Comparator.comparing(e -> e.getKey().getId()))
                 //.filter(e -> e.getKey().getParentId() == 601)
-                // .filter(e -> e.getKey().getId() == 602)
+                .filter(e -> e.getKey().getId() == 905)
                 .forEach(entry -> {
                     System.out.println(entry.getKey().getName() + ": " + entry.getValue().size());
                     double rOrder = entry.getValue().stream()
@@ -49,7 +49,7 @@ public class ArmyCodeAnalysis {
                                     .filter(o -> o.getType() == Order.Type.REGULAR)
                                     .mapToLong(Order::getTotal)
                                     .sum()
-                            ).average().getAsDouble();
+                            ).average().orElse(0d);
                     double iOrder = entry.getValue().stream()
                             .mapToLong(a -> a.getCombatGroups().values().stream()
                                     .flatMap(Collection::stream)
@@ -57,7 +57,7 @@ public class ArmyCodeAnalysis {
                                     .filter(o -> o.getType() == Order.Type.IRREGULAR)
                                     .mapToLong(Order::getTotal)
                                     .sum()
-                            ).average().getAsDouble();
+                            ).average().orElse(0d);
                     double lOrder = entry.getValue().stream()
                             .mapToLong(a -> a.getCombatGroups().values().stream()
                                     .flatMap(Collection::stream)
@@ -65,7 +65,7 @@ public class ArmyCodeAnalysis {
                                     .filter(o -> o.getType() == Order.Type.LIEUTENANT)
                                     .mapToLong(Order::getTotal)
                                     .sum()
-                            ).average().getAsDouble();
+                            ).average().orElse(0d);
                     double tOrder = entry.getValue().stream()
                             .mapToLong(a -> a.getCombatGroups().values().stream()
                                     .flatMap(Collection::stream)
@@ -73,7 +73,7 @@ public class ArmyCodeAnalysis {
                                     .filter(o -> o.getType() == Order.Type.TACTICAL)
                                     .mapToLong(Order::getTotal)
                                     .sum()
-                            ).average().getAsDouble();
+                            ).average().orElse(0d);
                     System.out.printf("\tTOTAL: %s, REGULAR: %s, IRREGULAR: %s, LIEUTENANT: %s, TACTICAL: %s %n", (rOrder + iOrder + lOrder + tOrder), rOrder, iOrder, lOrder, tOrder);
 
 
@@ -84,7 +84,7 @@ public class ArmyCodeAnalysis {
                             .collect(Collectors.groupingBy(UnitOption::getCombinedId));
                     unitOptions.values().stream()
                             .sorted(Comparator.comparingLong((ToLongFunction<List<UnitOption>>) List::size).reversed())
-                            .limit(5)
+                            .limit(10)
                             .forEach(s -> System.out.printf("\t%s: %s %s%n", s.size() / (float) entry.getValue().size(), s.getFirst().getIsc(), s.getFirst().getOptionFeatures().stream()
                                     .map(ArmyCodeAnalysis::printWithOptionalExtra)
                                     .toList()));

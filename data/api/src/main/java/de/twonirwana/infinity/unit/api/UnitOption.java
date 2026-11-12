@@ -4,6 +4,7 @@ import de.twonirwana.infinity.Sectorial;
 import lombok.NonNull;
 import lombok.Value;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,7 +36,7 @@ public class UnitOption implements Comparable<UnitOption> {
     List<Trooper> additionalUnits;
     int totalCost;
     //todo ggf list of faction where the unit is also aka Unit.factions
-    String totalSpecialWeaponCost;
+    BigDecimal totalSpecialWeaponCost;
     String note;
     boolean reinforcementUnit;
     List<OptionFeature> optionFeatures;
