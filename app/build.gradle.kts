@@ -16,7 +16,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.48")
     annotationProcessor("org.projectlombok:lombok:1.18.48")
     implementation("com.google.guava:guava:33.8.0-jre")
-    implementation("org.thymeleaf:thymeleaf:3.1.5.RELEASE")
+    implementation("org.thymeleaf:thymeleaf:3.1.6.RELEASE")
 
     implementation("com.twelvemonkeys.imageio:imageio-core:3.15.3")
     implementation("com.twelvemonkeys.imageio:imageio-metadata:3.15.3")
