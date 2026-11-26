@@ -33,6 +33,10 @@ public interface Database {
 
     FireteamChart getFireteamChart(Sectorial sectorial, Language language);
 
+    static String extractArmyCode(String input) {
+        return input == null ? null : input.trim().replaceFirst("^(?i)(?:https?://)?(?:www\\.)?infinity(?:the)?universe\\.com/army/list/", "");
+    }
+
     record ValidationError(int unitId, int groupId, int optionId, @NonNull String name, @NonNull String error) {
     }
 }

@@ -592,7 +592,7 @@ public final class ArmyCodeLoader {
         if (armyCode == null) {
             throw new IllegalArgumentException("armyCode cannot be null");
         }
-        String trimmed = armyCode.trim();
+        String trimmed = Database.extractArmyCode(armyCode);
         if (trimmed.isEmpty()) {
             throw new IllegalArgumentException("armyCode cannot be empty");
         }
