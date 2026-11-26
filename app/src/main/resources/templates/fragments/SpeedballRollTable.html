@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<body>
+
+<div th:fragment="speedballRollFragment()">
+    <div class="card">
+        <div class="card-content">
+
+            <div class="card-header">
+                <h2 class="card-header-title" th:text="#{speedball.title}">Speedball</h2>
+            </div>
+            <table class="speedball">
+                <thead>
+                <tr>
+                    <th th:text="#{table.roll}">Roll</th>
+                    <th th:text="#{table.item}">Item</th>
+                    <th th:text="#{table.roll}">Roll</th>
+                    <th th:text="#{table.item}">Item</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1-3</td>
+                    <td>VitaPack</td>
+                    <td>11-13</td>
+                    <td>Jetpack (S:2)</td>
+                </tr>
+                <tr>
+                    <td>4-6</td>
+                    <td>AutoRepairS</td>
+                    <td>14-16</td>
+                    <td>Overkill</td>
+                </tr>
+                <tr>
+                    <td>7-10</td>
+                    <td>Switch On</td>
+                    <td>17-20</td>
+                    <td th:text="#{speedball.item.nanoshield}">NanoShield</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

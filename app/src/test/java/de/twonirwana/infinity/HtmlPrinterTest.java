@@ -183,7 +183,7 @@ public class HtmlPrinterTest {
 
     @ParameterizedTest
     @MethodSource("generateTestData")
-    void testHtml(PrintOptions options) {
+    void testHtml(PrintOptions options) throws Exception {
         fileName = "testFile_" + System.currentTimeMillis();
         PrintData data = new PrintData(List.of(unitOption),
                 List.of(hackingProgram),
@@ -202,7 +202,17 @@ public class HtmlPrinterTest {
                 options
         );
 
-        assertThat(new File("out/html/" + fileName + ".html")).exists();
+        File outFile = new File("out/html/" + fileName + ".html");
+        assertThat(outFile).exists();
+        if (options.getTemplate() != HtmlPrinter.Template.card_bw) {
+            String html = Files.readString(outFile.toPath(), StandardCharsets.UTF_8);
+            assertThat(html)
+                    .contains("<table class=\"speedball\">")
+                    .contains("1-3", "VitaPack", "4-6", "AutoRepairS", "7-10", "Switch On",
+                            "11-13", "Jetpack (S:2)", "14-16", "Overkill", "17-20")
+                    .contains(options.getLanguage() == Language.Spanish ? "NanoEscudo" : "NanoShield")
+                    .contains(options.getLanguage() == Language.Spanish ? "Elemento" : "Item");
+        }
     }
 
     @Test
