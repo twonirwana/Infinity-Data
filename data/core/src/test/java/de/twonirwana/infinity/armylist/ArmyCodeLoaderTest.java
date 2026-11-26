@@ -328,4 +328,17 @@ class ArmyCodeLoaderTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "https://infinitytheuniverse.com/army/list/",
+            "http://infinitytheuniverse.com/army/list/",
+            "https://www.infinitytheuniverse.com/army/list/",
+            "https://infinityuniverse.com/army/list/"
+    })
+    void testArmyCodeWithUrlPrefix(String urlPrefix) {
+        String bareCode = "glkNY29tYmluZWQtYXJteRJDYXNrdWRhICsgVGVhbU9wcyCBLAIBAQAKAIIPAQEAAACCDwEBAAAAgw8BCQAAAIMPAQUAAACG4wEEAAAAhlgBAQAAAIH%2FAQEAAACCFAEBAAAAghQBAQAAAIH4AQQAAAIBAAUAguUBAQAAAIH9AQMAAACHjAMBAAEBG1t7InR5cGUiOiJza2lsbCIsImlkIjoyMTN9XQCHjAICAAEBG1t7InR5cGUiOiJlcXVpcCIsImlkIjoxMTR9XQCHjAEDAAEBI1t7InR5cGUiOiJzdGF0Iiwic3RhdCI6ImJzIiwicSI6MX1d";
+        assertThat(ArmyCodeLoader.mapArmyCode(urlPrefix + bareCode))
+                .isEqualTo(ArmyCodeLoader.mapArmyCode(bareCode));
+    }
+
 }

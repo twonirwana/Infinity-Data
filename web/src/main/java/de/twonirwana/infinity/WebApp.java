@@ -449,7 +449,7 @@ public class WebApp {
                                                   HtmlPrinter htmlPrinter,
                                                   String armyCode,
                                                   PrintOptions options) throws IOException {
-        armyCode = armyCode.trim();
+        armyCode = Database.extractArmyCode(armyCode);
         String armyCodeHash = HashUtil.hash128Bit(armyCode);
         String fileName = getFileName(armyCodeHash, startupTime, options);
         if (Config.getBool("reuseHtml", true) && Files.exists(Path.of(CARD_FOLDER).resolve(fileName + ".html"))) {
@@ -739,7 +739,7 @@ public class WebApp {
         return Stream.of(input1, input2, input3)
                 .filter(Objects::nonNull)
                 .flatMap(s -> Stream.of(s.split(",")))
-                .map(String::trim)
+                .map(Database::extractArmyCode)
                 .filter(s -> !Strings.isNullOrEmpty(s))
                 .toList();
     }
