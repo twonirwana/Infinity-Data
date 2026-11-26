@@ -6,17 +6,25 @@ import de.twonirwana.infinity.fireteam.FireteamChartTeam;
 import de.twonirwana.infinity.unit.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -195,6 +203,56 @@ public class HtmlPrinterTest {
         );
 
         assertThat(new File("out/html/" + fileName + ".html")).exists();
+    }
+
+    @Test
+    void concurrentWritesProduceCompleteHtmlAndNoTempFiles() throws Exception {
+        fileName = "concurrentTest_" + System.currentTimeMillis();
+        PrintData data = new PrintData(List.of(unitOption),
+                List.of(hackingProgram),
+                martialArtLevels,
+                bootyRolls,
+                metaChemistryRolls,
+                fireteamChart,
+                armyList,
+                "");
+        PrintOptions options = new PrintOptions(
+                true, true, false, Set.of(Weapon.Type.WEAPON),
+                true, true, true, true,
+                HtmlPrinter.Template.a4_image, false, false,
+                true, true, true, true, true, true, true, true, true, true, true,
+                Language.English
+        );
+        Path tempOutDir = Files.createTempDirectory("html-printer-atomic-test");
+        try (ExecutorService pool = Executors.newFixedThreadPool(4)) {
+            PrintContext context = new PrintContext(fileName, tempOutDir.toString(), tempOutDir.resolve("image").toString());
+            List<Callable<Void>> tasks = new ArrayList<>();
+            for (int i = 0; i < 8; i++) {
+                tasks.add(() -> {
+                    underTest.writeCards(data, context, options);
+                    return null;
+                });
+            }
+            for (Future<Void> future : pool.invokeAll(tasks)) {
+                future.get();
+            }
+
+            Path outputFile = tempOutDir.resolve(fileName + ".html");
+            assertThat(outputFile).exists();
+            String html = Files.readString(outputFile, StandardCharsets.UTF_8);
+            assertThat(html).startsWith("<!DOCTYPE html>").contains("</html>");
+
+            try (Stream<Path> files = Files.list(tempOutDir)) {
+                List<String> tmpFiles = files.map(p -> p.getFileName().toString())
+                        .filter(name -> name.endsWith(".tmp"))
+                        .toList();
+                assertThat(tmpFiles).isEmpty();
+            }
+        } finally {
+            Files.deleteIfExists(tempOutDir.resolve(fileName + ".html"));
+            Files.deleteIfExists(tempOutDir.resolve("image"));
+            Files.deleteIfExists(tempOutDir);
+        }
     }
 
     @AfterEach

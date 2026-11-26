@@ -20,7 +20,9 @@ dependencies {
     implementation("io.avaje:avaje-config:5.2")
     implementation("io.avaje:avaje-applog-slf4j:1.2")
     implementation("org.apache.commons:commons-csv:1.14.1")
-    implementation("org.sejda.imageio:webp-imageio:0.1.6")
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.15.3")
+    implementation("com.twelvemonkeys.imageio:imageio-metadata:3.15.3")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.15.3")
 
     implementation("tools.jackson.core:jackson-core:3.3.0")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.23")

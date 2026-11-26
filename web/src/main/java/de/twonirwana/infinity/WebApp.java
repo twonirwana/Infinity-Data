@@ -35,6 +35,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,6 +63,9 @@ public class WebApp {
     private final static Path MISSING_UNIT_ARMY_CODE_FILE = Path.of("missing_unit_army_code.csv"); //not in out because it should not be archived
     private final static Set<String> ARMY_CODES = new ConcurrentSkipListSet<>();
     private static final Pattern COMBINED_ID_PATERN = Pattern.compile("\\d+-\\d+-\\d+-\\d+");
+    private static final Pattern SAFE_CARD_KEY_PATTERN = Pattern.compile("[A-Za-z0-9_-]+");
+    private static final String DEFAULT_CSP = "default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
+    private static final String STATIC_IMAGE_CSP = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
 
     static void main() {
         int port = Config.getInt("server.port", 7070);
@@ -101,17 +105,33 @@ public class WebApp {
         templateEngine.setTemplateResolver(resolver);
         templateEngine.addMessageResolver(new GlobalMessageResolver("messages"));
 
+        String normalizedContextPath = contextPath.endsWith("/") ? contextPath : contextPath + "/";
+        String staticImagePathPrefix = normalizedContextPath + "view/image/";
+
         return Javalin.create(config -> {
             config.staticFiles.add(staticFileConfig -> {
                         staticFileConfig.hostedPath = "/view/image";
                         staticFileConfig.directory = CARD_IMAGE_FOLDER;
                         staticFileConfig.location = Location.EXTERNAL;
+                        staticFileConfig.headers = Map.of(
+                                "Content-Security-Policy", STATIC_IMAGE_CSP,
+                                "X-Content-Type-Options", "nosniff",
+                                "X-Frame-Options", "DENY",
+                                "Referrer-Policy", "no-referrer"
+                        );
                     }
             );
             config.fileRenderer(new LocalizedThymeleafRenderer(templateEngine));
 
             config.router.contextPath = contextPath;
             config.registerPlugin(micrometerPlugin);
+            config.routes.before(ctx -> {
+                ctx.header("X-Content-Type-Options", "nosniff");
+                ctx.header("X-Frame-Options", "DENY");
+                ctx.header("Referrer-Policy", "no-referrer");
+                ctx.header("Content-Security-Policy",
+                        ctx.path().startsWith(staticImagePathPrefix) ? STATIC_IMAGE_CSP : DEFAULT_CSP);
+            });
             config.routes.get("/favicon.ico", ctx -> {
                 ctx.contentType("image/x-icon");
                 Optional.ofNullable(WebApp.class.getResourceAsStream("/favicon.ico")).ifPresent(ctx::result);
@@ -145,7 +165,7 @@ public class WebApp {
             try {
                 String filename = latestCsv.get().getFileName().toString();
                 ctx.header("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-                ctx.contentType("text/csv");
+                ctx.contentType("text/csv; charset=utf-8");
 
                 InputStream fileStream = Files.newInputStream(latestCsv.get());
                 ctx.result(fileStream);
@@ -226,15 +246,21 @@ public class WebApp {
     private static void viewCardPage(JavalinConfig config, PrometheusMeterRegistry registry) {
         config.routes.get("/view/{armyCodeHash}", ctx -> {
             String armyCodeHash = ctx.pathParam("armyCodeHash");
-            Path OUTPUT_DIR = Path.of(CARD_FOLDER);
-            Path filePath = OUTPUT_DIR.resolve(armyCodeHash + ".html");
+            if (!SAFE_CARD_KEY_PATTERN.matcher(armyCodeHash).matches()) {
+                registry.counter("infinity.view.not.found").increment();
+                ctx.status(HttpStatus.BAD_REQUEST).result("Invalid card key.");
+                return;
+            }
 
-            if (Files.exists(filePath)) {
+            Path baseDir = Path.of(CARD_FOLDER).toAbsolutePath().normalize();
+            Path filePath = baseDir.resolve(armyCodeHash + ".html").normalize();
+
+            if (filePath.startsWith(baseDir) && Files.isRegularFile(filePath)) {
                 registry.counter("infinity.view").increment();
-                ctx.html(Files.readString(filePath));
-
+                ctx.html(Files.readString(filePath, StandardCharsets.UTF_8));
             } else {
                 registry.counter("infinity.view.not.found").increment();
+                ctx.status(HttpStatus.NOT_FOUND);
                 Map<String, Object> model = Map.of(
                         "title", "Invalid Link",
                         "list", List.of(),
@@ -310,7 +336,7 @@ public class WebApp {
             registry.counter("infinity.generate.called").increment();
             String armyData = ctx.queryParam("armyData");
             if (Strings.isNullOrEmpty(armyData)) {
-                ctx.status(400).html("Missing Army Code");
+                ctx.status(400).result("Missing Army Code");
                 return;
             }
 
@@ -322,7 +348,7 @@ public class WebApp {
                     .findFirst();
             if (styleOptional.isEmpty()) {
                 log.error("Invalid styleKey '{}' in '{}'", styleKey, ctx.queryString());
-                ctx.status(400).html("Invalid style: " + styleKey);
+                ctx.status(400).result("Invalid style");
                 return;
             }
             final Language language = getLanguage(ctx, registry);
@@ -466,7 +492,7 @@ public class WebApp {
             log.error("Error read army code: {}", armyCode, e);
             registry.counter("infinity.error.army.code").increment();
             Files.writeString(INVALID_ARMY_CODE_FILE, armyCode + "\n", StandardOpenOption.APPEND);
-            ctx.status(400).html("Error read army code: " + armyCode);
+            ctx.status(400).result("Error reading army code");
             return List.of();
         }
     }
@@ -510,7 +536,7 @@ public class WebApp {
             ctx.redirect(contextPath + "view/" + fileName);
             return unitOptions;
         } catch (Exception e) {
-            ctx.status(400).html("Error read unitOptionIds: " + unitOptionIds);
+            ctx.status(400).result("Error reading unitOptionIds");
             return List.of();
         }
     }
@@ -552,7 +578,7 @@ public class WebApp {
             ctx.redirect(contextPath + "view/" + fileName);
             return unitOptions;
         } catch (Exception e) {
-            ctx.status(400).html("Error read unitOptionIds: " + sectorial.getName());
+            ctx.status(400).result("Error reading sectorial");
             return List.of();
         }
     }
@@ -679,6 +705,7 @@ public class WebApp {
                 registry.counter("infinity.downloadCsv", Tags.of("file", filename)).increment();
                 log.info("{} have been downloaded.", filename);
                 ctx.header("Content-Disposition", "attachment; filename=\"" + file.get().getFileName() + "\"");
+                ctx.contentType("text/csv; charset=utf-8");
                 ctx.result(Files.newInputStream(file.get()));
             } else {
                 ctx.status(HttpStatus.NOT_FOUND).result("File not found.");

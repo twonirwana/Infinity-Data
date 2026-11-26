@@ -13,10 +13,13 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -89,6 +92,8 @@ public class HtmlPrinter {
             196, //Shock Mine
             63 //Viral Mine
     );
+    private static final Object MOVE_LOCK = new Object();
+
     private final TemplateEngine templateEngine;
     private final Supplier<LocalDateTime> currentTimeSupplier;
 
@@ -264,11 +269,32 @@ public class HtmlPrinter {
         context.setVariable("allowedFireteams", allowedFireteams);
         context.setVariable("currentDate", currentTimeSupplier.get().toLocalDate().toString());
         context.setLocale(options.getLanguage().getLocale());
-        String savePath = "%s/%s.html".formatted(outputPath, printContext.getFileName());
-        try (FileWriter writer = new FileWriter(savePath)) {
-            templateEngine.process(options.getTemplate().fileName, context, writer);
+        Path targetDir = Path.of(outputPath);
+        Path targetPath = targetDir.resolve(printContext.getFileName() + ".html");
+        Path tempFile = null;
+        try {
+            tempFile = Files.createTempFile(targetDir, "card-", ".tmp");
+            try (BufferedWriter writer = Files.newBufferedWriter(tempFile, StandardCharsets.UTF_8)) {
+                templateEngine.process(options.getTemplate().fileName, context, writer);
+            }
+            synchronized (MOVE_LOCK) {
+                try {
+                    Files.move(tempFile, targetPath, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                } catch (AtomicMoveNotSupportedException e) {
+                    Files.move(tempFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+            tempFile = null;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException cleanupEx) {
+                    log.warn("Failed to delete temporary file: {}", tempFile, cleanupEx);
+                }
+            }
         }
     }
 
