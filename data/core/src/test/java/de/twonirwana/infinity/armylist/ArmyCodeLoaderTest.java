@@ -3,14 +3,20 @@ package de.twonirwana.infinity.armylist;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +24,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ArmyCodeLoaderTest {
 
@@ -215,6 +222,110 @@ class ArmyCodeLoaderTest {
                 .map(ArmyCodeLoader.CombatGroupMember::modifier)
                 .flatMap(Collection::stream))
                 .allMatch(ArmyCodeLoader::canMapModifier);
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"   ", "not-valid-base64!!!", "%ZZinvalid", "AQ=="})
+    void testInvalidArmyCodesThrowIllegalArgumentException(String invalidCode) {
+        assertThatThrownBy(() -> ArmyCodeLoader.mapArmyCode(invalidCode))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void testTruncatedStringHeaderThrowsIllegalArgumentException() {
+        // sectorialId=101, sectorialNameLength=50, but only 2 bytes follow
+        String truncated = Base64.getEncoder().encodeToString(new byte[]{101, 50, 'a', 'b'});
+        assertThatThrownBy(() -> ArmyCodeLoader.mapArmyCode(truncated))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sectorialName");
+    }
+
+    @Test
+    void testTrailingGarbageBytesAreRejected() {
+        String validCode = "gfUGbm9tYWRzASCBLAEBAQACAIbiAQEAAIGeAQEA";
+        byte[] validBytes = Base64.getDecoder().decode(validCode);
+        byte[] withTrailingGarbage = new byte[validBytes.length + 2];
+        System.arraycopy(validBytes, 0, withTrailingGarbage, 0, validBytes.length);
+        withTrailingGarbage[validBytes.length] = 99;
+        withTrailingGarbage[validBytes.length + 1] = 42;
+
+        String corrupted = Base64.getEncoder().encodeToString(withTrailingGarbage);
+        assertThatThrownBy(() -> ArmyCodeLoader.mapArmyCode(corrupted))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void testWhitespaceTrimmingAndMixedPlusWithPercentEncoding() {
+        // Code with literal '+' (from morat list containing '%2B') and '%3D' padding
+        String baseCode = "gloFbW9yYXQhIE1vcmF0cyAzMDBwdCAtIFNpbmdsZSBTb2dlcmF0IHYygSwCAQEACgCCCgEFAACCBgEDAACGJAEBAACCEwEBAACB+QEBAACB+QEBAACB+QEBAACB/QECAACB+AEFAACCBwECAAIBAAUAgfEBBwAAgfEBCwAAhicBBAAAghQBAQAAgfgBBQA%3D";
+        ArmyCodeLoader.ArmyCodeData decoded = ArmyCodeLoader.mapArmyCode("  " + baseCode + "\n");
+        assertThat(decoded.sectorialId()).isEqualTo(602);
+        assertThat(decoded.combatGroups()).hasSize(2);
+    }
+
+    @Test
+    void testClassicSpecOpsNotLastInCombatGroup() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        // Header: sectorialId=106, sectorialName="test", armyName="", maxPoints=123, combatGroupCount=1
+        out.write(106);
+        out.write(4);
+        out.writeBytes("test".getBytes(StandardCharsets.UTF_8));
+        out.write(0);
+        out.write(123);
+        out.write(1);
+        // Group 1: groupNumber=1, version=1, reinforcement=0, size=2
+        out.write(1);
+        out.write(1);
+        out.write(0);
+        out.write(2);
+        // Member 1: classic Spec-Ops (slot=0, unit=1, group=1, option=7, classicFlag=1, 8 fixed ints + 4 empty lists)
+        out.writeBytes(new byte[]{0, 1, 1, 7, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0});
+        // Member 2: regular trooper (slot=0, unit=5, group=1, option=3, classicFlag=0)
+        out.writeBytes(new byte[]{0, 5, 1, 3, 0});
+
+        String code = Base64.getEncoder().encodeToString(out.toByteArray());
+        ArmyCodeLoader.ArmyCodeData res = ArmyCodeLoader.mapArmyCode(code);
+        assertThat(res.combatGroups().get(1))
+                .extracting(ArmyCodeLoader.CombatGroupMember::toString)
+                .containsExactly("1-1-7", "5-1-3");
+    }
+
+    @Test
+    void testCanMapModifierHandlesInvalidInputs() {
+        assertThat(ArmyCodeLoader.canMapModifier("[{\"type\":\"skill\",\"id\":213}]")).isTrue();
+        assertThat(ArmyCodeLoader.canMapModifier(null)).isFalse();
+        assertThat(ArmyCodeLoader.canMapModifier("")).isFalse();
+        assertThat(ArmyCodeLoader.canMapModifier("null")).isFalse();
+        assertThat(ArmyCodeLoader.canMapModifier("[]")).isFalse();
+        assertThat(ArmyCodeLoader.canMapModifier("[{}]")).isFalse();
+        assertThat(ArmyCodeLoader.canMapModifier("[{\"type\":\"\"}]")).isFalse();
+        assertThat(ArmyCodeLoader.canMapModifier("not-json")).isFalse();
+    }
+
+    @Test
+    void testMalformedModifierJsonIsRejectedDuringParsing() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        // Header: sectorialId=605, sectorialName="test", armyName="", maxPoints=300, combatGroupCount=1
+        out.write(605 >> 8 | 0x80);
+        out.write(605 & 0xFF);
+        out.write(4);
+        out.writeBytes("test".getBytes(StandardCharsets.UTF_8));
+        out.write(0);
+        out.write(300 >> 8 | 0x80);
+        out.write(300 & 0xFF);
+        out.write(1);
+        // Group 1: groupNumber=1, version=1, reinforcement=0, size=1
+        out.writeBytes(new byte[]{1, 1, 0, 1});
+        // Member with modifierFlag=1, modifierCount=1, malformed JSON that still starts with '[' and contains '"type"'
+        byte[] malformedJson = "[\"type\":broken".getBytes(StandardCharsets.UTF_8);
+        out.writeBytes(new byte[]{0, 10, 1, 1, 0, 1, 1});
+        out.write(malformedJson.length);
+        out.writeBytes(malformedJson);
+
+        String code = Base64.getEncoder().encodeToString(out.toByteArray());
+        assertThatThrownBy(() -> ArmyCodeLoader.mapArmyCode(code))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
 }
