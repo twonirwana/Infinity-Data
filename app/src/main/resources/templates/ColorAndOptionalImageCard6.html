@@ -308,6 +308,13 @@
             text-align: center;
         }
 
+        /* Speedball Fragment styles*/
+
+        .speedball th, .speedball td {
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
         /* specBall Fragment styles*/
 
         .specBall th, .specBall td {
@@ -471,6 +478,9 @@
             th:replace="~{fragments/SpecBall :: specBallFragment(${specball})}">
     </th:block>
 </div>
+<th:block
+        th:replace="~{fragments/SpeedballRollTable :: speedballRollFragment()}">
+</th:block>
 <th:block
         th:replace="~{fragments/ArmyList :: armyListFragment()}">
 </th:block>
